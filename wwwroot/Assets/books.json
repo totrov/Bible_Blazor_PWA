@@ -1,0 +1,398 @@
+[
+    {
+        "Color": "#ccccff",
+        "Id": 10,
+        "Name": "Бытие",
+        "ShortName": "Быт"
+    },
+    {
+        "Color": "#ccccff",
+        "Id": 20,
+        "Name": "Исход",
+        "ShortName": "Исх"
+    },
+    {
+        "Color": "#ccccff",
+        "Id": 30,
+        "Name": "Левит",
+        "ShortName": "Лев"
+    },
+    {
+        "Color": "#ccccff",
+        "Id": 40,
+        "Name": "Числа",
+        "ShortName": "Чис"
+    },
+    {
+        "Color": "#ccccff",
+        "Id": 50,
+        "Name": "Второзаконие",
+        "ShortName": "Втор"
+    },
+    {
+        "Color": "#ffcc99",
+        "Id": 60,
+        "Name": "Иисус Навин",
+        "ShortName": "Нав"
+    },
+    {
+        "Color": "#ffcc99",
+        "Id": 70,
+        "Name": "Судьи",
+        "ShortName": "Суд"
+    },
+    {
+        "Color": "#ffcc99",
+        "Id": 80,
+        "Name": "Руфь",
+        "ShortName": "Руфь"
+    },
+    {
+        "Color": "#ffcc99",
+        "Id": 90,
+        "Name": "1-я Царств",
+        "ShortName": "1Цар"
+    },
+    {
+        "Color": "#ffcc99",
+        "Id": 100,
+        "Name": "2-я Царств",
+        "ShortName": "2Цар"
+    },
+    {
+        "Color": "#ffcc99",
+        "Id": 110,
+        "Name": "3-я Царств",
+        "ShortName": "3Цар"
+    },
+    {
+        "Color": "#ffcc99",
+        "Id": 120,
+        "Name": "4-я Царств",
+        "ShortName": "4Цар"
+    },
+    {
+        "Color": "#ffcc99",
+        "Id": 130,
+        "Name": "1-я Паралипоменон",
+        "ShortName": "1Пар"
+    },
+    {
+        "Color": "#ffcc99",
+        "Id": 140,
+        "Name": "2-я Паралипоменон",
+        "ShortName": "2Пар"
+    },
+    {
+        "Color": "#ffcc99",
+        "Id": 150,
+        "Name": "Ездра",
+        "ShortName": "Ездр"
+    },
+    {
+        "Color": "#ffcc99",
+        "Id": 160,
+        "Name": "Неемия",
+        "ShortName": "Неем"
+    },
+    {
+        "Color": "#ffcc99",
+        "Id": 190,
+        "Name": "Есфирь",
+        "ShortName": "Есф"
+    },
+    {
+        "Color": "#66ff99",
+        "Id": 220,
+        "Name": "Иов",
+        "ShortName": "Иов"
+    },
+    {
+        "Color": "#66ff99",
+        "Id": 230,
+        "Name": "Псалтирь",
+        "ShortName": "Пс"
+    },
+    {
+        "Color": "#66ff99",
+        "Id": 240,
+        "Name": "Притчи",
+        "ShortName": "Прит"
+    },
+    {
+        "Color": "#66ff99",
+        "Id": 250,
+        "Name": "Екклесиаст",
+        "ShortName": "Еккл"
+    },
+    {
+        "Color": "#66ff99",
+        "Id": 260,
+        "Name": "Песня Песней",
+        "ShortName": "Песн"
+    },
+    {
+        "Color": "#ff9fb4",
+        "Id": 290,
+        "Name": "Исаия",
+        "ShortName": "Ис"
+    },
+    {
+        "Color": "#ff9fb4",
+        "Id": 300,
+        "Name": "Иеремия",
+        "ShortName": "Иер"
+    },
+    {
+        "Color": "#ff9fb4",
+        "Id": 310,
+        "Name": "Плач Иеремии",
+        "ShortName": "Плач"
+    },
+    {
+        "Color": "#ff9fb4",
+        "Id": 330,
+        "Name": "Иезекииль",
+        "ShortName": "Иез"
+    },
+    {
+        "Color": "#ff9fb4",
+        "Id": 340,
+        "Name": "Даниил",
+        "ShortName": "Дан"
+    },
+    {
+        "Color": "#ffff99",
+        "Id": 350,
+        "Name": "Осия",
+        "ShortName": "Ос"
+    },
+    {
+        "Color": "#ffff99",
+        "Id": 360,
+        "Name": "Иоиль",
+        "ShortName": "Иоил"
+    },
+    {
+        "Color": "#ffff99",
+        "Id": 370,
+        "Name": "Амос",
+        "ShortName": "Ам"
+    },
+    {
+        "Color": "#ffff99",
+        "Id": 380,
+        "Name": "Авдий",
+        "ShortName": "Авд"
+    },
+    {
+        "Color": "#ffff99",
+        "Id": 390,
+        "Name": "Иона",
+        "ShortName": "Ион"
+    },
+    {
+        "Color": "#ffff99",
+        "Id": 400,
+        "Name": "Михей",
+        "ShortName": "Мих"
+    },
+    {
+        "Color": "#ffff99",
+        "Id": 410,
+        "Name": "Наум",
+        "ShortName": "Наум"
+    },
+    {
+        "Color": "#ffff99",
+        "Id": 420,
+        "Name": "Аввакум",
+        "ShortName": "Авв"
+    },
+    {
+        "Color": "#ffff99",
+        "Id": 430,
+        "Name": "Софония",
+        "ShortName": "Соф"
+    },
+    {
+        "Color": "#ffff99",
+        "Id": 440,
+        "Name": "Аггей",
+        "ShortName": "Агг"
+    },
+    {
+        "Color": "#ffff99",
+        "Id": 450,
+        "Name": "Захария",
+        "ShortName": "Зах"
+    },
+    {
+        "Color": "#ffff99",
+        "Id": 460,
+        "Name": "Малахия",
+        "ShortName": "Мал"
+    },
+    {
+        "Color": "#ff6600",
+        "Id": 470,
+        "Name": "От Матфея",
+        "ShortName": "Мат"
+    },
+    {
+        "Color": "#ff6600",
+        "Id": 480,
+        "Name": "От Марка",
+        "ShortName": "Мар"
+    },
+    {
+        "Color": "#ff6600",
+        "Id": 490,
+        "Name": "От Луки",
+        "ShortName": "Лук"
+    },
+    {
+        "Color": "#ff6600",
+        "Id": 500,
+        "Name": "От Иоанна",
+        "ShortName": "Ин"
+    },
+    {
+        "Color": "#00ffff",
+        "Id": 510,
+        "Name": "Деяния",
+        "ShortName": "Деян"
+    },
+    {
+        "Color": "#00ff00",
+        "Id": 660,
+        "Name": "Иакова",
+        "ShortName": "Иак"
+    },
+    {
+        "Color": "#00ff00",
+        "Id": 670,
+        "Name": "1-е Петра",
+        "ShortName": "1Пет"
+    },
+    {
+        "Color": "#00ff00",
+        "Id": 680,
+        "Name": "2-е Петра",
+        "ShortName": "2Пет"
+    },
+    {
+        "Color": "#00ff00",
+        "Id": 690,
+        "Name": "1-е Иоанна",
+        "ShortName": "1Ин"
+    },
+    {
+        "Color": "#00ff00",
+        "Id": 700,
+        "Name": "2-е Иоанна",
+        "ShortName": "2Ин"
+    },
+    {
+        "Color": "#00ff00",
+        "Id": 710,
+        "Name": "3-е Иоанна",
+        "ShortName": "3Ин"
+    },
+    {
+        "Color": "#00ff00",
+        "Id": 720,
+        "Name": "Иуды",
+        "ShortName": "Иуд"
+    },
+    {
+        "Color": "#ffff00",
+        "Id": 520,
+        "Name": "К Римлянам",
+        "ShortName": "Рим"
+    },
+    {
+        "Color": "#ffff00",
+        "Id": 530,
+        "Name": "1-е Коринфянам",
+        "ShortName": "1Кор"
+    },
+    {
+        "Color": "#ffff00",
+        "Id": 540,
+        "Name": "2-е Коринфянам",
+        "ShortName": "2Кор"
+    },
+    {
+        "Color": "#ffff00",
+        "Id": 550,
+        "Name": "К Галатам",
+        "ShortName": "Гал"
+    },
+    {
+        "Color": "#ffff00",
+        "Id": 560,
+        "Name": "К Ефесянам",
+        "ShortName": "Еф"
+    },
+    {
+        "Color": "#ffff00",
+        "Id": 570,
+        "Name": "К Филиппийцам",
+        "ShortName": "Флп"
+    },
+    {
+        "Color": "#ffff00",
+        "Id": 580,
+        "Name": "К Колоссянам",
+        "ShortName": "Кол"
+    },
+    {
+        "Color": "#ffff00",
+        "Id": 590,
+        "Name": "1-е Фессалоникийцам",
+        "ShortName": "1Фес"
+    },
+    {
+        "Color": "#ffff00",
+        "Id": 600,
+        "Name": "2-е Фессалоникийцам",
+        "ShortName": "2Фес"
+    },
+    {
+        "Color": "#ffff00",
+        "Id": 610,
+        "Name": "1-е Тимофею",
+        "ShortName": "1Тим"
+    },
+    {
+        "Color": "#ffff00",
+        "Id": 620,
+        "Name": "2-е Тимофею",
+        "ShortName": "2Тим"
+    },
+    {
+        "Color": "#ffff00",
+        "Id": 630,
+        "Name": "К Титу",
+        "ShortName": "Тит"
+    },
+    {
+        "Color": "#ffff00",
+        "Id": 640,
+        "Name": "К Филимону",
+        "ShortName": "Флм"
+    },
+    {
+        "Color": "#ffff00",
+        "Id": 650,
+        "Name": "К Евреям",
+        "ShortName": "Евр"
+    },
+    {
+        "Color": "#ff7c80",
+        "Id": 730,
+        "Name": "Откровение",
+        "ShortName": "Откр"
+    }
+]

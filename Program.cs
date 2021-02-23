@@ -18,6 +18,7 @@ namespace Bible_Blazer_PWA
             builder.RootComponents.Add<App>("app");
 
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+            builder.Services.AddSingleton<BibleService>();
 
             await builder.Build().RunAsync();
         }
