@@ -17,7 +17,6 @@ else
 
 
 @code {
-    private BibleService.WeatherForecast[] forecasts;
     private BibleService.Verse[] verses;
     private BibleService.Book[] books;
 
@@ -25,10 +24,9 @@ else
     {
         if (!bible.IsLoaded)
         {
-            Task forecastTask = Task.Run(async () => { forecasts = await Http.GetFromJsonAsync<BibleService.WeatherForecast[]>("sample-data/weather.json"); });
             Task verseTask = Task.Run(async () => { verses = await Http.GetFromJsonAsync<BibleService.Verse[]>("Assets/verses.json"); });
             Task bookTask = Task.Run(async () => { books = await Http.GetFromJsonAsync<BibleService.Book[]>("Assets/books.json"); });
-            await Task.WhenAll(new[] { forecastTask, verseTask, bookTask }).ContinueWith((async) => { bible.Init(forecasts, verses, books); });
+            await Task.WhenAll(new[] { verseTask, bookTask }).ContinueWith((async) => { bible.Init(verses, books); });
         }
     }
 

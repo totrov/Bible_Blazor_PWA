@@ -23,17 +23,6 @@ namespace Bible_Blazer_PWA
             public string ShortName { get; set; }
         }
 
-        public class WeatherForecast
-        {
-            public DateTime Date { get; set; }
-
-            public int TemperatureC { get; set; }
-
-            public string Summary { get; set; }
-
-            public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-        }
-
         public string getVerseValue(string bookName, int chapter, int verse)
         {
             int bookId = _books.Where(b => (b.ShortName == bookName)).Select(b => b.Id).FirstOrDefault();
@@ -62,17 +51,16 @@ namespace Bible_Blazer_PWA
             return sb.ToString();
         }
 
-        private WeatherForecast[] _forecasts;
         private Verse[] _verses;
         private Book[] _books;
         private bool _isLoaded = false;
         public bool IsLoaded { get { return _isLoaded; } }
-        public void Init(WeatherForecast[] forecasts, Verse[] verses, Book[] books)
+        public void Init(Verse[] verses, Book[] books)
         {
-            _forecasts = forecasts;
             _verses = verses;
             _books = books;
             _isLoaded = true;
         }
+
     }
 }
