@@ -1,7 +1,19 @@
 ﻿@namespace BibleComponents
+@using Bible_Blazer_PWA.BibleReferenceParse
+@using Bible_Blazer_PWA.DomainObjects
+
 <BSButton Color="Color.Primary" OnClick="ClickHandler" IsOutline="true" Size="@Size">@Title</BSButton>
 <BSCollapse IsOpen="@IsOpen">
     <BSCard CardType="CardType.Card">
+        @if (BibleReferences.Any())
+        {
+            <BSButtonGroup>
+                @foreach (BibleReference reference in BibleReferences)
+                {
+                    <BSButton Color="Color.Secondary">@reference.ToString()</BSButton>
+                }
+            </BSButtonGroup>
+        }
         @Content
     </BSCard>
 </BSCollapse>
@@ -13,6 +25,8 @@
 
     protected bool IsOpen { get; set; }
 
+    protected LinkedList<BibleReference> _references;
+
     protected void ClickHandler(MouseEventArgs e)
     {
         IsOpen = !IsOpen;
@@ -21,7 +35,20 @@
 
     [Parameter]
     public RenderFragment Content { get; set; }
-    
+
     [Parameter]
-    public RenderFragment Title{ get; set; }
+    public RenderFragment Title { get; set; }
+
+
+    public LinkedList<BibleReference> BibleReferences
+    {
+        get
+        {
+            if (_references == null)
+            {
+                _references = Parser.GetBibleReferences(Title.ToString());
+            }
+            return _references;
+        }
+    }
 }
