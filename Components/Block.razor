@@ -37,7 +37,7 @@
     public RenderFragment Content { get; set; }
 
     [Parameter]
-    public RenderFragment Title { get; set; }
+    public string Title { get; set; }
 
 
     public LinkedList<BibleReference> BibleReferences
@@ -46,7 +46,7 @@
         {
             if (_references == null)
             {
-                _references = Parser.GetBibleReferences(Title.ToString());
+                _references = new Parser().ParseTextLineWithBibleReferences(Title. ToString()).GetBibleReferences();
             }
             return _references;
         }

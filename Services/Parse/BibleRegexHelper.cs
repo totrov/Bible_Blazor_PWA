@@ -24,7 +24,31 @@ namespace Bible_Blazer_PWA.Services.Parse
                     @"))+",
                 @"))+"
             );
+            
             return wholeRegex;
+        }
+
+        internal static string GetBibleVerseReferencesPattern()
+        {
+            string refRegex = string.Join(spases,
+                chapterRegex,
+                @"(?:,?(?<fromTo>",
+                    fromRegex, toRegex,
+                @"))+"
+            );
+
+            return refRegex;
+        }
+
+        internal static string GetFromToVersesPattern()
+        {
+            string fromToVersesRegex = string.Join(spases,
+                @"(?:,?(?:",
+                        fromRegex, toRegex,
+                @"))+"
+            );
+
+            return fromToVersesRegex;
         }
     }
 }

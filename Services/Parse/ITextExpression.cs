@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace Bible_Blazer_PWA.Services.Parse
 {
-    public interface IBibleRefExpression
+    public interface ITextExpression
     {
-        public void Interpret();
+        public string Interpret();
     }
 }
