@@ -2,11 +2,11 @@
 @using Bible_Blazer_PWA.BibleReferenceParse
 @using Bible_Blazer_PWA.DomainObjects
 
-<BSButton Color="Color.Primary" OnClick="ClickHandler" IsOutline="true" Size="@Size">@Title</BSButton>
-<BSCollapse IsOpen="@IsOpen">
+@*<BSButton Color="Color.Primary" OnClick="ClickHandler" IsOutline="true" Size="@Size">@Title</BSButton>
+<BSCollapse IsOpen="@IsOpen">*@
     
 
-        @{
+        @*@{
             int counter = 0;
         }
         @foreach (BibleReference reference in BibleReferences)
@@ -18,15 +18,15 @@
                 <BSPopoverHeader>@reference.ToString()</BSPopoverHeader>
                 <BSPopoverBody>и вражду положу между тобою и между женою, и между семенем твоим и между семенем ее; оно будет поражать тебя в голову, а ты будешь жалить его в пяту</BSPopoverBody>
             </BSPopover>
-        }
+        }*@
         @Content
     
-</BSCollapse>
+@*</BSCollapse>*@
 
 
 @code {
-    [Parameter]
-    public BlazorStrap.Size Size { get; set; }
+    //[Parameter]
+    //public BlazorStrap.Size Size { get; set; }
 
     protected bool IsOpen { get; set; }
 
