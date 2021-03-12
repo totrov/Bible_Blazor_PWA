@@ -4,18 +4,23 @@
 
 <BSButton Color="Color.Primary" OnClick="ClickHandler" IsOutline="true" Size="@Size">@Title</BSButton>
 <BSCollapse IsOpen="@IsOpen">
-    <BSCard CardType="CardType.Card">
-        @if (BibleReferences.Any())
+    
+
+        @{
+            int counter = 0;
+        }
+        @foreach (BibleReference reference in BibleReferences)
         {
-            <BSButtonGroup>
-                @foreach (BibleReference reference in BibleReferences)
-                {
-                    <BSButton Color="Color.Secondary">@reference.ToString()</BSButton>
-                }
-            </BSButtonGroup>
+            counter++;
+            string id = $"popover{counter}";
+            <BSButton Id="@id" OnClick="onclick2" IsOutline="true" Color="Color.Primary" Size="Size.Small">@reference.ToString()</BSButton>
+            <BSPopover Target="popover2" IsOpen="@IsOpen2" Placement="Placement.Bottom">
+                <BSPopoverHeader>@reference.ToString()</BSPopoverHeader>
+                <BSPopoverBody>и вражду положу между тобою и между женою, и между семенем твоим и между семенем ее; оно будет поражать тебя в голову, а ты будешь жалить его в пяту</BSPopoverBody>
+            </BSPopover>
         }
         @Content
-    </BSCard>
+    
 </BSCollapse>
 
 
@@ -33,6 +38,15 @@
         StateHasChanged();
     }
 
+    private bool prevIsOpen;
+    protected override bool ShouldRender()
+    {
+        if (prevIsOpen == IsOpen)
+            return false;
+        prevIsOpen = IsOpen;
+        return true;
+    }
+
     [Parameter]
     public RenderFragment Content { get; set; }
 
@@ -46,9 +60,16 @@
         {
             if (_references == null)
             {
-                _references = new Parser().ParseTextLineWithBibleReferences(Title. ToString()).GetBibleReferences();
+                _references = new Parser().ParseTextLineWithBibleReferences(Title.ToString()).GetBibleReferences();
             }
             return _references;
         }
+    }
+
+    bool IsOpen2 { get; set; }
+    void onclick2(MouseEventArgs e)
+    {
+        IsOpen2 = !IsOpen2;
+        StateHasChanged();
     }
 }
