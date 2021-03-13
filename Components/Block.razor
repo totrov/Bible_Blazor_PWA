@@ -2,41 +2,47 @@
 @using Bible_Blazer_PWA.BibleReferenceParse
 @using Bible_Blazer_PWA.DomainObjects
 
-@*<BSButton Color="Color.Primary" OnClick="ClickHandler" IsOutline="true" Size="@Size">@Title</BSButton>
-<BSCollapse IsOpen="@IsOpen">*@
-    
-
-        @*@{
-            int counter = 0;
+<div class="card-header">
+    <h5 class="card-title">
+        @Title
+        @if (HasBibleReferences)
+        {
+            <button type="button" class="btn btn-outline-primary" style="display: inline;" @onclick="ToggleReferences">..</button>
         }
+    </h5>
+    @if (HasBibleReferences)
+    {
+        <ul class="nav nav-tabs card-header-tabs" style="@(IsOpen ? "" : "display:none;")">
+            @{
+                int counter = 0;
+            }
+            @foreach (BibleReference reference in BibleReferences)
+            {
+                int number = counter++;
+                <li class="nav-item">
+                    <a class="nav-link @(IsActive(number)?"active":"")" style="color:#007bff" @onclick="@(e => SetActive(e, number))">@reference.ToString()</a>
+                </li>
+            }
+        </ul>
         @foreach (BibleReference reference in BibleReferences)
         {
-            counter++;
-            string id = $"popover{counter}";
-            <BSButton Id="@id" OnClick="onclick2" IsOutline="true" Color="Color.Primary" Size="Size.Small">@reference.ToString()</BSButton>
-            <BSPopover Target="popover2" IsOpen="@IsOpen2" Placement="Placement.Bottom">
-                <BSPopoverHeader>@reference.ToString()</BSPopoverHeader>
-                <BSPopoverBody>и вражду положу между тобою и между женою, и между семенем твоим и между семенем ее; оно будет поражать тебя в голову, а ты будешь жалить его в пяту</BSPopoverBody>
-            </BSPopover>
-        }*@
-        @Content
-    
-@*</BSCollapse>*@
+            int number = counter++;
+            <div class="card-body" style="@(IsActive(1)?"":"display:none;") background-color:beige">
+                This is some text within a card body.This is some text within a card body.This is some text within a card body.
+            </div>
+        }
 
+    }
+</div>
+
+@ChildContent
 
 @code {
-    //[Parameter]
-    //public BlazorStrap.Size Size { get; set; }
-
+    private int activeNumber;
     protected bool IsOpen { get; set; }
 
     protected LinkedList<BibleReference> _references;
 
-    protected void ClickHandler(MouseEventArgs e)
-    {
-        IsOpen = !IsOpen;
-        StateHasChanged();
-    }
 
     private bool prevIsOpen;
     protected override bool ShouldRender()
@@ -48,11 +54,19 @@
     }
 
     [Parameter]
-    public RenderFragment Content { get; set; }
-
-    [Parameter]
     public string Title { get; set; }
 
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    public bool HasBibleReferences
+    {
+        get
+        {
+            return _references.Any();
+        }
+    }
 
     public LinkedList<BibleReference> BibleReferences
     {
@@ -71,5 +85,20 @@
     {
         IsOpen2 = !IsOpen2;
         StateHasChanged();
+    }
+
+    void ToggleReferences()
+    {
+        IsOpen = !IsOpen;
+    }
+
+    private void SetActive(MouseEventArgs e, int buttonNumber)
+    {
+        activeNumber = buttonNumber;
+    }
+
+    private bool IsActive(int buttonNumber)
+    {
+        return activeNumber == buttonNumber;
     }
 }
