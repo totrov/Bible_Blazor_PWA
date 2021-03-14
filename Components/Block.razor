@@ -34,41 +34,35 @@
     @foreach (BibleReference reference in BibleReferences)
     {
         int number = counter1++;
-        <div class="card-body" style="@(IsActive(number)?"":"display:none;") background-color:beige">
+        <div class="card-body" style="@((IsActive(number) && IsOpen) ? "":"display:none;") background-color:beige">
             @foreach (BibleService.VersesView view in Bible.GetVersesFromReference(reference))
             {
                 <span class="badge badge-primary">@view.Badge</span>
-                <i>@view.RawText.Replace("<J>","").Replace("</J>","")</i>
+                <i>@view.RawText.Replace("<J>", "").Replace("</J>", "")</i>
             }
         </div>
     }
-    <div class="card-body">
-        @ChildContent
-    </div>
+
+    @if (@ChildContent != null)
+    {
+        <div class="card-body">
+            @ChildContent
+        </div>
+    }
+
 </div>
 
 
 
 
 @code {
-    private int activeNumber;
-    protected bool IsOpen { get; set; }
+    private int activeNumber = 0;
+    protected bool IsOpen { get; set; } = true;
 
     protected LinkedList<BibleReference> _references;
 
-
-    //private bool prevIsOpen;
-    //protected override bool ShouldRender()
-    //{
-    //    if (prevIsOpen == IsOpen)
-    //        return false;
-    //    prevIsOpen = IsOpen;
-    //    return true;
-    //}
-
     [Parameter]
     public string Title { get; set; }
-
 
     [Parameter]
     public RenderFragment ChildContent { get; set; }
@@ -91,13 +85,6 @@
             }
             return _references;
         }
-    }
-
-    bool IsOpen2 { get; set; }
-    void onclick2(MouseEventArgs e)
-    {
-        IsOpen2 = !IsOpen2;
-        StateHasChanged();
     }
 
     void ToggleReferences()

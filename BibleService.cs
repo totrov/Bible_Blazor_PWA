@@ -51,7 +51,10 @@ namespace Bible_Blazer_PWA
                             && (v.Id <= (fromTo.ToVerse == null ? fromTo.FromVerse : fromTo.ToVerse))
                             && v.BookId == bookId
                         ))
-                        .Select(v => Regex.Replace(Regex.Replace(v.Value, @"<S>.*?</S>", ""), @"<pb/>",""))
+                        .Select(v => Regex.Replace(
+                            v.Value,
+                            @"(?:<S>.*?</S>)|(?:<f>.*?</f>)|<pb/>|<t>|</t>|<i>|</i>", "")
+                        )
                         .Aggregate((a, b) => { return a + b; });
                     result.AddLast(versesView);
                 }

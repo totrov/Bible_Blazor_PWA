@@ -22,7 +22,8 @@ namespace Bible_Blazer_PWA.BibleReferenceParse
 
         public Parser ParseTextLineWithBibleReferences(string stringToParse)
         {
-            foreach (Match match in Regex.Matches(stringToParse, BibleRegexHelper.GetBibleReferencesPattern()))
+            string stringWithReplacements = Replacer.ReplaceBookNames(stringToParse);
+            foreach (Match match in Regex.Matches(stringWithReplacements, BibleRegexHelper.GetBibleReferencesPattern()))
             {
                 BibleReference bibleReference = this.CreateBibleReferenceFromMatch(match);
                 _bibleReferences.AddLast(bibleReference);
