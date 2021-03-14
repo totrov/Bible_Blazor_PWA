@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Bible_Blazer_PWA.DomainObjects;
 
 namespace Bible_Blazer_PWA
 {
@@ -15,12 +17,47 @@ namespace Bible_Blazer_PWA
             public int Id { get; set; }
         }
 
+        public class VersesView
+        {
+            public string Badge { get; set; }
+            public string RawText { get; set; }
+        }
+
         public class Book
         {
             public string Color { get; set; }
             public int Id { get; set; }
             public string Name { get; set; }
             public string ShortName { get; set; }
+        }
+
+        public IEnumerable<VersesView> GetVersesFromReference(BibleReference reference)
+        {
+            LinkedList<VersesView> result = new LinkedList<VersesView>();
+            int bookId = _books.Where(b => (b.ShortName == reference.BookShortName)).Select(b => b.Id).First();
+            string badge = "";
+            foreach (BibleVersesReference versesReference in reference.References)
+            {
+                badge = $"{versesReference.Chapter}:";
+                foreach (FromToVerses fromTo in versesReference.FromToVerses)
+                {
+                    VersesView versesView = new VersesView();
+                    string toVerse = fromTo.ToVerse == null ? "" : $"-{fromTo.ToVerse}";
+                    versesView.Badge = $"{badge}{fromTo.FromVerse}{toVerse}";
+                    versesView.RawText = _verses
+                        .Where(v =>(
+                            v.Chapter == versesReference.Chapter
+                            && v.Id >= fromTo.FromVerse
+                            && (v.Id <= (fromTo.ToVerse == null ? fromTo.FromVerse : fromTo.ToVerse))
+                            && v.BookId == bookId
+                        ))
+                        .Select(v => Regex.Replace(Regex.Replace(v.Value, @"<S>.*?</S>", ""), @"<pb/>",""))
+                        .Aggregate((a, b) => { return a + b; });
+                    result.AddLast(versesView);
+                }
+            }
+
+            return result;
         }
 
         public string getVerseValue(string bookName, int chapter, int verse)

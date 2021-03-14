@@ -1,41 +1,54 @@
 ﻿@namespace BibleComponents
 @using Bible_Blazer_PWA.BibleReferenceParse
 @using Bible_Blazer_PWA.DomainObjects
+@inject BibleService Bible
 
-<div class="card-header">
-    <h5 class="card-title">
-        @Title
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title">
+            @Title
+            @if (HasBibleReferences)
+            {
+                <button type="button" class="btn btn-outline-primary" style="display: inline;" @onclick="ToggleReferences">..</button>
+            }
+        </h5>
         @if (HasBibleReferences)
         {
-            <button type="button" class="btn btn-outline-primary" style="display: inline;" @onclick="ToggleReferences">..</button>
+            <ul class="nav nav-tabs card-header-tabs" style="@(IsOpen ? "" : "display:none;")">
+                @{
+                    int counter = 0;
+                }
+                @foreach (BibleReference reference in BibleReferences)
+                {
+                    int number = counter++;
+                    <li class="nav-item">
+                        <a class="nav-link @(IsActive(number)?"active":"")" style="color:#007bff" @onclick="@(e => SetActive(e, number))">@reference.ToString()</a>
+                    </li>
+                }
+            </ul>
         }
-    </h5>
-    @if (HasBibleReferences)
-    {
-        <ul class="nav nav-tabs card-header-tabs" style="@(IsOpen ? "" : "display:none;")">
-            @{
-                int counter = 0;
-            }
-            @foreach (BibleReference reference in BibleReferences)
-            {
-                int number = counter++;
-                <li class="nav-item">
-                    <a class="nav-link @(IsActive(number)?"active":"")" style="color:#007bff" @onclick="@(e => SetActive(e, number))">@reference.ToString()</a>
-                </li>
-            }
-        </ul>
-        @foreach (BibleReference reference in BibleReferences)
-        {
-            int number = counter++;
-            <div class="card-body" style="@(IsActive(1)?"":"display:none;") background-color:beige">
-                This is some text within a card body.This is some text within a card body.This is some text within a card body.
-            </div>
-        }
-
+    </div>
+    @{
+        int counter1 = 0;
     }
+    @foreach (BibleReference reference in BibleReferences)
+    {
+        int number = counter1++;
+        <div class="card-body" style="@(IsActive(number)?"":"display:none;") background-color:beige">
+            @foreach (BibleService.VersesView view in Bible.GetVersesFromReference(reference))
+            {
+                <span class="badge badge-primary">@view.Badge</span>
+                <i>@view.RawText.Replace("<J>","").Replace("</J>","")</i>
+            }
+        </div>
+    }
+    <div class="card-body">
+        @ChildContent
+    </div>
 </div>
 
-@ChildContent
+
+
 
 @code {
     private int activeNumber;
@@ -44,14 +57,14 @@
     protected LinkedList<BibleReference> _references;
 
 
-    private bool prevIsOpen;
-    protected override bool ShouldRender()
-    {
-        if (prevIsOpen == IsOpen)
-            return false;
-        prevIsOpen = IsOpen;
-        return true;
-    }
+    //private bool prevIsOpen;
+    //protected override bool ShouldRender()
+    //{
+    //    if (prevIsOpen == IsOpen)
+    //        return false;
+    //    prevIsOpen = IsOpen;
+    //    return true;
+    //}
 
     [Parameter]
     public string Title { get; set; }
@@ -64,7 +77,7 @@
     {
         get
         {
-            return _references.Any();
+            return BibleReferences.Any();
         }
     }
 
