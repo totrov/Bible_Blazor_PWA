@@ -1,7 +1,48 @@
 ﻿@page "/"
+@inject HttpClient Http
+@inject BibleService bible
 
-<h1>Hello, world!</h1>
+<h1>Планы уроков церкви "Завет Христа"</h1>
 
-Welcome to your new app.
+@if (!bible.IsLoaded)
+{
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col">
+                После запуска приложения требуется какое-то время для того, чтобы загрузились стихи Библии. Обычно это занимает примерно одну минуту.
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm">
+                <div class="spinner-border ml-auto text-success" role="status" aria-hidden="true"></div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <content>
+        Загрузка завершена, можно пользоваться.
+    </content>
+}
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+
+@code {
+    private BibleService.Verse[] verses;
+    private BibleService.Book[] books;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!bible.IsLoaded)
+        {
+            Task verseTask = Task.Run(async () => { verses = await Http.GetFromJsonAsync<BibleService.Verse[]>("Assets/verses.json"); });
+            Task bookTask = Task.Run(async () => { books = await Http.GetFromJsonAsync<BibleService.Book[]>("Assets/books.json"); });
+            await Task.WhenAll(new[] { verseTask, bookTask }).ContinueWith((async) => { bible.Init(verses, books); });
+        }
+    }
+
+}
+
+
+
+
