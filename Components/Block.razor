@@ -7,6 +7,12 @@
     <div class="card-header">
         <h5 class="card-title">
             @Title
+            
+            @if (@ChildContent != null)
+            {
+                <button type="button" class="btn @(IsOpen ? "btn-outline-primary" : "btn-outline-secondary")" style="display: inline;" @onclick="Toggle">...</button>
+            }
+
             @if (HasBibleReferences)
             {
                 <button type="button" class="btn btn-outline-primary" style="display: inline;" @onclick="ToggleReferences">..</button>
@@ -14,7 +20,7 @@
         </h5>
         @if (HasBibleReferences)
         {
-            <ul class="nav nav-tabs card-header-tabs" style="@(IsOpen ? "" : "display:none;")">
+            <ul class="nav nav-tabs card-header-tabs" style="@((RefsAreOpen & IsOpen) ? "" : "display:none;")">
                 @{
                     int counter = 0;
                 }
@@ -34,7 +40,7 @@
     @foreach (BibleReference reference in BibleReferences)
     {
         int number = counter1++;
-        <div class="card-body" style="@((IsActive(number) && IsOpen) ? "":"display:none;") background-color:beige">
+        <div class="card-body" style="@((IsActive(number) && RefsAreOpen && IsOpen) ? "":"display:none;") background-color:beige">
             @foreach (BibleService.VersesView view in Bible.GetVersesFromReference(reference))
             {
                 <span class="badge badge-primary">@view.Badge</span>
@@ -45,7 +51,7 @@
 
     @if (@ChildContent != null)
     {
-        <div class="card-body">
+        <div class="card-body" style="@(IsOpen ? "":"display:none;")">
             @ChildContent
         </div>
     }
@@ -57,6 +63,7 @@
 
 @code {
     private int activeNumber = 0;
+    protected bool RefsAreOpen { get; set; } = true;
     protected bool IsOpen { get; set; } = true;
 
     protected LinkedList<BibleReference> _references;
@@ -88,6 +95,11 @@
     }
 
     void ToggleReferences()
+    {
+        RefsAreOpen = !RefsAreOpen;
+    }
+
+    void Toggle()
     {
         IsOpen = !IsOpen;
     }
