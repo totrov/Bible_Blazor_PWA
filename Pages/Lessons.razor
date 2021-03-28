@@ -1,0 +1,50 @@
+﻿@page "/lesson/{id:int}"
+@inject HttpClient Http
+
+@if (Id == 0)
+{
+    <h3>Оглавление</h3>
+    <ul>
+        <li class="px-3">
+            Бытие
+            <ul>
+                <li>
+                    <NavLink class="nav-link" href="lesson/4" Match="NavLinkMatch.All">Род З.Х. Понимание смерти</NavLink>
+                </li>
+            </ul>
+        </li>
+        <li class="px-3">
+            Исход - Соломон
+        </li>
+        <li class="px-3">
+            Пророки
+        </li>
+        <li class="px-3">
+            Евангелия
+        </li>
+        <li class="px-3">
+            Деяния - Откровение
+        </li>
+        <li class="px-3">
+            Основы веры
+        </li>
+    </ul>
+}
+else
+{
+    @lesson.Content
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    protected Lesson lesson;
+
+    protected override void OnParametersSet()
+    {
+        if (Id != 0 && lesson is null)
+        {
+            lesson = Http.GetFromJsonAsync<Lesson>($"Assets/lessons/{Id}.json").Result;
+        }
+    }
+}
