@@ -19,7 +19,8 @@ namespace Bible_Blazer_PWA.Services.Parse
             {"1-е Ин","1Ин"},
             {"2-е Ин","2Ин"},
             {"1-е Пет","1Пет"},
-            {"2-е Пет","2Пет"}
+            {"2-е Пет","2Пет"},
+            {"Отк.", "Откр." }
         };
 
         internal static string ReplaceBookNames(string stringToParse)
