@@ -12,12 +12,10 @@ namespace Bible_Blazer_PWA.BibleReferenceParse
     public class Parser
     {
         private LinkedList<BibleReference> _bibleReferences;
-        private LinkedList<ITextExpression> _textExpressions;
 
         public Parser()
         {
             _bibleReferences = new LinkedList<BibleReference>();
-            _textExpressions = new LinkedList<ITextExpression>();
         }
 
         public Parser ParseTextLineWithBibleReferences(string stringToParse)
