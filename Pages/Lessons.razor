@@ -38,13 +38,13 @@ else
 @code {
     [Parameter]
     public int Id { get; set; } = 0;
-    protected Lesson lesson;
+    protected LessonContainer lesson;
 
     async protected override Task OnParametersSetAsync()
     {
         if (Id != 0 && lesson is null)
         {
-            lesson = await Http.GetFromJsonAsync<Lesson>($"Assets/lessons/{Id}.json");
+            lesson = await Http.GetFromJsonAsync<LessonContainer>($"Assets/lessons/{Id}.json");
         }
     }
 }
