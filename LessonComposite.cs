@@ -8,7 +8,7 @@ namespace Bible_Blazer_PWA
 {
     public class LessonComposite
     {
-        int currentIndex = 0; // wierd issues with ?compilation? when it is local
+        private int currentIndex = 0; // wierd issues with ?compilation? when it is local
         public string Value { get; set; }
         public LinkedList<LessonComposite> Children { get; set; }
         public int Level { get; set; }
@@ -26,6 +26,7 @@ namespace Bible_Blazer_PWA
             Children.AddLast(newChild);
             return newChild;
         }
+
         public LessonComposite(string[] lines)
         {
             var enumerator = lines.AsEnumerable().GetEnumerator();
@@ -43,9 +44,6 @@ namespace Bible_Blazer_PWA
                         if (Regex.IsMatch(lines[currentIndex], "^[(][0-9][.]?[0-9]?[)]"))
                         {
                             var child2 = child1.AddChild(2, lines[currentIndex++]);
-
-                            //currentIndex++;
-
                             while (currentIndex < lines.Length && !Regex.IsMatch(lines[currentIndex], "^[(]?[0-9][.]?[0-9]?[)]"))
                             {
                                 if (Regex.IsMatch(lines[currentIndex], "[(][а-я][)]"))
@@ -73,11 +71,6 @@ namespace Bible_Blazer_PWA
                     Value += lines[currentIndex++];
                 }
             }
-        }
-        private void Next()
-        {
-            currentIndex++;
-            var i = currentIndex;
         }
     }
 }

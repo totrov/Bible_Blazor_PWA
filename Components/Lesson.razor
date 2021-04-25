@@ -7,6 +7,11 @@
 @if (lesson != null)
 {
     var composite = lesson.GetComposite();
+    <h3>@composite.Value</h3>
+    foreach (LessonComposite child1 in composite.Children)
+    {
+        <LessonComponent Data="child1"></LessonComponent>
+    }
 }
 
 

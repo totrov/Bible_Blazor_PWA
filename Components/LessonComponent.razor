@@ -1,0 +1,117 @@
+﻿@namespace BibleComponents
+@using Bible_Blazer_PWA.BibleReferenceParse
+@using Bible_Blazer_PWA.DomainObjects
+@inject BibleService Bible
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title">
+            @Data.Value
+
+            @if (@Data.Children != null)
+            {
+                <button type="button" class="btn @(IsOpen ? "btn-outline-primary" : "btn-outline-secondary")" style="display: inline;" @onclick="Toggle">...</button>
+            }
+
+            @if (HasBibleReferences)
+            {
+                <button type="button" class="btn btn-outline-primary" style="display: inline;" @onclick="ToggleReferences">..</button>
+            }
+        </h5>
+        @if (HasBibleReferences)
+        {
+            <ul class="nav nav-tabs card-header-tabs" style="@((RefsAreOpen & IsOpen) ? "" : "display:none;")">
+                @{
+                    int counter = 0;
+                }
+
+                @foreach (BibleReference reference in BibleReferences)
+                {
+                    int number = counter++;
+                    <li class="nav-item">
+                        <a class="nav-link @(IsActive(number)?"active":"")" style="color:#007bff" @onclick="@(e => SetActive(e, number))">@reference.ToString()</a>
+                    </li>
+                }
+            </ul>
+        }
+    </div>
+    @{
+        int counter1 = 0;
+    }
+    @foreach (BibleReference reference in BibleReferences)
+    {
+        int number = counter1++;
+        <div class="card-body" style="@((IsActive(number) && RefsAreOpen && IsOpen) ? "":"display:none;") background-color:beige">
+            @foreach (BibleService.VersesView view in Bible.GetVersesFromReference(reference))
+            {
+                <span class="badge badge-primary">@view.Badge</span>
+                <i>@view.RawText.Replace("<J>", "").Replace("</J>", "")</i>
+            }
+        </div>
+    }
+
+    @if (@Data.Children != null)
+    {
+        <div class="card-body" style="@(IsOpen ? "":"display:none;")">
+            @foreach(LessonComposite childData in Data.Children)
+            {
+                <LessonComponent Data="childData"></LessonComponent>                
+            }
+        </div>
+    }
+
+</div>
+
+
+
+
+@code {
+    private int activeNumber = 0;
+    protected bool RefsAreOpen { get; set; } = true;
+    protected bool IsOpen { get; set; } = true;
+
+    protected LinkedList<BibleReference> _references;
+
+    [Parameter]
+    public LessonComposite Data { get; set; }
+
+    public bool HasBibleReferences
+    {
+        get
+        {
+            return BibleReferences.Any();
+        }
+    }
+
+    public LinkedList<BibleReference> BibleReferences
+    {
+        get
+        {
+            if (_references == null)
+            {
+                _references = new Parser().ParseTextLineWithBibleReferences(Data.Value.ToString()).GetBibleReferences();
+            }
+            return _references;
+        }
+    }
+
+    void ToggleReferences()
+    {
+        RefsAreOpen = !RefsAreOpen;
+    }
+
+    void Toggle()
+    {
+        IsOpen = !IsOpen;
+    }
+
+    private void SetActive(MouseEventArgs e, int buttonNumber)
+    {
+        activeNumber = buttonNumber;
+    }
+
+    private bool IsActive(int buttonNumber)
+    {
+        return activeNumber == buttonNumber;
+    }
+}
