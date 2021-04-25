@@ -6,62 +6,8 @@
 
 @if (lesson != null)
 {
-    string[] lines = lesson.getLines();
-    int currentIndex = 0;
-    int lastIndex = lines.Length - 1;
-    var logger = LoggerFactory.CreateLogger<Bible_Blazer_PWA.Pages.Test3>();
-
-    while (currentIndex <= lastIndex-1)
-    {
-        logger.LogWarning($"curIndex:{currentIndex}");
-        logger.LogWarning(lines[currentIndex]);
-        logger.LogWarning("Entering Root");
-        
-        if (currentIndex == 0)
-        {
-            <h3>@lines[currentIndex++]</h3>
-            continue;
-        }
-
-        if (Regex.IsMatch(lines[currentIndex], "^[0-9][.]?[0-9]?[)]"))
-        {
-            <Block Title="@lines[currentIndex++]">
-                @while(currentIndex <= lastIndex && !Regex.IsMatch(lines[currentIndex], "^[0-9][.]?[0-9]?[)]"))
-                {
-                    logger.LogWarning("Entering 1");
-                    if (Regex.IsMatch(lines[currentIndex], "^[(][0-9][.]?[0-9]?[)]"))
-                    {
-                        <Block Title="@lines[currentIndex++]">
-                            while (!Regex.IsMatch(lines[currentIndex], "^[(]?[0-9][.]?[0-9]?[)]"))
-                            {
-                                logger.LogWarning("Entering 2");
-                                if (Regex.IsMatch(lines[currentIndex]), "[(][а-я][)]")
-                                {
-                                    <Block Title = "@lines[currentIndex++]">
-                                        while (!Regex.IsMatch(lines[currentIndex], "^[(]?([0-9][.]?[0-9]?)|[а-я][)]"))
-                                        {
-                                            logger.LogWarning("Entering 3");
-                                            <p>@lines[currentIndex++]</p>
-                                        }
-                                    </Block>
-                                }
-                            }
-                        </Block>
-                    }
-                    else
-                    {
-                        <p>@lines[currentIndex++]</p>
-                    }
-                }
-            </Block>
+    var composite = lesson.GetComposite();
 }
-        else
-        {
-            <p>@lines[currentIndex++]</p>
-        }
-    }
-}
-
 
 
 @code {

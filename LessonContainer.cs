@@ -4,9 +4,13 @@
     {
         public string LinkName { get; set; }
         public string Content { get; set; }
-        public string[] getLines()
+        private string[] GetLines()
         {
             return Content.Split("<br>");
+        }
+        public LessonComposite GetComposite()
+        {
+            return new LessonComposite(this.GetLines()); 
         }
     }
 }
