@@ -8,9 +8,9 @@
         {
             return Content.Split("<br>");
         }
-        public LessonComposite GetComposite()
+        public LessonElementData GetComposite()
         {
-            return new LessonComposite(this.GetLines()); 
+            return new LessonElementData(this.GetLines()); 
         }
     }
 }

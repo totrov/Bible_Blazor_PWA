@@ -1,4 +1,5 @@
-﻿@namespace BibleComponents
+﻿@page "/lesson/{Id:int}"
+@namespace BibleComponents
 @using System.Text.RegularExpressions
 @inject HttpClient Http
 @using Microsoft.Extensions.Logging;
@@ -8,12 +9,12 @@
 {
     var composite = lesson.GetComposite();
     <h3>@composite.Value</h3>
-    foreach (LessonComposite child1 in composite.Children)
+    foreach (LessonElementData data in composite.Children)
     {
-        <LessonComponent Data="child1"></LessonComponent>
+        LessonElementData data1 = data;
+        <LessonElement ElementData="data1"></LessonElement>
     }
 }
-
 
 @code {
     [Parameter]

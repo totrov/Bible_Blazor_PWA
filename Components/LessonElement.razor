@@ -6,9 +6,9 @@
 <div class="card">
     <div class="card-header">
         <h5 class="card-title">
-            @Data.Value
+            @ElementData.Value
 
-            @if (@Data.Children != null)
+            @if (@ElementData.Children != null)
             {
                 <button type="button" class="btn @(IsOpen ? "btn-outline-primary" : "btn-outline-secondary")" style="display: inline;" @onclick="Toggle">...</button>
             }
@@ -50,20 +50,17 @@
         </div>
     }
 
-    @if (@Data.Children != null)
+    @if (@ElementData.Children != null)
     {
         <div class="card-body" style="@(IsOpen ? "":"display:none;")">
-            @foreach(LessonComposite childData in Data.Children)
+            @foreach (LessonElementData data in ElementData.Children)
             {
-                <LessonComponent Data="childData"></LessonComponent>                
+                <LessonElement ElementData="data"></LessonElement>
             }
         </div>
     }
 
 </div>
-
-
-
 
 @code {
     private int activeNumber = 0;
@@ -73,7 +70,11 @@
     protected LinkedList<BibleReference> _references;
 
     [Parameter]
-    public LessonComposite Data { get; set; }
+    public LessonElementData ElementData { get; set; }
+
+
+    [Parameter]                                          //TODO remove. It is redundant. However, getting disturbing compile errors. No regferences in the code
+    public LessonElementData ComponentData { get; set; } //and cleaning up does not help
 
     public bool HasBibleReferences
     {
@@ -89,7 +90,7 @@
         {
             if (_references == null)
             {
-                _references = new Parser().ParseTextLineWithBibleReferences(Data.Value.ToString()).GetBibleReferences();
+                _references = new Parser().ParseTextLineWithBibleReferences(ElementData.Value.ToString()).GetBibleReferences();
             }
             return _references;
         }

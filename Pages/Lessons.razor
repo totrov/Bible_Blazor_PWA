@@ -1,50 +1,35 @@
-﻿@page "/lesson/{id:int}"
+﻿@page "/lessons"
+@using Bible_Blazer_PWA.DataSources
+@using static Bible_Blazer_PWA.DataSources.LessonDS
 @inject HttpClient Http
 
-@if (Id == 0)
+@if (LessonDS != null)
 {
     <h3>Оглавление</h3>
+
     <ul>
-        <li class="px-3">
-            Бытие
-            <ul>
-                <li>
-                    <NavLink class="nav-link" href="lesson/4" Match="NavLinkMatch.All">Род З.Х. Понимание смерти</NavLink>
-                </li>
-            </ul>
-        </li>
-        <li class="px-3">
-            Исход - Соломон
-        </li>
-        <li class="px-3">
-            Пророки
-        </li>
-        <li class="px-3">
-            Евангелия
-        </li>
-        <li class="px-3">
-            Деяния - Откровение
-        </li>
-        <li class="px-3">
-            Основы веры
-        </li>
+        @foreach (LessonBlock block in LessonDS.GetBlocks())
+        {
+            <li class="px-3">
+                @block.Name
+                <ul>
+                    @foreach (LessonInfo lesson in block.Lessons)
+                    {
+                        <li>
+                            <NavLink class="nav-link" href="@($"lesson/{lesson.Number}")" Match="NavLinkMatch.All">@lesson.Name</NavLink>
+                        </li>
+                    }
+                </ul>
+            </li>
+        }
     </ul>
-}
-else
-{
-    @lesson.Content
 }
 
 @code {
-    [Parameter]
-    public int Id { get; set; } = 0;
-    protected LessonContainer lesson;
+    LessonDS LessonDS { get; set; }
 
-    async protected override Task OnParametersSetAsync()
+    protected override async Task OnInitializedAsync()
     {
-        if (Id != 0 && lesson is null)
-        {
-            lesson = await Http.GetFromJsonAsync<LessonContainer>($"Assets/lessons/{Id}.json");
-        }
+        LessonDS = new LessonDS();
     }
 }
