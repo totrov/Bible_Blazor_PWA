@@ -3,8 +3,6 @@
 @using System.Text.RegularExpressions
 @inject HttpClient Http
 @using Microsoft.Extensions.Logging;
-@inject ILoggerFactory LoggerFactory
-
 @if (lesson != null)
 {
     var composite = lesson.GetComposite();

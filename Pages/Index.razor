@@ -1,10 +1,13 @@
 ﻿@page "/"
 @inject HttpClient Http
 @inject BibleService bible
+@inject IJSRuntime JS;
+@using Bible_Blazer_PWA.DataBase;
+@inject DatabaseJSFacade db;
 
 <h1>Планы уроков церкви "Завет Христа"</h1>
 
-@if (!bible.IsLoaded)
+@if (!db.IsInitialized)//!bible.IsLoaded)
 {
     <div class="container-fluid">
         <div class="row">
@@ -33,11 +36,16 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        if (!bible.IsLoaded)
+        if (false)//!bible.IsLoaded)
         {
             Task verseTask = Task.Run(async () => { verses = await Http.GetFromJsonAsync<BibleService.Verse[]>("Assets/verses.json"); });
             Task bookTask = Task.Run(async () => { books = await Http.GetFromJsonAsync<BibleService.Book[]>("Assets/books.json"); });
             await Task.WhenAll(new[] { verseTask, bookTask }).ContinueWith((async) => { bible.Init(verses, books); });
+        }
+
+        if (!db.IsInitialized)
+        {
+            await db.Init(JS);
         }
     }
 

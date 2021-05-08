@@ -1,0 +1,27 @@
+﻿@page "/dbtest"
+@inject IJSRuntime JS;
+@using Bible_Blazer_PWA.DataBase;
+@inject DatabaseJSFacade db;
+
+<h3>DataBaseTest</h3>
+
+<button type="button" class="btn btn-primary" @onclick="Test">
+   Test interop
+</button>
+
+<p class="mt-2" style="font-size:1.6em">
+    <span class="badge badge-success">
+        @text
+    </span>
+</p>
+
+@code {
+    private string text = "empty";
+
+    private async Task Test()
+    {
+        text = await db.Test();
+    }
+}
+
+
