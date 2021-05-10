@@ -1,6 +1,7 @@
 ﻿window.context = {
     db: null,
-    justUpgraded: false
+    justUpgraded: false,
+    currentVersion: 1
 };
 
 function DataUpgrade(dotnetReference)
@@ -18,12 +19,12 @@ function DataUpgrade(dotnetReference)
 
             transaction.oncomplete = function () {
                 console.log("Транзакция выполнена");
-                dotnetReference.invokeMethod('SetResult', true);
+                dotnetReference.invokeMethod('SetStatus', true);
             };
 
             transaction.onerror = function (e) {
                 console.log("Транзакция не выполнена." + e.error);
-                dotnetReference.invokeMethod('SetResult', false);
+                dotnetReference.invokeMethod('SetStatus', false);
                 e.stopPropagation();
             };
             break;
@@ -62,12 +63,12 @@ window.database = {
     initDatabase: function (dotnetReference) {
         console.log("Database initialization started");
 
-        //indexedDB.deleteDatabase("store");
+        indexedDB.deleteDatabase("db");
         let openRequest = indexedDB.open("db", 1);
 
         openRequest.onerror = function () {
             console.error("Error", openRequest.error);
-            dotnetReference.invokeMethod('SetResult', false);
+            dotnetReference.invokeMethod('SetStatus', false);
         };
 
         openRequest.onsuccess = function () {
@@ -76,7 +77,7 @@ window.database = {
                 DataUpgrade(dotnetReference);
             }
             else {
-                dotnetReference.invokeMethod('SetResult', true);
+                dotnetReference.invokeMethod('SetStatus', true);
             }
             console.log("Database initialization finished");
         };
@@ -106,5 +107,26 @@ window.database = {
     sayHello: function (dotnetHelper) {
         return dotnetHelper.invokeMethodAsync('SayHello')
             .then(r => console.log(r));
+    },
+    test: function (dotnetHelper) {
+        var openRequest = window.indexedDB.open("db", context.currentVersion);
+
+        openRequest.onsuccess = function (event) {
+            context.db = openRequest.result;
+            var transaction = context.db.transaction("books", "readonly");
+            transaction.oncomplete = function (event) {
+                //
+            };
+            transaction.onerror = function (event) {
+                //
+            };
+            var objectStore  = transaction.objectStore("books");
+            var objectStoreRequest = objectStore.get('js');
+            objectStoreRequest.onsuccess = function (event) {
+                console.log("got result " + result);
+                var result = objectStoreRequest.result.price;
+                dotnetHelper.invokeMethod('SetStatusAndResult', true, result);
+            };
+        };
     }
 };

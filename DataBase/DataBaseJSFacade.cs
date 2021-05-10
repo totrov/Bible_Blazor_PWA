@@ -22,8 +22,6 @@ namespace Bible_Blazer_PWA.DataBase
             }
         }
         internal bool _isInitialized { get; set; }
-        private IndexedDBResultHandler resultHandler;
-        private DotNetObjectReference<IndexedDBResultHandler> resultHandlerReference;
 
         public async Task<string> Test()
         {
@@ -32,31 +30,60 @@ namespace Bible_Blazer_PWA.DataBase
 
         public bool IsInitialized { get { return _isInitialized; } }
 
-        public async Task Init(IJSRuntime js)
+        public async Task<IndexedDBResultHandler> Init(IJSRuntime js)
         {
             JS = js;
-            resultHandler = new IndexedDBResultHandler(this);
-            resultHandlerReference = DotNetObjectReference.Create(resultHandler);
-            await JS.InvokeVoidAsync("database.initDatabase", resultHandlerReference);
+            return await CallVoidDbAsync(() => { _isInitialized = true; }, "initDatabase");
+        }
+
+        public async Task<IndexedDBResultHandler> CallVoidDbAsync(Action callback, string methodName)
+        {
+            IndexedDBResultHandler resultHandler = new IndexedDBResultHandler();
+            resultHandler.OnDbResultOK += callback;
+            DotNetObjectReference<IndexedDBResultHandler> resultHandlerReference = DotNetObjectReference.Create(resultHandler);
+
+            await JS.InvokeVoidAsync($"database.{methodName}", resultHandlerReference);
+            return resultHandler;
+        }
+
+        public async Task<IndexedDBResultHandler<T>> CallDbAsync<T>(Action callback, string methodName, params object[] parameters)
+        {
+            IndexedDBResultHandler<T> resultHandler = new IndexedDBResultHandler<T>();
+            resultHandler.OnDbResultOK += callback;
+            DotNetObjectReference<IndexedDBResultHandler<T>> resultHandlerReference = DotNetObjectReference.Create(resultHandler);
+
+            await JS.InvokeVoidAsync($"database.{methodName}", resultHandlerReference, parameters);
+            return resultHandler;
         }
     }
 
     public class IndexedDBResultHandler
     {
-        private DatabaseJSFacade db;
-        public IndexedDBResultHandler(DatabaseJSFacade _db)
-        {
-            db = _db;
-        }
+        protected void DbResultOK() => OnDbResultOK?.Invoke();
+        public event Action OnDbResultOK;
 
-        [JSInvokable]
-        public void SetResult(bool _result)
+        [JSInvokable("SetStatus")]
+        public void SetResult(bool _status)
         {
-            db.Result = _result;
-            if (_result)
+            if (_status)
             {
-                db._isInitialized = true;
+                DbResultOK();
             }
+        }
+    }
+
+    public class IndexedDBResultHandler<T> : IndexedDBResultHandler
+    {
+        public T Result { get; private set; }
+
+        [JSInvokable("SetStatusAndResult")]
+        public void SetResult(bool _status, T _result)
+        {
+            if (_status)
+            { 
+                Result = _result;
+            }
+            base.SetResult(_status);
         }
     }
 }

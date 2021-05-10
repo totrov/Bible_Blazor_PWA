@@ -45,7 +45,8 @@ else
 
         if (!db.IsInitialized)
         {
-            await db.Init(JS);
+            IndexedDBResultHandler handler = await db.Init(JS);
+            handler.OnDbResultOK += StateHasChanged;
         }
     }
 

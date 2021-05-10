@@ -9,6 +9,10 @@
    Test interop
 </button>
 
+<button type="button" class="btn btn-primary" @onclick="Test2">
+   Test 2
+</button>
+
 <p class="mt-2" style="font-size:1.6em">
     <span class="badge badge-success">
         @text
@@ -21,6 +25,12 @@
     private async Task Test()
     {
         text = await db.Test();
+    }
+
+    private async Task Test2()
+    {
+        IndexedDBResultHandler<int> resultHandler = await db.CallDbAsync<int>(null, "test", "js");
+        resultHandler.OnDbResultOK += () => { text = resultHandler.Result.ToString(); StateHasChanged(); };
     }
 }
 
