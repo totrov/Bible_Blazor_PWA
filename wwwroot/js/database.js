@@ -12,21 +12,27 @@ function DataUpgrade(dotnetReference)
     switch (context.db.version)
     {
         case 1:
-            let book = { id: 'js', price: 10 };
+            var fetchJson = async (path, dbStore) => {
+                const response = await fetch(path);
+                var json = await response.json();
+                var transaction = context.db.transaction(dbStore, "readwrite");
+                var os = transaction.objectStore(dbStore);
+                json.forEach(function (data) { os.add(data); });
 
-            let transaction = context.db.transaction("books", "readwrite");
-            transaction.objectStore("books").add(book);
+                transaction.oncomplete = function () {
+                    console.log(dbStore + ' ' + 'fetch transaction completed');
+                    dotnetReference.invokeMethod('SetStatus', true);
+                };
 
-            transaction.oncomplete = function () {
-                console.log("Транзакция выполнена");
-                dotnetReference.invokeMethod('SetStatus', true);
+                transaction.onerror = function (e) {
+                    console.log(dbStore + ' ' + 'fetch transaction failed. ' + e.error);
+                    dotnetReference.invokeMethod('SetStatus', false);
+                    e.stopPropagation();
+                };
             };
+            fetchJson('/Assets/books.json', 'books');
+            fetchJson('/Assets/verses.json', 'verses');
 
-            transaction.onerror = function (e) {
-                console.log("Транзакция не выполнена." + e.error);
-                dotnetReference.invokeMethod('SetStatus', false);
-                e.stopPropagation();
-            };
             break;
 
         default:
@@ -43,7 +49,10 @@ function SchemaUpgrade() {
 
     switch (context.db.version) {
         case 1:
-            context.db.createObjectStore('books', { keyPath: 'id' });
+            context.db.createObjectStore('books', { keyPath: 'Id' });
+            context.db.createObjectStore('verses', { keyPath: ['BookId', 'Chapter', 'Id'] });
+            context.db.createObjectStore('lessonUnits', { keyPath: ['Id'] });
+            context.db.createObjectStore('lessons', { keyPath: ['UnitId', 'Id'] });
             break;
 
         default:

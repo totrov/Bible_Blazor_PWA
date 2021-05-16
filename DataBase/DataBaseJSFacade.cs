@@ -10,7 +10,7 @@ namespace Bible_Blazer_PWA.DataBase
     public class DatabaseJSFacade
     {
         protected IJSRuntime JS { get; set; }
-        internal bool Result
+        internal bool IsInitialized
         {
             get
             {
@@ -27,8 +27,6 @@ namespace Bible_Blazer_PWA.DataBase
         {
             return await JS.InvokeAsync<string>("database.showPrompt");
         }
-
-        public bool IsInitialized { get { return _isInitialized; } }
 
         public async Task<IndexedDBResultHandler> Init(IJSRuntime js)
         {
