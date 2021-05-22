@@ -130,7 +130,47 @@ window.database = {
             };
 
             var objectStore = transaction.objectStore(objectStoreName);
-            var objectStoreRequest = objectStore.get(params.shift());
+            var key = params.length > 1 ? params : params.shift();
+            var objectStoreRequest = objectStore.get(key);
+            objectStoreRequest.onsuccess = function (event) {
+                result = objectStoreRequest.result;
+                context.logVerbose('getRecordFromObjectStoreByKey: Transaction returned: ' + result);
+                dotnetHelper.invokeMethod('SetStatusAndResult', true, result);
+            };
+        };
+    },
+    getRangeFromObjectStoreByKey: function (dotnetHelper, params) {
+        context.log('getRecordFromObjectStoreByKey was called');
+        var openRequest = window.indexedDB.open(context.dbName, context.currentVersion);
+
+        openRequest.onsuccess = function (event) {
+            context.log('db opened');
+            context.db = openRequest.result;
+            let objectStoreName = params.shift();
+            var transaction = context.db.transaction(objectStoreName, "readonly");
+
+            transaction.oncomplete = function (event) {
+                context.log('getRecordFromObjectStoreByKey: Transaction completed.');
+            };
+
+            transaction.onerror = function (event) {
+                context.log('getRecordFromObjectStoreByKey: Transaction not opened due to error: ' + transaction.error);
+            };
+
+            var objectStore = transaction.objectStore(objectStoreName);
+            var upperBoundLastSubKey = params.pop();
+            var lowerBound, upperBound;
+            if (params.length > 1) {
+                lowerBound = params;
+                upperBound = params.slice(0, -1);
+                upperBound.push(upperBoundLastSubKey);
+            }
+            else {
+                lowerBound = params.shift();
+                upperBound = upperBoundLastSubKey;
+            }
+
+            var objectStoreRequest = objectStore.getAll(IDBKeyRange.bound(lowerBound, upperBound));
             objectStoreRequest.onsuccess = function (event) {
                 result = objectStoreRequest.result;
                 context.logVerbose('getRecordFromObjectStoreByKey: Transaction returned: ' + result);

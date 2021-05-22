@@ -15,6 +15,12 @@
 <button type="button" class="btn btn-primary" @onclick="Test3">
     Test 3
 </button>
+<button type="button" class="btn btn-primary" @onclick="Test4">
+    Test 4
+</button>
+<button type="button" class="btn btn-primary" @onclick="Test5">
+    Test 5
+</button>
 
 <p class="mt-2" style="font-size:1.6em">
     <span class="badge badge-success">
@@ -39,7 +45,18 @@
     {
         IndexedDBResultHandler<BibleService.Book> resultHandler = await db.CallDbAsync<BibleService.Book>(null, "getRecordFromObjectStoreByKey", "books", 30);
         resultHandler.OnDbResultOK += () => { text = resultHandler.Result.Name; StateHasChanged(); };
-        
+    }
+
+    private async Task Test4()
+    {
+        IndexedDBResultHandler<BibleService.Verse> resultHandler = await db.CallDbAsync<BibleService.Verse>(null, "getRecordFromObjectStoreByKey", "verses", 230, 39, 15);
+        resultHandler.OnDbResultOK += () => { text = resultHandler.Result.Value; StateHasChanged(); };
+    }
+
+    private async Task Test5()
+    {
+        IndexedDBResultHandler<IEnumerable<BibleService.Verse>> resultHandler = await db.CallDbAsync<IEnumerable<BibleService.Verse>>(null, "getRangeFromObjectStoreByKey", "verses", 230, 39, 10, 15);
+        resultHandler.OnDbResultOK += () => { text = resultHandler.Result.Aggregate("", (accumulateedString, current) => { return accumulateedString + current.Value; }); StateHasChanged(); };
     }
 }
 
