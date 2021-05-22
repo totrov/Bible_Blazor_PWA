@@ -10,7 +10,10 @@
 </button>
 
 <button type="button" class="btn btn-primary" @onclick="Test2">
-   Test 2
+    Test 2
+</button>
+<button type="button" class="btn btn-primary" @onclick="Test3">
+    Test 3
 </button>
 
 <p class="mt-2" style="font-size:1.6em">
@@ -31,6 +34,12 @@
     {
         IndexedDBResultHandler<int> resultHandler = await db.CallDbAsync<int>(null, "test", "js");
         resultHandler.OnDbResultOK += () => { text = resultHandler.Result.ToString(); StateHasChanged(); };
+    }
+    private async Task Test3()
+    {
+        IndexedDBResultHandler<BibleService.Book> resultHandler = await db.CallDbAsync<BibleService.Book>(null, "getRecordFromObjectStoreByKey", "books", 30);
+        resultHandler.OnDbResultOK += () => { text = resultHandler.Result.Name; StateHasChanged(); };
+        
     }
 }
 

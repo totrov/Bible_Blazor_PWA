@@ -1,7 +1,12 @@
 ﻿window.context = {
     db: null,
     justUpgraded: false,
-    currentVersion: 1
+    currentVersion: 1,
+    dbName: 'db',
+    debugMode: true,
+    verbose: true,
+    log: function (message) { if (this.debugMode) console.log(message); },
+    logVerbose: function (message) { if (this.debugMode && this.verbose) console.log(message); }
 };
 
 function DataUpgrade(dotnetReference)
@@ -102,20 +107,36 @@ window.database = {
     displayWelcome: function (welcomeMessage) {
         document.getElementById('welcome').innerText = welcomeMessage;
     },
-    returnArrayAsyncJs: function () {
-        DotNet.invokeMethodAsync('BlazorWebAssemblySample', 'ReturnArrayAsync')
-            .then(data => {
-                data.push(4);
-                console.log(data);
-            });
-    },
     jsLog: function (text) { console.log(text);},
     showPrompt: function (text) {
         return prompt(text, 'Type your name here');
     },
-    sayHello: function (dotnetHelper) {
-        return dotnetHelper.invokeMethodAsync('SayHello')
-            .then(r => console.log(r));
+    getRecordFromObjectStoreByKey: function (dotnetHelper, params) {
+        context.log('getRecordFromObjectStoreByKey was called');
+        var openRequest = window.indexedDB.open(context.dbName, context.currentVersion);
+
+        openRequest.onsuccess = function (event) {
+            context.log('db opened');
+            context.db = openRequest.result;
+            let objectStoreName = params.shift();
+            var transaction = context.db.transaction(objectStoreName, "readonly");
+
+            transaction.oncomplete = function (event) {
+                context.log('getRecordFromObjectStoreByKey: Transaction completed.');
+            };
+
+            transaction.onerror = function (event) {
+                context.log('getRecordFromObjectStoreByKey: Transaction not opened due to error: ' + transaction.error);
+            };
+
+            var objectStore = transaction.objectStore(objectStoreName);
+            var objectStoreRequest = objectStore.get(params.shift());
+            objectStoreRequest.onsuccess = function (event) {
+                result = objectStoreRequest.result;
+                context.logVerbose('getRecordFromObjectStoreByKey: Transaction returned: ' + result);
+                dotnetHelper.invokeMethod('SetStatusAndResult', true, result);
+            };
+        };
     },
     test: function (dotnetHelper) {
         var openRequest = window.indexedDB.open("db", context.currentVersion);
@@ -132,7 +153,7 @@ window.database = {
             var objectStore  = transaction.objectStore("books");
             var objectStoreRequest = objectStore.get('js');
             objectStoreRequest.onsuccess = function (event) {
-                console.log("got result " + result);
+                context.log("got result " + result);
                 var result = objectStoreRequest.result.price;
                 dotnetHelper.invokeMethod('SetStatusAndResult', true, result);
             };
