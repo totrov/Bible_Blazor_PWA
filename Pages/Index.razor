@@ -7,7 +7,7 @@
 
 <h1>Планы уроков церкви "Завет Христа"</h1>
 
-@if (!db.IsInitialized)//!bible.IsLoaded)
+@if (!bible.IsLoaded)
 {
     <div class="container-fluid">
         <div class="row">
@@ -36,7 +36,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        if (false)//!bible.IsLoaded)
+        if (!bible.IsLoaded)
         {
             Task verseTask = Task.Run(async () => { verses = await Http.GetFromJsonAsync<BibleService.Verse[]>("Assets/verses.json"); });
             Task bookTask = Task.Run(async () => { books = await Http.GetFromJsonAsync<BibleService.Book[]>("Assets/books.json"); });

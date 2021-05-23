@@ -42,10 +42,17 @@
     {
         int number = counter1++;
         <div class="card-body" style="@((IsActive(number) && RefsAreOpen && IsOpen) ? "":"display:none;") background-color:beige">
-            @foreach (BibleService.VersesView view in Bible.GetVersesFromReference(reference))
+            @if (_versesViewsDictionary == null)
             {
-                <span class="badge badge-primary">@view.Badge</span>
-                <i>@view.RawText.Replace("<J>", "").Replace("</J>", "")</i>
+
+            }
+            else
+            {
+                foreach (BibleService.VersesView view in _versesViewsDictionary[reference.ToString()])
+                {
+                    <span class="badge badge-primary">@view.Badge</span>
+                    <i>@view.RawText.Replace("<J>", "").Replace("</J>", "")</i>
+                }
             }
         </div>
     }
@@ -66,6 +73,7 @@
     private int activeNumber = 0;
     protected bool RefsAreOpen { get; set; } = true;
     protected bool IsOpen { get; set; } = true;
+    protected Dictionary<string, IEnumerable<BibleService.VersesView>> _versesViewsDictionary;
 
     protected LinkedList<BibleReference> _references;
 
@@ -75,6 +83,17 @@
 
     [Parameter]                                          //TODO remove. It is redundant. However, getting disturbing compile errors. No regferences in the code
     public LessonElementData ComponentData { get; set; } //and cleaning up does not help
+
+    protected override async Task OnInitializedAsync()
+    {
+        _versesViewsDictionary = new Dictionary<string, IEnumerable<BibleService.VersesView>>();
+        LinkedList<Task> tasks = new LinkedList<Task>();
+        foreach (BibleReference reference in BibleReferences)
+        {
+            tasks.AddLast(Task.Run(async () => _versesViewsDictionary.Add(reference.ToString(), await Bible.GetVersesFromReference(reference))));
+        }
+        await Task.WhenAll(tasks);
+    }
 
     public bool HasBibleReferences
     {
