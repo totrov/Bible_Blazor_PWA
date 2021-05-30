@@ -35,7 +35,6 @@ namespace Bible_Blazer_PWA
         public async Task<IEnumerable<VersesView>> GetVersesFromReference(BibleReference reference)
         {
             Task<int> bookIdTask = _dataProvider.GetBookIdByShortNameAsync(reference.BookShortName);
-            //int bookIdTask = _dataProvider.GetBookIdByShortName(reference.BookShortName);
             LinkedList<VersesView> result = new LinkedList<VersesView>();
             string badge = "";
             foreach (BibleVersesReference versesReference in reference.References)
@@ -44,7 +43,6 @@ namespace Bible_Blazer_PWA
                 foreach (FromToVerses fromTo in versesReference.FromToVerses)
                 {
                     Task<IEnumerable<Verse>> verseTask = _dataProvider.GetVersesAsync(await bookIdTask, versesReference.Chapter, fromTo.FromVerse, fromTo.ToVerse);
-                    //IEnumerable<Verse> verseTask = _dataProvider.GetVerses(bookIdTask, versesReference.Chapter, fromTo.FromVerse, fromTo.ToVerse);
                     VersesView versesView = new VersesView();
                     string toVerse = fromTo.ToVerse == null ? "" : $"-{fromTo.ToVerse}";
                     versesView.Badge = $"{badge}{fromTo.FromVerse}{toVerse}";
@@ -61,18 +59,6 @@ namespace Bible_Blazer_PWA
             return result;
         }
 
-        //public string getVerseValue(string bookName, int chapter, int verse)
-        //{
-        //    int bookId = _books.Where(b => (b.ShortName == bookName)).Select(b => b.Id).FirstOrDefault();
-        //    return getVerseValue(bookId, chapter, verse);
-        //}
-
-        //public string getVerseValue(int bookId, int chapter, int verse)
-        //{
-        //    string verseValue = _verses.Where(v => (v.Chapter == 3 && v.Id == 15 && v.BookId == bookId)).Select(v => v.Value).FirstOrDefault();
-        //    return verseValue;
-        //}
-
         private bool _isLoaded = false;
         public bool IsLoaded { get { return _isLoaded; } }
         public void Init(Verse[] verses, Book[] books)
@@ -80,6 +66,10 @@ namespace Bible_Blazer_PWA
             _dataProvider = new InMemoryBibleServiceFetchStrategy(verses, books);
             _isLoaded = true;
         }
-
+        public void Init(DataBase.DatabaseJSFacade dataBase)
+        {
+            _dataProvider = new DataBaseBibleServiceFetchStrategy(dataBase);
+            _isLoaded = true;
+        }
     }
 }

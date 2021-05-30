@@ -54,7 +54,8 @@ function SchemaUpgrade() {
 
     switch (context.db.version) {
         case 1:
-            context.db.createObjectStore('books', { keyPath: 'Id' });
+            var booksObjectStore = context.db.createObjectStore('books', { keyPath: 'Id' });
+            booksObjectStore.createIndex("ShortName", "ShortName", { unique: true });
             context.db.createObjectStore('verses', { keyPath: ['BookId', 'Chapter', 'Id'] });
             context.db.createObjectStore('lessonUnits', { keyPath: ['Id'] });
             context.db.createObjectStore('lessons', { keyPath: ['UnitId', 'Id'] });
@@ -135,6 +136,35 @@ window.database = {
             objectStoreRequest.onsuccess = function (event) {
                 result = objectStoreRequest.result;
                 context.logVerbose('getRecordFromObjectStoreByKey: Transaction returned: ' + result);
+                dotnetHelper.invokeMethod('SetStatusAndResult', true, result);
+            };
+        };
+    },
+    getRecordFromObjectStoreByIndex: function (dotnetHelper, params) {
+        context.log('getRecordFromObjectStoreByIndex was called');
+        var openRequest = window.indexedDB.open(context.dbName, context.currentVersion);
+
+        openRequest.onsuccess = function (event) {
+            context.log('db opened');
+            context.db = openRequest.result;
+            let objectStoreName = params.shift();
+            var transaction = context.db.transaction(objectStoreName, "readonly");
+
+            transaction.oncomplete = function (event) {
+                context.log('getRecordFromObjectStoreByIndex: Transaction completed.');
+            };
+
+            transaction.onerror = function (event) {
+                context.log('getRecordFromObjectStoreByIndex: Transaction not opened due to error: ' + transaction.error);
+            };
+
+            var objectStore = transaction.objectStore(objectStoreName);
+            var index = objectStore.index(params.shift());
+            var key = params.length > 1 ? params : params.shift();
+            var indexRequest = index.get(key);
+            indexRequest.onsuccess = function (event) {
+                result = indexRequest.result;
+                context.logVerbose('getRecordFromObjectStoreByIndex: Transaction returned: ' + result);
                 dotnetHelper.invokeMethod('SetStatusAndResult', true, result);
             };
         };

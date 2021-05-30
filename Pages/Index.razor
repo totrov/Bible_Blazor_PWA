@@ -38,15 +38,15 @@ else
     {
         if (!bible.IsLoaded)
         {
-            Task verseTask = Task.Run(async () => { verses = await Http.GetFromJsonAsync<BibleService.Verse[]>("Assets/verses.json"); });
-            Task bookTask = Task.Run(async () => { books = await Http.GetFromJsonAsync<BibleService.Book[]>("Assets/books.json"); });
-            await Task.WhenAll(new[] { verseTask, bookTask }).ContinueWith((async) => { bible.Init(verses, books); });
-        }
+            //Task verseTask = Task.Run(async () => { verses = await Http.GetFromJsonAsync<BibleService.Verse[]>("Assets/verses.json"); });
+            //Task bookTask = Task.Run(async () => { books = await Http.GetFromJsonAsync<BibleService.Book[]>("Assets/books.json"); });
 
-        if (!db.IsInitialized)
-        {
-            IndexedDBResultHandler handler = await db.Init(JS);
-            handler.OnDbResultOK += StateHasChanged;
+            if (!db.IsInitialized)
+            {
+                IndexedDBResultHandler handler = await db.Init(JS);
+                handler.OnDbResultOK += StateHasChanged;
+            }
+            bible.Init(db);
         }
     }
 
