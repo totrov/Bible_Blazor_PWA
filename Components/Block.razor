@@ -41,7 +41,7 @@
     {
         int number = counter1++;
         <div class="card-body" style="@((IsActive(number) && RefsAreOpen && IsOpen) ? "":"display:none;") background-color:beige">
-            @foreach (BibleService.VersesView view in (Bible.GetVersesFromReference(reference).Result))
+            @foreach (BibleService.VersesView view in (Bible.GetVersesFromReference(reference)@*.Result*@))
             {
                 <span class="badge badge-primary">@view.Badge</span>
                 <i>@view.RawText.Replace("<J>", "").Replace("</J>", "")</i>

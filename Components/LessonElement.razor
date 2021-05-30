@@ -42,17 +42,17 @@
     {
         int number = counter1++;
         <div class="card-body" style="@((IsActive(number) && RefsAreOpen && IsOpen) ? "":"display:none;") background-color:beige">
-            @if (_versesViewsDictionary == null)
-            {
-
-            }
-            else
+            @if (_versesLoaded)
             {
                 foreach (BibleService.VersesView view in _versesViewsDictionary[reference.ToString()])
                 {
                     <span class="badge badge-primary">@view.Badge</span>
                     <i>@view.RawText.Replace("<J>", "").Replace("</J>", "")</i>
                 }
+            }
+            else
+            {
+
             }
         </div>
     }
@@ -71,6 +71,7 @@
 
 @code {
     private int activeNumber = 0;
+    private bool _versesLoaded = false;
     protected bool RefsAreOpen { get; set; } = true;
     protected bool IsOpen { get; set; } = true;
     protected Dictionary<string, IEnumerable<BibleService.VersesView>> _versesViewsDictionary;
@@ -87,12 +88,16 @@
     protected override async Task OnInitializedAsync()
     {
         _versesViewsDictionary = new Dictionary<string, IEnumerable<BibleService.VersesView>>();
-        LinkedList<Task> tasks = new LinkedList<Task>();
+        LinkedList<Task> taskList = new LinkedList<Task>();
         foreach (BibleReference reference in BibleReferences)
         {
-            tasks.AddLast(Task.Run(async () => _versesViewsDictionary.Add(reference.ToString(), await Bible.GetVersesFromReference(reference))));
+            var verseTask = Bible.GetVersesFromReference(reference);
+            //var verseInsertionTask = verseTask.ContinueWith(verseTask => { _versesViewsDictionary.Add(reference.ToString(), verseTask.Result);});
+            _versesViewsDictionary.Add(reference.ToString(), verseTask);
+
         }
-        await Task.WhenAll(tasks);
+        _versesLoaded = true;
+        //await Task.WhenAll(taskList).ContinueWith((async) => { _versesLoaded = true; });
     }
 
     public bool HasBibleReferences

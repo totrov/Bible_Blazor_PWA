@@ -7,6 +7,8 @@ namespace Bible_Blazer_PWA
     public interface IBibleServiceFetchStrategy
     {
         Task<IEnumerable<Verse>> GetVersesAsync(int bookId, int chapter, int fromVerse, int? toVerse);
-        Task<int> GetBookIdByShortName(string bookShortName);
+        IEnumerable<Verse> GetVerses(int bookId, int chapter, int fromVerse, int? toVerse);
+        Task<int> GetBookIdByShortNameAsync(string bookShortName);
+        int GetBookIdByShortName(string bookShortName);
     }
 }
