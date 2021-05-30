@@ -1,3 +1,4 @@
+using Bible_Blazer_PWA.DataBase;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +20,7 @@ namespace Bible_Blazer_PWA
 
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
             builder.Services.AddSingleton<BibleService>();
+            builder.Services.AddSingleton<DatabaseJSFacade>();
 
             await builder.Build().RunAsync();
         }

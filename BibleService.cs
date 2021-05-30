@@ -9,6 +9,7 @@ namespace Bible_Blazer_PWA
 {
     public class BibleService
     {
+        private IBibleServiceFetchStrategy _dataProvider;
         public class Verse
         {
             public int BookId { get; set; }
@@ -31,26 +32,21 @@ namespace Bible_Blazer_PWA
             public string ShortName { get; set; }
         }
 
-        public IEnumerable<VersesView> GetVersesFromReference(BibleReference reference)
+        public async Task<IEnumerable<VersesView>> GetVersesFromReference(BibleReference reference)
         {
+            Task<int> bookIdTask = _dataProvider.GetBookIdByShortNameAsync(reference.BookShortName);
             LinkedList<VersesView> result = new LinkedList<VersesView>();
-            int bookId = _books.Where(b => (b.ShortName == reference.BookShortName)).Select(b => b.Id).First();
             string badge = "";
             foreach (BibleVersesReference versesReference in reference.References)
             {
                 badge = $"{versesReference.Chapter}:";
                 foreach (FromToVerses fromTo in versesReference.FromToVerses)
                 {
+                    Task<IEnumerable<Verse>> verseTask = _dataProvider.GetVersesAsync(await bookIdTask, versesReference.Chapter, fromTo.FromVerse, fromTo.ToVerse);
                     VersesView versesView = new VersesView();
                     string toVerse = fromTo.ToVerse == null ? "" : $"-{fromTo.ToVerse}";
                     versesView.Badge = $"{badge}{fromTo.FromVerse}{toVerse}";
-                    versesView.RawText = _verses
-                        .Where(v =>(
-                            v.Chapter == versesReference.Chapter
-                            && v.Id >= fromTo.FromVerse
-                            && (v.Id <= (fromTo.ToVerse == null ? fromTo.FromVerse : fromTo.ToVerse))
-                            && v.BookId == bookId
-                        ))
+                    versesView.RawText = (await verseTask)
                         .Select(v => Regex.Replace(
                             v.Value,
                             @"(?:<S>.*?</S>)|(?:<f>.*?</f>)|<pb/>|<t>|</t>|<i>|</i>", "")
@@ -63,44 +59,17 @@ namespace Bible_Blazer_PWA
             return result;
         }
 
-        public string getVerseValue(string bookName, int chapter, int verse)
-        {
-            int bookId = _books.Where(b => (b.ShortName == bookName)).Select(b => b.Id).FirstOrDefault();
-            return getVerseValue(bookId, chapter, verse);
-        }
-
-        public string getVerseValue(int bookId, int chapter, int verse)
-        {
-            string verseValue = _verses.Where(v => (v.Chapter == 3 && v.Id == 15 && v.BookId == bookId)).Select(v => v.Value).FirstOrDefault();
-            return verseValue;
-        }
-
-        public string perfTest()
-        {
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
-            for (int i = 10; i <= 100; i += 10)
-            {
-                for (int j = 1; j <= 2; j++)
-                {
-                    for (int k = 1; k <= 10; k++)
-                    {
-                        sb.Append(getVerseValue(i, j, k));
-                    }
-                }
-            }
-            return sb.ToString();
-        }
-
-        private Verse[] _verses;
-        private Book[] _books;
         private bool _isLoaded = false;
         public bool IsLoaded { get { return _isLoaded; } }
         public void Init(Verse[] verses, Book[] books)
         {
-            _verses = verses;
-            _books = books;
+            _dataProvider = new InMemoryBibleServiceFetchStrategy(verses, books);
             _isLoaded = true;
         }
-
+        public void Init(DataBase.DatabaseJSFacade dataBase)
+        {
+            _dataProvider = new DataBaseBibleServiceFetchStrategy(dataBase);
+            _isLoaded = true;
+        }
     }
 }

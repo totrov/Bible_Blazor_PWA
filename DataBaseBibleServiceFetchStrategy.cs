@@ -1,0 +1,46 @@
+﻿using Bible_Blazer_PWA.DataBase;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace Bible_Blazer_PWA
+{
+    internal class DataBaseBibleServiceFetchStrategy : IBibleServiceFetchStrategy
+    {
+        private DatabaseJSFacade _db;
+
+        public DataBaseBibleServiceFetchStrategy(DatabaseJSFacade database)
+        {
+            _db = database;
+        }
+        public async Task<int> GetBookIdByShortNameAsync(string bookShortName)
+        {
+            TaskCompletionSource<int> tcs = new TaskCompletionSource<int>();
+            IndexedDBResultHandler<BibleService.Book> resultHandler = await _db.CallDbAsync<BibleService.Book>(null, "getRecordFromObjectStoreByIndex", "books", "ShortName", bookShortName);
+            resultHandler.OnDbResultOK += () => { tcs.SetResult(resultHandler.Result.Id); }; 
+            return await tcs.Task;            
+        }
+
+        public async Task<IEnumerable<BibleService.Verse>> GetVersesAsync(int bookId, int chapter, int fromVerse, int? toVerse)
+        {
+            TaskCompletionSource<IEnumerable<BibleService.Verse>> tcs = new TaskCompletionSource<IEnumerable<BibleService.Verse>>();
+            
+            if (toVerse != null)
+            {
+                IndexedDBResultHandler<IEnumerable<BibleService.Verse>> resultHandler;
+                resultHandler = await _db.CallDbAsync<IEnumerable<BibleService.Verse>>(
+                    null, "getRangeFromObjectStoreByKey", "verses", bookId, chapter, fromVerse, toVerse);
+                resultHandler.OnDbResultOK += () => { tcs.SetResult(resultHandler.Result); };
+            }
+            else
+            {
+                IndexedDBResultHandler<BibleService.Verse> resultHandler;
+                LinkedList<BibleService.Verse> verses = new LinkedList<BibleService.Verse>();
+                resultHandler = await _db.CallDbAsync<BibleService.Verse>(
+                    null, "getRecordFromObjectStoreByKey", "verses", bookId, chapter, fromVerse);
+                resultHandler.OnDbResultOK += () => { verses.AddLast(resultHandler.Result); tcs.SetResult(verses); };
+            }
+            
+            return await tcs.Task;
+        }
+    }
+}

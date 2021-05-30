@@ -7,7 +7,7 @@
     <div class="card-header">
         <h5 class="card-title">
             @Title
-            
+
             @if (@ChildContent != null)
             {
                 <button type="button" class="btn @(IsOpen ? "btn-outline-primary" : "btn-outline-secondary")" style="display: inline;" @onclick="Toggle">...</button>
@@ -28,7 +28,7 @@
                 {
                     int number = counter++;
                     <li class="nav-item">
-                        <a class="nav-link @(IsActive(number)?"active":"")" style="color:#007bff" @onclick="@(e => SetActive(e, number))">@reference.ToString()</a>
+                        <a class="nav-link @(IsActive(number) ? "active" : "")" style="color:#007bff" @onclick="@(e => SetActive(e, number))">@reference.ToString()</a>
                     </li>
                 }
             </ul>
@@ -40,18 +40,25 @@
     @foreach (BibleReference reference in BibleReferences)
     {
         int number = counter1++;
-        <div class="card-body" style="@((IsActive(number) && RefsAreOpen && IsOpen) ? "":"display:none;") background-color:beige">
-            @foreach (BibleService.VersesView view in Bible.GetVersesFromReference(reference))
+        <div class="card-body" style="@((IsActive(number) && RefsAreOpen && IsOpen) ? "" : "display:none;") background-color:beige">
+            @if (_versesLoaded)
             {
-                <span class="badge badge-primary">@view.Badge</span>
-                <i>@view.RawText.Replace("<J>", "").Replace("</J>", "")</i>
+                foreach (BibleService.VersesView view in (_versesViewsDictionary[reference.ToString()]))
+                {
+                    <span class="badge badge-primary">@view.Badge</span>
+                    <i>@view.RawText.Replace("<J>", "").Replace("</J>", "")</i>
+                }
+            }
+            else
+            {
+                <span>Загрузка...</span>
             }
         </div>
     }
 
     @if (@ChildContent != null)
     {
-        <div class="card-body" style="@(IsOpen ? "":"display:none;")">
+        <div class="card-body" style="@(IsOpen ? "" : "display:none;")">
             @ChildContent
         </div>
     }
@@ -67,6 +74,8 @@
     protected bool IsOpen { get; set; } = true;
 
     protected LinkedList<BibleReference> _references;
+    protected Dictionary<string, IEnumerable<BibleService.VersesView>> _versesViewsDictionary;
+    protected bool _versesLoaded = false;
 
     [Parameter]
     public string Title { get; set; }
@@ -112,5 +121,15 @@
     private bool IsActive(int buttonNumber)
     {
         return activeNumber == buttonNumber;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _versesViewsDictionary = new Dictionary<string, IEnumerable<BibleService.VersesView>>();
+        foreach (BibleReference reference in BibleReferences)
+        {
+            _versesViewsDictionary.Add(reference.ToString(), await Bible.GetVersesFromReference(reference));
+        }
+        _versesLoaded = true;
     }
 }
