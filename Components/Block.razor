@@ -126,6 +126,10 @@
     protected override async Task OnInitializedAsync()
     {
         _versesViewsDictionary = new Dictionary<string, IEnumerable<BibleService.VersesView>>();
-        //TODO implement insert
+        foreach (BibleReference reference in BibleReferences)
+        {
+            _versesViewsDictionary.Add(reference.ToString(), await Bible.GetVersesFromReference(reference));
+        }
+        _versesLoaded = true;
     }
 }

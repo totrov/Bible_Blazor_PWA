@@ -52,7 +52,7 @@
             }
             else
             {
-
+                <span>Загрузка...</span>
             }
         </div>
     }
@@ -81,22 +81,14 @@
     [Parameter]
     public LessonElementData ElementData { get; set; }
 
-
-    [Parameter]                                          //TODO remove. It is redundant. However, getting disturbing compile errors. No regferences in the code
-    public LessonElementData ComponentData { get; set; } //and cleaning up does not help
-
     protected override async Task OnInitializedAsync()
     {
         _versesViewsDictionary = new Dictionary<string, IEnumerable<BibleService.VersesView>>();
-        LinkedList<Task> taskList = new LinkedList<Task>();
         foreach (BibleReference reference in BibleReferences)
         {
-            var verseTask = Bible.GetVersesFromReference(reference);
-            var verseInsertionTask = verseTask.ContinueWith(verseTask => { _versesViewsDictionary.Add(reference.ToString(), verseTask.Result); });
-            taskList.AddLast(verseInsertionTask);
-
+            _versesViewsDictionary.Add(reference.ToString(), await Bible.GetVersesFromReference(reference));
         }
-        await Task.WhenAll(taskList).ContinueWith((async) => { _versesLoaded = true; });
+        _versesLoaded = true;
     }
 
     public bool HasBibleReferences
