@@ -32,10 +32,10 @@ namespace Bible_Blazer_PWA
             public string ShortName { get; set; }
         }
 
-        public /*async*/ IEnumerable<VersesView> GetVersesFromReference(BibleReference reference)
+        public async Task<IEnumerable<VersesView>> GetVersesFromReference(BibleReference reference)
         {
-            //Task<int> bookIdTask = _dataProvider.GetBookIdByShortName(reference.BookShortName);
-            int bookIdTask = _dataProvider.GetBookIdByShortName(reference.BookShortName);
+            Task<int> bookIdTask = _dataProvider.GetBookIdByShortNameAsync(reference.BookShortName);
+            //int bookIdTask = _dataProvider.GetBookIdByShortName(reference.BookShortName);
             LinkedList<VersesView> result = new LinkedList<VersesView>();
             string badge = "";
             foreach (BibleVersesReference versesReference in reference.References)
@@ -43,12 +43,12 @@ namespace Bible_Blazer_PWA
                 badge = $"{versesReference.Chapter}:";
                 foreach (FromToVerses fromTo in versesReference.FromToVerses)
                 {
-                    //Task<IEnumerable<Verse>> verseTask = _dataProvider.GetVersesAsync(await bookIdTask, versesReference.Chapter, fromTo.FromVerse, fromTo.ToVerse);
-                    IEnumerable<Verse> verseTask = _dataProvider.GetVerses(bookIdTask, versesReference.Chapter, fromTo.FromVerse, fromTo.ToVerse);
+                    Task<IEnumerable<Verse>> verseTask = _dataProvider.GetVersesAsync(await bookIdTask, versesReference.Chapter, fromTo.FromVerse, fromTo.ToVerse);
+                    //IEnumerable<Verse> verseTask = _dataProvider.GetVerses(bookIdTask, versesReference.Chapter, fromTo.FromVerse, fromTo.ToVerse);
                     VersesView versesView = new VersesView();
                     string toVerse = fromTo.ToVerse == null ? "" : $"-{fromTo.ToVerse}";
                     versesView.Badge = $"{badge}{fromTo.FromVerse}{toVerse}";
-                    versesView.RawText = verseTask
+                    versesView.RawText = (await verseTask)
                         .Select(v => Regex.Replace(
                             v.Value,
                             @"(?:<S>.*?</S>)|(?:<f>.*?</f>)|<pb/>|<t>|</t>|<i>|</i>", "")

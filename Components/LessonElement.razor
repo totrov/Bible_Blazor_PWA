@@ -92,12 +92,11 @@
         foreach (BibleReference reference in BibleReferences)
         {
             var verseTask = Bible.GetVersesFromReference(reference);
-            //var verseInsertionTask = verseTask.ContinueWith(verseTask => { _versesViewsDictionary.Add(reference.ToString(), verseTask.Result);});
-            _versesViewsDictionary.Add(reference.ToString(), verseTask);
+            var verseInsertionTask = verseTask.ContinueWith(verseTask => { _versesViewsDictionary.Add(reference.ToString(), verseTask.Result); });
+            taskList.AddLast(verseInsertionTask);
 
         }
-        _versesLoaded = true;
-        //await Task.WhenAll(taskList).ContinueWith((async) => { _versesLoaded = true; });
+        await Task.WhenAll(taskList).ContinueWith((async) => { _versesLoaded = true; });
     }
 
     public bool HasBibleReferences
