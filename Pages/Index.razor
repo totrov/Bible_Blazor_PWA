@@ -31,16 +31,10 @@ else
 
 
 @code {
-    private BibleService.Verse[] verses;
-    private BibleService.Book[] books;
-
     protected override async Task OnInitializedAsync()
     {
         if (!bible.IsLoaded)
         {
-            //Task verseTask = Task.Run(async () => { verses = await Http.GetFromJsonAsync<BibleService.Verse[]>("Assets/verses.json"); });
-            //Task bookTask = Task.Run(async () => { books = await Http.GetFromJsonAsync<BibleService.Book[]>("Assets/books.json"); });
-
             if (!db.IsInitialized)
             {
                 IndexedDBResultHandler handler = await db.Init(JS);

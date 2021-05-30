@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 
 namespace Bible_Blazer_PWA
 {
+    [System.Obsolete("obsolete implementation. Use DataBaseBibleServiceFetchStrategy instead.")]
     internal class InMemoryBibleServiceFetchStrategy : IBibleServiceFetchStrategy
     {
         private BibleService.Verse[] _verses;
