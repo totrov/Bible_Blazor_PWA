@@ -24,7 +24,8 @@ namespace Bible_Blazer_PWA.DataSources
                     Name = "Бытие",
                     Lessons = new LessonInfo[]{ 
                         new LessonInfo { Name = "6 урок", Number=6},
-                        new LessonInfo { Name = "7 урок", Number=7}
+                        new LessonInfo { Name = "7 урок", Number=7},
+                        new LessonInfo { Name = "8 урок", Number=8}
                     }                    
                 },
                 new LessonBlock
