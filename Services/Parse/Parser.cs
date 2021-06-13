@@ -33,9 +33,9 @@ namespace Bible_Blazer_PWA.BibleReferenceParse
         private BibleReference CreateBibleReferenceFromMatch(Match match)
         {
             BibleReference bibleReference = new BibleReference();
-            bibleReference.BookShortName = match.Groups.Where(g => g.Name == "book").First().Value;
+            bibleReference.BookShortName = match.Groups.Cast<Group>().Where(g => g.Name == "book").First().Value;
             bibleReference.References = new LinkedList<BibleVersesReference>();
-            foreach (Capture capture in match.Groups.Where(g => g.Name == "ref").First().Captures)
+            foreach (Capture capture in match.Groups.Cast<Group>().Where(g => g.Name == "ref").First().Captures)
             {
                 BibleVersesReference bibleVerseReference = CreateBibleVerseReferenceFromString(capture.Value);
                 bibleReference.References.AddLast(bibleVerseReference);
@@ -48,9 +48,9 @@ namespace Bible_Blazer_PWA.BibleReferenceParse
             BibleVersesReference bibleVersesReference = new BibleVersesReference();
 
             Match match = Regex.Match(stringToParse, BibleRegexHelper.GetBibleVerseReferencesPattern());
-            bibleVersesReference.Chapter = int.Parse(match.Groups.Where(g => g.Name == "chapter").First().Value);
+            bibleVersesReference.Chapter = int.Parse(match.Groups.Cast<Group>().Where(g => g.Name == "chapter").First().Value);
             bibleVersesReference.FromToVerses = new LinkedList<FromToVerses>();
-            foreach (Capture capture in match.Groups.Where(g => g.Name == "fromTo").First().Captures)
+            foreach (Capture capture in match.Groups.Cast<Group>().Where(g => g.Name == "fromTo").First().Captures)
             {
                 bibleVersesReference.FromToVerses.AddLast(CreateFromToVerseFromString(capture.Value));
             }
@@ -62,8 +62,8 @@ namespace Bible_Blazer_PWA.BibleReferenceParse
         {
             FromToVerses fromToVerses = new FromToVerses();
             Match match = Regex.Match(stringToParse, BibleRegexHelper.GetFromToVersesPattern());
-            fromToVerses.FromVerse = int.Parse(match.Groups.Where(g => g.Name == "from").First().Value);
-            var groups = match.Groups.Where(g => g.Name == "to");
+            fromToVerses.FromVerse = int.Parse(match.Groups.Cast<Group>().Where(g => g.Name == "from").First().Value);
+            var groups = match.Groups.Cast<Group>().Where(g => g.Name == "to");
             var debug = groups.FirstOrDefault();
             if (groups.Any())
             {
