@@ -12,6 +12,7 @@ namespace Bible_Blazer_PWA
         public string Value { get; set; }
         public LinkedList<LessonElementData> Children { get; set; }
         public int Level { get; set; }
+        public string Key { get; set; }
 
         private LessonElementData()
         { }
@@ -36,39 +37,39 @@ namespace Bible_Blazer_PWA
             Level = 0;
             while (currentIndex < lines.Length)
             {
-                if (Regex.IsMatch(lines[currentIndex], "^[0-9][.]?[0-9]?[)]"))
+                if (Regex.IsMatch(lines[currentIndex], "^[0-9][.]?[0-9]?[)]") || Regex.IsMatch(lines[currentIndex], "(Заключение)"))
                 {
                     var child1 = this.AddChild(1, lines[currentIndex++]);
-                    while(currentIndex < lines.Length && !Regex.IsMatch(lines[currentIndex], "^[0-9][.]?[0-9]?[)]"))
+                    while(currentIndex < lines.Length && !Regex.IsMatch(lines[currentIndex], "^[0-9][.]?[0-9]?[)]") && !Regex.IsMatch(lines[currentIndex], "Заключение"))
                     {
                         if (Regex.IsMatch(lines[currentIndex], "^[(][0-9][.]?[0-9]?[)]"))
                         {
                             var child2 = child1.AddChild(2, lines[currentIndex++]);
-                            while (currentIndex < lines.Length && !Regex.IsMatch(lines[currentIndex], "^[(]?[0-9][.]?[0-9]?[)]"))
+                            while (currentIndex < lines.Length && !Regex.IsMatch(lines[currentIndex], "^[(]?[0-9][.]?[0-9]?[)]") && !Regex.IsMatch(lines[currentIndex], "Заключение"))
                             {
-                                if (Regex.IsMatch(lines[currentIndex], "[(][а-я][)]"))
+                                if (Regex.IsMatch(lines[currentIndex], "^[(][а-я][)]"))
                                 {
                                     var child3 = child2.AddChild(3, lines[currentIndex++]);
-                                    while (currentIndex < lines.Length && !Regex.IsMatch(lines[currentIndex], "^[(]?([0-9][.]?[0-9]?)|[а-я][)]"))
+                                    while (currentIndex < lines.Length && !Regex.IsMatch(lines[currentIndex], "^[(]?(([0-9][.]?[0-9]?)|[а-я])[)]") && !Regex.IsMatch(lines[currentIndex], "Заключение"))
                                     {
-                                        child3.Value += lines[currentIndex++];
+                                        child3.Value += " " + lines[currentIndex++];
                                     }
                                 }
                                 else
                                 {
-                                    child2.Value += lines[currentIndex++];
+                                    child2.Value += " " + lines[currentIndex++];
                                 }
                             }
                         }
                         else
                         {
-                            child1.Value += lines[currentIndex++];
+                            child1.Value += " " + lines[currentIndex++];
                         }
                     }
                 }
                 else
                 {
-                    Value += lines[currentIndex++];
+                    Value += " " + lines[currentIndex++];
                 }
             }
         }

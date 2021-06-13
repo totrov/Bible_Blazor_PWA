@@ -78,7 +78,6 @@ window.database = {
     initDatabase: function (dotnetReference) {
         console.log("Database initialization started");
 
-        indexedDB.deleteDatabase("db");
         let openRequest = indexedDB.open("db", 1);
 
         openRequest.onerror = function () {

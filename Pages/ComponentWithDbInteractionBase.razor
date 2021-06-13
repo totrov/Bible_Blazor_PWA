@@ -1,0 +1,36 @@
+﻿@inject BibleService bible;
+@inject IJSRuntime JS;
+@using Bible_Blazer_PWA.DataBase;
+@inject DatabaseJSFacade db;
+
+@if (!bible.IsLoaded)
+{
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col">
+                Загрузка базы данных...
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm">
+                <div class="spinner-border ml-auto text-success" role="status" aria-hidden="true"></div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        if (!bible.IsLoaded)
+        {
+            if (!db.IsInitialized)
+            {
+                IndexedDBResultHandler handler = await db.Init(JS);
+                handler.OnDbResultOK += StateHasChanged;
+            }
+            bible.Init(db);
+        }
+    }
+
+}

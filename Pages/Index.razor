@@ -1,47 +1,25 @@
 ﻿@page "/"
-@inject HttpClient Http
-@inject BibleService bible
-@inject IJSRuntime JS;
-@using Bible_Blazer_PWA.DataBase;
-@inject DatabaseJSFacade db;
+@inherits ComponentWithDbInteractionBase
+@inject BibleService bible;
 
 <h1>Планы уроков церкви "Завет Христа"</h1>
 
-@if (!bible.IsLoaded)
+@if (bible.IsLoaded)
 {
     <div class="container-fluid">
         <div class="row">
             <div class="col">
-                После запуска приложения требуется какое-то время для того, чтобы загрузились стихи Библии. Обычно это занимает примерно одну минуту.
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-sm">
-                <div class="spinner-border ml-auto text-success" role="status" aria-hidden="true"></div>
+                База данных успешно загружена.
             </div>
         </div>
     </div>
-}
-else
-{
-    <content>
-        Загрузка завершена, можно пользоваться.
-    </content>
 }
 
 
 @code {
     protected override async Task OnInitializedAsync()
     {
-        if (!bible.IsLoaded)
-        {
-            if (!db.IsInitialized)
-            {
-                IndexedDBResultHandler handler = await db.Init(JS);
-                handler.OnDbResultOK += StateHasChanged;
-            }
-            bible.Init(db);
-        }
+        await base.OnInitializedAsync();
     }
 
 }
