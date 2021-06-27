@@ -1,0 +1,56 @@
+using System;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Text.Json;
+using System.Text.RegularExpressions;
+
+namespace LessonParser
+{
+    class Program
+    {
+        class LessonModel
+        {
+            public string UnitId { get; set; }
+            public string Id { get; set; }
+            public string Name { get; set; }
+            public string Content { get; set; }
+        }
+        static async System.Threading.Tasks.Task Main(string[] args)
+        {
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
+            Console.WriteLine("Set path to txt file");
+            var path = Console.ReadLine();
+            string input = File.ReadAllText(path);
+            string regex = "\r\n([0-9]+[.](?!Тело – плоть)(?!Дух – сердце)(?!Душа – разум)(?!Сторона).*)\r\n";
+            var contents = Regex.Split(input, regex);
+            using FileStream fileSteam = File.Create(path.Replace(".txt", ".json"));
+
+            string UnitId = "";
+            if (contents[0].Contains("Бытие"))
+            {
+                UnitId = "Быт";
+            }
+
+            var lessonModel = new LessonModel() { UnitId = UnitId };
+            var lessonsList = new System.Collections.Generic.LinkedList<LessonModel>();
+
+            for (int i = 1; i < contents.Length; i++)
+            {
+                if (i % 2 == 1)
+                {
+                    lessonModel.Name = contents[i];
+                    lessonModel.Id = contents[i].Split('.')[0];
+                }
+                else
+                {
+                    lessonModel.Content = contents[i].Replace("\r\n","<br>");
+                    lessonsList.AddLast(lessonModel);
+                    lessonModel = new LessonModel();
+                }
+            }
+
+            await JsonSerializer.SerializeAsync(fileSteam, lessonsList, new JsonSerializerOptions() { WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
+        }
+    }
+}

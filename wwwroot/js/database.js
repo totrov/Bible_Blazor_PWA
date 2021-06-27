@@ -2,6 +2,7 @@
     db: null,
     justUpgraded: false,
     currentVersion: 1,
+    previousVersion: 0,
     dbName: 'db',
     debugMode: true,
     verbose: true,
@@ -12,34 +13,17 @@
 function DataUpgrade(dotnetReference)
 {
     console.log("Data upgrade started");
-    console.log("dbVersion:" + context.db.version);
+    console.log("dbVersion:" + context.db.version + " prevVersion:" + context.previousVersion);
     
-    switch (context.db.version)
+    switch (context.previousVersion)
     {
-        case 1:
-            var fetchJson = async (path, dbStore) => {
-                const response = await fetch(path);
-                var json = await response.json();
-                var transaction = context.db.transaction(dbStore, "readwrite");
-                var os = transaction.objectStore(dbStore);
-                json.forEach(function (data) { os.add(data); });
-
-                transaction.oncomplete = function () {
-                    console.log(dbStore + ' ' + 'fetch transaction completed');
-                    dotnetReference.invokeMethod('SetStatus', true);
-                };
-
-                transaction.onerror = function (e) {
-                    console.log(dbStore + ' ' + 'fetch transaction failed. ' + e.error);
-                    dotnetReference.invokeMethod('SetStatus', false);
-                    e.stopPropagation();
-                };
-            };
-            fetchJson('/Assets/books.json', 'books');
-            fetchJson('/Assets/verses.json', 'verses');
-
+        case 0:
+            database.dataUpgradeFunctions[0](dotnetReference);
+            database.dataUpgradeFunctions[1](dotnetReference);
             break;
-
+        case 1:
+            database.dataUpgradeFunctions[1](dotnetReference);
+            break;
         default:
             console.log("no data upgrade script for current db version");
             break;
@@ -49,16 +33,16 @@ function DataUpgrade(dotnetReference)
 function SchemaUpgrade() {
 
     console.log("Schema upgrade started");
-    console.log("dbVersion:" + context.db.version);
+    console.log("dbVersion:" + context.db.version + " prevVersion:" + context.previousVersion);
     let upgradeWasNotSuccess = false;
 
-    switch (context.db.version) {
+    switch (context.previousVersion) {
+        case 0:
+            database.schemaUpgradeFunctions[0]();
+            database.schemaUpgradeFunctions[1]();
+            break;
         case 1:
-            var booksObjectStore = context.db.createObjectStore('books', { keyPath: 'Id' });
-            booksObjectStore.createIndex("ShortName", "ShortName", { unique: true });
-            context.db.createObjectStore('verses', { keyPath: ['BookId', 'Chapter', 'Id'] });
-            context.db.createObjectStore('lessonUnits', { keyPath: ['Id'] });
-            context.db.createObjectStore('lessons', { keyPath: ['UnitId', 'Id'] });
+            database.schemaUpgradeFunctions[1]();
             break;
 
         default:
@@ -78,6 +62,7 @@ window.database = {
     initDatabase: function (dotnetReference) {
         console.log("Database initialization started");
 
+        indexedDB.deleteDatabase("db");
         let openRequest = indexedDB.open("db", 1);
 
         openRequest.onerror = function () {
@@ -92,25 +77,20 @@ window.database = {
             }
             else {
                 dotnetReference.invokeMethod('SetStatus', true);
+                console.log("Database initialization finished");
             }
-            console.log("Database initialization finished");
         };
 
-        openRequest.onupgradeneeded = function () {
+        openRequest.onupgradeneeded = function (e) {
             context.db = openRequest.result;
+            context.previousVersion = e.oldVersion;
             SchemaUpgrade();
         }
     },
     getVerseById: function (dotnetCallback, bookId, verseId) {
         let result = "Bible verse stub: " + bookId + ":" + verseId;
     },
-    displayWelcome: function (welcomeMessage) {
-        document.getElementById('welcome').innerText = welcomeMessage;
-    },
     jsLog: function (text) { console.log(text);},
-    showPrompt: function (text) {
-        return prompt(text, 'Type your name here');
-    },
     getRecordFromObjectStoreByKey: function (dotnetHelper, params) {
         context.log('getRecordFromObjectStoreByKey was called');
         var openRequest = window.indexedDB.open(context.dbName, context.currentVersion);
@@ -207,25 +187,44 @@ window.database = {
             };
         };
     },
-    test: function (dotnetHelper) {
-        var openRequest = window.indexedDB.open("db", context.currentVersion);
+    schemaUpgradeFunctions: [
+        function (dotnetHelper) {
+            var booksObjectStore = context.db.createObjectStore('books', { keyPath: 'Id' });
+            booksObjectStore.createIndex("ShortName", "ShortName", { unique: true });
+            context.db.createObjectStore('verses', { keyPath: ['BookId', 'Chapter', 'Id'] });
+            context.db.createObjectStore('lessonUnits', { keyPath: ['Id'] });
+            context.db.createObjectStore('lessons', { keyPath: ['UnitId', 'Id'] });
+        },
+        function /*1*/() {
+            console.log("nothing to upgrade in schema");
+        }
+    ],
+    fetchJson: async (path, dbStore, dotnetReference) => {
+        const response = await fetch(path);
+        var json = await response.json();
+        var transaction = context.db.transaction(dbStore, "readwrite");
+        var os = transaction.objectStore(dbStore);
+        json.forEach(function (data) { os.add(data); });
 
-        openRequest.onsuccess = function (event) {
-            context.db = openRequest.result;
-            var transaction = context.db.transaction("books", "readonly");
-            transaction.oncomplete = function (event) {
-                //
-            };
-            transaction.onerror = function (event) {
-                //
-            };
-            var objectStore  = transaction.objectStore("books");
-            var objectStoreRequest = objectStore.get('js');
-            objectStoreRequest.onsuccess = function (event) {
-                context.log("got result " + result);
-                var result = objectStoreRequest.result.price;
-                dotnetHelper.invokeMethod('SetStatusAndResult', true, result);
-            };
+        transaction.oncomplete = function () {
+            console.log(dbStore + ' ' + 'fetch transaction completed');
+            dotnetReference.invokeMethod('SetStatus', true);
         };
-    }
+
+        transaction.onerror = function (e) {
+            console.log(dbStore + ' ' + 'fetch transaction failed. ' + e.error);
+            dotnetReference.invokeMethod('SetStatus', false);
+            e.stopPropagation();
+        };
+    },
+    dataUpgradeFunctions: [
+        function /*0*/(dotnetReference) {
+            database.fetchJson('/Assets/books.json', 'books', dotnetReference);
+            database.fetchJson('/Assets/verses.json', 'verses', dotnetReference);
+        },
+        function /*1*/(dotnetReference) {
+            database.fetchJson('/Assets/lessonUnits.json', 'lessonUnits', dotnetReference);
+            database.fetchJson('/Assets/lessons/Byt.json', 'lessons', dotnetReference).then(console.log("Database initialization finished"));
+        }
+    ],
 };
