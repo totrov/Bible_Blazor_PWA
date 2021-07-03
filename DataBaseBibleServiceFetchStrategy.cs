@@ -26,17 +26,15 @@ namespace Bible_Blazer_PWA
             
             if (toVerse != null)
             {
-                IndexedDBResultHandler<IEnumerable<BibleService.Verse>> resultHandler;
-                resultHandler = await _db.CallDbAsync<IEnumerable<BibleService.Verse>>(
-                    null, "getRangeFromObjectStoreByKey", "verses", bookId, chapter, fromVerse, toVerse);
+                var resultHandler = await _db.GetRangeFromObjectStoreByKey<BibleService.Verse>(
+                    "verses", bookId, chapter, fromVerse, toVerse);
                 resultHandler.OnDbResultOK += () => { tcs.SetResult(resultHandler.Result); };
             }
             else
             {
-                IndexedDBResultHandler<BibleService.Verse> resultHandler;
                 LinkedList<BibleService.Verse> verses = new LinkedList<BibleService.Verse>();
-                resultHandler = await _db.CallDbAsync<BibleService.Verse>(
-                    null, "getRecordFromObjectStoreByKey", "verses", bookId, chapter, fromVerse);
+                var resultHandler = await _db.GetRecordFromObjectStoreByKey<BibleService.Verse>(
+                    "verses", bookId, chapter, fromVerse);
                 resultHandler.OnDbResultOK += () => { verses.AddLast(resultHandler.Result); tcs.SetResult(verses); };
             }
             

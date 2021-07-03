@@ -1,15 +1,14 @@
-﻿@page "/lessons"
+﻿@page "/lessonsOld"
 @using Bible_Blazer_PWA.DataSources
 @using static Bible_Blazer_PWA.DataSources.LessonDS
 @inject HttpClient Http
-@inherits ComponentWithDbInteractionBase
 
-@if (_blocks != null)
+@if (LessonDS != null)
 {
     <h3>Оглавление</h3>
 
     <ul>
-        @foreach (LessonBlock block in _blocks)
+@*        @foreach (LessonBlock block in LessonDS.GetBlocks())
         {
             <li class="px-3">
                 @block.Name
@@ -17,22 +16,20 @@
                     @foreach (LessonInfo lesson in block.Lessons)
                     {
                         <li>
-                            <NavLink class="nav-link" href="@($"lesson/{lesson.Id}")" Match="NavLinkMatch.All">@lesson.Name</NavLink>
+                            <NavLink class="nav-link" href="@($"lesson/{lesson.Number}")" Match="NavLinkMatch.All">@lesson.Name</NavLink>
                         </li>
                     }
                 </ul>
             </li>
-        }
+        }*@
     </ul>
 }
 
 @code {
-    private LessonDS _lessonDS { get; set; }
-    private LinkedList<LessonBlock> _blocks;
+    LessonDS LessonDS { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        _lessonDS = new LessonDS(this.DatabaseFacade);
-        _blocks = await _lessonDS.GetBlocks();
+        @*LessonDS = new LessonDS();*@
     }
 }

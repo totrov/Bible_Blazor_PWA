@@ -16,7 +16,8 @@ namespace Bible_Blazer_PWA.DataBase
             {
                 return _isInitialized;
             }
-            set {
+            set
+            {
                 _isInitialized = value;
                 JS.InvokeVoidAsync("database.jsLog", $"set {value} value");
             }
@@ -50,8 +51,33 @@ namespace Bible_Blazer_PWA.DataBase
             resultHandler.OnDbResultOK += callback;
             DotNetObjectReference<IndexedDBResultHandler<T>> resultHandlerReference = DotNetObjectReference.Create(resultHandler);
 
-            await JS.InvokeVoidAsync($"database.{methodName}", resultHandlerReference, parameters);
+            if (parameters is not null)
+            {
+                await JS.InvokeVoidAsync($"database.{methodName}", resultHandlerReference, parameters);
+            }
+            else
+            {
+                await JS.InvokeVoidAsync($"database.{methodName}", resultHandlerReference);
+            }
             return resultHandler;
+        }
+
+        public async Task<IndexedDBResultHandler<T>> GetRecordFromObjectStoreByKey<T>(string objectStoreName, params object[] parameters)
+        {
+            return await this.CallDbAsync<T>(
+                        null, "getRecordFromObjectStoreByKey", objectStoreName, parameters);
+        }
+
+        public async Task<IndexedDBResultHandler<IEnumerable<T>>> GetAllFromObjectStore<T>(string objectStoreName)
+        {
+            return await this.CallDbAsync<IEnumerable<T>>(
+                null, "getAllFromObjectStore", objectStoreName);
+        }
+
+        public async Task<IndexedDBResultHandler<IEnumerable<T>>> GetRangeFromObjectStoreByKey<T>(string objectStoreName, params object[] parameters)
+        {
+            return await this.CallDbAsync<IEnumerable<T>>(
+                null, "getRangeFromObjectStoreByKey", objectStoreName, parameters);
         }
     }
 
@@ -78,7 +104,7 @@ namespace Bible_Blazer_PWA.DataBase
         public void SetResult(bool _status, T _result)
         {
             if (_status)
-            { 
+            {
                 Result = _result;
             }
             base.SetResult(_status);

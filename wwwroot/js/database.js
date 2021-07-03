@@ -1,7 +1,7 @@
 ﻿window.context = {
     db: null,
     justUpgraded: false,
-    currentVersion: 1,
+    currentVersion: 2,
     previousVersion: 0,
     dbName: 'db',
     debugMode: true,
@@ -60,10 +60,10 @@ function SchemaUpgrade() {
 window.database = {
 
     initDatabase: function (dotnetReference) {
-        console.log("Database initialization started");
+        //indexedDB.deleteDatabase("db");
 
-        indexedDB.deleteDatabase("db");
-        let openRequest = indexedDB.open("db", 1);
+        console.log("Database initialization started");
+        let openRequest = indexedDB.open("db", context.currentVersion);
 
         openRequest.onerror = function () {
             console.error("Error", openRequest.error);
@@ -118,6 +118,10 @@ window.database = {
                 dotnetHelper.invokeMethod('SetStatusAndResult', true, result);
             };
         };
+
+        openRequest.onerror = function (event) {
+            context.log('getRecordFromObjectStoreByKey: Database not opened due to error: ' + openRequest.error);
+        }
     },
     getRecordFromObjectStoreByIndex: function (dotnetHelper, params) {
         context.log('getRecordFromObjectStoreByIndex was called');
@@ -148,8 +152,35 @@ window.database = {
             };
         };
     },
+    getAllFromObjectStore: function (dotnetHelper, objectStoreName) {
+        context.log('getAllFromObjectStore was called');
+        var openRequest = window.indexedDB.open(context.dbName, context.currentVersion);
+
+        openRequest.onsuccess = function (event) {
+            context.log('db opened');
+            context.db = openRequest.result;
+            var transaction = context.db.transaction(objectStoreName, "readonly");
+
+            transaction.oncomplete = function (event) {
+                context.log('getRecordFromObjectStoreByKey: Transaction completed.');
+            };
+
+            transaction.onerror = function (event) {
+                context.log('getRecordFromObjectStoreByKey: Transaction not opened due to error: ' + transaction.error);
+            };
+
+            var objectStore = transaction.objectStore(objectStoreName);
+
+            var objectStoreRequest = objectStore.getAll();
+            objectStoreRequest.onsuccess = function (event) {
+                result = objectStoreRequest.result;
+                context.logVerbose('getAllFromObjectStore: Transaction returned: ' + result);
+                dotnetHelper.invokeMethod('SetStatusAndResult', true, result);
+            };
+        };
+    },
     getRangeFromObjectStoreByKey: function (dotnetHelper, params) {
-        context.log('getRecordFromObjectStoreByKey was called');
+        context.log('getRangeFromObjectStoreByKey was called');
         var openRequest = window.indexedDB.open(context.dbName, context.currentVersion);
 
         openRequest.onsuccess = function (event) {
@@ -167,15 +198,16 @@ window.database = {
             };
 
             var objectStore = transaction.objectStore(objectStoreName);
-            var upperBoundLastSubKey = params.pop();
+            var parameters = params[0];
+            var upperBoundLastSubKey = parameters.pop();
             var lowerBound, upperBound;
-            if (params.length > 1) {
-                lowerBound = params;
-                upperBound = params.slice(0, -1);
+            if (parameters.length > 1) {
+                lowerBound = parameters;
+                upperBound = parameters.slice(0, -1);
                 upperBound.push(upperBoundLastSubKey);
             }
             else {
-                lowerBound = params.shift();
+                lowerBound = parameters.shift();
                 upperBound = upperBoundLastSubKey;
             }
 

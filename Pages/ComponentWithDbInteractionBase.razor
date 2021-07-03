@@ -20,6 +20,9 @@
 }
 
 @code {
+
+    protected DatabaseJSFacade DatabaseFacade { get => db; }
+
     protected override async Task OnInitializedAsync()
     {
         if (!bible.IsLoaded)
