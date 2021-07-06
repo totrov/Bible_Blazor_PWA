@@ -60,7 +60,7 @@ function SchemaUpgrade() {
 window.database = {
 
     initDatabase: function (dotnetReference) {
-        //indexedDB.deleteDatabase("db");
+        indexedDB.deleteDatabase("db");
 
         console.log("Database initialization started");
         let openRequest = indexedDB.open("db", context.currentVersion);
@@ -244,7 +244,7 @@ window.database = {
         };
 
         transaction.onerror = function (e) {
-            console.log(dbStore + ' ' + 'fetch transaction failed. ' + e.error);
+            console.log(dbStore + ' ' + 'fetch transaction failed. ' + transaction.error);
             dotnetReference.invokeMethod('SetStatus', false);
             e.stopPropagation();
         };
@@ -256,7 +256,8 @@ window.database = {
         },
         function /*1*/(dotnetReference) {
             database.fetchJson('/Assets/lessonUnits.json', 'lessonUnits', dotnetReference);
-            database.fetchJson('/Assets/lessons/Byt.json', 'lessons', dotnetReference).then(console.log("Database initialization finished"));
+            database.fetchJson('/Assets/lessons/Byt.json', 'lessons', dotnetReference);
+            database.fetchJson('/Assets/lessons/IskhSol.json', 'lessons', dotnetReference).then(console.log("Database initialization finished"));
         }
     ],
 };
