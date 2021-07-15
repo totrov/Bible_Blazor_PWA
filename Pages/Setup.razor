@@ -1,0 +1,12 @@
+﻿@page "/setup"
+@inherits ComponentWithDbInteractionBase
+
+<button @onclick="DeleteDb">Удалить Базу данных</button>
+
+@code
+{
+    public void DeleteDb()
+    {
+        DatabaseFacade.CallVoidDbAsync(null, "delete");
+    }
+}

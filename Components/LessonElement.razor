@@ -5,19 +5,29 @@
 
 <div class="card">
     <div class="card-header">
-        <h5 class="card-title">
-            @ElementData.Value
-
-            @if (@ElementData.Children != null)
-            {
+        @if (@ElementData.Children != null)
+        {
+            <h5 class="card-title">
+                @ElementData.Value
                 <button type="button" class="btn @(IsOpen ? "btn-outline-primary" : "btn-outline-secondary")" style="display: inline;" @onclick="Toggle">...</button>
-            }
 
-            @if (HasBibleReferences)
-            {
-                <button type="button" class="btn btn-outline-primary" style="display: inline;" @onclick="ToggleReferences">..</button>
-            }
-        </h5>
+                @if (HasBibleReferences)
+                {
+                    <button type="button" class="btn btn-outline-primary" style="display: inline;" @onclick="ToggleReferences">..</button>
+                }
+            </h5>
+        }
+        else
+        {
+            <span class="card-title">
+                @ElementData.Value
+
+                @if (HasBibleReferences)
+                {
+                    <button type="button" class="btn btn-outline-primary btn-sm" style="display: inline;" @onclick="ToggleReferences">..</button>
+                }
+            </span>
+        }
         @if (HasBibleReferences)
         {
             <ul class="nav nav-tabs card-header-tabs" style="@((RefsAreOpen & IsOpen) ? "" : "display:none;")">

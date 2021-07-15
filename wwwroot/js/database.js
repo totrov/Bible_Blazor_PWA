@@ -10,13 +10,11 @@
     logVerbose: function (message) { if (this.debugMode && this.verbose) console.log(message); }
 };
 
-function DataUpgrade(dotnetReference)
-{
+function DataUpgrade(dotnetReference) {
     console.log("Data upgrade started");
     console.log("dbVersion:" + context.db.version + " prevVersion:" + context.previousVersion);
-    
-    switch (context.previousVersion)
-    {
+
+    switch (context.previousVersion) {
         case 0:
             database.dataUpgradeFunctions[0](dotnetReference);
             database.dataUpgradeFunctions[1](dotnetReference);
@@ -59,8 +57,23 @@ function SchemaUpgrade() {
 
 window.database = {
 
+    delete: function () {
+        if (prompt("Удаление базы необратимо! Чтобы удалить введите слово 'delete' без кавычек") == 'delete') {
+            var req = indexedDB.deleteDatabase("db");
+            req.onsuccess = function () {
+                console.log("Deleted database successfully");
+            };
+            req.onerror = function () {
+                console.log("Couldn't delete database");
+            };
+            req.onblocked = function () {
+                console.log("Couldn't delete database due to the operation being blocked");
+            };
+        }
+    },
+
     initDatabase: function (dotnetReference) {
-        indexedDB.deleteDatabase("db");
+        //indexedDB.deleteDatabase("db");
 
         console.log("Database initialization started");
         let openRequest = indexedDB.open("db", context.currentVersion);
@@ -90,7 +103,7 @@ window.database = {
     getVerseById: function (dotnetCallback, bookId, verseId) {
         let result = "Bible verse stub: " + bookId + ":" + verseId;
     },
-    jsLog: function (text) { console.log(text);},
+    jsLog: function (text) { console.log(text); },
     getRecordFromObjectStoreByKey: function (dotnetHelper, params) {
         context.log('getRecordFromObjectStoreByKey was called');
         var openRequest = window.indexedDB.open(context.dbName, context.currentVersion);
@@ -256,8 +269,8 @@ window.database = {
         },
         function /*1*/(dotnetReference) {
             database.fetchJson('/Assets/lessonUnits.json', 'lessonUnits', dotnetReference);
-            database.fetchJson('/Assets/lessons/Byt.json', 'lessons', dotnetReference);
-            database.fetchJson('/Assets/lessons/IskhSol.json', 'lessons', dotnetReference).then(console.log("Database initialization finished"));
+            database.fetchJson('/Assets/lessons/Byt.json', 'lessons', dotnetReference).then(console.log("Database initialization finished"));
+            //database.fetchJson('/Assets/lessons/IskhSol.json', 'lessons', dotnetReference)
         }
     ],
 };
