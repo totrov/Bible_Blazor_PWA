@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Bible_Blazer_PWA.Services.Parse
@@ -30,9 +31,21 @@ namespace Bible_Blazer_PWA.Services.Parse
             {"1-е Фес","1Фес" },
             {"2-е Фес","2Фес" },
             {"Лк.","Лук" },
-            {"Иуды", "Иуд" }
-
+            {"Иуды", "Иуд" },
+            {"Авк", "Авв" }
         };
+
+        internal static string HandleBrackets(string stringToParse)
+        {
+            string buf = stringToParse;
+            foreach (Match match in Regex.Matches(stringToParse, BibleRegexHelper.GetBracketsHandlerPattern()))
+            {
+                var bookName = match.Groups.Cast<Group>().Where(g => g.Name == "book").First().Value;
+                var bracketsContent = match.Groups.Cast<Group>().Where(g => g.Name == "bracketsContent").First().Value;
+                buf = buf.Replace("(" + bracketsContent + ")", "(" + bookName + bracketsContent + ")");
+            }
+            return buf;
+        }
 
         internal static string ReplaceBookNames(string stringToParse)
         {

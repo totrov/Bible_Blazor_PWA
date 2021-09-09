@@ -28,6 +28,17 @@ namespace Bible_Blazer_PWA.Services.Parse
             return wholeRegex;
         }
 
+        public static string GetBracketsHandlerPattern()
+        {
+            string bracketsHandleRegex = string.Join(spases,
+                bookRegex,
+                @"[\s\d:;,-]+",
+                @"[(](?<bracketsContent>[\s\d:,;-]+)[)]"
+            );
+
+            return bracketsHandleRegex;
+        }
+
         internal static string GetBibleVerseReferencesPattern()
         {
             string refRegex = string.Join(spases,
