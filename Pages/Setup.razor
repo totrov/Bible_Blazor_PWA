@@ -1,12 +1,42 @@
 ﻿@page "/setup"
 @inherits ComponentWithDbInteractionBase
+@using DocumentFormat.OpenXml.Packaging;
+@using DocumentFormat.OpenXml.Wordprocessing;
+@using System.IO
+<div class="card card-body" style="margin-bottom:10px;">
+    <h2 class="card-title">Планы уроков</h2>
+    <div class="card card-body">
+        <h5 class="card-title">Загрузить из word файлов (можно выбрать несколько сразу)</h5>
+        <InputFile OnChange="@LoadFiles" multiple />
+    </div>
+</div>
 
-<button @onclick="DeleteDb">Удалить Базу данных</button>
+<div class="card card-body" style="margin-bottom:10px;">
+    <h2 class="card-title">Системное</h2>
+    <div class="card card-body col-lg-6 col-md-7 col-sm">
+        <h5 class="card-title">Удалить Базу данных</h5>
+        <button type="button" class="btn btn-danger" @onclick="DeleteDb">Удалить</button>
+    </div>
+</div>
 
 @code
 {
-    public void DeleteDb()
+    public async Task DeleteDb()
     {
-        DatabaseFacade.CallVoidDbAsync(null, "delete");
+        await DatabaseFacade.CallVoidDbAsync(null, "delete");
+    }
+
+    private async Task LoadFiles(InputFileChangeEventArgs e)
+    {
+        foreach (var file in e.GetMultipleFiles(10))
+        {
+            await using FileStream fs = new(file.Name, FileMode.Create);
+            await file.OpenReadStream(1500000).CopyToAsync(fs);
+            WordprocessingDocument wordprocessingDocument = WordprocessingDocument.Open(file.Name, false);
+            string stringContent = wordprocessingDocument.MainDocumentPart.Document.InnerText;
+            DatabaseFacade.JSLog(stringContent);
+            System.IO.File.Delete(file.Name);
+            DatabaseFacade.Alert(stringContent.Substring(0,500));
+        }
     }
 }

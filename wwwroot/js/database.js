@@ -104,6 +104,7 @@ window.database = {
         let result = "Bible verse stub: " + bookId + ":" + verseId;
     },
     jsLog: function (text) { console.log(text); },
+    jsAlert: function (text) { alert(text); },
     getRecordFromObjectStoreByKey: function (dotnetHelper, params) {
         context.log('getRecordFromObjectStoreByKey was called');
         var openRequest = window.indexedDB.open(context.dbName, context.currentVersion);

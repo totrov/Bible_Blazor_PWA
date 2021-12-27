@@ -24,6 +24,16 @@ namespace Bible_Blazer_PWA.DataBase
         }
         internal bool _isInitialized { get; set; }
 
+        public void JSLog(string str)
+        {
+            JS.InvokeVoidAsync("database.jsLog", str);
+        }
+
+        public void Alert(string str)
+        {
+            JS.InvokeVoidAsync("database.jsAlert", str);
+        }
+
         public async Task<string> Test()
         {
             return await JS.InvokeAsync<string>("database.showPrompt");
