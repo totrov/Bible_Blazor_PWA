@@ -1,8 +1,8 @@
 ﻿@page "/setup"
 @inherits ComponentWithDbInteractionBase
-@using DocumentFormat.OpenXml.Packaging;
-@using DocumentFormat.OpenXml.Wordprocessing;
 @using System.IO
+@using Bible_Blazer_PWA.Services.Parse
+@using b2xtranslator.StructuredStorage.Reader;
 <div class="card card-body" style="margin-bottom:10px;">
     <h2 class="card-title">Планы уроков</h2>
     <div class="card card-body">
@@ -31,12 +31,37 @@
         foreach (var file in e.GetMultipleFiles(10))
         {
             await using FileStream fs = new(file.Name, FileMode.Create);
-            await file.OpenReadStream(1500000).CopyToAsync(fs);
-            WordprocessingDocument wordprocessingDocument = WordprocessingDocument.Open(file.Name, false);
-            string stringContent = wordprocessingDocument.MainDocumentPart.Document.InnerText;
-            DatabaseFacade.JSLog(stringContent);
+            await file.OpenReadStream(2000000).CopyToAsync(fs);
+            string status = "done";
+            b2xtranslator.StructuredStorage.Reader.StructuredStorageReader reader = null;
+            try
+            {
+                reader = new StructuredStorageReader(file.Name);
+                b2xtranslator.DocFileFormat.WordDocument doc = new(reader);
+                string stringContent = new String(doc.Text.ToArray());
+                string json = await LessonParser.ParseLessons(stringContent);
+                status += $"! Length of json is {json.Length}";
+            }
+            catch (b2xtranslator.DocFileFormat.ByteParseException)
+            {
+                status = "Unable_to_read_DOC_Document";
+            }
+            catch (b2xtranslator.StructuredStorage.Common.InvalidValueInHeaderException)
+            {
+                status = "Unable_to_open_DOC_Document";
+            }
+            catch(Exception ex)
+            {
+                status = $"Unknown error: {ex.Message}";
+            }
+            finally
+            {
+                if (reader != null) reader.Dispose();
+            }
+
             System.IO.File.Delete(file.Name);
-            DatabaseFacade.Alert(stringContent.Substring(0,500));
+
+            DatabaseFacade.Alert($"{file.Name} status is: {status}");
         }
     }
 }
