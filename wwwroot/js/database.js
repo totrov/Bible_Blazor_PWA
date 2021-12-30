@@ -263,16 +263,33 @@ window.database = {
             e.stopPropagation();
         };
     },
+    importJson: async (dotnetHelper, jsonString, dbStore) => {
+        var transaction = context.db.transaction(dbStore, "readwrite");
+        var os = transaction.objectStore(dbStore);
+        var json = JSON.parse(jsonString);
+        json.forEach(function (data) { os.put(data); });
+
+        transaction.oncomplete = function () {
+            console.log(dbStore + ' ' + 'import transaction completed for ' + json[0].UnitId);
+            dotnetHelper.invokeMethod('SetStatus', true);
+        };
+
+        transaction.onerror = function (e) {
+            console.log(dbStore + ' ' + 'import transaction failed for ' + json[0].UnitId + ': ' + transaction.error);
+            dotnetHelper.invokeMethod('SetStatus', false);
+            e.stopPropagation();
+        };
+    },
     dataUpgradeFunctions: [
         function /*0*/(dotnetReference) {
             database.fetchJson('/Assets/books.json', 'books', dotnetReference);
             database.fetchJson('/Assets/verses.json', 'verses', dotnetReference);
         },
         function /*1*/(dotnetReference) {
-            database.fetchJson('/Assets/lessonUnits.json', 'lessonUnits', dotnetReference);
-            database.fetchJson('/Assets/lessons/Byt.json', 'lessons', dotnetReference).then(console.log("Byt initialization finished"));
-            database.fetchJson('/Assets/lessons/Evn.json', 'lessons', dotnetReference).then(console.log("Evn initialization finished"));
-            database.fetchJson('/Assets/lessons/Osn.json', 'lessons', dotnetReference).then(console.log("Database initialization finished"));
+            //database.fetchJson('/Assets/lessonUnits.json', 'lessonUnits', dotnetReference);
+            //database.fetchJson('/Assets/lessons/Byt.json', 'lessons', dotnetReference).then(console.log("Byt initialization finished"));
+            //database.fetchJson('/Assets/lessons/Evn.json', 'lessons', dotnetReference).then(console.log("Evn initialization finished"));
+            //database.fetchJson('/Assets/lessons/Osn.json', 'lessons', dotnetReference).then(console.log("Database initialization finished"));
             //database.fetchJson('/Assets/lessons/IskhSol.json', 'lessons', dotnetReference)
         }
     ],

@@ -45,14 +45,30 @@ namespace Bible_Blazer_PWA.DataBase
             return await CallVoidDbAsync(() => { _isInitialized = true; }, "initDatabase");
         }
 
-        public async Task<IndexedDBResultHandler> CallVoidDbAsync(Action callback, string methodName)
+        public async Task<IndexedDBResultHandler> CallVoidDbAsync(Action callback, string methodName, params object[] parameters)
         {
             IndexedDBResultHandler resultHandler = new IndexedDBResultHandler();
             resultHandler.OnDbResultOK += callback;
             DotNetObjectReference<IndexedDBResultHandler> resultHandlerReference = DotNetObjectReference.Create(resultHandler);
 
-            await JS.InvokeVoidAsync($"database.{methodName}", resultHandlerReference);
+            if (parameters is not null)
+            {
+                await JS.InvokeVoidAsync($"database.{methodName}", parameters.Prepend(resultHandlerReference).ToArray());
+            }
+            else
+            {
+                await JS.InvokeVoidAsync($"database.{methodName}", resultHandlerReference);
+            }
             return resultHandler;
+        }
+        public async Task<IndexedDBResultHandler> ImportLessonsJson(string json, Action callback = null)
+        {
+            return await this.CallVoidDbAsync(callback, "importJson", json, "lessons");
+        }
+
+        protected async Task<IndexedDBResultHandler> ImportJson(string json, string objectStore, Action callback = null)
+        {
+            return await this.CallVoidDbAsync(callback, "importJson", json, objectStore);
         }
 
         public async Task<IndexedDBResultHandler<T>> CallDbAsync<T>(Action callback, string methodName, params object[] parameters)
@@ -94,7 +110,9 @@ namespace Bible_Blazer_PWA.DataBase
     public class IndexedDBResultHandler
     {
         protected void DbResultOK() => OnDbResultOK?.Invoke();
+        protected void Fail() => OnFail?.Invoke();
         public event Action OnDbResultOK;
+        public event Action OnFail;
 
         [JSInvokable("SetStatus")]
         public void SetResult(bool _status)
@@ -102,6 +120,10 @@ namespace Bible_Blazer_PWA.DataBase
             if (_status)
             {
                 DbResultOK();
+            }
+            else
+            {
+                Fail();
             }
         }
     }

@@ -17,6 +17,7 @@
                     @foreach (LessonInfo lesson in block.Lessons)
                     {
                         <li>
+                            @*<span class="iconify" data-icon="bx:bx-bible" style="color: #0366d6;"></span><i class="fas fa-bible"></i>*@
                             <NavLink class="nav-link" href="@($"lessonNew/{lesson.Id}")" Match="NavLinkMatch.All">@lesson.Name</NavLink>
                         </li>
                     }
