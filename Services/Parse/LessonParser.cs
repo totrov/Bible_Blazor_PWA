@@ -22,11 +22,10 @@ namespace Bible_Blazer_PWA.Services.Parse
             var idSet = new HashSet<int>();
             var idSetIncremented = new HashSet<int>();
 
-            string regex = "\r[\\s]*([0-9]+[.]?[0-9]*[.](?![0-9])(?!Тело – плоть)(?!Дух – сердце)(?!Душа – разум)(?!Сторона).*)\r";
+            string regex = "\r[\\s]*([0-9]+[.]?[0-9]*[.](?![0-9])(?!Тело – плоть)(?!Дух – сердце)(?!Душа – разум)(?!Сторона).*?)\r";
             var contents = Regex.Split(_input, regex);
 
             string UnitId = GetUnitId(contents[0]);
-            string idPrefix = GetIdPrefix(UnitId);
             contents = Regex.Split(ApplyReplacements(_input, UnitId), regex);
 
             var lessonModel = new LessonModel() { UnitId = UnitId };
@@ -39,7 +38,7 @@ namespace Bible_Blazer_PWA.Services.Parse
                     var split = Regex.Split(contents[i], numberRegex);
                     lessonModel.Name = Regex.Split(contents[i], numberRegex)[2];
                     lessonModel.Id = Regex.Match(contents[i], numberRegex).Value;
-                    lessonModel.Id = GetId(idPrefix + lessonModel.Id.Substring(0, lessonModel.Id.Length - 1), idSet, idSetIncremented);
+                    lessonModel.Id = GetId(lessonModel.Id.Substring(0, lessonModel.Id.Length - 1), idSet, idSetIncremented);
                 }
                 else
                 {
@@ -55,25 +54,6 @@ namespace Bible_Blazer_PWA.Services.Parse
             using StreamReader sr = new(memoryStream);
             string result = sr.ReadToEnd();
             return result;
-        }
-
-        private static string GetIdPrefix(string unitId)
-        {
-            string ret = "99";
-            switch (unitId)
-            {
-                case "Быт":
-                    ret += "1";
-                    break;
-                case "ДеянОткр":
-                    ret += "2";
-                    break;
-                case "ИсхСол":
-                    ret += "3";
-                    break;
-            }
-
-            return ret;
         }
 
         private static string GetId(string input, HashSet<int> idSet, HashSet<int> idSetIncremented)

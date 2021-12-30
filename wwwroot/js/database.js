@@ -286,7 +286,7 @@ window.database = {
             database.fetchJson('/Assets/verses.json', 'verses', dotnetReference);
         },
         function /*1*/(dotnetReference) {
-            //database.fetchJson('/Assets/lessonUnits.json', 'lessonUnits', dotnetReference);
+            database.fetchJson('/Assets/lessonUnits.json', 'lessonUnits', dotnetReference);
             //database.fetchJson('/Assets/lessons/Byt.json', 'lessons', dotnetReference).then(console.log("Byt initialization finished"));
             //database.fetchJson('/Assets/lessons/Evn.json', 'lessons', dotnetReference).then(console.log("Evn initialization finished"));
             //database.fetchJson('/Assets/lessons/Osn.json', 'lessons', dotnetReference).then(console.log("Database initialization finished"));

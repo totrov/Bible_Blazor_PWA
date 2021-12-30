@@ -1,9 +1,10 @@
-﻿@page "/lessonNew/{Id:int}"
+﻿@page "/lessonNew/{Id:int}/{UnitNumber:int}"
 @inherits Bible_Blazer_PWA.Pages.ComponentWithDbInteractionBase
 @namespace BibleComponents
 @using System.Text.RegularExpressions
 @inject HttpClient Http
 @using Microsoft.Extensions.Logging;
+@using Bible_Blazer_PWA.DomainObjects;
 @if (lesson != null)
 {
     var composite = lesson.GetComposite();
@@ -19,27 +20,16 @@
     [Parameter]
     public int Id { get; set; } = 0;
 
+    [Parameter]
+    public int UnitNumber { get; set; } = 1;
+
     protected LessonContainerDb lesson;
 
     async protected override Task OnParametersSetAsync()
     {
         TaskCompletionSource taskCompletionSource = new TaskCompletionSource();
-        var unitId = "Быт";
+        var unitId = Unit.GetShortNameByUnitNumber(UnitNumber);
         var idStringified = Id.ToString();
-        if (idStringified.Length > 2)
-        {
-            switch (idStringified.Substring(0, 2))
-            {
-                case "93":
-                    unitId = "Евн";
-                    break;
-                case "96":
-                    unitId = "Осн";
-                    break;
-                default:
-                    break;
-            }
-        }
 
         var resultHandler = await DatabaseFacade.GetRecordFromObjectStoreByKey<LessonContainerDb>("lessons", unitId, Id.ToString());
         resultHandler.OnDbResultOK += () => { lesson = resultHandler.Result; taskCompletionSource.SetResult(); };

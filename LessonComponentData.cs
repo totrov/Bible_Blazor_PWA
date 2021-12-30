@@ -69,7 +69,10 @@ namespace Bible_Blazer_PWA
                 }
                 else
                 {
-                    Value += " " + lines[currentIndex++];
+                    //if (currentIndex != 0)
+                    //{
+                        Value += " " + lines[currentIndex++];
+                    //}
                 }
             }
         }

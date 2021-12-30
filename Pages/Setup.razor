@@ -11,12 +11,12 @@
     <div class="card card-body">
         <h5 class="card-title">Загрузить из word файлов (можно выбрать несколько сразу)</h5>
         <InputFile OnChange="@LoadFiles" multiple />
-        <ul>
+        <ol>
             @foreach (var item in LoadingItems)
             {
                 <Bible_Blazer_PWA.Components.LoadingItem Name="@item.Name" Status="@item.Status"></Bible_Blazer_PWA.Components.LoadingItem>
             }
-        </ul>
+        </ol>
     </div>
 </div>
 
