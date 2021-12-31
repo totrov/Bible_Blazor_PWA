@@ -33,7 +33,7 @@ namespace Bible_Blazer_PWA
             var enumerator = lines.AsEnumerable().GetEnumerator();
             enumerator.MoveNext();
             string current = enumerator.Current;
-            Value = lines[currentIndex];
+            Value = "";
             Level = 0;
             while (currentIndex < lines.Length)
             {
@@ -69,10 +69,7 @@ namespace Bible_Blazer_PWA
                 }
                 else
                 {
-                    //if (currentIndex != 0)
-                    //{
-                        Value += " " + lines[currentIndex++];
-                    //}
+                    Value += " " + lines[currentIndex++];
                 }
             }
         }

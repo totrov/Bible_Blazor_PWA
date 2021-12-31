@@ -10,7 +10,7 @@
     <h2 class="card-title">Планы уроков</h2>
     <div class="card card-body">
         <h5 class="card-title">Загрузить из word файлов (можно выбрать несколько сразу)</h5>
-        <InputFile OnChange="@LoadFiles" multiple />
+        <InputFile OnChange="@LoadFiles" disabled="@IsDisabled" multiple />
         <ol>
             @foreach (var item in LoadingItems)
             {
@@ -36,6 +36,7 @@
         public string Status { get; set; }
     }
 
+    private bool IsDisabled { get; set; } = false;
     private List<LoadingItem> LoadingItems { get; set; } = new List<LoadingItem>();
 
     public async Task DeleteDb()
@@ -51,6 +52,7 @@
     private async Task LoadFiles(InputFileChangeEventArgs e)
     {
         LoadingItems.Clear();
+        IsDisabled = true;
         foreach (var file in e.GetMultipleFiles(10))
         {
             var item = new LoadingItem { Name = file.Name, Status = "Копирование..." };
@@ -64,27 +66,8 @@
             {
                 reader = new StructuredStorageReader(file.Name);
                 b2xtranslator.DocFileFormat.WordDocument doc = new(reader);
-                var listOfChars = doc.Text;
-                var listOfCharsToArray = listOfChars.ToArray();
-                string stringContent = string.Join("",listOfChars);
-                string stringContent2 = string.Concat(listOfChars);
-                string s0 = new String(listOfCharsToArray);
-                string s1 = stringContent += "9999999999999999999999";
-                int s1l = s1.Length;
-                int s0l = s0.Length;
-                int stringContentl = stringContent.Length;
-                int stringContent2l = stringContent2.Length;
-                //var wpd = b2xtranslator.OpenXmlLib.WordprocessingML.WordprocessingDocument.Create(file.Name+"x", OpenXmlPackage.DocumentType.Document);
-                //WordprocessingDocument docx = WordprocessingDocument.Create(file.Name + "x", OpenXmlPackage.DocumentType.Document);
-                //Converter.Convert(doc, docx);
-
-                //using (DocumentFormat.OpenXml.Packaging.WordprocessingDocument wordDoc = DocumentFormat.OpenXml.Packaging.WordprocessingDocument.Open(file.Name + "x", true))
-                //{
-                //    stringContent = wordDoc.MainDocumentPart.Document.InnerText;
-                //}
-                //UpdateItemStatus(item, "Разбор...");
+                string stringContent = new String(doc.Text.ToArray());
                 string json = await LessonParser.ParseLessons(stringContent);
-                //UpdateItemStatus(item, "Обновление базы...");
                 var resultHandler = await DatabaseFacade.ImportLessonsJson(json);
                 resultHandler.OnDbResultOK += () => { UpdateItemStatus(item, "Успешно загружено"); };
             }
@@ -110,5 +93,6 @@
 
             System.IO.File.Delete(file.Name);
         }
+        IsDisabled = false;
     }
 }
