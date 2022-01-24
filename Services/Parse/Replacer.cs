@@ -32,7 +32,8 @@ namespace Bible_Blazer_PWA.Services.Parse
             {"2-е Фес","2Фес" },
             {"Лк.","Лук" },
             {"Иуды", "Иуд" },
-            {"Авк", "Авв" }
+            {"Авк", "Авв" },
+            {"Фил","Флп" }
         };
 
         internal static string HandleBrackets(string stringToParse)

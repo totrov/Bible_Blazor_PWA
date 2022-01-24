@@ -9,23 +9,23 @@
 {
     <h3>Оглавление</h3>
 
-    <ul>
-        @foreach (LessonBlock block in _blocks)
-        {
-            <li class="px-3">
-                @block.Name
-                <ul>
-                    @foreach (LessonInfo lesson in block.Lessons)
-                    {
-                        <li>
-                            @*<span class="iconify" data-icon="bx:bx-bible" style="color: #0366d6;"></span><i class="fas fa-bible"></i>*@
-                            <NavLink class="nav-link" href="@($"lessonNew/{lesson.Id}/{Unit.GetUnitNumberByShortName(lesson.UnitId)}")" Match="NavLinkMatch.All">@lesson.Name</NavLink>
-                        </li>
-                    }
-                </ul>
-            </li>
-        }
-    </ul>
+
+    @foreach (LessonBlock block in _blocks)
+    {
+        <details>
+            <summary>@block.Name</summary>
+            <ul>
+                @foreach (LessonInfo lesson in block.Lessons)
+                {
+                    <li>
+                        @*<span class="iconify" data-icon="bx:bx-bible" style="color: #0366d6;"></span><i class="fas fa-bible"></i>*@
+                        <NavLink class="nav-link" href="@($"lessonNew/{lesson.Id}/{Unit.GetUnitNumberByShortName(lesson.UnitId)}")" Match="NavLinkMatch.All">@lesson.Name</NavLink>
+                    </li>
+                }
+            </ul>
+        </details>
+    }
+
 
     <h3>Ниже страницы уроков, сделанные без использования БД (будет удалено позже)</h3>
 

@@ -1,0 +1,18 @@
+﻿details summary::-webkit-details-marker {
+    display: none
+}
+
+details > summary {
+    list-style: none;
+}
+
+
+details summary:before {
+    content: '\f0fe';
+    font-family: "Font Awesome 5 free";
+    margin-right: 7px;
+}
+
+details[open] summary:before {
+    content: '\f146';
+}

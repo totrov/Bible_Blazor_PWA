@@ -55,7 +55,22 @@ namespace Bible_Blazer_PWA.DataSources
                     });
                 }
             }
-            return _blocks;
+
+            int order(string name)
+            {
+                return name.Substring(0, 5) switch
+                {
+                    "Бытие" => 10,
+                    "Исход" => 20,
+                    "Проро" => 30,
+                    "Еванг" => 40,
+                    "Деяни" => 50,
+                    "Основ" => 60,
+                    _ => 9999999
+                };
+            }
+
+            return new LinkedList<LessonBlock>(_blocks.OrderBy(x=>order(x.Name)));
         }
 
         private async Task<IEnumerable<LessonInfo>> GetLessonsForBlock(string unitId)
