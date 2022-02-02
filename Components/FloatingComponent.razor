@@ -1,0 +1,31 @@
+﻿
+<div style="position: fixed; top: @TopHtml(); right: @RightHtml(); z-index: 900">
+    @ChildContent
+</div>
+
+@code {
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public int Top { get; set; } = 0;
+
+    [Parameter]
+    public int Right { get; set; } = 0;
+
+    string TopHtml()
+    {
+        if (Top == 0)
+            return "0";
+        return $"{Top}px";
+
+    }
+
+    string RightHtml()
+    {
+        if (Right == 0)
+            return "0";
+        return $"{Right}px";
+    }
+
+}

@@ -7,14 +7,25 @@
 @using Bible_Blazer_PWA.DomainObjects;
 @if (lesson != null)
 {
+
+    <Bible_Blazer_PWA.Components.FloatingComponent Top="10" Right="10">
+        <button type="button" class="btn btn-outline-primary" style="display: inline;" @onclick="ToggleCollapse"><span class="oi @getGlobalToggleCollapseStyle()" aria-hidden="true"></span></button>
+        <button type="button" class="btn btn-outline-primary" style="display: inline;" @onclick="ToggleReferences"><span class="oi @getGlobalToggleRefsStyle()" aria-hidden="true"></span></button>
+    </Bible_Blazer_PWA.Components.FloatingComponent>
+
     var composite = lesson.GetComposite();
     <h3>@composite.Value</h3>
+
     foreach (LessonElementData data in composite.Children)
     {
         LessonElementData data1 = data;
-        <LessonElement ElementData="data1"></LessonElement>
+        <CascadingValue Value="parameters">
+            <LessonElement ElementData="data1"></LessonElement>
+        </CascadingValue>
     }
-    <NavLink class="nav-link" href="@($"/lessons")" Match="NavLinkMatch.All"><span class="oi oi-account-logout" aria-hidden="true"></span> Обратно к урокам</NavLink>
+
+    <NavLink class="nav-link" href="@($"/lessonNew/{Id-1}/{UnitNumber}")" Match="NavLinkMatch.All"><span class="oi oi-arrow-circle-left" aria-hidden="true"></span> Предыдущий урок</NavLink>
+    <NavLink class="nav-link" href="@($"/lessonNew/{Id+1}/{UnitNumber}")" Match="NavLinkMatch.All"><span class="oi oi-arrow-circle-right" aria-hidden="true"></span> Следующий урок</NavLink>
 }
 
 @code {
@@ -35,5 +46,34 @@
         var resultHandler = await DatabaseFacade.GetRecordFromObjectStoreByKey<LessonContainerDb>("lessons", unitId, Id.ToString());
         resultHandler.OnDbResultOK += () => { lesson = resultHandler.Result; taskCompletionSource.SetResult(); };
         await taskCompletionSource.Task;
+    }
+
+    void ToggleReferences()
+    {
+        parameters.AreReferencesOpened = !parameters.AreReferencesOpened;
+    }
+
+    void ToggleCollapse()
+    {
+        parameters.CollapseLevel = parameters.CollapseLevel switch
+        {
+            3 => 1,
+            1 => 2,
+            _ => 3
+        };
+    }
+
+    private Parameters parameters = new() { AreReferencesOpened = true, CollapseLevel = 3 };
+
+    string getGlobalToggleCollapseStyle() => parameters.CollapseLevel switch
+    {
+        1 => "oi-media-stop",
+        2 => "oi-grid-two-up",
+        _ => "oi-grid-three-up"
+    };
+
+    string getGlobalToggleRefsStyle()
+    {
+        return parameters.AreReferencesOpened ? "oi-collapse-up" : "oi-collapse-down";
     }
 }

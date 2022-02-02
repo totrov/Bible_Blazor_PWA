@@ -30,7 +30,7 @@
         }
         @if (HasBibleReferences)
         {
-            <ul class="nav nav-tabs card-header-tabs" style="@((RefsAreOpen & IsOpen) ? "" : "display:none;")">
+            <ul class="nav nav-tabs card-header-tabs" style="@((parameters.AreReferencesOpened & RefsAreOpen & IsOpen) ? "" : "display:none;")">
                 @{
                     int counter = 0;
                 }
@@ -51,7 +51,7 @@
     @foreach (BibleReference reference in BibleReferences)
     {
         int number = counter1++;
-        <div class="card-body" style="@((IsActive(number) && RefsAreOpen && IsOpen) ? "":"display:none;") background-color:beige">
+        <div class="card-body" style="@((parameters.AreReferencesOpened && IsActive(number) && RefsAreOpen && IsOpen) ? "":"display:none;") background-color:beige">
             @if (_versesLoaded)
             {
                 foreach (BibleService.VersesView view in _versesViewsDictionary[reference.ToString()])
@@ -69,7 +69,7 @@
 
     @if (@ElementData.Children != null)
     {
-        <div class="card-body" style="@(IsOpen ? "":"display:none;")">
+        <div class="card-body" style="@(ElementData.Level < parameters.CollapseLevel && IsOpen ? "":"display:none;")">
             @foreach (LessonElementData data in ElementData.Children)
             {
                 <LessonElement ElementData="data"></LessonElement>
@@ -90,6 +90,9 @@
 
     [Parameter]
     public LessonElementData ElementData { get; set; }
+
+    [CascadingParameter]
+    protected Parameters parameters { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
