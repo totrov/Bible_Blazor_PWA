@@ -2,10 +2,10 @@
 @inherits ComponentWithDbInteractionBase
 @using System.IO
 @using Bible_Blazer_PWA.Services.Parse
-@using b2xtranslator.StructuredStorage.Reader;
-@using b2xtranslator.OpenXmlLib.WordprocessingML;
-@using b2xtranslator.WordprocessingMLMapping; 
-@using b2xtranslator.OpenXmlLib; 
+@using b2xtranslator.StructuredStorage.Reader
+@using System.Net.Http
+@inject HttpClient Http
+
 <div class="card card-body" style="margin-bottom:10px;">
     <h2 class="card-title">Планы уроков</h2>
     <div class="card card-body">
@@ -18,6 +18,22 @@
             }
         </ol>
     </div>
+    <div class="card card-body">
+        <h5 class="card-title">Загрузить из облака (требуется интернет)</h5>
+        <button type="button" class="btn btn-danger" @onclick="LoadFromAzure">Загрузить</button>
+    </div>
+</div>
+
+<div class="card card-body" style="margin-bottom:10px;">
+    <h2 class="card-title">Визуальные</h2>
+    <div class="card card-body col-lg-6 col-md-7 col-sm">
+        <table>
+            <tr>
+                <td>Скрывать инструменты</td>
+                @*<td><InputCheckbox Value="@AreToolsHidden" ValueChanged="OnToolsHiddenChanged"></InputCheckbox></td>*@
+            </tr>
+        </table>
+    </div>
 </div>
 
 <div class="card card-body" style="margin-bottom:10px;">
@@ -28,22 +44,72 @@
     </div>
 </div>
 
+
+
 @code
 {
+    DbParametersFacade dbParams = null;
+
+    public bool AreToolsHidden { get; set; }
+
+    private async Task OnToolsHiddenChanged()
+    {
+        //dbParams.SetParameterAsync()
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        dbParams = new DbParametersFacade(DatabaseFacade);
+        AreToolsHidden = await dbParams.GetParameterAsync("HideTools") == "true";
+    }
+
     class LoadingItem
     {
         public string Name { get; set; }
         public string Status { get; set; }
     }
-
     private bool IsDisabled { get; set; } = false;
     private List<LoadingItem> LoadingItems { get; set; } = new List<LoadingItem>();
-
     public async Task DeleteDb()
     {
         await DatabaseFacade.CallVoidDbAsync(null, "delete");
     }
+    public async Task LoadFromAzure()
+    {
+        Stream stream = await Http.GetStreamAsync("https://bibleblazorpwastorage.blob.core.windows.net/lesson-units/Бытие.doc");
 
+        b2xtranslator.StructuredStorage.Reader.StructuredStorageReader reader = null;
+        try
+        {
+            reader = new StructuredStorageReader(stream);
+            b2xtranslator.DocFileFormat.WordDocument doc = new(reader);
+            string stringContent = new String(doc.Text.ToArray());
+            string json = await LessonParser.ParseLessons(stringContent);
+            var resultHandler = await DatabaseFacade.ImportLessonsJson(json);
+            //resultHandler.OnDbResultOK += () => { UpdateItemStatus(item, "Успешно загружено"); };
+        }
+        catch (b2xtranslator.DocFileFormat.ByteParseException)
+        {
+            //UpdateItemStatus(item, "Ошибка чтения документа. Поддерживается только *.doc.");
+            //status = "Unable_to_read_DOC_Document";
+        }
+        catch (b2xtranslator.StructuredStorage.Common.InvalidValueInHeaderException)
+        {
+            //UpdateItemStatus(item, "Ошибка при попытке открыть файл.");
+            //status = "Unable_to_open_DOC_Document";
+        }
+        catch (Exception ex)
+        {
+            //UpdateItemStatus(item, $"Ошибка: {ex.Message}");
+            //status = $"Unknown error: {ex.Message}";
+        }
+        finally
+        {
+            if (reader != null) reader.Dispose();
+        }
+
+        //System.IO.File.Delete(fileName);
+    }
     private void UpdateItemStatus(LoadingItem item, string newStatus)
     {
         item.Status = newStatus;
@@ -90,6 +156,20 @@
             {
                 if (reader != null) reader.Dispose();
             }
+
+            //string connectionString = "DefaultEndpointsProtocol=https;AccountName=bibleblazorpwastorage;AccountKey=IZer1LD5t3UXlmSRdISWmJ6lXQX3Gzp/H0e+0xh1jdMNGBLiD1PbSqnlLAMTR3q9SLqqQkMEN8L2LfOONOr94A==;EndpointSuffix=core.windows.net";
+            //string containerName = "lesson-units";
+            //string blobName = file.Name;
+            //string filePath = file.Name;
+
+            //var content = new StreamContent(fs);
+            //content.Headers.TryAddWithoutValidation("Authorization", "SharedKey bibleblazorpwastorage:IZer1LD5t3UXlmSRdISWmJ6lXQX3Gzp/H0e+0xh1jdMNGBLiD1PbSqnlLAMTR3q9SLqqQkMEN8L2LfOONOr94A==");
+            //content.Headers.TryAddWithoutValidation("x-ms-lease-id", "c016d911-0d71-438b-af87-8c7c232ac612");
+            //content.Headers.TryAddWithoutValidation("x-ms-version", "2015-12-11");
+            //content.Headers.TryAddWithoutValidation("x-ms-date", DateTime.UtcNow.ToString("R"));
+            //content.Headers.TryAddWithoutValidation("x-ms-blob-type", "BlockBlob");
+            //content.Headers.ContentLength = fs.Length;
+            //await Http.PutAsync("https://bibleblazorpwastorage.blob.core.windows.net/lesson-units/Бытие.doc", content);
 
             System.IO.File.Delete(file.Name);
         }

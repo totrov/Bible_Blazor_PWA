@@ -135,6 +135,7 @@ window.database = {
 
         openRequest.onerror = function (event) {
             context.log('getRecordFromObjectStoreByKey: Database not opened due to error: ' + openRequest.error);
+            dotnetHelper.invokeMethod('SetStatusAndResult', false, null);
         }
     },
     getRecordFromObjectStoreByIndex: function (dotnetHelper, params) {
@@ -240,6 +241,7 @@ window.database = {
             context.db.createObjectStore('verses', { keyPath: ['BookId', 'Chapter', 'Id'] });
             context.db.createObjectStore('lessonUnits', { keyPath: ['Id'] });
             context.db.createObjectStore('lessons', { keyPath: ['UnitId', 'Id'] });
+            context.db.createObjectStore('parameters', {keyPath:['Key', 'Value']});
         },
         function /*1*/() {
             console.log("nothing to upgrade in schema");

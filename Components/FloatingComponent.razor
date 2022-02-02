@@ -1,5 +1,11 @@
 ﻿
-<div style="position: fixed; top: @TopHtml(); right: @RightHtml(); z-index: 900">
+<div style="        position: sticky;
+        top: @TopHtml();
+        right: @RightHtml();
+        background-color: @BackgroundColor;
+        padding: 10px;
+        border-bottom: solid 1px darkblue;
+        z-index: 900">
     @ChildContent
 </div>
 
@@ -12,6 +18,9 @@
 
     [Parameter]
     public int Right { get; set; } = 0;
+
+    [Parameter]
+    public string BackgroundColor { get; set; } = "white";
 
     string TopHtml()
     {

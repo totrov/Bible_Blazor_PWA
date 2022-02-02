@@ -30,7 +30,7 @@
         }
         @if (HasBibleReferences)
         {
-            <ul class="nav nav-tabs card-header-tabs" style="@((parameters.AreReferencesOpened & RefsAreOpen & IsOpen) ? "" : "display:none;")">
+            <ul class="nav nav-tabs card-header-tabs" style="@((RefsAreOpen & IsOpen) ? "" : "display:none;")">
                 @{
                     int counter = 0;
                 }
@@ -51,7 +51,7 @@
     @foreach (BibleReference reference in BibleReferences)
     {
         int number = counter1++;
-        <div class="card-body" style="@((parameters.AreReferencesOpened && IsActive(number) && RefsAreOpen && IsOpen) ? "":"display:none;") background-color:beige">
+        <div class="card-body" style="@((IsActive(number) && RefsAreOpen && IsOpen) ? "":"display:none;") background-color:beige">
             @if (_versesLoaded)
             {
                 foreach (BibleService.VersesView view in _versesViewsDictionary[reference.ToString()])
@@ -102,6 +102,7 @@
             _versesViewsDictionary.Add(reference.ToString(), await Bible.GetVersesFromReference(reference));
         }
         _versesLoaded = true;
+        parameters.OnReferenceToggle += (sender, args) => { RefsAreOpen = parameters.AreReferencesOpened; };
     }
 
     public bool HasBibleReferences

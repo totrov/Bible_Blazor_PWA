@@ -1,13 +1,26 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Bible_Blazer_PWA.Shared
 {
     public class Parameters
     {
-        public bool AreReferencesOpened { get; set; }
+        private bool areReferencesOpened;
+
+        public event EventHandler OnReferenceToggle;
+        public bool AreReferencesOpened
+        {
+            get => areReferencesOpened;
+            set { areReferencesOpened = value; HandleOnReferenceToggle(); }
+        }
         public byte CollapseLevel { get; set; }
+
+        protected virtual void HandleOnReferenceToggle()
+        {
+            EventHandler handler = OnReferenceToggle;
+            if (handler != null)
+            {
+                handler(this, EventArgs.Empty);
+            }
+        }
     }
 }
