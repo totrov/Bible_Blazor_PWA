@@ -23,18 +23,21 @@
         <button type="button" class="btn btn-danger" @onclick="LoadFromAzure">Загрузить</button>
     </div>
 </div>
-
-<div class="card card-body" style="margin-bottom:10px;">
-    <h2 class="card-title">Визуальные</h2>
-    <div class="card card-body col-lg-6 col-md-7 col-sm">
-        <table>
-            <tr>
-                <td>Скрывать инструменты</td>
-                @*<td><InputCheckbox Value="@AreToolsHidden" ValueChanged="OnToolsHiddenChanged"></InputCheckbox></td>*@
-            </tr>
-        </table>
+<EditForm Model=@ParametersFormData>
+    <div class="card card-body" style="margin-bottom:10px;">
+        <h2 class="card-title">Визуальные</h2>
+        <div class="card card-body col-lg-6 col-md-7 col-sm">
+            <table>
+                <tr>
+                    <td>Скрывать инструменты</td>
+                    <td>
+                        <InputCheckbox @bind-Value="@ParametersFormData.AreToolsHidden"></InputCheckbox>
+                    </td>
+                </tr>
+            </table>
+        </div>
     </div>
-</div>
+</EditForm>
 
 <div class="card card-body" style="margin-bottom:10px;">
     <h2 class="card-title">Системное</h2>
@@ -44,23 +47,39 @@
     </div>
 </div>
 
-
-
 @code
 {
     DbParametersFacade dbParams = null;
-
-    public bool AreToolsHidden { get; set; }
-
-    private async Task OnToolsHiddenChanged()
+    ParametersModel ParametersFormData = new ParametersModel();
+    class ParametersModel
     {
-        //dbParams.SetParameterAsync()
+        DbParametersFacade _dbParams;
+        public void SetDbParametersFacade(DbParametersFacade dbParams)
+        {
+            _dbParams = dbParams;
+        }
+
+        private bool _areToolsHidden;
+        public bool AreToolsHidden
+        {
+            get => _areToolsHidden; set
+            {
+                _dbParams.SetParameterAsync("HideTools", value.ToString());
+                _areToolsHidden = value;
+            }
+        }
+        private async void AreToolsHiddenChangeHandler(bool isChecked)
+        {
+            _dbParams.SetParameterAsync("HideTools", isChecked.ToString());
+        }
     }
 
     protected override async Task OnInitializedAsync()
     {
         dbParams = new DbParametersFacade(DatabaseFacade);
-        AreToolsHidden = await dbParams.GetParameterAsync("HideTools") == "true";
+        ParametersFormData.SetDbParametersFacade(dbParams);
+        string hideToolsParameterString = await dbParams.GetParameterAsync("HideTools");
+        ParametersFormData.AreToolsHidden = hideToolsParameterString != null && hideToolsParameterString == "True";
     }
 
     class LoadingItem

@@ -1,7 +1,7 @@
 ﻿window.context = {
     db: null,
     justUpgraded: false,
-    currentVersion: 2,
+    currentVersion: 3,
     previousVersion: 0,
     dbName: 'db',
     debugMode: true,
@@ -40,9 +40,9 @@ function SchemaUpgrade() {
             database.schemaUpgradeFunctions[1]();
             break;
         case 1:
+        case 2:
             database.schemaUpgradeFunctions[1]();
             break;
-
         default:
             upgradeWasNotSuccess = true;
             console.log("no schema upgrade script for current db version");
@@ -234,6 +234,76 @@ window.database = {
             };
         };
     },
+    putKeyValueIntoObjectStore: function (dotnetHelper, params) {
+        context.log('putKeyValueIntoObjectStore was called with params:' + params.join());
+        var openRequest = window.indexedDB.open(context.dbName, context.currentVersion);
+
+        openRequest.onsuccess = function (event) {
+            context.log('db opened');
+            context.db = openRequest.result;
+            let objectStoreName = params.shift();
+            var transaction = context.db.transaction(objectStoreName, "readwrite");
+
+            transaction.oncomplete = function (event) {
+                context.log('putKeyValueIntoObjectStore: Transaction completed.');
+            };
+
+            transaction.onerror = function (event) {
+                context.log('putKeyValueIntoObjectStore: Transaction not opened due to error: ' + transaction.error);
+            };
+
+            var objectStore = transaction.objectStore(objectStoreName);
+            var key = params.shift();
+            var value = params.shift();
+            var objectStoreRequest = objectStore.put({ Key: key, Value: value });
+            objectStoreRequest.onsuccess = function (event) {
+                result = true;
+                context.logVerbose('putKeyValueIntoObjectStore: Transaction returned: ' + result);
+                dotnetHelper.invokeMethod('SetStatusAndResult', true, result);
+            };
+
+            objectStoreRequest.onerror = function (event) {
+                result = false;
+                context.logVerbose('putKeyValueIntoObjectStore: Transaction returned: ' + result);
+                dotnetHelper.invokeMethod('SetStatusAndResult', false, result);
+            };
+        };
+    },
+    getCountFromObjectStoreByKey: function (dotnetHelper, params) {
+        context.log('getCountFromObjectStoreByKey was called');
+        var openRequest = window.indexedDB.open(context.dbName, context.currentVersion);
+
+        openRequest.onsuccess = function (event) {
+            context.log('db opened');
+            context.db = openRequest.result;
+            let objectStoreName = params.shift();
+            var transaction = context.db.transaction(objectStoreName, "readonly");
+
+            transaction.oncomplete = function (event) {
+                context.log('getRecordFromObjectStoreByKey: Transaction completed.');
+            };
+
+            transaction.onerror = function (event) {
+                context.log('getRecordFromObjectStoreByKey: Transaction not opened due to error: ' + transaction.error);
+            };
+
+            var objectStore = transaction.objectStore(objectStoreName);
+            var key = params.length > 1 ? params : params.shift();
+            var objectStoreRequest = objectStore.get(key);
+            var objectStoreRequest = objectStore.count(key);
+
+            objectStoreRequest.onsuccess = function (event) {
+                result = objectStoreRequest.result;
+                context.logVerbose('getCountFromObjectStoreByKey: Transaction returned: ' + result);
+                dotnetHelper.invokeMethod('SetStatusAndResult', true, result);
+            };
+        };
+
+        openRequest.onerror = function (event) {
+            context.log('getRecordFromObjectStoreByKey: Database not opened due to error: ' + openRequest.error);
+            dotnetHelper.invokeMethod('SetStatusAndResult', false, null);
+        }
+    },
     schemaUpgradeFunctions: [
         function (dotnetHelper) {
             var booksObjectStore = context.db.createObjectStore('books', { keyPath: 'Id' });
@@ -241,10 +311,9 @@ window.database = {
             context.db.createObjectStore('verses', { keyPath: ['BookId', 'Chapter', 'Id'] });
             context.db.createObjectStore('lessonUnits', { keyPath: ['Id'] });
             context.db.createObjectStore('lessons', { keyPath: ['UnitId', 'Id'] });
-            context.db.createObjectStore('parameters', {keyPath:['Key', 'Value']});
         },
         function /*1*/() {
-            console.log("nothing to upgrade in schema");
+            context.db.createObjectStore('parameters', { keyPath: ['Key'] });
         }
     ],
     fetchJson: async (path, dbStore, dotnetReference) => {

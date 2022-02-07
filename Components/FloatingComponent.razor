@@ -1,15 +1,22 @@
-﻿
+﻿@inherits Bible_Blazer_PWA.Pages.ComponentWithDbInteractionBase
+
 <div style="        position: sticky;
         top: @TopHtml();
         right: @RightHtml();
         background-color: @BackgroundColor;
         padding: 10px;
         border-bottom: solid 1px darkblue;
-        z-index: 900">
+        z-index: 900;
+        display: @Display;
+        ">
     @ChildContent
 </div>
 
 @code {
+    DbParametersFacade dbParams = null;
+
+    public string Display { get; set; } = "none";
+
     [Parameter]
     public RenderFragment ChildContent { get; set; }
 
@@ -21,6 +28,21 @@
 
     [Parameter]
     public string BackgroundColor { get; set; } = "white";
+
+    protected override async Task OnInitializedAsync()
+    {
+        dbParams = new DbParametersFacade(DatabaseFacade);
+        string hideToolsParameterString = await dbParams.GetParameterAsync("HideTools");
+
+        if (hideToolsParameterString != null && hideToolsParameterString == "True")
+        {
+            Display = "none";
+        }
+        else
+        {
+            Display = "block";
+        }
+    }
 
     string TopHtml()
     {

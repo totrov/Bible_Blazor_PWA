@@ -13,24 +13,35 @@ namespace Bible_Blazer_PWA.Shared
         {
             _db = db;
         }
+        class ParameterModel
+        {
+            public string Key { get; set; }
+            public string Value { get; set; }
+        }
 
         public async Task<string> GetParameterAsync(string key)
         {
-            TaskCompletionSource taskCompletionSource = new TaskCompletionSource();
+            if (await CheckHasParameterAsync(key))
+            {
+                var resultHandler = await _db.GetRecordFromObjectStoreByKey<ParameterModel>("parameters", key);
+                ParameterModel result = await resultHandler.GetTaskCompletionSourceWrapper();
+                return result.Value;
+            }
+            return null;
+        }
 
-            var resultHandler = await _db.GetRecordFromObjectStoreByKey<string>("parameters", key);
-            string result = null;
-            resultHandler.OnDbResultOK += () => { result = resultHandler.Result; taskCompletionSource.SetResult(); };
-            await taskCompletionSource.Task;
-            return result;
+        public async Task<bool> CheckHasParameterAsync(string key)
+        {
+            var resultHandler = await _db.GetCountFromObjectStoreByKey("parameters", key);
+            int result = await resultHandler.GetTaskCompletionSourceWrapper();
+            return result != 0;
         }
 
         public async Task<bool> SetParameterAsync(string key, string value)
         {
-            //var resultHandler = await _db.SetRecord<string>("parameters", key);
-            //string result = null;
-            //resultHandler.OnDbResultOK += () => { result = resultHandler.Result; taskCompletionSource.SetResult(); };
-            return false;
+            var resultHandler = await _db.SetKeyValueIntoObjectStore("parameters", key, value);
+            bool result = await resultHandler.GetTaskCompletionSourceWrapper();
+            return result;
         }
     }
 }

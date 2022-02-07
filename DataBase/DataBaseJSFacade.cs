@@ -105,6 +105,19 @@ namespace Bible_Blazer_PWA.DataBase
             return await this.CallDbAsync<IEnumerable<T>>(
                 null, "getRangeFromObjectStoreByKey", objectStoreName, parameters);
         }
+        public async Task<IndexedDBResultHandler<int>> GetCountFromObjectStoreByKey(string objectStoreName, params object[] parameters)
+        {
+            return await this.CallDbAsync<int>(
+                        null, "getCountFromObjectStoreByKey", objectStoreName, parameters);
+        }
+
+
+        public async Task<IndexedDBResultHandler<bool>> SetKeyValueIntoObjectStore(string objectStoreName, string id, string value)
+        {
+            return await this.CallDbAsync<bool>(
+                    null, "putKeyValueIntoObjectStore", objectStoreName, id, value);
+
+        }
     }
 
     public class IndexedDBResultHandler
@@ -140,6 +153,14 @@ namespace Bible_Blazer_PWA.DataBase
                 Result = _result;
             }
             base.SetResult(_status);
+        }
+
+        public async Task<T> GetTaskCompletionSourceWrapper()
+        {
+            TaskCompletionSource taskCompletionSource = new TaskCompletionSource();
+            OnDbResultOK += () => { taskCompletionSource.SetResult(); };
+            await taskCompletionSource.Task;
+            return Result;
         }
     }
 }
