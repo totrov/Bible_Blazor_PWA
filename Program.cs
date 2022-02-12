@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Bible_Blazer_PWA.Shared;
 using Microsoft.JSInterop;
 using MudBlazor.Services;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace Bible_Blazer_PWA
 {
@@ -16,8 +17,10 @@ namespace Bible_Blazer_PWA
         {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("app");
+            builder.RootComponents.Add<HeadOutlet>("head::after");
 
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+            builder.Services.AddMudServices();
 
             var bibleService = new BibleService();
             builder.Services.AddSingleton(bibleService);
@@ -26,7 +29,7 @@ namespace Bible_Blazer_PWA
             builder.Services.AddSingleton(dbFacade);
             var dbParametersFacade = new DbParametersFacade(dbFacade);
             builder.Services.AddSingleton(dbParametersFacade);
-            builder.Services.AddMudServices();
+            
             var host = builder.Build();
            
             var jsRuntime = host.Services.GetRequiredService<IJSRuntime>();

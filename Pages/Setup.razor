@@ -37,15 +37,21 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>Цвет Фона (изменится после перезагрузки)</td>
                     <td>
-                        <InputText @bind-Value="@ParametersFormData.MainBackground"></InputText>
+                        <MudColorPicker Label="Цвет Фона (изменится после перезагрузки)"
+                                        @bind-Text="@ParametersFormData.MainBackground"
+                                        Style="@($"background-color: {ParametersFormData.MainBackground};")" Placeholder="Выберите цвет" />
+                    </td>
+                    <td>
                     </td>
                 </tr>
                 <tr>
-                    <td>Цвет фона панели инструментов</td>
                     <td>
-                        <InputText @bind-Value="@ParametersFormData.ToolsBackground"></InputText>
+                        <MudColorPicker Label="Цвет фона панели инструментов"
+                                        @bind-Text="@ParametersFormData.ToolsBackground"
+                                        Style="@($"background-color: {ParametersFormData.ToolsBackground};")" Placeholder="Выберите цвет" />
+                    </td>
+                    <td>
                     </td>
                 </tr>
             </table>
@@ -54,15 +60,21 @@
             <table>
                 <tr style="border-bottom:1px black solid;"><td colspan="2">Уровень 1</td></tr>
                 <tr>
-                    <td>Цвет фона в заголовке</td>
                     <td>
-                        <InputText @bind-Value="@ParametersFormData.FirstLevelBackground"></InputText>
+                        <MudColorPicker Label="Цвет фона в заголовке"
+                                        @bind-Text="@ParametersFormData.FirstLevelBackground"
+                                        Style="@($"background-color: {ParametersFormData.FirstLevelBackground};")" Placeholder="Выберите цвет" />
+                    </td>
+                    <td>
                     </td>
                 </tr>
                 <tr>
-                    <td>Цвет фона в теле</td>
                     <td>
-                        <InputText @bind-Value="@ParametersFormData.FirstLevelBodyBackground"></InputText>
+                        <MudColorPicker Label="Цвет фона в теле"
+                                        @bind-Text="@ParametersFormData.FirstLevelBodyBackground"
+                                        Style="@($"background-color: {ParametersFormData.FirstLevelBodyBackground};")" Placeholder="Выберите цвет" />
+                    </td>
+                    <td>
                     </td>
                 </tr>
                 <tr>
@@ -72,22 +84,29 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>Отступ сверху</td>
                     <td>
-                        <InputNumber @bind-Value="@ParametersFormData.FirstLevelMarginTop"></InputNumber>
+                        <MudNumericField @bind-Value="ParametersFormData.FirstLevelMarginTop" Label="Отступ сверху" Variant="Variant.Text" Min="0" />
+                    </td>
+                    <td>
                     </td>
                 </tr>
                 <tr style="border-bottom:1px black solid;"><td colspan="2">Уровень 2</td></tr>
                 <tr>
-                    <td>Цвет фона в заголовке</td>
                     <td>
-                        <InputText @bind-Value="@ParametersFormData.SecondLevelBackground"></InputText>
+                        <MudColorPicker Label="Цвет фона в заголовке"
+                                        @bind-Text="@ParametersFormData.SecondLevelBackground"
+                                        Style="@($"background-color: {ParametersFormData.SecondLevelBackground};")" Placeholder="Выберите цвет" />
+                    </td>
+                    <td>
                     </td>
                 </tr>
                 <tr>
-                    <td>Цвет фона в теле</td>
                     <td>
-                        <InputText @bind-Value="@ParametersFormData.SecondLevelBodyBackground"></InputText>
+                        <MudColorPicker Label="Цвет фона в теле"
+                                        @bind-Text="@ParametersFormData.SecondLevelBodyBackground"
+                                        Style="@($"background-color: {ParametersFormData.SecondLevelBodyBackground};")" Placeholder="Выберите цвет" />
+                    </td>
+                    <td>
                     </td>
                 </tr>
                 <tr>
@@ -97,22 +116,29 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>Отступ сверху</td>
                     <td>
-                        <InputNumber @bind-Value="@ParametersFormData.SecondLevelMarginTop"></InputNumber>
+                        <MudNumericField @bind-Value="ParametersFormData.SecondLevelMarginTop" Label="Отступ сверху" Variant="Variant.Text" Min="0" />
+                    </td>
+                    <td>
                     </td>
                 </tr>
                 <tr style="border-bottom:1px black solid;"><td colspan="2">Уровень 3</td></tr>
                 <tr>
-                    <td>Цвет фона в заголовке</td>
                     <td>
-                        <InputText @bind-Value="@ParametersFormData.ThirdLevelBackground"></InputText>
+                        <MudColorPicker Label="Цвет фона в заголовке"
+                                        @bind-Text="@ParametersFormData.ThirdLevelBackground"
+                                        Style="@($"background-color: {ParametersFormData.ThirdLevelBackground};")" Placeholder="Выберите цвет" />
+                    </td>
+                    <td>
                     </td>
                 </tr>
                 <tr>
-                    <td>Цвет фона в теле</td>
                     <td>
-                        <InputText @bind-Value="@ParametersFormData.ThirdLevelBodyBackground"></InputText>
+                        <MudColorPicker Label="Цвет фона в теле"
+                                        @bind-Text="@ParametersFormData.ThirdLevelBodyBackground"
+                                        Style="@($"background-color: {ParametersFormData.ThirdLevelBodyBackground};")" Placeholder="Выберите цвет" />
+                    </td>
+                    <td>
                     </td>
                 </tr>
                 <tr>
@@ -122,9 +148,10 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>Отступ сверху</td>
                     <td>
-                        <InputNumber @bind-Value="@ParametersFormData.ThirdLevelMarginTop"></InputNumber>
+                        <MudNumericField @bind-Value="ParametersFormData.ThirdLevelMarginTop" Label="Отступ сверху" Variant="Variant.Text" Min="0" />
+                    </td>
+                    <td>
                     </td>
                 </tr>
             </table>
