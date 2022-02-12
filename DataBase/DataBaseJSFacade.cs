@@ -43,9 +43,8 @@ namespace Bible_Blazer_PWA.DataBase
             JS = js;
         }
 
-        public async Task<IndexedDBResultHandler> Init(IJSRuntime js)
+        public async Task<IndexedDBResultHandler> InitDb()
         {
-            SetJS(js);
             return await CallVoidDbAsync(() => { _isInitialized = true; }, "initDatabase");
         }
 

@@ -1,5 +1,4 @@
 ﻿@page "/setup"
-@inherits ComponentWithDbInteractionBase
 @using System.IO
 @using Bible_Blazer_PWA.Services.Parse
 @using b2xtranslator.StructuredStorage.Reader
@@ -7,6 +6,7 @@
 @using Bible_Blazer_PWA.DomainObjects
 @inject HttpClient Http
 @inject DbParametersFacade dbParams
+@inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
 
 <div class="card card-body" style="margin-bottom:10px;">
     <h2 class="card-title">Планы уроков</h2>
@@ -159,7 +159,7 @@
     private List<LoadingItem> LoadingItems { get; set; } = new List<LoadingItem>();
     public async Task DeleteDb()
     {
-        await DatabaseFacade.CallVoidDbAsync(null, "delete");
+        await db.CallVoidDbAsync(null, "delete");
     }
     public async Task LoadFromAzure()
     {
@@ -172,7 +172,7 @@
             b2xtranslator.DocFileFormat.WordDocument doc = new(reader);
             string stringContent = new String(doc.Text.ToArray());
             string json = await LessonParser.ParseLessons(stringContent);
-            var resultHandler = await DatabaseFacade.ImportLessonsJson(json);
+            var resultHandler = await db.ImportLessonsJson(json);
             //resultHandler.OnDbResultOK += () => { UpdateItemStatus(item, "Успешно загружено"); };
         }
         catch (b2xtranslator.DocFileFormat.ByteParseException)
@@ -221,7 +221,7 @@
                 b2xtranslator.DocFileFormat.WordDocument doc = new(reader);
                 string stringContent = new String(doc.Text.ToArray());
                 string json = await LessonParser.ParseLessons(stringContent);
-                var resultHandler = await DatabaseFacade.ImportLessonsJson(json);
+                var resultHandler = await db.ImportLessonsJson(json);
                 resultHandler.OnDbResultOK += () => { UpdateItemStatus(item, "Успешно загружено"); };
             }
             catch (b2xtranslator.DocFileFormat.ByteParseException)

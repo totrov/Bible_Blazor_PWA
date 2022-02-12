@@ -1,28 +1,8 @@
 ﻿@page "/"
-@inherits ComponentWithDbInteractionBase
+@inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
 @inject BibleService bible;
 
 <h1>Планы уроков церкви "Завет Христа"</h1>
-
-@if (bible.IsLoaded)
-{
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col">
-                База данных успешно загружена.
-            </div>
-        </div>
-    </div>
-}
-
-
-@code {
-    protected override async Task OnInitializedAsync()
-    {
-        await base.OnInitializedAsync();
-    }
-
-}
 
 
 

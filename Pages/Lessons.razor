@@ -2,8 +2,7 @@
 @using Bible_Blazer_PWA.DataSources
 @using static Bible_Blazer_PWA.DataSources.LessonDS
 @using Bible_Blazer_PWA.DomainObjects
-@inject HttpClient Http
-@inherits ComponentWithDbInteractionBase
+@inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
 
 @if (_blocks != null)
 {
@@ -69,7 +68,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _lessonDS = new LessonDS(this.DatabaseFacade);
+        _lessonDS = new LessonDS(db);
         _blocks = await _lessonDS.GetBlocks();
     }
 }

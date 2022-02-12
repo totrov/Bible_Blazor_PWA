@@ -1,5 +1,5 @@
 ﻿@page "/lesson/{Id:int}"
-@inherits Bible_Blazer_PWA.Pages.ComponentWithDbInteractionBase
+@inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
 @namespace BibleComponents
 @using System.Text.RegularExpressions
 @inject HttpClient Http

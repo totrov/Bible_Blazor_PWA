@@ -1,5 +1,5 @@
 ﻿@page "/lessonNew/{Id:int}/{UnitNumber:int}"
-@inherits Bible_Blazer_PWA.Pages.ComponentWithDbInteractionBase
+@inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
 @namespace BibleComponents
 @inject HttpClient Http
 @inject DbParametersFacade DbParameters
@@ -44,7 +44,7 @@
         var unitId = Unit.GetShortNameByUnitNumber(UnitNumber);
         var idStringified = Id.ToString();
 
-        var resultHandler = await DatabaseFacade.GetRecordFromObjectStoreByKey<LessonContainerDb>("lessons", unitId, Id.ToString());
+        var resultHandler = await db.GetRecordFromObjectStoreByKey<LessonContainerDb>("lessons", unitId, Id.ToString());
         resultHandler.OnDbResultOK += () => { lesson = resultHandler.Result; taskCompletionSource.SetResult(); };
         await taskCompletionSource.Task;
     }
