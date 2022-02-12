@@ -1,5 +1,6 @@
 ﻿@page "/setup"
 @using System.IO
+@using Bible_Blazer_PWA.Services.MudBlazorHelpers
 @using Bible_Blazer_PWA.Services.Parse
 @using b2xtranslator.StructuredStorage.Reader
 @using System.Net.Http
@@ -78,14 +79,13 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>Толщина шрифта</td>
+                    <td><MudSwitch @bind-Checked="@ParametersFormData.FirstLevelFontWeight" Color="Color.Error" Converter="@(new BoldFontStringToBoolConverter())">Жирный шрифт</MudSwitch></td>
                     <td>
-                        <InputText @bind-Value="@ParametersFormData.FirstLevelFontWeight"></InputText>
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <MudNumericField @bind-Value="ParametersFormData.FirstLevelMarginTop" Label="Отступ сверху" Variant="Variant.Text" Min="0" />
+                        <MudSlider @bind-Value="ParametersFormData.FirstLevelMarginTop" Min="0" Max="100" Step="5" Color="Color.Info">Отступ сверху: @ParametersFormData.FirstLevelMarginTop.ToString()</MudSlider>
                     </td>
                     <td>
                     </td>
@@ -110,14 +110,13 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>Толщина шрифта</td>
+                    <td><MudSwitch @bind-Checked="@ParametersFormData.SecondLevelFontWeight" Color="Color.Error" Converter="@(new BoldFontStringToBoolConverter())">Жирный шрифт</MudSwitch></td>
                     <td>
-                        <InputText @bind-Value="@ParametersFormData.SecondLevelFontWeight"></InputText>
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <MudNumericField @bind-Value="ParametersFormData.SecondLevelMarginTop" Label="Отступ сверху" Variant="Variant.Text" Min="0" />
+                        <MudSlider @bind-Value="ParametersFormData.SecondLevelMarginTop" Min="0" Max="100" Step="5" Color="Color.Info">Отступ сверху: @ParametersFormData.SecondLevelMarginTop.ToString()</MudSlider>
                     </td>
                     <td>
                     </td>
@@ -142,14 +141,16 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>Толщина шрифта</td>
                     <td>
-                        <InputText @bind-Value="@ParametersFormData.ThirdLevelFontWeight"></InputText>
+                        <MudSwitch @bind-Checked="@ParametersFormData.ThirdLevelFontWeight"
+                                   Color="Color.Error" Converter="@(new BoldFontStringToBoolConverter())">Жирный шрифт</MudSwitch>
+                    </td>
+                    <td>
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <MudNumericField @bind-Value="ParametersFormData.ThirdLevelMarginTop" Label="Отступ сверху" Variant="Variant.Text" Min="0" />
+                        <MudSlider @bind-Value="ParametersFormData.ThirdLevelMarginTop" Min="0" Max="100" Step="5" Color="Color.Info">Отступ сверху: @ParametersFormData.ThirdLevelMarginTop.ToString()</MudSlider>
                     </td>
                     <td>
                     </td>
