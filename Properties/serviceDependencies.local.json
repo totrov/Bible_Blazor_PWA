@@ -1,0 +1,13 @@
+{
+  "dependencies": {
+    "secrets1": {
+      "type": "secrets.user"
+    },
+    "storage1": {
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourcegroups/[parameters('resourceGroupName')]/providers/Microsoft.Storage/storageAccounts/bibleblazorpwastorage",
+      "type": "storage.azure",
+      "connectionId": "BilbleBlazorPWA_StorageConnString",
+      "secretStore": "LocalSecretsFile"
+    }
+  }
+}

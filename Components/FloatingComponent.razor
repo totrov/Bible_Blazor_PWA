@@ -1,5 +1,5 @@
 ﻿@inherits Bible_Blazer_PWA.Pages.ComponentWithDbInteractionBase
-
+@inject DbParametersFacade dbParams;
 <div style="        position: sticky;
         top: @TopHtml();
         right: @RightHtml();
@@ -13,8 +13,6 @@
 </div>
 
 @code {
-    DbParametersFacade dbParams = null;
-
     public string Display { get; set; } = "none";
 
     [Parameter]
@@ -26,12 +24,10 @@
     [Parameter]
     public int Right { get; set; } = 0;
 
-    [Parameter]
     public string BackgroundColor { get; set; } = "white";
 
     protected override async Task OnInitializedAsync()
     {
-        dbParams = new DbParametersFacade(DatabaseFacade);
         string hideToolsParameterString = await dbParams.GetParameterAsync("HideTools");
 
         if (hideToolsParameterString != null && hideToolsParameterString == "True")
@@ -42,6 +38,9 @@
         {
             Display = "block";
         }
+
+        string toolsBGColorString = await dbParams.GetParameterAsync("ToolsBg");
+        BackgroundColor = (toolsBGColorString != null && toolsBGColorString != "") ? toolsBGColorString : "white";
     }
 
     string TopHtml()

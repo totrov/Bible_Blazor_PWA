@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
+﻿using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,9 +38,14 @@ namespace Bible_Blazer_PWA.DataBase
             return await JS.InvokeAsync<string>("database.showPrompt");
         }
 
-        public async Task<IndexedDBResultHandler> Init(IJSRuntime js)
+        public void SetJS(IJSRuntime js)
         {
             JS = js;
+        }
+
+        public async Task<IndexedDBResultHandler> Init(IJSRuntime js)
+        {
+            SetJS(js);
             return await CallVoidDbAsync(() => { _isInitialized = true; }, "initDatabase");
         }
 

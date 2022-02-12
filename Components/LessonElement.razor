@@ -2,32 +2,19 @@
 @using Bible_Blazer_PWA.BibleReferenceParse
 @using Bible_Blazer_PWA.DomainObjects
 @inject BibleService Bible
+@inject DbParametersFacade dbFacade; 
 
-<div class="card">
-    <div class="card-header">
-        @if (@ElementData.Children != null)
-        {
-            <h5 class="card-title">
-                @ElementData.Value
-                <button type="button" class="btn @(IsOpen ? "btn-outline-primary" : "btn-outline-secondary")" style="display: inline;" @onclick="Toggle">...</button>
+<div class="card" style="margin-top:@MarginTop; background-color:@BodyBackgroundColor">
+    <div class="card-header" style="background-color:@BackgroundColor; font-weight: @FontWeight;">
+        <span class="card-title">
+            @ElementData.Value
 
-                @if (HasBibleReferences)
-                {
-                    <button type="button" class="btn btn-outline-primary" style="display: inline;" @onclick="ToggleReferences">..</button>
-                }
-            </h5>
-        }
-        else
-        {
-            <span class="card-title">
-                @ElementData.Value
+            @if (HasBibleReferences)
+            {
+                <button type="button" class="btn btn-outline-primary btn-sm" style="display: inline;" @onclick="ToggleReferences">..</button>
+            }
+        </span>
 
-                @if (HasBibleReferences)
-                {
-                    <button type="button" class="btn btn-outline-primary btn-sm" style="display: inline;" @onclick="ToggleReferences">..</button>
-                }
-            </span>
-        }
         @if (HasBibleReferences)
         {
             <ul class="nav nav-tabs card-header-tabs" style="@((RefsAreOpen & IsOpen) ? "" : "display:none;")">
@@ -94,6 +81,11 @@
     [CascadingParameter]
     protected Parameters parameters { get; set; }
 
+    public string FontWeight { get; set; } = "300";
+    public string BackgroundColor { get; set; } = "white";
+    public string BodyBackgroundColor { get; set; } = "white";
+    public string MarginTop { get; set; } = "0";
+
     protected override async Task OnInitializedAsync()
     {
         _versesViewsDictionary = new Dictionary<string, IEnumerable<BibleService.VersesView>>();
@@ -103,6 +95,29 @@
         }
         _versesLoaded = true;
         parameters.OnReferenceToggle += (sender, args) => { RefsAreOpen = parameters.AreReferencesOpened; };
+
+        string levelAsString;
+        switch (ElementData.Level)
+        {
+            case 1:
+                levelAsString = "FirstLevel";
+                break;
+            case 2:
+                levelAsString = "SecondLevel";
+                break;
+            default:
+                levelAsString = "ThirdLevel";
+                break;
+        }
+        var BackgroundColorString = await dbFacade.GetParameterAsync(levelAsString + "Bg");
+        BackgroundColor = (BackgroundColorString != null && BackgroundColorString != "") ? BackgroundColorString : "white";
+        var BodyBackgroundColorString = await dbFacade.GetParameterAsync(levelAsString + "BodyBg");
+        BodyBackgroundColor = (BodyBackgroundColorString != null && BodyBackgroundColorString != "") ? BodyBackgroundColorString : "white";
+        var FontWeightString = await dbFacade.GetParameterAsync(levelAsString + "FontWeight");
+        FontWeight = (FontWeightString != null && FontWeightString != "") ? FontWeightString : "300";
+        var MarginTopString = await dbFacade.GetParameterAsync(levelAsString + "MarginTop");
+        int MarginTopInt = int.TryParse(MarginTopString, out int marginTopParsed) ? marginTopParsed : 0;
+        MarginTop = MarginTopInt == 0 ? "0" : MarginTopInt.ToString() + "px";
     }
 
     public bool HasBibleReferences

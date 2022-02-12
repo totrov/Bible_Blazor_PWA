@@ -4,7 +4,9 @@
 @using Bible_Blazer_PWA.Services.Parse
 @using b2xtranslator.StructuredStorage.Reader
 @using System.Net.Http
+@using Bible_Blazer_PWA.DomainObjects
 @inject HttpClient Http
+@inject DbParametersFacade dbParams
 
 <div class="card card-body" style="margin-bottom:10px;">
     <h2 class="card-title">Планы уроков</h2>
@@ -34,6 +36,97 @@
                         <InputCheckbox @bind-Value="@ParametersFormData.AreToolsHidden"></InputCheckbox>
                     </td>
                 </tr>
+                <tr>
+                    <td>Цвет Фона (изменится после перезагрузки)</td>
+                    <td>
+                        <InputText @bind-Value="@ParametersFormData.MainBackground"></InputText>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Цвет фона панели инструментов</td>
+                    <td>
+                        <InputText @bind-Value="@ParametersFormData.ToolsBackground"></InputText>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="card card-body col-lg-6 col-md-7 col-sm">
+            <table>
+                <tr style="border-bottom:1px black solid;"><td colspan="2">Уровень 1</td></tr>
+                <tr>
+                    <td>Цвет фона в заголовке</td>
+                    <td>
+                        <InputText @bind-Value="@ParametersFormData.FirstLevelBackground"></InputText>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Цвет фона в теле</td>
+                    <td>
+                        <InputText @bind-Value="@ParametersFormData.FirstLevelBodyBackground"></InputText>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Толщина шрифта</td>
+                    <td>
+                        <InputText @bind-Value="@ParametersFormData.FirstLevelFontWeight"></InputText>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Отступ сверху</td>
+                    <td>
+                        <InputNumber @bind-Value="@ParametersFormData.FirstLevelMarginTop"></InputNumber>
+                    </td>
+                </tr>
+                <tr style="border-bottom:1px black solid;"><td colspan="2">Уровень 2</td></tr>
+                <tr>
+                    <td>Цвет фона в заголовке</td>
+                    <td>
+                        <InputText @bind-Value="@ParametersFormData.SecondLevelBackground"></InputText>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Цвет фона в теле</td>
+                    <td>
+                        <InputText @bind-Value="@ParametersFormData.SecondLevelBodyBackground"></InputText>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Толщина шрифта</td>
+                    <td>
+                        <InputText @bind-Value="@ParametersFormData.SecondLevelFontWeight"></InputText>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Отступ сверху</td>
+                    <td>
+                        <InputNumber @bind-Value="@ParametersFormData.SecondLevelMarginTop"></InputNumber>
+                    </td>
+                </tr>
+                <tr style="border-bottom:1px black solid;"><td colspan="2">Уровень 3</td></tr>
+                <tr>
+                    <td>Цвет фона в заголовке</td>
+                    <td>
+                        <InputText @bind-Value="@ParametersFormData.ThirdLevelBackground"></InputText>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Цвет фона в теле</td>
+                    <td>
+                        <InputText @bind-Value="@ParametersFormData.ThirdLevelBodyBackground"></InputText>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Толщина шрифта</td>
+                    <td>
+                        <InputText @bind-Value="@ParametersFormData.ThirdLevelFontWeight"></InputText>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Отступ сверху</td>
+                    <td>
+                        <InputNumber @bind-Value="@ParametersFormData.ThirdLevelMarginTop"></InputNumber>
+                    </td>
+                </tr>
             </table>
         </div>
     </div>
@@ -49,37 +142,12 @@
 
 @code
 {
-    DbParametersFacade dbParams = null;
     ParametersModel ParametersFormData = new ParametersModel();
-    class ParametersModel
-    {
-        DbParametersFacade _dbParams;
-        public void SetDbParametersFacade(DbParametersFacade dbParams)
-        {
-            _dbParams = dbParams;
-        }
-
-        private bool _areToolsHidden;
-        public bool AreToolsHidden
-        {
-            get => _areToolsHidden; set
-            {
-                _dbParams.SetParameterAsync("HideTools", value.ToString());
-                _areToolsHidden = value;
-            }
-        }
-        private async void AreToolsHiddenChangeHandler(bool isChecked)
-        {
-            _dbParams.SetParameterAsync("HideTools", isChecked.ToString());
-        }
-    }
 
     protected override async Task OnInitializedAsync()
     {
-        dbParams = new DbParametersFacade(DatabaseFacade);
         ParametersFormData.SetDbParametersFacade(dbParams);
-        string hideToolsParameterString = await dbParams.GetParameterAsync("HideTools");
-        ParametersFormData.AreToolsHidden = hideToolsParameterString != null && hideToolsParameterString == "True";
+        await ParametersFormData.InitFromDb();
     }
 
     class LoadingItem

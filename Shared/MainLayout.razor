@@ -1,11 +1,25 @@
 ﻿@inherits LayoutComponentBase
-
+@inject DbParametersFacade dbParamteres
 <div class="sidebar">
     <NavMenu />
 </div>
 
-<div class="main">
-    <div class="content px-4">
+<div class="main" style="background-color: @BackgroundColor">
+    <div class="content px-4" style="background-color: @BackgroundColor">
         @Body
     </div>
 </div>
+
+@code
+{
+    public string BackgroundColor { get; set; } = "white";
+
+    protected async override Task OnInitializedAsync()
+    {
+        string mainBackgroundColor = await dbParamteres.GetParameterAsync("MainBackground");
+        if (mainBackgroundColor != null && mainBackgroundColor != "")
+        {
+            BackgroundColor = mainBackgroundColor;
+        }
+    }
+}

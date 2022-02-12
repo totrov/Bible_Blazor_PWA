@@ -1,14 +1,13 @@
 ﻿@page "/lessonNew/{Id:int}/{UnitNumber:int}"
 @inherits Bible_Blazer_PWA.Pages.ComponentWithDbInteractionBase
 @namespace BibleComponents
-@using System.Text.RegularExpressions
 @inject HttpClient Http
-@using Microsoft.Extensions.Logging;
+@inject DbParametersFacade DbParameters
 @using Bible_Blazer_PWA.DomainObjects;
 @if (lesson != null)
 {
 
-    <Bible_Blazer_PWA.Components.FloatingComponent Top="0" Right="0" BackgroundColor="white">
+    <Bible_Blazer_PWA.Components.FloatingComponent Top="0" Right="0">
         <button type="button" class="btn btn-outline-primary" style="display: inline;" @onclick="ToggleCollapse"><span class="oi @getGlobalToggleCollapseStyle()" aria-hidden="true"></span></button>
         <button type="button" class="btn btn-outline-primary" style="display: inline;" @onclick="ToggleReferences"><span class="oi @getGlobalToggleRefsStyle()" aria-hidden="true"></span></button>
     </Bible_Blazer_PWA.Components.FloatingComponent>
@@ -34,6 +33,8 @@
 
     [Parameter]
     public int UnitNumber { get; set; } = 1;
+
+    public string ToolsBackgroundColor { get; set; } = "white";
 
     protected LessonContainerDb lesson;
 
