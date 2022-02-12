@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Bible_Blazer_PWA.Shared;
 using Microsoft.JSInterop;
+using MudBlazor.Services;
 
 namespace Bible_Blazer_PWA
 {
@@ -25,7 +26,7 @@ namespace Bible_Blazer_PWA
             builder.Services.AddSingleton(dbFacade);
             var dbParametersFacade = new DbParametersFacade(dbFacade);
             builder.Services.AddSingleton(dbParametersFacade);
-
+            builder.Services.AddMudServices();
             var host = builder.Build();
            
             var jsRuntime = host.Services.GetRequiredService<IJSRuntime>();
