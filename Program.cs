@@ -1,6 +1,5 @@
 using Bible_Blazer_PWA.DataBase;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Net.Http;
@@ -20,15 +19,7 @@ namespace Bible_Blazer_PWA
             builder.RootComponents.Add<App>("app");
             builder.RootComponents.Add<HeadOutlet>("head::after");
 
-            builder.Services.AddScoped(sp => new HttpClient(
-            sp.GetRequiredService<AuthorizationMessageHandler>()
-            .ConfigureHandler(
-                authorizedUrls: new[]
-                {
-                    "*"
-                }
-            ))
-            { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
             builder.Services.AddMudServices();
 
             var bibleService = new BibleService();
@@ -44,6 +35,7 @@ namespace Bible_Blazer_PWA
             var jsRuntime = host.Services.GetRequiredService<IJSRuntime>();
             dbFacade.SetJS(jsRuntime);
             bibleService.Init(dbFacade);
+            dbParametersFacade.InitDefaults();
             await dbFacade.InitDb();
             await host.RunAsync();
         }

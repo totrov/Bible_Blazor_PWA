@@ -28,7 +28,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        string hideToolsParameterString = await dbParams.GetParameterAsync("HideTools");
+        string hideToolsParameterString = await dbParams.GetParameterAsync(DbParametersFacade.Parameters.HideTools);
 
         if (hideToolsParameterString != null && hideToolsParameterString == "True")
         {
@@ -39,7 +39,7 @@
             Display = "block";
         }
 
-        string toolsBGColorString = await dbParams.GetParameterAsync("ToolsBg");
+        string toolsBGColorString = await dbParams.GetParameterAsync(DbParametersFacade.Parameters.ToolsBg);
         BackgroundColor = (toolsBGColorString != null && toolsBGColorString != "") ? toolsBGColorString : "white";
     }
 

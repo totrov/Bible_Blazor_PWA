@@ -21,7 +21,7 @@
 
     protected async override Task OnInitializedAsync()
     {
-        string mainBackgroundColor = await dbParamteres.GetParameterAsync("MainBackground");
+        string mainBackgroundColor = await dbParamteres.GetParameterAsync(DbParametersFacade.Parameters.MainBackground);
         if (mainBackgroundColor != null && mainBackgroundColor != "")
         {
             BackgroundColor = mainBackgroundColor;

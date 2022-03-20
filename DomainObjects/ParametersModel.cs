@@ -13,45 +13,45 @@ namespace Bible_Blazer_PWA.DomainObjects
 
         public async Task InitFromDb()
         {
-            string mainBackgroundParameterString = await _dbParams.GetParameterAsync("MainBackground");
+            string mainBackgroundParameterString = await _dbParams.GetParameterAsync(DbParametersFacade.Parameters.MainBackground);
             MainBackground = mainBackgroundParameterString != null ? mainBackgroundParameterString : "";
 
-            string ToolsBackgroundString = await _dbParams.GetParameterAsync("ToolsBg");
+            string ToolsBackgroundString = await _dbParams.GetParameterAsync(DbParametersFacade.Parameters.ToolsBg);
             ToolsBackground = ToolsBackgroundString != null ? ToolsBackgroundString : "";
 
-            string hideToolsParameterString = await _dbParams.GetParameterAsync("HideTools");
+            string hideToolsParameterString = await _dbParams.GetParameterAsync(DbParametersFacade.Parameters.HideTools);
             AreToolsHidden = hideToolsParameterString != null && hideToolsParameterString == "True";
 
             #region FirstLevel
-            string FirstLevelBackgroundString = await _dbParams.GetParameterAsync("FirstLevelBg");
+            string FirstLevelBackgroundString = await _dbParams.GetParameterAsync(DbParametersFacade.Parameters.FirstLevelBg);
             FirstLevelBackground = FirstLevelBackgroundString != null ? FirstLevelBackgroundString : "";
-            string FirstLevelBodyBackgroundString = await _dbParams.GetParameterAsync("FirstLevelBodyBg");
+            string FirstLevelBodyBackgroundString = await _dbParams.GetParameterAsync(DbParametersFacade.Parameters.FirstLevelBodyBg);
             FirstLevelBodyBackground = FirstLevelBodyBackgroundString != null ? FirstLevelBodyBackgroundString : "";
-            string FirstLevelFontWeightString = await _dbParams.GetParameterAsync("FirstLevelFontWeight");
+            string FirstLevelFontWeightString = await _dbParams.GetParameterAsync(DbParametersFacade.Parameters.FirstLevelFontWeight);
             FirstLevelFontWeight = FirstLevelFontWeightString != null ? FirstLevelFontWeightString : "";
-            string FirstLevelMarginTopString = await _dbParams.GetParameterAsync("FirstLevelMarginTop");
+            string FirstLevelMarginTopString = await _dbParams.GetParameterAsync(DbParametersFacade.Parameters.FirstLevelMarginTop);
             FirstLevelMarginTop = int.TryParse(FirstLevelMarginTopString, out int firstLevelMarginTop) ? firstLevelMarginTop : 0;
             #endregion
 
             #region SecondLevel
-            string SecondLevelBackgroundString = await _dbParams.GetParameterAsync("SecondLevelBg");
+            string SecondLevelBackgroundString = await _dbParams.GetParameterAsync(DbParametersFacade.Parameters.SecondLevelBg);
             SecondLevelBackground = SecondLevelBackgroundString != null ? SecondLevelBackgroundString : "";
-            string SecondLevelBodyBackgroundString = await _dbParams.GetParameterAsync("SecondLevelBodyBg");
+            string SecondLevelBodyBackgroundString = await _dbParams.GetParameterAsync(DbParametersFacade.Parameters.SecondLevelBodyBg);
             SecondLevelBodyBackground = SecondLevelBodyBackgroundString != null ? SecondLevelBodyBackgroundString : "";
-            string SecondLevelFontWeightString = await _dbParams.GetParameterAsync("SecondLevelFontWeight");
+            string SecondLevelFontWeightString = await _dbParams.GetParameterAsync(DbParametersFacade.Parameters.SecondLevelFontWeight);
             SecondLevelFontWeight = SecondLevelFontWeightString != null ? SecondLevelFontWeightString : "";
-            string SecondLevelMarginTopString = await _dbParams.GetParameterAsync("SecondLevelMarginTop");
+            string SecondLevelMarginTopString = await _dbParams.GetParameterAsync(DbParametersFacade.Parameters.SecondLevelMarginTop);
             SecondLevelMarginTop = int.TryParse(SecondLevelMarginTopString, out int secondLevelMarginTop) ? secondLevelMarginTop : 0;
             #endregion
 
             #region ThirdLevel
-            string ThirdLevelBackgroundString = await _dbParams.GetParameterAsync("ThirdLevelBg");
+            string ThirdLevelBackgroundString = await _dbParams.GetParameterAsync(DbParametersFacade.Parameters.ThirdLevelBg);
             ThirdLevelBackground = ThirdLevelBackgroundString != null ? ThirdLevelBackgroundString : "";
-            string ThirdLevelBodyBackgroundString = await _dbParams.GetParameterAsync("ThirdLevelBodyBg");
+            string ThirdLevelBodyBackgroundString = await _dbParams.GetParameterAsync(DbParametersFacade.Parameters.ThirdLevelBodyBg);
             ThirdLevelBodyBackground = ThirdLevelBodyBackgroundString != null ? ThirdLevelBodyBackgroundString : "";
-            string ThirdLevelFontWeightString = await _dbParams.GetParameterAsync("ThirdLevelFontWeight");
+            string ThirdLevelFontWeightString = await _dbParams.GetParameterAsync(DbParametersFacade.Parameters.ThirdLevelFontWeight);
             ThirdLevelFontWeight = ThirdLevelFontWeightString != null ? ThirdLevelFontWeightString : "";
-            string ThirdLevelMarginTopString = await _dbParams.GetParameterAsync("ThirdLevelMarginTop");
+            string ThirdLevelMarginTopString = await _dbParams.GetParameterAsync(DbParametersFacade.Parameters.ThirdLevelMarginTop);
             ThirdLevelMarginTop = int.TryParse(ThirdLevelMarginTopString, out int thirdLevelMarginTop) ? thirdLevelMarginTop : 0;
             #endregion
         }
@@ -65,7 +65,7 @@ namespace Bible_Blazer_PWA.DomainObjects
             get => _mainBackground;
             set
             {
-                _dbParams.SetParameterAsync("MainBackground", value.ToString());
+                _dbParams.SetParameterAsync(DbParametersFacade.Parameters.MainBackground, value.ToString());
                 _mainBackground = value;
             }
         }
@@ -78,7 +78,7 @@ namespace Bible_Blazer_PWA.DomainObjects
             get => _toolsBackground;
             set
             {
-                _dbParams.SetParameterAsync("ToolsBg", value.ToString());
+                _dbParams.SetParameterAsync(DbParametersFacade.Parameters.ToolsBg, value.ToString());
                 _toolsBackground = value;
             }
         }
@@ -90,7 +90,7 @@ namespace Bible_Blazer_PWA.DomainObjects
         {
             get => _areToolsHidden; set
             {
-                _dbParams.SetParameterAsync("HideTools", value.ToString());
+                _dbParams.SetParameterAsync(DbParametersFacade.Parameters.HideTools, value.ToString());
                 _areToolsHidden = value;
             }
         }
@@ -104,7 +104,7 @@ namespace Bible_Blazer_PWA.DomainObjects
             get => _firstLevelMarginTop;
             set
             {
-                _dbParams.SetParameterAsync("FirstLevelMarginTop", value.ToString());
+                _dbParams.SetParameterAsync(DbParametersFacade.Parameters.FirstLevelMarginTop, value.ToString());
                 _firstLevelMarginTop = value;
             }
         }
@@ -117,7 +117,7 @@ namespace Bible_Blazer_PWA.DomainObjects
             get => _firstLevelFontWeight;
             set
             {
-                _dbParams.SetParameterAsync("FirstLevelFontWeight", value.ToString());
+                _dbParams.SetParameterAsync(DbParametersFacade.Parameters.FirstLevelFontWeight, value.ToString());
                 _firstLevelFontWeight = value;
             }
         }
@@ -130,7 +130,7 @@ namespace Bible_Blazer_PWA.DomainObjects
             get => _firstLevelBodyBackground;
             set
             {
-                _dbParams.SetParameterAsync("FirstLevelBodyBg", value.ToString());
+                _dbParams.SetParameterAsync(DbParametersFacade.Parameters.FirstLevelBodyBg, value.ToString());
                 _firstLevelBodyBackground = value;
             }
         }
@@ -143,8 +143,9 @@ namespace Bible_Blazer_PWA.DomainObjects
             get => _firstLevelBackground;
             set
             {
-                _dbParams.SetParameterAsync("FirstLevelBg", value.ToString());
+                _dbParams.SetParameterAsync(DbParametersFacade.Parameters.FirstLevelBg, value.ToString());
                 _firstLevelBackground = value;
+                FirstLevelBodyBackground = value;
             }
         }
         #endregion
@@ -158,7 +159,7 @@ namespace Bible_Blazer_PWA.DomainObjects
             get => _secondLevelMarginTop;
             set
             {
-                _dbParams.SetParameterAsync("SecondLevelMarginTop", value.ToString());
+                _dbParams.SetParameterAsync(DbParametersFacade.Parameters.SecondLevelMarginTop, value.ToString());
                 _secondLevelMarginTop = value;
             }
         }
@@ -171,7 +172,7 @@ namespace Bible_Blazer_PWA.DomainObjects
             get => _secondLevelFontWeight;
             set
             {
-                _dbParams.SetParameterAsync("SecondLevelFontWeight", value.ToString());
+                _dbParams.SetParameterAsync(DbParametersFacade.Parameters.SecondLevelFontWeight, value.ToString());
                 _secondLevelFontWeight = value;
             }
         }
@@ -184,7 +185,7 @@ namespace Bible_Blazer_PWA.DomainObjects
             get => _secondLevelBodyBackground;
             set
             {
-                _dbParams.SetParameterAsync("SecondLevelBodyBg", value.ToString());
+                _dbParams.SetParameterAsync(DbParametersFacade.Parameters.SecondLevelBodyBg, value.ToString());
                 _secondLevelBodyBackground = value;
             }
         }
@@ -197,8 +198,9 @@ namespace Bible_Blazer_PWA.DomainObjects
             get => _secondLevelBackground;
             set
             {
-                _dbParams.SetParameterAsync("SecondLevelBg", value.ToString());
+                _dbParams.SetParameterAsync(DbParametersFacade.Parameters.SecondLevelBg, value.ToString());
                 _secondLevelBackground = value;
+                SecondLevelBodyBackground = value;
             }
         }
         #endregion
@@ -212,7 +214,7 @@ namespace Bible_Blazer_PWA.DomainObjects
             get => _thirdLevelMarginTop;
             set
             {
-                _dbParams.SetParameterAsync("ThirdLevelMarginTop", value.ToString());
+                _dbParams.SetParameterAsync(DbParametersFacade.Parameters.ThirdLevelMarginTop, value.ToString());
                 _thirdLevelMarginTop = value;
             }
         }
@@ -225,7 +227,7 @@ namespace Bible_Blazer_PWA.DomainObjects
             get => _thirdLevelFontWeight;
             set
             {
-                _dbParams.SetParameterAsync("ThirdLevelFontWeight", value.ToString());
+                _dbParams.SetParameterAsync(DbParametersFacade.Parameters.ThirdLevelFontWeight, value.ToString());
                 _thirdLevelFontWeight = value;
             }
         }
@@ -238,7 +240,7 @@ namespace Bible_Blazer_PWA.DomainObjects
             get => _thirdLevelBodyBackground;
             set
             {
-                _dbParams.SetParameterAsync("ThirdLevelBodyBg", value.ToString());
+                _dbParams.SetParameterAsync(DbParametersFacade.Parameters.ThirdLevelBodyBg, value.ToString());
                 _thirdLevelBodyBackground = value;
             }
         }
@@ -251,8 +253,9 @@ namespace Bible_Blazer_PWA.DomainObjects
             get => _thirdLevelBackground;
             set
             {
-                _dbParams.SetParameterAsync("ThirdLevelBg", value.ToString());
+                _dbParams.SetParameterAsync(DbParametersFacade.Parameters.ThirdLevelBg, value.ToString());
                 _thirdLevelBackground = value;
+                ThirdLevelBodyBackground = value;
             }
         }
         #endregion

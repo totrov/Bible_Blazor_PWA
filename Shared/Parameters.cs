@@ -7,6 +7,9 @@ namespace Bible_Blazer_PWA.Shared
         private bool areReferencesOpened;
 
         public event EventHandler OnReferenceToggle;
+
+        public int FontSize { get; set; }
+
         public bool AreReferencesOpened
         {
             get => areReferencesOpened;

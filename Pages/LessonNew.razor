@@ -2,7 +2,7 @@
 @inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
 @namespace BibleComponents
 @inject HttpClient Http
-@inject DbParametersFacade DbParameters
+@inject DbParametersFacade DbParameters;
 @using Bible_Blazer_PWA.DomainObjects;
 @if (lesson != null)
 {
@@ -10,6 +10,11 @@
     <Bible_Blazer_PWA.Components.FloatingComponent Top="0" Right="0">
         <button type="button" class="btn btn-outline-primary" style="display: inline;" @onclick="ToggleCollapse"><span class="oi @getGlobalToggleCollapseStyle()" aria-hidden="true"></span></button>
         <button type="button" class="btn btn-outline-primary" style="display: inline;" @onclick="ToggleReferences"><span class="oi @getGlobalToggleRefsStyle()" aria-hidden="true"></span></button>
+        <button type="button" class="btn btn-outline-primary" style="display: inline;" @onclick="IncreaseFont">
+            <span class="oi oi-text" aria-hidden="true"></span>
+            <span class="oi oi-plus" aria-hidden="true"></span>
+        </button>
+        <button type="button" class="btn btn-outline-primary" style="display: inline;" @onclick="DecreaseFont"><span class="oi oi-text" aria-hidden="true"></span><span class="oi oi-minus" aria-hidden="true"></span></button>
     </Bible_Blazer_PWA.Components.FloatingComponent>
 
     var composite = lesson.GetComposite();
@@ -49,9 +54,47 @@
         await taskCompletionSource.Task;
     }
 
+    protected async override Task OnInitializedAsync()
+    {
+        if (int.TryParse((await DbParameters.GetParameterAsync(DbParametersFacade.Parameters.FontSize)), out int fontSizeNew))
+        {
+            parameters.FontSize = fontSizeNew;
+        }
+    }
+
     void ToggleReferences()
     {
         parameters.AreReferencesOpened = !parameters.AreReferencesOpened;
+    }
+
+    async Task IncreaseFont()
+    {
+        var fontSizeParameter = DbParametersFacade.Parameters.FontSize;
+        int newFontSize = 15;
+        if (int.TryParse((await DbParameters.GetParameterAsync(DbParametersFacade.Parameters.FontSize)), out int fontSize))
+        {
+            newFontSize = fontSize + 1;
+        }
+        await DbParameters.SetParameterAsync(fontSizeParameter, $"{newFontSize}");
+        if (int.TryParse((await DbParameters.GetParameterAsync(DbParametersFacade.Parameters.FontSize)), out int fontSizeNew))
+        {
+            parameters.FontSize = fontSizeNew;
+        }
+    }
+
+    async Task DecreaseFont()
+    {
+        var fontSizeParameter = DbParametersFacade.Parameters.FontSize;
+        int newFontSize = 15;
+        if (int.TryParse((await DbParameters.GetParameterAsync(DbParametersFacade.Parameters.FontSize)), out int fontSize))
+        {
+            newFontSize = fontSize - 1;
+        }
+        await DbParameters.SetParameterAsync(fontSizeParameter, $"{newFontSize}");
+        if (int.TryParse((await DbParameters.GetParameterAsync(DbParametersFacade.Parameters.FontSize)), out int fontSizeNew))
+        {
+            parameters.FontSize = fontSizeNew;
+        }
     }
 
     void ToggleCollapse()
@@ -64,7 +107,12 @@
         };
     }
 
-    private Parameters parameters = new() { AreReferencesOpened = true, CollapseLevel = 3 };
+    private Parameters parameters = new()
+        {
+            AreReferencesOpened = true,
+            CollapseLevel = 3,
+            FontSize = 0
+        };
 
     string getGlobalToggleCollapseStyle() => parameters.CollapseLevel switch
     {
