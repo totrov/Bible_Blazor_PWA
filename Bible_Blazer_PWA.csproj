@@ -8,6 +8,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="YoutubeExplode.Converter\**" />
+    <Compile Remove="YoutubeExplode\**" />
+    <Content Remove="YoutubeExplode.Converter\**" />
+    <Content Remove="YoutubeExplode\**" />
+    <EmbeddedResource Remove="YoutubeExplode.Converter\**" />
+    <EmbeddedResource Remove="YoutubeExplode\**" />
+    <None Remove="YoutubeExplode.Converter\**" />
+    <None Remove="YoutubeExplode\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Pages\YoutubeDownloader.txt" />
   </ItemGroup>
 
