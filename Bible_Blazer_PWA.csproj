@@ -8,12 +8,23 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Pages\YoutubeDownloader.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Pages\YoutubeDownloader.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AngleSharp" Version="0.16.1" />
     <PackageReference Include="Azure.Data.Tables" Version="12.4.0" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.10.0" />
     <PackageReference Include="Azure.Storage.Files.Shares" Version="12.8.0" />
     <PackageReference Include="Azure.Storage.Queues" Version="12.8.0" />
+    <PackageReference Include="CliWrap" Version="3.4.1" />
     <PackageReference Include="DocumentFormat.OpenXml" Version="2.15.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="6.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.2" PrivateAssets="all" />
     <PackageReference Include="Microsoft.Extensions.Azure" Version="1.1.1" />
     <PackageReference Include="MudBlazor" Version="6.0.6" />

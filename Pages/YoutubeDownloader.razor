@@ -1,0 +1,78 @@
+﻿@page "/youtubeDownloader"
+@inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
+@using System.Net
+@using YoutubeExplode;
+@using System.IO;
+@using YoutubeExplode.Videos.Streams
+@inject IJSRuntime JS
+
+<MudTextField @bind-Value="@URL" Label="URL" Variant="Variant.Text"></MudTextField>
+<MudButton Disabled="@_processing" OnClick="UrlChanged" Variant="Variant.Filled" Color="Color.Primary">
+    @if (_processing)
+    {
+        <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
+        <MudText Class="ms-2">Читаю ссылку...</MudText>
+    }
+    else
+    {
+        <MudText>Прочитать ссылку</MudText>
+    }
+</MudButton>
+
+<MudButton Disabled="@_processingAudio" OnClick="Download" Variant="Variant.Filled" Color="Color.Primary">
+    @if (_processing)
+    {
+        <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
+        <MudText Class="ms-2">Скачиваю аудио...</MudText>
+    }
+    else
+    {
+        <MudText>Скачать аудио</MudText>
+    }
+</MudButton>
+
+@code {
+	public  string URL { get; set; }
+	private static readonly HttpClient Client = new HttpClient();
+	private static readonly HashSet<string> TempFiles = new HashSet<string>();
+	private bool _processing = false;
+	private bool _processingAudio = false;
+
+	private Stream audioStream = null;
+	private Stream videoStream = null;
+
+	private async Task UrlChanged()
+	{
+		var handler = new HttpClientHandler();
+		if (handler.SupportsAutomaticDecompression)
+            handler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+
+        new HttpClient(handler, true);
+
+		_processing = true;
+		var youtube = new YoutubeClient();
+		var video = await youtube.Videos.GetAsync(URL);
+		var streamManifest = await youtube.Videos.Streams.GetManifestAsync(URL);
+		var audioStreamInfo = streamManifest.GetAudioOnlyStreams().GetWithHighestBitrate();
+		var videoStreamInfo = streamManifest
+			.GetVideoOnlyStreams()
+			.Where(s => s.Container == Container.Mp4)
+			.GetWithHighestVideoQuality();
+		audioStream = await youtube.Videos.Streams.GetAsync(audioStreamInfo);
+		videoStream = await youtube.Videos.Streams.GetAsync(videoStreamInfo);
+		_processing = false;
+	}
+
+	async Task Download()
+	{
+		if (audioStream is not null)
+		{
+			_processingAudio = true;
+			var fileName = "audio.mp3";
+			using var streamRef = new DotNetStreamReference(stream: audioStream);
+
+			await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
+			_processingAudio = false;
+		}
+	}
+}

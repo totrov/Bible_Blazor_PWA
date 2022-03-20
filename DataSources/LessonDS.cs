@@ -10,6 +10,12 @@ namespace Bible_Blazer_PWA.DataSources
         private LinkedList<LessonBlock> _blocks;
         private readonly DataBase.DatabaseJSFacade db;
 
+        public class LessonContainer
+        {
+            public LessonInfo info { get; set; }
+            public LinkedList<LessonRecordingLink> lessonRecordingLinks { get; set; }
+        }
+
         public class LessonInfo
         {
             public string UnitId { get; set; }
@@ -81,6 +87,12 @@ namespace Bible_Blazer_PWA.DataSources
             lessonsResult.OnDbResultOK += () => { tcs.SetResult(lessonsResult.Result); };
             return await tcs.Task;
         }
+    }
+
+    public class LessonRecordingLink
+    {
+        public string Author { get; set; }
+        Uri url { get; set; }
     }
 }
 

@@ -1,0 +1,68 @@
+﻿@page "/youtubeDownloader"
+@inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
+@*@using DotNetTools.SharpGrabber;
+@using DotNetTools.SharpGrabber.Converter
+@using DotNetTools.SharpGrabber.Grabbed*@
+@using YoutubeExplode;
+
+@using 
+
+@using System.IO
+<MudTextField @bind-Value="@URL" Label="URL" Variant="Variant.Text"></MudTextField>
+
+@*@foreach(GrabbedMedia media in medias)
+{
+	<MudLink Href="@media.ResourceUri.ToString()" download>Default</MudLink>
+}*@
+
+@code {
+	private string _url;
+	//IMultiGrabber grabber;
+	public string URL { get => _url; set { _url = value; UrlChanged(); } }
+	private static readonly HttpClient Client = new HttpClient();
+	private static readonly HashSet<string> TempFiles = new HashSet<string>();
+
+	//private GrabbedMedia[] medias = new GrabbedMedia[0];
+	private async Task UrlChanged()
+	{
+		var youtube = new YoutubeClient();
+		var video = await youtube.Videos.GetAsync(_url);
+	}
+
+
+}
+@*	//private void UpdateMedias(GrabResult grabResult)
+	//{
+	//	var mediaFiles = grabResult.Resources<GrabbedMedia>().ToArray();
+	//	var sortedMediaFiles = mediaFiles.OrderByResolutionDescending().ThenByBitRateDescending().ToArray();
+	//	var bestVideo = mediaFiles.GetHighestQualityVideo();
+	//	var bestAudio = mediaFiles.GetHighestQualityAudio();
+	//	Console.WriteLine("Best video = {0}, Best audio = {1}", bestVideo, bestAudio);
+	//	StateHasChanged();
+	//}
+
+
+
+ //   private static async Task<string> DownloadMedia(GrabbedMedia media, IGrabResult grabResult)
+	//{
+	//	using var response = await Client.GetAsync(media.ResourceUri);
+	//	response.EnsureSuccessStatusCode();
+	//	using var downloadStream = await response.Content.ReadAsStreamAsync();
+	//	using var resourceStream = await grabResult.WrapStreamAsync(downloadStream);
+	//	var path = "dwnld"+media.Resolution;
+
+	//	using var fileStream = new FileStream(path, FileMode.Create);
+	//	TempFiles.Add(path);
+	//	await resourceStream.CopyToAsync(fileStream);
+	//	return path;
+	//}
+
+ //   private void GenerateOutputFile(string audioPath, string videoPath, GrabbedMedia videoStream, string outputPath)
+	//{
+	//	var merger = new MediaMerger(outputPath);
+	//	merger.AddStreamSource(audioPath, MediaStreamType.Audio);
+	//	merger.AddStreamSource(videoPath, MediaStreamType.Video);
+	//	merger.OutputMimeType = videoStream.Format.Mime;
+	//	merger.OutputShortName = videoStream.Format.Extension;
+	//	merger.Build();
+	//}*@
