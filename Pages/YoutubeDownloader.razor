@@ -1,9 +1,9 @@
 ﻿@page "/youtubeDownloader"
 @inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
 @using System.Net
-@using YoutubeExplode;
+@*@using YoutubeExplode;*@
 @using System.IO;
-@using YoutubeExplode.Videos.Streams
+@*@using YoutubeExplode.Videos.Streams*@
 @inject IJSRuntime JS
 
 <MudTextField @bind-Value="@URL" Label="URL" Variant="Variant.Text"></MudTextField>
@@ -43,24 +43,24 @@
 
 	private async Task UrlChanged()
 	{
-		var handler = new HttpClientHandler();
-		if (handler.SupportsAutomaticDecompression)
-            handler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+		//var handler = new HttpClientHandler();
+		//if (handler.SupportsAutomaticDecompression)
+  //          handler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
 
-        new HttpClient(handler, true);
+  //      new HttpClient(handler, true);
 
-		_processing = true;
-		var youtube = new YoutubeClient();
-		var video = await youtube.Videos.GetAsync(URL);
-		var streamManifest = await youtube.Videos.Streams.GetManifestAsync(URL);
-		var audioStreamInfo = streamManifest.GetAudioOnlyStreams().GetWithHighestBitrate();
-		var videoStreamInfo = streamManifest
-			.GetVideoOnlyStreams()
-			.Where(s => s.Container == Container.Mp4)
-			.GetWithHighestVideoQuality();
-		audioStream = await youtube.Videos.Streams.GetAsync(audioStreamInfo);
-		videoStream = await youtube.Videos.Streams.GetAsync(videoStreamInfo);
-		_processing = false;
+		//_processing = true;
+		//var youtube = new YoutubeClient();
+		//var video = await youtube.Videos.GetAsync(URL);
+		//var streamManifest = await youtube.Videos.Streams.GetManifestAsync(URL);
+		//var audioStreamInfo = streamManifest.GetAudioOnlyStreams().GetWithHighestBitrate();
+		//var videoStreamInfo = streamManifest
+		//	.GetVideoOnlyStreams()
+		//	.Where(s => s.Container == Container.Mp4)
+		//	.GetWithHighestVideoQuality();
+		//audioStream = await youtube.Videos.Streams.GetAsync(audioStreamInfo);
+		//videoStream = await youtube.Videos.Streams.GetAsync(videoStreamInfo);
+		//_processing = false;
 	}
 
 	async Task Download()
