@@ -10,17 +10,17 @@
     logVerbose: function (message) { if (this.debugMode && this.verbose) console.log(message); }
 };
 
-function DataUpgrade(dotnetReference) {
+function DataUpgrade() {
     console.log("Data upgrade started");
     console.log("dbVersion:" + context.db.version + " prevVersion:" + context.previousVersion);
 
     switch (context.previousVersion) {
         case 0:
-            database.dataUpgradeFunctions[0](dotnetReference);
-            database.dataUpgradeFunctions[1](dotnetReference);
+            database.dataUpgradeFunctions[0]();
+            database.dataUpgradeFunctions[1]();
             break;
         case 1:
-            database.dataUpgradeFunctions[1](dotnetReference);
+            database.dataUpgradeFunctions[1]();
             break;
         default:
             console.log("no data upgrade script for current db version");
@@ -54,7 +54,6 @@ function SchemaUpgrade() {
     }
 }
 
-
 window.database = {
 
     delete: function () {
@@ -72,33 +71,36 @@ window.database = {
         }
     },
 
-    initDatabase: function (dotnetReference) {
-        //indexedDB.deleteDatabase("db");
+    getOpenRequest: function (dotnetReference) {
 
-        console.log("Database initialization started");
+        console.log("Open db request");
         let openRequest = indexedDB.open("db", context.currentVersion);
 
         openRequest.onerror = function () {
-            console.error("Error", openRequest.error);
-            dotnetReference.invokeMethod('SetStatus', false);
+            console.error("Open request error", openRequest.error);
         };
 
-        openRequest.onsuccess = function () {
+        openRequest.onSuccessHandlers = [];
+        openRequest.onsuccess = function (e) {
+
+            this.onSuccessHandlers.filter(v => typeof v === 'function').forEach(f => { f(e) });
+        };
+        openRequest.onSuccessHandlers.push(function (e) {
             context.db = openRequest.result;
             if (context.justUpgraded) {
-                DataUpgrade(dotnetReference);
+                DataUpgrade();
             }
             else {
-                dotnetReference.invokeMethod('SetStatus', true);
-                console.log("Database initialization finished");
+                console.log("Open request successfully finished");
             }
-        };
+        });
 
         openRequest.onupgradeneeded = function (e) {
             context.db = openRequest.result;
             context.previousVersion = e.oldVersion;
             SchemaUpgrade();
         }
+        return openRequest;
     },
     getVerseById: function (dotnetCallback, bookId, verseId) {
         let result = "Bible verse stub: " + bookId + ":" + verseId;
@@ -107,9 +109,9 @@ window.database = {
     jsAlert: function (text) { alert(text); },
     getRecordFromObjectStoreByKey: function (dotnetHelper, params) {
         context.log('getRecordFromObjectStoreByKey was called');
-        var openRequest = window.indexedDB.open(context.dbName, context.currentVersion);
+        var openRequest = database.getOpenRequest();
 
-        openRequest.onsuccess = function (event) {
+        openRequest.onSuccessHandlers.push(function (event) {
             context.log('db opened');
             context.db = openRequest.result;
             let objectStoreName = params.shift();
@@ -131,7 +133,7 @@ window.database = {
                 context.logVerbose('getRecordFromObjectStoreByKey: Transaction returned: ' + result);
                 dotnetHelper.invokeMethod('SetStatusAndResult', true, result);
             };
-        };
+        });
 
         openRequest.onerror = function (event) {
             context.log('getRecordFromObjectStoreByKey: Database not opened due to error: ' + openRequest.error);
@@ -140,9 +142,9 @@ window.database = {
     },
     getRecordFromObjectStoreByIndex: function (dotnetHelper, params) {
         context.log('getRecordFromObjectStoreByIndex was called');
-        var openRequest = window.indexedDB.open(context.dbName, context.currentVersion);
+        var openRequest = database.getOpenRequest();
 
-        openRequest.onsuccess = function (event) {
+        openRequest.onSuccessHandlers.push(function (event) {
             context.log('db opened');
             context.db = openRequest.result;
             let objectStoreName = params.shift();
@@ -165,13 +167,13 @@ window.database = {
                 context.logVerbose('getRecordFromObjectStoreByIndex: Transaction returned: ' + result);
                 dotnetHelper.invokeMethod('SetStatusAndResult', true, result);
             };
-        };
+        });
     },
     getAllFromObjectStore: function (dotnetHelper, objectStoreName) {
         context.log('getAllFromObjectStore was called');
-        var openRequest = window.indexedDB.open(context.dbName, context.currentVersion);
+        var openRequest = database.getOpenRequest();
 
-        openRequest.onsuccess = function (event) {
+        openRequest.onSuccessHandlers.push(function (event) {
             context.log('db opened');
             context.db = openRequest.result;
             var transaction = context.db.transaction(objectStoreName, "readonly");
@@ -192,13 +194,13 @@ window.database = {
                 context.logVerbose('getAllFromObjectStore: Transaction returned: ' + result);
                 dotnetHelper.invokeMethod('SetStatusAndResult', true, result);
             };
-        };
+        });
     },
     getRangeFromObjectStoreByKey: function (dotnetHelper, params) {
         context.log('getRangeFromObjectStoreByKey was called');
-        var openRequest = window.indexedDB.open(context.dbName, context.currentVersion);
+        var openRequest = database.getOpenRequest();
 
-        openRequest.onsuccess = function (event) {
+        openRequest.onSuccessHandlers.push(function (event) {
             context.log('db opened');
             context.db = openRequest.result;
             let objectStoreName = params.shift();
@@ -232,13 +234,13 @@ window.database = {
                 context.logVerbose('getRecordFromObjectStoreByKey: Transaction returned: ' + result);
                 dotnetHelper.invokeMethod('SetStatusAndResult', true, result);
             };
-        };
+        });
     },
     putKeyValueIntoObjectStore: function (dotnetHelper, params) {
         context.log('putKeyValueIntoObjectStore was called with params:' + params.join());
-        var openRequest = window.indexedDB.open(context.dbName, context.currentVersion);
+        var openRequest = database.getOpenRequest();
 
-        openRequest.onsuccess = function (event) {
+        openRequest.onSuccessHandlers.push(function (event) {
             context.log('db opened');
             context.db = openRequest.result;
             let objectStoreName = params.shift();
@@ -267,13 +269,13 @@ window.database = {
                 context.logVerbose('putKeyValueIntoObjectStore: Transaction returned: ' + result);
                 dotnetHelper.invokeMethod('SetStatusAndResult', false, result);
             };
-        };
+        });
     },
     getCountFromObjectStoreByKey: function (dotnetHelper, params) {
         context.log('getCountFromObjectStoreByKey was called');
-        var openRequest = window.indexedDB.open(context.dbName, context.currentVersion);
+        var openRequest = database.getOpenRequest();
 
-        openRequest.onsuccess = function (event) {
+        openRequest.onSuccessHandlers.push(function (event) {
             context.log('db opened');
             context.db = openRequest.result;
             let objectStoreName = params.shift();
@@ -297,7 +299,7 @@ window.database = {
                 context.logVerbose('getCountFromObjectStoreByKey: Transaction returned: ' + result);
                 dotnetHelper.invokeMethod('SetStatusAndResult', true, result);
             };
-        };
+        });
 
         openRequest.onerror = function (event) {
             context.log('getRecordFromObjectStoreByKey: Database not opened due to error: ' + openRequest.error);
@@ -352,12 +354,12 @@ window.database = {
         };
     },
     dataUpgradeFunctions: [
-        function /*0*/(dotnetReference) {
-            database.fetchJson('/Assets/books.json', 'books', dotnetReference);
-            database.fetchJson('/Assets/verses.json', 'verses', dotnetReference);
+        function /*0*/() {
+            database.fetchJson('/Assets/books.json', 'books');
+            database.fetchJson('/Assets/verses.json', 'verses');
         },
-        function /*1*/(dotnetReference) {
-            database.fetchJson('/Assets/lessonUnits.json', 'lessonUnits', dotnetReference);
+        function /*1*/() {
+            database.fetchJson('/Assets/lessonUnits.json', 'lessonUnits');
             //database.fetchJson('/Assets/lessons/Byt.json', 'lessons', dotnetReference).then(console.log("Byt initialization finished"));
             //database.fetchJson('/Assets/lessons/Evn.json', 'lessons', dotnetReference).then(console.log("Evn initialization finished"));
             //database.fetchJson('/Assets/lessons/Osn.json', 'lessons', dotnetReference).then(console.log("Database initialization finished"));

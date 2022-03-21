@@ -43,11 +43,6 @@ namespace Bible_Blazer_PWA.DataBase
             JS = js;
         }
 
-        public async Task<IndexedDBResultHandler> InitDb()
-        {
-            return await CallVoidDbAsync(() => { _isInitialized = true; }, "initDatabase");
-        }
-
         public async Task<IndexedDBResultHandler> CallVoidDbAsync(Action callback, string methodName, params object[] parameters)
         {
             IndexedDBResultHandler resultHandler = new IndexedDBResultHandler();

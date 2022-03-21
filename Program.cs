@@ -36,7 +36,6 @@ namespace Bible_Blazer_PWA
             dbFacade.SetJS(jsRuntime);
             bibleService.Init(dbFacade);
             dbParametersFacade.InitDefaults();
-            await dbFacade.InitDb();
             await host.RunAsync();
         }
     }
