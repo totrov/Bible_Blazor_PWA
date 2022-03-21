@@ -8,6 +8,8 @@
 @inject HttpClient Http
 @inject DbParametersFacade dbParams
 @inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
+@inject IJSRuntime JS
+@inject ISnackbar Snackbar
 
 <div class="card card-body" style="margin-bottom:10px;">
     <h2 class="card-title">Планы уроков</h2>
@@ -160,6 +162,26 @@
     </div>
 </EditForm>
 
+<MudCard>
+    <MudCardHeader>
+        <CardHeaderContent>
+            <MudText Typo="Typo.h5">Импорт/Экспорт параметров</MudText>
+        </CardHeaderContent>
+    </MudCardHeader>
+    <MudCardContent>
+        <MudButton Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.ArrowDownward" @onclick="ExportParamsToFile" Color="Color.Primary">Скачать текущие параметры</MudButton>
+        <MudDivider DividerType="DividerType.Middle" Class="my-6" />
+        <InputFile id="parametersFileInput" OnChange="LoadParameters" hidden />
+        <MudButton HtmlTag="label"
+                   Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   StartIcon="@Icons.Filled.CloudUpload"
+                   for="parametersFileInput">
+            Загрузить параметры из файла
+        </MudButton>
+    </MudCardContent>
+</MudCard>
+
 <div class="card card-body" style="margin-bottom:10px;">
     <h2 class="card-title">Системное</h2>
     <div class="card card-body col-lg-6 col-md-7 col-sm">
@@ -171,7 +193,7 @@
 @code
 {
     ParametersModel ParametersFormData = new ParametersModel();
-
+    IBrowserFile parametrsFile = null;
     protected override async Task OnInitializedAsync()
     {
         ParametersFormData.SetDbParametersFacade(dbParams);
@@ -225,6 +247,14 @@
 
         //System.IO.File.Delete(fileName);
     }
+
+    public async Task ExportParamsToFile()
+    {
+        using var stream = await dbParams.ExportToJson();
+        using var streamRef = new DotNetStreamReference(stream);
+        await JS.InvokeVoidAsync("downloadFileFromStream", "Parameters.json", streamRef);
+    }
+
     private void UpdateItemStatus(LoadingItem item, string newStatus)
     {
         item.Status = newStatus;
@@ -289,5 +319,13 @@
             System.IO.File.Delete(file.Name);
         }
         IsDisabled = false;
+    }
+
+    private async Task LoadParameters(InputFileChangeEventArgs e)
+    {
+        parametrsFile = e.File;
+        await dbParams.ImportFromStream(parametrsFile.OpenReadStream());
+        await ParametersFormData.InitFromDb();
+        Snackbar.Add("Параметры загружены");
     }
 }

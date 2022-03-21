@@ -1,6 +1,7 @@
 ﻿using Bible_Blazer_PWA.DataBase;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -105,6 +106,25 @@ namespace Bible_Blazer_PWA.Shared
         public async Task<bool> SetParameterAsync(Parameters parameter, string value)
         {
             return await SetParameterAsync(ParameterConstants[parameter], value);
+        }
+
+        public async Task<Stream> ExportToJson()
+        {
+            var resultHandler = await _db.GetAllFromObjectStore<ParameterModel>("parameters");
+            IEnumerable<ParameterModel> result = await resultHandler.GetTaskCompletionSourceWrapper();
+            
+            var jsonStream = new MemoryStream();
+            await System.Text.Json.JsonSerializer.SerializeAsync(jsonStream, result);
+            jsonStream.Position = 0;
+            return jsonStream;
+        }
+
+        public async Task ImportFromStream(Stream stream)
+        {
+            await foreach (var param in System.Text.Json.JsonSerializer.DeserializeAsyncEnumerable<ParameterModel>(stream))
+            {
+                await SetParameterAsync(param.Key, param.Value);
+            }
         }
     }
 }
