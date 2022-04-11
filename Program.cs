@@ -27,7 +27,7 @@ namespace Bible_Blazer_PWA
 
             var dbFacade = new DatabaseJSFacade();
             builder.Services.AddSingleton(dbFacade);
-            var dbParametersFacade = new DbParametersFacade(dbFacade);
+            var dbParametersFacade = new Parameters.DbParametersFacade(dbFacade);
             builder.Services.AddSingleton(dbParametersFacade);
 
             var host = builder.Build();
@@ -35,7 +35,7 @@ namespace Bible_Blazer_PWA
             var jsRuntime = host.Services.GetRequiredService<IJSRuntime>();
             dbFacade.SetJS(jsRuntime);
             bibleService.Init(dbFacade);
-            dbParametersFacade.InitDefaults();
+            dbParametersFacade.Init();
             await host.RunAsync();
         }
     }

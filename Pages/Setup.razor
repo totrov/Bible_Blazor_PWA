@@ -4,6 +4,7 @@
 @using Bible_Blazer_PWA.Services.Parse
 @using b2xtranslator.StructuredStorage.Reader
 @using System.Net.Http
+@using Bible_Blazer_PWA.Parameters
 @using Bible_Blazer_PWA.DomainObjects
 @inject HttpClient Http
 @inject DbParametersFacade dbParams
@@ -36,7 +37,7 @@
                 <tr>
                     <td>Скрывать инструменты</td>
                     <td>
-                        <InputCheckbox @bind-Value="@ParametersFormData.AreToolsHidden"></InputCheckbox>
+                        <InputCheckbox @bind-Value="@HideTools"></InputCheckbox>
                     </td>
                 </tr>
                 <tr>
@@ -51,8 +52,15 @@
                 <tr>
                     <td>
                         <MudColorPicker Label="Цвет фона панели инструментов"
-                                        @bind-Text="@ParametersFormData.ToolsBackground"
-                                        Style="@($"background-color: {ParametersFormData.ToolsBackground};")" Placeholder="Выберите цвет" />
+                                        @bind-Text="@ParametersFormData.ToolsBg"
+                                        Style="@($"background-color: {ParametersFormData.ToolsBg};")" Placeholder="Выберите цвет" />
+                    </td>
+                    <td>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <MudSlider @bind-Value="BlocksPadding" Min="0" Max="2" Step="0.05" Color="Color.Info">Внутренний отступ блоков: @ParametersFormData.BlocksPadding.ToString()</MudSlider>
                     </td>
                     <td>
                     </td>
@@ -65,8 +73,8 @@
                 <tr>
                     <td>
                         <MudColorPicker Label="Цвет фона в заголовке"
-                                        @bind-Text="@ParametersFormData.FirstLevelBackground"
-                                        Style="@($"background-color: {ParametersFormData.FirstLevelBackground};")" Placeholder="Выберите цвет" />
+                                        @bind-Text="@ParametersFormData.FirstLevelBg"
+                                        Style="@($"background-color: {ParametersFormData.FirstLevelBg};")" Placeholder="Выберите цвет" />
                     </td>
                     <td>
                     </td>
@@ -74,8 +82,8 @@
                 <tr>
                     <td>
                         <MudColorPicker Label="Цвет фона в теле"
-                                        @bind-Text="@ParametersFormData.FirstLevelBodyBackground"
-                                        Style="@($"background-color: {ParametersFormData.FirstLevelBodyBackground};")" Placeholder="Выберите цвет" />
+                                        @bind-Text="@ParametersFormData.FirstLevelBodyBg"
+                                        Style="@($"background-color: {ParametersFormData.FirstLevelBodyBg};")" Placeholder="Выберите цвет" />
                     </td>
                     <td>
                     </td>
@@ -87,7 +95,7 @@
                 </tr>
                 <tr>
                     <td>
-                        <MudSlider @bind-Value="ParametersFormData.FirstLevelMarginTop" Min="0" Max="100" Step="5" Color="Color.Info">Отступ сверху: @ParametersFormData.FirstLevelMarginTop.ToString()</MudSlider>
+                        <MudSlider @bind-Value="FirstLevelMarginTop" Min="0" Max="100" Step="5" Color="Color.Info">Отступ сверху: @ParametersFormData.FirstLevelMarginTop.ToString()</MudSlider>
                     </td>
                     <td>
                     </td>
@@ -96,8 +104,8 @@
                 <tr>
                     <td>
                         <MudColorPicker Label="Цвет фона в заголовке"
-                                        @bind-Text="@ParametersFormData.SecondLevelBackground"
-                                        Style="@($"background-color: {ParametersFormData.SecondLevelBackground};")" Placeholder="Выберите цвет" />
+                                        @bind-Text="@ParametersFormData.SecondLevelBg"
+                                        Style="@($"background-color: {ParametersFormData.SecondLevelBg};")" Placeholder="Выберите цвет" />
                     </td>
                     <td>
                     </td>
@@ -105,8 +113,8 @@
                 <tr>
                     <td>
                         <MudColorPicker Label="Цвет фона в теле"
-                                        @bind-Text="@ParametersFormData.SecondLevelBodyBackground"
-                                        Style="@($"background-color: {ParametersFormData.SecondLevelBodyBackground};")" Placeholder="Выберите цвет" />
+                                        @bind-Text="@ParametersFormData.SecondLevelBodyBg"
+                                        Style="@($"background-color: {ParametersFormData.SecondLevelBodyBg};")" Placeholder="Выберите цвет" />
                     </td>
                     <td>
                     </td>
@@ -118,7 +126,7 @@
                 </tr>
                 <tr>
                     <td>
-                        <MudSlider @bind-Value="ParametersFormData.SecondLevelMarginTop" Min="0" Max="100" Step="5" Color="Color.Info">Отступ сверху: @ParametersFormData.SecondLevelMarginTop.ToString()</MudSlider>
+                        <MudSlider @bind-Value="SecondLevelMarginTop" Min="0" Max="100" Step="5" Color="Color.Info">Отступ сверху: @ParametersFormData.SecondLevelMarginTop.ToString()</MudSlider>
                     </td>
                     <td>
                     </td>
@@ -127,8 +135,8 @@
                 <tr>
                     <td>
                         <MudColorPicker Label="Цвет фона в заголовке"
-                                        @bind-Text="@ParametersFormData.ThirdLevelBackground"
-                                        Style="@($"background-color: {ParametersFormData.ThirdLevelBackground};")" Placeholder="Выберите цвет" />
+                                        @bind-Text="@ParametersFormData.ThirdLevelBg"
+                                        Style="@($"background-color: {ParametersFormData.ThirdLevelBg};")" Placeholder="Выберите цвет" />
                     </td>
                     <td>
                     </td>
@@ -136,8 +144,8 @@
                 <tr>
                     <td>
                         <MudColorPicker Label="Цвет фона в теле"
-                                        @bind-Text="@ParametersFormData.ThirdLevelBodyBackground"
-                                        Style="@($"background-color: {ParametersFormData.ThirdLevelBodyBackground};")" Placeholder="Выберите цвет" />
+                                        @bind-Text="@ParametersFormData.ThirdLevelBodyBg"
+                                        Style="@($"background-color: {ParametersFormData.ThirdLevelBodyBg};")" Placeholder="Выберите цвет" />
                     </td>
                     <td>
                     </td>
@@ -152,7 +160,7 @@
                 </tr>
                 <tr>
                     <td>
-                        <MudSlider @bind-Value="ParametersFormData.ThirdLevelMarginTop" Min="0" Max="100" Step="5" Color="Color.Info">Отступ сверху: @ParametersFormData.ThirdLevelMarginTop.ToString()</MudSlider>
+                        <MudSlider @bind-Value="ThirdLevelMarginTop" Min="0" Max="100" Step="5" Color="Color.Info">Отступ сверху: @ParametersFormData.ThirdLevelMarginTop.ToString()</MudSlider>
                     </td>
                     <td>
                     </td>
@@ -191,13 +199,42 @@
 </div>
 
 @code
-{
-    ParametersModel ParametersFormData = new ParametersModel();
+{   
+    ParametersModel ParametersFormData;
+    private bool HideTools
+    {
+        get { return bool.Parse(ParametersFormData.HideTools); }
+        set { ParametersFormData.HideTools = value.ToString(); }
+    }
+
+    private double BlocksPadding
+    {
+        get { return double.Parse(ParametersFormData.BlocksPadding.Replace('.',',')); }
+        set { ParametersFormData.BlocksPadding = value.ToString().Replace(',','.'); }
+    }
+
+    private int FirstLevelMarginTop
+    {
+        get { return int.Parse(ParametersFormData.FirstLevelMarginTop); }
+        set { ParametersFormData.FirstLevelMarginTop = value.ToString(); }
+    }
+
+    private int SecondLevelMarginTop
+    {
+        get { return int.Parse(ParametersFormData.SecondLevelMarginTop); }
+        set { ParametersFormData.SecondLevelMarginTop = value.ToString(); }
+    }
+
+    private int ThirdLevelMarginTop
+    {
+        get { return int.Parse(ParametersFormData.ThirdLevelMarginTop); }
+        set { ParametersFormData.ThirdLevelMarginTop = value.ToString(); }
+    }
+
     IBrowserFile parametrsFile = null;
     protected override async Task OnInitializedAsync()
     {
-        ParametersFormData.SetDbParametersFacade(dbParams);
-        await ParametersFormData.InitFromDb();
+        ParametersFormData = dbParams.ParametersModel;
     }
 
     class LoadingItem

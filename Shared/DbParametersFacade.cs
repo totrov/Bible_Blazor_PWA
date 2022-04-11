@@ -1,33 +1,15 @@
 ﻿using Bible_Blazer_PWA.DataBase;
+using Bible_Blazer_PWA.DomainObjects;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Bible_Blazer_PWA.Shared
+namespace Bible_Blazer_PWA.Parameters
 {
     public class DbParametersFacade
     {
-        public enum Parameters
-        {
-            FontSize,
-            MainBackground,
-            ToolsBg,
-            HideTools,
-            FirstLevelBg,
-            FirstLevelBodyBg,
-            FirstLevelMarginTop,
-            FirstLevelFontWeight,
-            SecondLevelBg,
-            SecondLevelBodyBg,
-            SecondLevelMarginTop,
-            SecondLevelFontWeight,
-            ThirdLevelBg,
-            ThirdLevelBodyBg,
-            ThirdLevelMarginTop,
-            ThirdLevelFontWeight,
-        }
         private readonly Dictionary<Parameters, string> ParameterConstants = new()
         {
             { Parameters.FontSize, "FontSize" },
@@ -45,8 +27,10 @@ namespace Bible_Blazer_PWA.Shared
             { Parameters.ThirdLevelBg, "ThirdLevelBg" },
             { Parameters.ThirdLevelBodyBg, "ThirdLevelBodyBg" },
             { Parameters.ThirdLevelFontWeight, "ThirdLevelFontWeight" },
-            { Parameters.ThirdLevelMarginTop, "ThirdLevelMarginTop" }
-
+            { Parameters.ThirdLevelMarginTop, "ThirdLevelMarginTop" },
+            { Parameters.BlocksPadding, "BlocksPadding" },
+            { Parameters.AreReferencesOpened, "AreReferencesOpened" },
+            { Parameters.CollapseLevel, "CollapseLevel" }
         };
 
         private DatabaseJSFacade _db;
@@ -55,15 +39,15 @@ namespace Bible_Blazer_PWA.Shared
             _db = db;
         }
 
-        public async void InitDefaults()
+        public ParametersModel ParametersModel { get; private set; }
+
+        public async void Init()
         {
-            if (!await CheckHasParameterAsync(Parameters.FontSize))
-            {
-                await SetParameterAsync(Parameters.FontSize, "14");
-            }
+            ParametersModel = new ParametersModel(this);
+            await ParametersModel.InitFromDb();
         }
 
-        class ParameterModel
+        class ParameterPOCO
         {
             public string Key { get; set; }
             public string Value { get; set; }
@@ -73,16 +57,20 @@ namespace Bible_Blazer_PWA.Shared
         {
             if (await CheckHasParameterAsync(key))
             {
-                var resultHandler = await _db.GetRecordFromObjectStoreByKey<ParameterModel>("parameters", key);
-                ParameterModel result = await resultHandler.GetTaskCompletionSourceWrapper();
+                var resultHandler = await _db.GetRecordFromObjectStoreByKey<ParameterPOCO>("parameters", key);
+                ParameterPOCO result = await resultHandler.GetTaskCompletionSourceWrapper();
                 return result.Value;
             }
             return null;
         }
 
-        public async Task<string> GetParameterAsync(Parameters parameter)
+        public async Task<string> GetParameterAsync(Parameters parameter, bool updateCache = false)
         {
-            return await GetParameterAsync(ParameterConstants[parameter]);
+            if (updateCache)
+            {
+                await ParametersModel.SetPropertyByName(ParameterConstants[parameter], await GetParameterAsync(ParameterConstants[parameter]), false);
+            }
+            return ParametersModel.GetParamPropByName(ParameterConstants[parameter]);
         }
 
         private async Task<bool> CheckHasParameterAsync(string key)
@@ -97,7 +85,7 @@ namespace Bible_Blazer_PWA.Shared
             return await CheckHasParameterAsync(ParameterConstants[parameter]);
         }
 
-        private async Task<bool> SetParameterAsync(string key, string value)
+        internal async Task<bool> SetParameterAsync(string key, string value)
         {
             var resultHandler = await _db.SetKeyValueIntoObjectStore("parameters", key, value);
             bool result = await resultHandler.GetTaskCompletionSourceWrapper();
@@ -110,9 +98,9 @@ namespace Bible_Blazer_PWA.Shared
 
         public async Task<Stream> ExportToJson()
         {
-            var resultHandler = await _db.GetAllFromObjectStore<ParameterModel>("parameters");
-            IEnumerable<ParameterModel> result = await resultHandler.GetTaskCompletionSourceWrapper();
-            
+            var resultHandler = await _db.GetAllFromObjectStore<ParameterPOCO>("parameters");
+            IEnumerable<ParameterPOCO> result = await resultHandler.GetTaskCompletionSourceWrapper();
+
             var jsonStream = new MemoryStream();
             await System.Text.Json.JsonSerializer.SerializeAsync(jsonStream, result);
             jsonStream.Position = 0;
@@ -121,7 +109,7 @@ namespace Bible_Blazer_PWA.Shared
 
         public async Task ImportFromStream(Stream stream)
         {
-            await foreach (var param in System.Text.Json.JsonSerializer.DeserializeAsyncEnumerable<ParameterModel>(stream))
+            await foreach (var param in System.Text.Json.JsonSerializer.DeserializeAsyncEnumerable<ParameterPOCO>(stream))
             {
                 await SetParameterAsync(param.Key, param.Value);
             }

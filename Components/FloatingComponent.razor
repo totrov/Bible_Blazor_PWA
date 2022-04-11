@@ -1,8 +1,10 @@
-﻿@inject DbParametersFacade dbParams;
+﻿@using Param = Microsoft.AspNetCore.Components.ParameterAttribute;
+@using Bible_Blazer_PWA.Parameters;
+@inject DbParametersFacade dbParams;
 @inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
 <div style="        position: sticky;
-        top: @TopHtml();
-        right: @RightHtml();
+        top: 0;
+        right: 0;
         background-color: @BackgroundColor;
         padding: 10px;
         border-bottom: solid 1px darkblue;
@@ -15,20 +17,14 @@
 @code {
     public string Display { get; set; } = "none";
 
-    [Parameter]
+    [Param]
     public RenderFragment ChildContent { get; set; }
-
-    [Parameter]
-    public int Top { get; set; } = 0;
-
-    [Parameter]
-    public int Right { get; set; } = 0;
 
     public string BackgroundColor { get; set; } = "white";
 
     protected override async Task OnInitializedAsync()
     {
-        string hideToolsParameterString = await dbParams.GetParameterAsync(DbParametersFacade.Parameters.HideTools);
+        string hideToolsParameterString = await dbParams.GetParameterAsync(Parameters.HideTools);
 
         if (hideToolsParameterString != null && hideToolsParameterString == "True")
         {
@@ -39,23 +35,7 @@
             Display = "block";
         }
 
-        string toolsBGColorString = await dbParams.GetParameterAsync(DbParametersFacade.Parameters.ToolsBg);
+        string toolsBGColorString = await dbParams.GetParameterAsync(Parameters.ToolsBg);
         BackgroundColor = (toolsBGColorString != null && toolsBGColorString != "") ? toolsBGColorString : "white";
     }
-
-    string TopHtml()
-    {
-        if (Top == 0)
-            return "0";
-        return $"{Top}px";
-
-    }
-
-    string RightHtml()
-    {
-        if (Right == 0)
-            return "0";
-        return $"{Right}px";
-    }
-
 }

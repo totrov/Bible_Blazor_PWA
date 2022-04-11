@@ -1,10 +1,12 @@
 ﻿@namespace BibleComponents
 @using Bible_Blazer_PWA.BibleReferenceParse
 @using Bible_Blazer_PWA.DomainObjects
+@using Bible_Blazer_PWA.Parameters
+@using Param = Microsoft.AspNetCore.Components.ParameterAttribute
 @inject BibleService Bible
-@inject DbParametersFacade dbFacade;
+@inject DbParametersFacade dbParamFacade;
 
-<div class="card" style="margin-top:@MarginTop; background-color:@BodyBackgroundColor; font-size:@($"{(parameters.FontSize != 0 ? parameters.FontSize : 14)}px");">
+<div class="card" style="margin-top:@MarginTop; background-color:@BodyBackgroundColor; font-size:@($"{(parameters.FontSize)}px");">
     <div class="card-header" style="background-color:@BackgroundColor; font-weight: @FontWeight;">
         <span class="card-title">
             @ElementData.Value
@@ -59,7 +61,7 @@
 
     @if (@ElementData.Children != null)
     {
-        <div class="card-body" style="@(ElementData.Level < parameters.CollapseLevel && IsOpen ? "":"display:none;")">
+        <div class="card-body" style="@($"padding:{parameters.BlocksPadding}rem;" + (ElementData.Level < int.Parse(parameters.CollapseLevel) && IsOpen ? "" :"display:none;"))">
             @foreach (LessonElementData data in ElementData.Children)
             {
                 <LessonElement ElementData="data"></LessonElement>
@@ -78,11 +80,10 @@
 
     protected LinkedList<BibleReference> _references;
 
-    [Parameter]
+    [Param]
     public LessonElementData ElementData { get; set; }
 
-    [CascadingParameter]
-    protected Parameters parameters { get; set; }
+    protected ParametersModel parameters;
 
     public string FontWeight { get; set; } = "300";
     public string BackgroundColor { get; set; } = "white";
@@ -91,55 +92,55 @@
 
     protected override async Task OnInitializedAsync()
     {
+        parameters = dbParamFacade.ParametersModel;
         _versesViewsDictionary = new Dictionary<string, IEnumerable<BibleService.VersesView>>();
         foreach (BibleReference reference in BibleReferences)
         {
             _versesViewsDictionary.Add(reference.ToString(), await Bible.GetVersesFromReference(reference));
         }
         _versesLoaded = true;
-        parameters.OnReferenceToggle += (sender, args) => { RefsAreOpen = parameters.AreReferencesOpened; };
+        parameters.OnReferenceToggle += (sender, args) => { RefsAreOpen = bool.Parse(parameters.AreReferencesOpened); };
 
-        DbParametersFacade.Parameters[] parametersForLevel;
+        Parameters[] parametersForLevel;
         switch (ElementData.Level)
         {
             case 1:
-                parametersForLevel = new DbParametersFacade.Parameters[]
-                {
-                    DbParametersFacade.Parameters.FirstLevelBg,
-                    DbParametersFacade.Parameters.FirstLevelBodyBg,
-                    DbParametersFacade.Parameters.FirstLevelFontWeight,
-                    DbParametersFacade.Parameters.FirstLevelMarginTop
-                };
+                parametersForLevel = new Parameters[]
+                    {
+                    Parameters.FirstLevelBg,
+                    Parameters.FirstLevelBodyBg,
+                    Parameters.FirstLevelFontWeight,
+                    Parameters.FirstLevelMarginTop
+                    };
                 break;
             case 2:
-                parametersForLevel = new DbParametersFacade.Parameters[]
-                {
-                    DbParametersFacade.Parameters.SecondLevelBg,
-                    DbParametersFacade.Parameters.SecondLevelBodyBg,
-                    DbParametersFacade.Parameters.SecondLevelFontWeight,
-                    DbParametersFacade.Parameters.SecondLevelMarginTop
-                };
+                parametersForLevel = new Parameters[]
+                    {
+                    Parameters.SecondLevelBg,
+                    Parameters.SecondLevelBodyBg,
+                    Parameters.SecondLevelFontWeight,
+                    Parameters.SecondLevelMarginTop
+                    };
                 break;
             default:
-                parametersForLevel = new DbParametersFacade.Parameters[]
-                {
-                    DbParametersFacade.Parameters.ThirdLevelBg,
-                    DbParametersFacade.Parameters.ThirdLevelBodyBg,
-                    DbParametersFacade.Parameters.ThirdLevelFontWeight,
-                    DbParametersFacade.Parameters.ThirdLevelMarginTop
-                };
+                parametersForLevel = new Parameters[]
+                    {
+                    Parameters.ThirdLevelBg,
+                    Parameters.ThirdLevelBodyBg,
+                    Parameters.ThirdLevelFontWeight,
+                    Parameters.ThirdLevelMarginTop
+                    };
                 break;
         }
-        var BackgroundColorString = await dbFacade.GetParameterAsync(parametersForLevel[0]);
+        var BackgroundColorString = await dbParamFacade.GetParameterAsync(parametersForLevel[0]);
         BackgroundColor = (BackgroundColorString != null && BackgroundColorString != "") ? BackgroundColorString : "white";
-        var BodyBackgroundColorString = await dbFacade.GetParameterAsync(parametersForLevel[1]);
+        var BodyBackgroundColorString = await dbParamFacade.GetParameterAsync(parametersForLevel[1]);
         BodyBackgroundColor = (BodyBackgroundColorString != null && BodyBackgroundColorString != "") ? BodyBackgroundColorString : "white";
-        var FontWeightString = await dbFacade.GetParameterAsync(parametersForLevel[2]);
+        var FontWeightString = await dbParamFacade.GetParameterAsync(parametersForLevel[2]);
         FontWeight = (FontWeightString != null && FontWeightString != "") ? FontWeightString : "300";
-        var MarginTopString = await dbFacade.GetParameterAsync(parametersForLevel[3]);
+        var MarginTopString = await dbParamFacade.GetParameterAsync(parametersForLevel[3]);
         int MarginTopInt = int.TryParse(MarginTopString, out int marginTopParsed) ? marginTopParsed : 0;
         MarginTop = MarginTopInt == 0 ? "0" : MarginTopInt.ToString() + "px";
-        //FontSize = int.TryParse(await dbFacade.GetParameterAsync(DbParametersFacade.Parameters.FontSize), out int fontSize) ? fontSize : 14;
     }
 
     public bool HasBibleReferences

@@ -1,5 +1,6 @@
 ﻿@inherits LayoutComponentBase
 @inject DbParametersFacade dbParamteres
+@using Bible_Blazer_PWA.Parameters;
 
 <MudThemeProvider/>
 <MudDialogProvider/>
@@ -9,22 +10,18 @@
     <NavMenu />
 </div>
 
-<div class="main" style="background-color: @BackgroundColor">
-    <div class="content px-4" style="background-color: @BackgroundColor">
+<div class="main" style="background-color: @parametersModel.MainBackground">
+    <div class="content px-4" style="background-color: @parametersModel.MainBackground">
         @Body
     </div>
 </div>
 
 @code
 {
-    public string BackgroundColor { get; set; } = "white";
+    private ParametersModel parametersModel;
 
     protected async override Task OnInitializedAsync()
     {
-        string mainBackgroundColor = await dbParamteres.GetParameterAsync(DbParametersFacade.Parameters.MainBackground);
-        if (mainBackgroundColor != null && mainBackgroundColor != "")
-        {
-            BackgroundColor = mainBackgroundColor;
-        }
+        parametersModel = dbParamteres.ParametersModel;
     }
 }

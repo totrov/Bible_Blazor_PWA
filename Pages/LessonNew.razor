@@ -4,10 +4,12 @@
 @inject HttpClient Http
 @inject DbParametersFacade DbParameters;
 @using Bible_Blazer_PWA.DomainObjects;
+@using Bible_Blazer_PWA.Parameters;
+@using Param = Microsoft.AspNetCore.Components.ParameterAttribute
 @if (lesson != null)
 {
 
-    <Bible_Blazer_PWA.Components.FloatingComponent Top="0" Right="0">
+    <Bible_Blazer_PWA.Components.FloatingComponent>
         <button type="button" class="btn btn-outline-primary" style="display: inline;" @onclick="ToggleCollapse"><span class="oi @getGlobalToggleCollapseStyle()" aria-hidden="true"></span></button>
         <button type="button" class="btn btn-outline-primary" style="display: inline;" @onclick="ToggleReferences"><span class="oi @getGlobalToggleRefsStyle()" aria-hidden="true"></span></button>
         <button type="button" class="btn btn-outline-primary" style="display: inline;" @onclick="IncreaseFont">
@@ -33,15 +35,16 @@
 }
 
 @code {
-    [Parameter]
+    [Param]
     public int Id { get; set; } = 0;
 
-    [Parameter]
+    [Param]
     public int UnitNumber { get; set; } = 1;
 
     public string ToolsBackgroundColor { get; set; } = "white";
 
     protected LessonContainerDb lesson;
+    private ParametersModel parameters;
 
     async protected override Task OnParametersSetAsync()
     {
@@ -56,44 +59,41 @@
 
     protected async override Task OnInitializedAsync()
     {
-        if (int.TryParse((await DbParameters.GetParameterAsync(DbParametersFacade.Parameters.FontSize)), out int fontSizeNew))
-        {
-            parameters.FontSize = fontSizeNew;
-        }
+        parameters = DbParameters.ParametersModel;
     }
 
     void ToggleReferences()
     {
-        parameters.AreReferencesOpened = !parameters.AreReferencesOpened;
+        parameters.AreReferencesOpened = (!bool.Parse(parameters.AreReferencesOpened)).ToString();
     }
 
     async Task IncreaseFont()
     {
-        var fontSizeParameter = DbParametersFacade.Parameters.FontSize;
+        var fontSizeParameter = Parameters.FontSize;
         int newFontSize = 15;
-        if (int.TryParse((await DbParameters.GetParameterAsync(DbParametersFacade.Parameters.FontSize)), out int fontSize))
+        if (int.TryParse((await DbParameters.GetParameterAsync(Parameters.FontSize)), out int fontSize))
         {
             newFontSize = fontSize + 1;
         }
         await DbParameters.SetParameterAsync(fontSizeParameter, $"{newFontSize}");
-        if (int.TryParse((await DbParameters.GetParameterAsync(DbParametersFacade.Parameters.FontSize)), out int fontSizeNew))
+        if (int.TryParse((await DbParameters.GetParameterAsync(Parameters.FontSize, true)), out int fontSizeNew))
         {
-            parameters.FontSize = fontSizeNew;
+            parameters.FontSize = fontSizeNew.ToString();
         }
     }
 
     async Task DecreaseFont()
     {
-        var fontSizeParameter = DbParametersFacade.Parameters.FontSize;
+        var fontSizeParameter = Parameters.FontSize;
         int newFontSize = 15;
-        if (int.TryParse((await DbParameters.GetParameterAsync(DbParametersFacade.Parameters.FontSize)), out int fontSize))
+        if (int.TryParse((await DbParameters.GetParameterAsync(Parameters.FontSize)), out int fontSize))
         {
             newFontSize = fontSize - 1;
         }
         await DbParameters.SetParameterAsync(fontSizeParameter, $"{newFontSize}");
-        if (int.TryParse((await DbParameters.GetParameterAsync(DbParametersFacade.Parameters.FontSize)), out int fontSizeNew))
+        if (int.TryParse((await DbParameters.GetParameterAsync(Parameters.FontSize, true)), out int fontSizeNew))
         {
-            parameters.FontSize = fontSizeNew;
+            parameters.FontSize = fontSizeNew.ToString();
         }
     }
 
@@ -101,28 +101,23 @@
     {
         parameters.CollapseLevel = parameters.CollapseLevel switch
         {
-            3 => 1,
-            1 => 2,
-            _ => 3
+            "3" => "1",
+            "1" => "2",
+            _ => "3"
         };
     }
 
-    private Parameters parameters = new()
-        {
-            AreReferencesOpened = true,
-            CollapseLevel = 3,
-            FontSize = 0
-        };
+    
 
     string getGlobalToggleCollapseStyle() => parameters.CollapseLevel switch
     {
-        1 => "oi-media-stop",
-        2 => "oi-grid-two-up",
+        "1" => "oi-media-stop",
+        "2" => "oi-grid-two-up",
         _ => "oi-grid-three-up"
     };
 
     string getGlobalToggleRefsStyle()
     {
-        return parameters.AreReferencesOpened ? "oi-collapse-up" : "oi-collapse-down";
+        return bool.Parse(parameters.AreReferencesOpened) ? "oi-collapse-up" : "oi-collapse-down";
     }
 }
