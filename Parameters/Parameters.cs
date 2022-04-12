@@ -20,6 +20,7 @@
         ThirdLevelFontWeight,
         BlocksPadding,
         AreReferencesOpened,
-        CollapseLevel
+        CollapseLevel,
+        HideBlocksBorders
     }
 }

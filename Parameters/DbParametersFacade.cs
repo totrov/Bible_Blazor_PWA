@@ -10,29 +10,6 @@ namespace Bible_Blazer_PWA.Parameters
 {
     public class DbParametersFacade
     {
-        private readonly Dictionary<Parameters, string> ParameterConstants = new()
-        {
-            { Parameters.FontSize, "FontSize" },
-            { Parameters.MainBackground, "MainBackground" },
-            { Parameters.ToolsBg, "ToolsBg" },
-            { Parameters.HideTools, "HideTools" },
-            { Parameters.FirstLevelBg, "FirstLevelBg" },
-            { Parameters.FirstLevelBodyBg, "FirstLevelBodyBg" },
-            { Parameters.FirstLevelFontWeight, "FirstLevelFontWeight" },
-            { Parameters.FirstLevelMarginTop, "FirstLevelMarginTop" },
-            { Parameters.SecondLevelBg, "SecondLevelBg" },
-            { Parameters.SecondLevelBodyBg, "SecondLevelBodyBg" },
-            { Parameters.SecondLevelFontWeight, "SecondLevelFontWeight" },
-            { Parameters.SecondLevelMarginTop, "SecondLevelMarginTop" },
-            { Parameters.ThirdLevelBg, "ThirdLevelBg" },
-            { Parameters.ThirdLevelBodyBg, "ThirdLevelBodyBg" },
-            { Parameters.ThirdLevelFontWeight, "ThirdLevelFontWeight" },
-            { Parameters.ThirdLevelMarginTop, "ThirdLevelMarginTop" },
-            { Parameters.BlocksPadding, "BlocksPadding" },
-            { Parameters.AreReferencesOpened, "AreReferencesOpened" },
-            { Parameters.CollapseLevel, "CollapseLevel" }
-        };
-
         private DatabaseJSFacade _db;
         public DbParametersFacade(DatabaseJSFacade db)
         {
@@ -68,9 +45,9 @@ namespace Bible_Blazer_PWA.Parameters
         {
             if (updateCache)
             {
-                await ParametersModel.SetPropertyByName(ParameterConstants[parameter], await GetParameterAsync(ParameterConstants[parameter]), false);
+                await ParametersModel.SetPropertyByName(parameter.ToString(), await GetParameterAsync(parameter.ToString()), false);
             }
-            return ParametersModel.GetParamPropByName(ParameterConstants[parameter]);
+            return ParametersModel.GetParamPropByName(parameter.ToString());
         }
 
         private async Task<bool> CheckHasParameterAsync(string key)
@@ -82,7 +59,7 @@ namespace Bible_Blazer_PWA.Parameters
 
         public async Task<bool> CheckHasParameterAsync(Parameters parameter)
         {
-            return await CheckHasParameterAsync(ParameterConstants[parameter]);
+            return await CheckHasParameterAsync(parameter.ToString());
         }
 
         internal async Task<bool> SetParameterAsync(string key, string value)
@@ -93,7 +70,7 @@ namespace Bible_Blazer_PWA.Parameters
         }
         public async Task<bool> SetParameterAsync(Parameters parameter, string value)
         {
-            return await SetParameterAsync(ParameterConstants[parameter], value);
+            return await SetParameterAsync(parameter.ToString(), value);
         }
 
         public async Task<Stream> ExportToJson()

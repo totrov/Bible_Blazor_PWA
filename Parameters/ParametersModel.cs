@@ -55,6 +55,7 @@ namespace Bible_Blazer_PWA.Parameters
             FontSize = await _dbParams.GetParameterAsync(Parameters.FontSize) ?? "14";
             BlocksPadding = await _dbParams.GetParameterAsync(Parameters.BlocksPadding) ?? "1.25";
             BlocksPadding = BlocksPadding == "" ? "1,25" : BlocksPadding;
+            HideBlocksBorders = await _dbParams.GetParameterAsync(Parameters.HideBlocksBorders) ?? "False";
 
             #region FirstLevel
             string FirstLevelBackgroundString = await _dbParams.GetParameterAsync(Parameters.FirstLevelBg);
@@ -344,6 +345,8 @@ namespace Bible_Blazer_PWA.Parameters
         #endregion
         #endregion
 
+        #region Blocks
+        
         #region BlocksPadding
         private string _blocksPadding;
         [Parameter]
@@ -356,6 +359,23 @@ namespace Bible_Blazer_PWA.Parameters
                 _blocksPadding = value;
             }
         }
+        #endregion
+
+        #region BlocksBorder
+
+        private string _hideBlocksBorders;
+        [Parameter]
+        public string HideBlocksBorders
+        {
+            get => _hideBlocksBorders; set
+            {
+                _dbParams.SetParameterAsync(Parameters.HideBlocksBorders, value);
+                _areToolsHidden = value;
+            }
+        }
+        
+        #endregion
+
         #endregion
     }
 }

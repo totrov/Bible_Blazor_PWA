@@ -3,20 +3,20 @@ using System;
 
 namespace Bible_Blazer_PWA.Services.MudBlazorHelpers
 {
-    public class BoldFontStringToBoolConverter : StringToBoolConverter
+    public class RegularStringToBoolConverter : StringToBoolConverter
     {
         
         protected override string GetTrueString()
         {
-            return "bold";
+            return "True";
         }
         protected override string GetFalseString()
         {
-            return "normal";
+            return "False";
         }
         protected override string GetNullString()
         {
-            return "normal";
+            return "False";
         }
     }
 }
