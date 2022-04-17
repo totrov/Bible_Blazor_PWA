@@ -370,7 +370,7 @@ namespace Bible_Blazer_PWA.Parameters
             get => _hideBlocksBorders; set
             {
                 _dbParams.SetParameterAsync(Parameters.HideBlocksBorders, value);
-                _areToolsHidden = value;
+                _hideBlocksBorders = value;
             }
         }
         
