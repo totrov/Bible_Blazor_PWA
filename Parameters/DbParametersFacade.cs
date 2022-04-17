@@ -18,7 +18,7 @@ namespace Bible_Blazer_PWA.Parameters
 
         public ParametersModel ParametersModel { get; private set; }
 
-        public async void Init()
+        public async Task Init()
         {
             ParametersModel = new ParametersModel(this);
             await ParametersModel.InitFromDb();
@@ -45,7 +45,8 @@ namespace Bible_Blazer_PWA.Parameters
         {
             if (updateCache)
             {
-                await ParametersModel.SetPropertyByName(parameter.ToString(), await GetParameterAsync(parameter.ToString()), false);
+                string value = await GetParameterAsync(parameter.ToString()) ?? "";
+                await ParametersModel.SetPropertyByName(parameter.ToString(), value, false);
             }
             return ParametersModel.GetParamPropByName(parameter.ToString());
         }
