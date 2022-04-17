@@ -21,6 +21,7 @@
         BlocksPadding,
         AreReferencesOpened,
         CollapseLevel,
-        HideBlocksBorders
+        HideBlocksBorders,
+        BlocksPaddingLeft
     }
 }

@@ -67,6 +67,13 @@
                 </tr>
                 <tr>
                     <td>
+                        <MudSlider @bind-Value="BlocksPaddingLeft" Min="0" Max="2" Step="0.05" Color="Color.Info">Внутренний отступ блоков слева: @ParametersFormData.BlocksPaddingLeft.ToString()</MudSlider>
+                    </td>
+                    <td>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
                         <MudSwitch @bind-Checked="@ParametersFormData.HideBlocksBorders" Color="Color.Primary" Converter="@(new RegularStringToBoolConverter())">Скрывать границы блоков</MudSwitch>
                     </td>
                     <td>
@@ -217,7 +224,13 @@
     private double BlocksPadding
     {
         get { return double.Parse(ParametersFormData.BlocksPadding.Replace('.',',')); }
-        set { ParametersFormData.BlocksPadding = value.ToString().Replace(',','.'); }
+        set { ParametersFormData.BlocksPadding = value.ToString().Replace(',','.'); ParametersFormData.BlocksPaddingLeft = value.ToString().Replace(',','.'); }
+    }
+
+    private double BlocksPaddingLeft
+    {
+        get { return double.Parse(ParametersFormData.BlocksPaddingLeft.Replace('.',',')); }
+        set { ParametersFormData.BlocksPaddingLeft = value.ToString().Replace(',','.'); }
     }
 
     private int FirstLevelMarginTop

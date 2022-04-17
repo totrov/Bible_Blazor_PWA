@@ -49,12 +49,15 @@ namespace Bible_Blazer_PWA.Parameters
             string hideToolsParameterString = await _dbParams.GetParameterAsync(Parameters.HideTools);
             HideTools = (hideToolsParameterString != null && hideToolsParameterString == "True").ToString();
 
-            BlocksPadding = await _dbParams.GetParameterAsync(Parameters.BlocksPadding) ?? "";
             AreReferencesOpened = await _dbParams.GetParameterAsync(Parameters.AreReferencesOpened) ?? "True";
             CollapseLevel = await _dbParams.GetParameterAsync(Parameters.CollapseLevel) ?? "3";
             FontSize = await _dbParams.GetParameterAsync(Parameters.FontSize) ?? "14";
+            
             BlocksPadding = await _dbParams.GetParameterAsync(Parameters.BlocksPadding) ?? "1.25";
             BlocksPadding = BlocksPadding == "" ? "1,25" : BlocksPadding;
+            BlocksPaddingLeft = await _dbParams.GetParameterAsync(Parameters.BlocksPaddingLeft) ?? "";
+            BlocksPaddingLeft = BlocksPaddingLeft == "" ? "1,25" : BlocksPaddingLeft;
+
             HideBlocksBorders = await _dbParams.GetParameterAsync(Parameters.HideBlocksBorders) ?? "False";
 
             #region FirstLevel
@@ -346,8 +349,10 @@ namespace Bible_Blazer_PWA.Parameters
         #endregion
 
         #region Blocks
-        
+
         #region BlocksPadding
+
+        #region GeneralPadding
         private string _blocksPadding;
         [Parameter]
         public string BlocksPadding
@@ -359,6 +364,22 @@ namespace Bible_Blazer_PWA.Parameters
                 _blocksPadding = value;
             }
         }
+        #endregion
+
+        #region BlocksPaddingLeft
+        private string _blocksPaddingLeft;
+        [Parameter]
+        public string BlocksPaddingLeft
+        {
+            get => _blocksPaddingLeft;
+            set
+            {
+                _dbParams.SetParameterAsync(Parameters.BlocksPaddingLeft, value);
+                _blocksPaddingLeft = value;
+            }
+        }
+        #endregion
+
         #endregion
 
         #region BlocksBorder

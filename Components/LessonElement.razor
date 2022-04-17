@@ -6,8 +6,8 @@
 @inject BibleService Bible
 @inject DbParametersFacade dbParamFacade;
 
-<div class="card" style="margin-top:@MarginTop; background-color:@BodyBackgroundColor; font-size:@($"{(parameters.FontSize)}px");">
-    <div class="card-header" style="background-color:@BackgroundColor; font-weight: @FontWeight;">
+<div class="card" style="margin-top:@MarginTop; background-color:@BodyBackgroundColor; font-size:@($"{(parameters.FontSize)}px");@(parameters.HideBlocksBorders=="True"?"border:none;":"")">
+    <div class="card-header" style="background-color:@BackgroundColor; font-weight: @FontWeight;@(parameters.HideBlocksBorders=="True"?"border-bottom:none;":"")">
         <span class="card-title">
             @ElementData.Value
             @if (@ElementData.Children != null)
@@ -61,7 +61,7 @@
 
     @if (@ElementData.Children != null)
     {
-        <div class="card-body" style="@($"padding:{parameters.BlocksPadding}rem;" + (ElementData.Level < int.Parse(parameters.CollapseLevel) && IsOpen ? "" :"display:none;"))">
+        <div class="card-body" style="@($"padding:{parameters.BlocksPadding}rem {parameters.BlocksPadding}rem {parameters.BlocksPadding}rem {parameters.BlocksPaddingLeft}rem;" + (ElementData.Level < int.Parse(parameters.CollapseLevel) && IsOpen ? "" :"display:none;"))">
             @foreach (LessonElementData data in ElementData.Children)
             {
                 <LessonElement ElementData="data"></LessonElement>
