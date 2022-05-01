@@ -326,7 +326,7 @@
             var item = new LoadingItem { Name = file.Name, Status = "Копирование..." };
             LoadingItems.Add(item);
             await using FileStream fs = new(file.Name, FileMode.Create);
-            await file.OpenReadStream(2000nt000).CopyToAsync(fs);
+            await file.OpenReadStream(2000000).CopyToAsync(fs);
             UpdateItemStatus(item, "Чтение...");
             string status = "done";
             b2xtranslator.StructuredStorage.Reader.StructuredStorageReader reader = null;
