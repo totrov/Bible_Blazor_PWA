@@ -2,6 +2,7 @@
 @using System.IO
 @using Bible_Blazer_PWA.Services.MudBlazorHelpers
 @using Bible_Blazer_PWA.Services.Parse
+@using Bible_Blazer_PWA.Services.Readers
 @using b2xtranslator.StructuredStorage.Reader
 @using System.Net.Http
 @using Bible_Blazer_PWA.Parameters
@@ -213,7 +214,7 @@
 </div>
 
 @code
-{   
+{
     ParametersModel ParametersFormData;
     private bool HideTools
     {
@@ -223,14 +224,14 @@
 
     private double BlocksPadding
     {
-        get { return double.Parse(ParametersFormData.BlocksPadding.Replace('.',',')); }
-        set { ParametersFormData.BlocksPadding = value.ToString().Replace(',','.'); ParametersFormData.BlocksPaddingLeft = value.ToString().Replace(',','.'); }
+        get { return double.Parse(ParametersFormData.BlocksPadding.Replace('.', ',')); }
+        set { ParametersFormData.BlocksPadding = value.ToString().Replace(',', '.'); ParametersFormData.BlocksPaddingLeft = value.ToString().Replace(',', '.'); }
     }
 
     private double BlocksPaddingLeft
     {
-        get { return double.Parse(ParametersFormData.BlocksPaddingLeft.Replace('.',',')); }
-        set { ParametersFormData.BlocksPaddingLeft = value.ToString().Replace(',','.'); }
+        get { return double.Parse(ParametersFormData.BlocksPaddingLeft.Replace('.', ',')); }
+        set { ParametersFormData.BlocksPaddingLeft = value.ToString().Replace(',', '.'); }
     }
 
     private int FirstLevelMarginTop
@@ -328,54 +329,47 @@
             await using FileStream fs = new(file.Name, FileMode.Create);
             await file.OpenReadStream(2000000).CopyToAsync(fs);
             UpdateItemStatus(item, "Чтение...");
-            string status = "done";
-            b2xtranslator.StructuredStorage.Reader.StructuredStorageReader reader = null;
+
+            string stringContent = "";
+            bool readSucceeded = false;
+            var builder = new ReaderBuilder(file.Name);
             try
             {
-                reader = new StructuredStorageReader(file.Name);
-                b2xtranslator.DocFileFormat.WordDocument doc = new(reader);
-                string stringContent = new String(doc.Text.ToArray());
+                using (var reader = builder.GetReader())
+                {
+                    stringContent = reader.ReadDocumentToString(out readSucceeded);
+                }
+            }
+            catch (ReaderException ex)
+            {
+                UpdateItemStatus(item, ex.Message);
+            }
+            finally
+            {
+                System.IO.File.Delete(file.Name);
+            }
+            if (readSucceeded)
+            {
                 string json = await LessonParser.ParseLessons(stringContent);
                 var resultHandler = await db.ImportLessonsJson(json);
                 resultHandler.OnDbResultOK += () => { UpdateItemStatus(item, "Успешно загружено"); };
             }
-            catch (b2xtranslator.DocFileFormat.ByteParseException)
-            {
-                UpdateItemStatus(item, "Ошибка чтения документа. Поддерживается только *.doc.");
-                status = "Unable_to_read_DOC_Document";
-            }
-            catch (b2xtranslator.StructuredStorage.Common.InvalidValueInHeaderException)
-            {
-                UpdateItemStatus(item, "Ошибка при попытке открыть файл.");
-                status = "Unable_to_open_DOC_Document";
-            }
-            catch (Exception ex)
-            {
-                UpdateItemStatus(item, $"Ошибка: {ex.Message}");
-                status = $"Unknown error: {ex.Message}";
-            }
-            finally
-            {
-                if (reader != null) reader.Dispose();
-            }
-
-            //string connectionString = "DefaultEndpointsProtocol=https;AccountName=bibleblazorpwastorage;AccountKey=IZer1LD5t3UXlmSRdISWmJ6lXQX3Gzp/H0e+0xh1jdMNGBLiD1PbSqnlLAMTR3q9SLqqQkMEN8L2LfOONOr94A==;EndpointSuffix=core.windows.net";
-            //string containerName = "lesson-units";
-            //string blobName = file.Name;
-            //string filePath = file.Name;
-
-            //var content = new StreamContent(fs);
-            //content.Headers.TryAddWithoutValidation("Authorization", "SharedKey bibleblazorpwastorage:IZer1LD5t3UXlmSRdISWmJ6lXQX3Gzp/H0e+0xh1jdMNGBLiD1PbSqnlLAMTR3q9SLqqQkMEN8L2LfOONOr94A==");
-            //content.Headers.TryAddWithoutValidation("x-ms-lease-id", "c016d911-0d71-438b-af87-8c7c232ac612");
-            //content.Headers.TryAddWithoutValidation("x-ms-version", "2015-12-11");
-            //content.Headers.TryAddWithoutValidation("x-ms-date", DateTime.UtcNow.ToString("R"));
-            //content.Headers.TryAddWithoutValidation("x-ms-blob-type", "BlockBlob");
-            //content.Headers.ContentLength = fs.Length;
-            //await Http.PutAsync("https://bibleblazorpwastorage.blob.core.windows.net/lesson-units/Бытие.doc", content);
-
-            System.IO.File.Delete(file.Name);
         }
         IsDisabled = false;
+
+        //string connectionString = "DefaultEndpointsProtocol=https;AccountName=bibleblazorpwastorage;AccountKey=IZer1LD5t3UXlmSRdISWmJ6lXQX3Gzp/H0e+0xh1jdMNGBLiD1PbSqnlLAMTR3q9SLqqQkMEN8L2LfOONOr94A==;EndpointSuffix=core.windows.net";
+        //string containerName = "lesson-units";
+        //string blobName = file.Name;
+        //string filePath = file.Name;
+
+        //var content = new StreamContent(fs);
+        //content.Headers.TryAddWithoutValidation("Authorization", "SharedKey bibleblazorpwastorage:IZer1LD5t3UXlmSRdISWmJ6lXQX3Gzp/H0e+0xh1jdMNGBLiD1PbSqnlLAMTR3q9SLqqQkMEN8L2LfOONOr94A==");
+        //content.Headers.TryAddWithoutValidation("x-ms-lease-id", "c016d911-0d71-438b-af87-8c7c232ac612");
+        //content.Headers.TryAddWithoutValidation("x-ms-version", "2015-12-11");
+        //content.Headers.TryAddWithoutValidation("x-ms-date", DateTime.UtcNow.ToString("R"));
+        //content.Headers.TryAddWithoutValidation("x-ms-blob-type", "BlockBlob");
+        //content.Headers.ContentLength = fs.Length;
+        //await Http.PutAsync("https://bibleblazorpwastorage.blob.core.windows.net/lesson-units/Бытие.doc", content);
     }
 
     private async Task LoadParameters(InputFileChangeEventArgs e)
