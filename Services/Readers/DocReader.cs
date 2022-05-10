@@ -30,14 +30,17 @@ namespace Bible_Blazer_PWA.Services.Readers
             }
             catch (b2xtranslator.DocFileFormat.ByteParseException e)
             {
+                successed = false;
                 throw new ReaderException("Ошибка чтения документа. Поддерживается только *.doc.", e);
             }
             catch (b2xtranslator.StructuredStorage.Common.InvalidValueInHeaderException e)
             {
+                successed = false;
                 throw new ReaderException("Ошибка при попытке открыть файл.", e);
             }
             catch (Exception ex)
             {
+                successed = false;
                 throw new ReaderException($"Ошибка: {ex.Message}", ex);
             }
             finally

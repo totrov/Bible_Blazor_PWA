@@ -27,6 +27,16 @@ namespace Bible_Blazer_PWA.Services.Readers
                         throw new ReaderException(ex.Message, ex);
                     }
                     break;
+                case ".docx":
+                    try
+                    {
+                        reader = new DocxReader(_fileName);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new ReaderException(ex.Message, ex);
+                    }
+                    break;
                 default:
                     throw new ReaderException("Wrong extension of file. Only *.doc and *.docx are supported", null);
             }
