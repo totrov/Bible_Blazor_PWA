@@ -61,7 +61,7 @@
 
     @if (@ElementData.Children != null)
     {
-        <div class="card-body" style="@($"padding:{parameters.BlocksPadding}rem {parameters.BlocksPadding}rem {parameters.BlocksPadding}rem {parameters.BlocksPaddingLeft}rem;" + (ElementData.Level < int.Parse(parameters.CollapseLevel) && IsOpen ? "" :"display:none;"))">
+        <div class="card-body" style="@($"padding:{(double.Parse(parameters.BlocksPadding)/100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem {(double.Parse(parameters.BlocksPadding)/100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem {(double.Parse(parameters.BlocksPadding)/100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem {(double.Parse(parameters.BlocksPaddingLeft)/100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem;" + (ElementData.Level < int.Parse(parameters.CollapseLevel) && IsOpen ? "" :"display:none;"))">
             @foreach (LessonElementData data in ElementData.Children)
             {
                 <LessonElement ElementData="data"></LessonElement>

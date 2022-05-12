@@ -8,7 +8,22 @@
     <MudExpansionPanel>
         <TitleContent>
             <div class="d-flex">
-                @*<MudChip Color="Color.Success" Size="Size.Small">Текущая</MudChip><br />*@
+                <MudText>Версия 0.4.3</MudText>
+                <MudChip Color="Color.Success" Size="Size.Small">Текущая</MudChip>
+            </div>
+        </TitleContent>
+        <ChildContent>
+            <h5><MudIcon Icon="@Icons.Filled.FiberNew" Color="Color.Primary" Size="Size.Large" /> Доработана загрузка из облака.</h5>
+            <h5><MudIcon Icon="@Icons.Filled.FiberNew" Color="Color.Primary" Size="Size.Large" /> Изменена единица измерения отступа блоков - теперь целые значения от 0 до 200.</h5>
+            <h5><MudIcon Icon="@Icons.Filled.FiberNew" Color="Color.Primary" Size="Size.Large" /> Доработан интерфейс страницы параметров.</h5>
+            <MudIcon Icon="@Icons.Filled.TipsAndUpdates" Color="Color.Warning" Size="Size.Small" /> Можно загрузить урок из облака, если стандартный doc файл не загружается.<br />
+            <MudIcon Icon="@Icons.Filled.TipsAndUpdates" Color="Color.Warning" Size="Size.Small" /> Загрузка из облака требует интернет соединения и скорость загрузки зависит от скорости вашего соединения (то есть может быть немного медленнее, чем загрузка из файла).<br />
+            <MudIcon Icon="@Icons.Filled.TipsAndUpdates" Color="Color.Warning" Size="Size.Small" /> Можно редактровать документ на телефоне и загрузить в программу со своего устройства <br />
+        </ChildContent>
+    </MudExpansionPanel>
+    <MudExpansionPanel>
+        <TitleContent>
+            <div class="d-flex">
                 <MudText>Версия 0.4.2</MudText>
             </div>
         </TitleContent>

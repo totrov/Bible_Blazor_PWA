@@ -20,10 +20,6 @@
             <MudText Typo="Typo.h5">Загрузка планов уроков</MudText>
         </TitleContent>
         <ChildContent>
-            <h5 class="card-title">Загрузить из word файлов (можно выбрать несколько сразу)</h5>
-            <InputFile OnChange="@LoadFiles" disabled="@IsDisabled" multiple />
-            <MudDivider DividerType="DividerType.Middle" Class="my-6" />
-
             <h5 class="card-title">Загрузить из облака (требуется интернет)</h5>
             <MudGrid>
                 <MudItem xs="8">
@@ -35,9 +31,23 @@
                     </MudSelect>
                 </MudItem>
                 <MudItem xs="4">
-                    <MudFab Color="Color.Success" StartIcon="@Icons.Filled.CloudDownload" @onclick="LoadFromAzure" />
+                    <MudFab Color="Color.Primary" StartIcon="@Icons.Filled.CloudDownload" @onclick="LoadFromAzure" Disabled="@IsDisabled" />
                 </MudItem>
             </MudGrid>
+
+            <MudDivider DividerType="DividerType.Middle" Class="my-6" />
+            <h5 class="card-title">Загрузить из своих файлов</h5>
+            <InputFile id="lessonFilesInput" OnChange="LoadFiles" hidden multiple />
+            <MudButton HtmlTag="label"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Filled.UploadFile"
+                       Disabled="@IsDisabled"
+                       for="lessonFilesInput">
+                Загрузить из word файлов (можно выбрать несколько сразу)
+            </MudButton>
+            <MudDivider DividerType="DividerType.Middle" Class="my-6" />
+
             @if (LoadingItems.Any())
             {
                 <MudGrid>
@@ -88,14 +98,14 @@
                         </tr>
                         <tr>
                             <td>
-                                <MudSlider @bind-Value="BlocksPadding" Min="0" Max="2" Step="0.05" Color="Color.Info">Внутренний отступ блоков: @ParametersFormData.BlocksPadding.ToString()</MudSlider>
+                                <MudSlider @bind-Value="BlocksPadding" Min="0" Max="200" Step="5" Color="Color.Info">Внутренний отступ блоков: @ParametersFormData.BlocksPadding.ToString()</MudSlider>
                             </td>
                             <td>
                             </td>
                         </tr>
                         <tr>
                             <td>
-                                <MudSlider @bind-Value="BlocksPaddingLeft" Min="0" Max="2" Step="0.05" Color="Color.Info">Внутренний отступ блоков слева: @ParametersFormData.BlocksPaddingLeft.ToString()</MudSlider>
+                                <MudSlider @bind-Value="BlocksPaddingLeft" Min="0" Max="200" Step="5" Color="Color.Info">Внутренний отступ блоков слева: @ParametersFormData.BlocksPaddingLeft.ToString()</MudSlider>
                             </td>
                             <td>
                             </td>
@@ -253,14 +263,14 @@
 
     private double BlocksPadding
     {
-        get { return double.Parse(ParametersFormData.BlocksPadding.Replace('.', ',')); }
-        set { ParametersFormData.BlocksPadding = value.ToString().Replace(',', '.'); ParametersFormData.BlocksPaddingLeft = value.ToString().Replace(',', '.'); }
+        get { return int.Parse(ParametersFormData.BlocksPadding); }
+        set { ParametersFormData.BlocksPadding = value.ToString(); ParametersFormData.BlocksPaddingLeft = value.ToString(); }
     }
 
     private double BlocksPaddingLeft
     {
-        get { return double.Parse(ParametersFormData.BlocksPaddingLeft.Replace('.', ',')); }
-        set { ParametersFormData.BlocksPaddingLeft = value.ToString().Replace(',', '.'); }
+        get { return double.Parse(ParametersFormData.BlocksPaddingLeft); }
+        set { ParametersFormData.BlocksPaddingLeft = value.ToString(); }
     }
 
     private int FirstLevelMarginTop
@@ -286,7 +296,7 @@
 
     private string selectedLessonsValue { get; set; } = "Ничего не выбрано";
     private IEnumerable<string> lessonNames = LessonLoadConfig.GetLessonNames();
-    private IEnumerable<string> options { get; set; } = new HashSet<string>();// { "Бытие", "Исход - Соломон", "Пророки", "Евангелия", "Деяния - Откровение", "Основы веры" };
+    private IEnumerable<string> options { get; set; } = new HashSet<string>();
 
     protected override void OnInitialized()
     {
@@ -308,39 +318,36 @@
     }
     public async Task LoadFromAzure()
     {
-        Stream stream = await Http.GetStreamAsync("https://bibleblazorpwastorage.blob.core.windows.net/lesson-units/Бытие.doc");
-
-        b2xtranslator.StructuredStorage.Reader.StructuredStorageReader reader = null;
-        try
+        LoadingItems.Clear();
+        IsDisabled = true;
+        foreach (var lessonName in options)
         {
-            reader = new StructuredStorageReader(stream);
-            b2xtranslator.DocFileFormat.WordDocument doc = new(reader);
-            string stringContent = new String(doc.Text.ToArray());
-            string json = await LessonParser.ParseLessons(stringContent);
-            var resultHandler = await db.ImportLessonsJson(json);
-            //resultHandler.OnDbResultOK += () => { UpdateItemStatus(item, "Успешно загружено"); };
+            string url = Config.LessonLoadConfig.GetUrlByLessonName(lessonName);
+            string stringContent = "";
+            bool readSucceeded = false;
+            var item = new LoadingItem { Name = lessonName, Status = "Чтение из облака..." };
+            LoadingItems.Add(item);
+            var builder = new ReaderBuilder(await Http.GetStreamAsync(url));
+            try
+            {
+                using (var reader = builder.GetReader())
+                {
+                    stringContent = reader.ReadDocumentToString(out readSucceeded);
+                }
+            }
+            catch (ReaderException ex)
+            {
+                UpdateItemStatus(item, ex.Message);
+            }
+            if (readSucceeded)
+            {
+                UpdateItemStatus(item, "Чтение из облака завершено. Разбор текста...");
+                string json = await LessonParser.ParseLessons(stringContent);
+                var resultHandler = await db.ImportLessonsJson(json);
+                resultHandler.OnDbResultOK += () => { UpdateItemStatus(item, "Успешно загружено"); };
+            }
         }
-        catch (b2xtranslator.DocFileFormat.ByteParseException)
-        {
-            //UpdateItemStatus(item, "Ошибка чтения документа. Поддерживается только *.doc.");
-            //status = "Unable_to_read_DOC_Document";
-        }
-        catch (b2xtranslator.StructuredStorage.Common.InvalidValueInHeaderException)
-        {
-            //UpdateItemStatus(item, "Ошибка при попытке открыть файл.");
-            //status = "Unable_to_open_DOC_Document";
-        }
-        catch (Exception ex)
-        {
-            //UpdateItemStatus(item, $"Ошибка: {ex.Message}");
-            //status = $"Unknown error: {ex.Message}";
-        }
-        finally
-        {
-            if (reader != null) reader.Dispose();
-        }
-
-        //System.IO.File.Delete(fileName);
+        IsDisabled = false;
     }
 
     public async Task ExportParamsToFile()
