@@ -1,5 +1,6 @@
 ﻿@page "/setup"
 @using System.IO
+@using Bible_Blazer_PWA.Config
 @using Bible_Blazer_PWA.Services.MudBlazorHelpers
 @using Bible_Blazer_PWA.Services.Parse
 @using Bible_Blazer_PWA.Services.Readers
@@ -13,23 +14,52 @@
 @inject IJSRuntime JS
 @inject ISnackbar Snackbar
 
-<div class="card card-body" style="margin-bottom:10px;">
-    <h2 class="card-title">Планы уроков</h2>
-    <div class="card card-body">
+<MudCard>
+    <MudCardHeader>
+        <CardHeaderContent>
+            <MudText Typo="Typo.h5">Загрузка планов уроков</MudText>
+        </CardHeaderContent>
+    </MudCardHeader>
+    <MudCardContent>
         <h5 class="card-title">Загрузить из word файлов (можно выбрать несколько сразу)</h5>
         <InputFile OnChange="@LoadFiles" disabled="@IsDisabled" multiple />
-        <ol>
-            @foreach (var item in LoadingItems)
-            {
-                <Bible_Blazer_PWA.Components.LoadingItem Name="@item.Name" Status="@item.Status"></Bible_Blazer_PWA.Components.LoadingItem>
-            }
-        </ol>
-    </div>
-    <div class="card card-body">
+        <MudDivider DividerType="DividerType.Middle" Class="my-6" />
+
         <h5 class="card-title">Загрузить из облака (требуется интернет)</h5>
-        <button type="button" class="btn btn-danger" @onclick="LoadFromAzure">Загрузить</button>
-    </div>
-</div>
+        <MudGrid>
+            <MudItem xs="8">
+                <MudSelect T="string" Label="Какие уроки загрузить:" MultiSelection="true" @bind-Value="selectedLessonsValue" @bind-SelectedValues="options">
+                    @foreach (var lessonName in lessonNames)
+                    {
+                        <MudSelectItem T="string" Value="@lessonName">@lessonName</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="4">
+                <MudFab Color="Color.Success" StartIcon="@Icons.Filled.CloudDownload" @onclick="LoadFromAzure" />
+            </MudItem>
+        </MudGrid>
+
+        <MudPaper>
+            <MudContainer MaxWidth="MaxWidth.Medium">
+                <MudList Clickable="false">
+                    <MudDivider />
+                    @foreach (var item in LoadingItems)
+                    {
+                        <MudListItem>
+                            <Bible_Blazer_PWA.Components.LoadingItem Name="@item.Name" Status="@item.Status"></Bible_Blazer_PWA.Components.LoadingItem>
+                        </MudListItem>
+                        <MudDivider />
+                    }
+                </MudList>
+            </MudContainer>
+        </MudPaper>
+
+        <ol>
+        </ol>
+    </MudCardContent>
+</MudCard>
+
 <EditForm Model=@ParametersFormData>
     <div class="card card-body" style="margin-bottom:10px;">
         <h2 class="card-title">Визуальные</h2>
@@ -253,8 +283,16 @@
     }
 
     IBrowserFile parametrsFile = null;
-    protected override async Task OnInitializedAsync()
+
+
+    private string selectedLessonsValue { get; set; } = "Ничего не выбрано";
+    private IEnumerable<string> lessonNames = LessonLoadConfig.GetLessonNames();
+    private IEnumerable<string> options { get; set; } = new HashSet<string>();// { "Бытие", "Исход - Соломон", "Пророки", "Евангелия", "Деяния - Откровение", "Основы веры" };
+
+    protected override void OnInitialized()
     {
+        base.OnInitialized();
+        lessonNames.ToList().ForEach(l => ((HashSet<string>)options).Add(l));
         ParametersFormData = dbParams.ParametersModel;
     }
 
