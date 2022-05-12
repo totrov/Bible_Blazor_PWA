@@ -14,234 +14,233 @@
 @inject IJSRuntime JS
 @inject ISnackbar Snackbar
 
-<MudCard>
-    <MudCardHeader>
-        <CardHeaderContent>
+<MudExpansionPanels>
+    <MudExpansionPanel>
+        <TitleContent>
             <MudText Typo="Typo.h5">Загрузка планов уроков</MudText>
-        </CardHeaderContent>
-    </MudCardHeader>
-    <MudCardContent>
-        <h5 class="card-title">Загрузить из word файлов (можно выбрать несколько сразу)</h5>
-        <InputFile OnChange="@LoadFiles" disabled="@IsDisabled" multiple />
-        <MudDivider DividerType="DividerType.Middle" Class="my-6" />
+        </TitleContent>
+        <ChildContent>
+            <h5 class="card-title">Загрузить из word файлов (можно выбрать несколько сразу)</h5>
+            <InputFile OnChange="@LoadFiles" disabled="@IsDisabled" multiple />
+            <MudDivider DividerType="DividerType.Middle" Class="my-6" />
 
-        <h5 class="card-title">Загрузить из облака (требуется интернет)</h5>
-        <MudGrid>
-            <MudItem xs="8">
-                <MudSelect T="string" Label="Какие уроки загрузить:" MultiSelection="true" @bind-Value="selectedLessonsValue" @bind-SelectedValues="options">
-                    @foreach (var lessonName in lessonNames)
-                    {
-                        <MudSelectItem T="string" Value="@lessonName">@lessonName</MudSelectItem>
-                    }
-                </MudSelect>
-            </MudItem>
-            <MudItem xs="4">
-                <MudFab Color="Color.Success" StartIcon="@Icons.Filled.CloudDownload" @onclick="LoadFromAzure" />
-            </MudItem>
-        </MudGrid>
+            <h5 class="card-title">Загрузить из облака (требуется интернет)</h5>
+            <MudGrid>
+                <MudItem xs="8">
+                    <MudSelect T="string" Label="Какие уроки загрузить:" MultiSelection="true" @bind-Value="selectedLessonsValue" @bind-SelectedValues="options">
+                        @foreach (var lessonName in lessonNames)
+                        {
+                            <MudSelectItem T="string" Value="@lessonName">@lessonName</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="4">
+                    <MudFab Color="Color.Success" StartIcon="@Icons.Filled.CloudDownload" @onclick="LoadFromAzure" />
+                </MudItem>
+            </MudGrid>
+            @if (LoadingItems.Any())
+            {
+                <MudGrid>
+                    <MudItem xs="8">
+                        <MudList Clickable="false">
+                            @foreach (var item in LoadingItems)
+                            {
+                                <Bible_Blazer_PWA.Components.LoadingItem Name="@item.Name" Status="@item.Status"></Bible_Blazer_PWA.Components.LoadingItem>
+                            }
+                        </MudList>
 
-        <MudPaper>
-            <MudContainer MaxWidth="MaxWidth.Medium">
-                <MudList Clickable="false">
-                    <MudDivider />
-                    @foreach (var item in LoadingItems)
-                    {
-                        <MudListItem>
-                            <Bible_Blazer_PWA.Components.LoadingItem Name="@item.Name" Status="@item.Status"></Bible_Blazer_PWA.Components.LoadingItem>
-                        </MudListItem>
-                        <MudDivider />
-                    }
-                </MudList>
-            </MudContainer>
-        </MudPaper>
-
-        <ol>
-        </ol>
-    </MudCardContent>
-</MudCard>
-
-<EditForm Model=@ParametersFormData>
-    <div class="card card-body" style="margin-bottom:10px;">
-        <h2 class="card-title">Визуальные</h2>
-        <div class="card card-body col-lg-6 col-md-7 col-sm">
-            <table>
-                <tr>
-                    <td>Скрывать инструменты</td>
-                    <td>
-                        <InputCheckbox @bind-Value="@HideTools"></InputCheckbox>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <MudColorPicker Label="Цвет Фона (изменится после перехода на другую страницу)"
-                                        @bind-Text="@ParametersFormData.MainBackground"
-                                        Style="@($"background-color: {ParametersFormData.MainBackground};")" Placeholder="Выберите цвет" />
-                    </td>
-                    <td>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <MudColorPicker Label="Цвет фона панели инструментов"
-                                        @bind-Text="@ParametersFormData.ToolsBg"
-                                        Style="@($"background-color: {ParametersFormData.ToolsBg};")" Placeholder="Выберите цвет" />
-                    </td>
-                    <td>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <MudSlider @bind-Value="BlocksPadding" Min="0" Max="2" Step="0.05" Color="Color.Info">Внутренний отступ блоков: @ParametersFormData.BlocksPadding.ToString()</MudSlider>
-                    </td>
-                    <td>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <MudSlider @bind-Value="BlocksPaddingLeft" Min="0" Max="2" Step="0.05" Color="Color.Info">Внутренний отступ блоков слева: @ParametersFormData.BlocksPaddingLeft.ToString()</MudSlider>
-                    </td>
-                    <td>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <MudSwitch @bind-Checked="@ParametersFormData.HideBlocksBorders" Color="Color.Primary" Converter="@(new RegularStringToBoolConverter())">Скрывать границы блоков</MudSwitch>
-                    </td>
-                    <td>
-                    </td>
-                </tr>
-            </table>
-        </div>
-        <div class="card card-body col-lg-6 col-md-7 col-sm">
-            <table>
-                <tr style="border-bottom:1px black solid;"><td colspan="2">Уровень 1</td></tr>
-                <tr>
-                    <td>
-                        <MudColorPicker Label="Цвет фона в заголовке"
-                                        @bind-Text="@ParametersFormData.FirstLevelBg"
-                                        Style="@($"background-color: {ParametersFormData.FirstLevelBg};")" Placeholder="Выберите цвет" />
-                    </td>
-                    <td>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <MudColorPicker Label="Цвет фона в теле"
-                                        @bind-Text="@ParametersFormData.FirstLevelBodyBg"
-                                        Style="@($"background-color: {ParametersFormData.FirstLevelBodyBg};")" Placeholder="Выберите цвет" />
-                    </td>
-                    <td>
-                    </td>
-                </tr>
-                <tr>
-                    <td><MudSwitch @bind-Checked="@ParametersFormData.FirstLevelFontWeight" Color="Color.Error" Converter="@(new BoldFontStringToBoolConverter())">Жирный шрифт</MudSwitch></td>
-                    <td>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <MudSlider @bind-Value="FirstLevelMarginTop" Min="0" Max="100" Step="5" Color="Color.Info">Отступ сверху: @ParametersFormData.FirstLevelMarginTop.ToString()</MudSlider>
-                    </td>
-                    <td>
-                    </td>
-                </tr>
-                <tr style="border-bottom:1px black solid;"><td colspan="2">Уровень 2</td></tr>
-                <tr>
-                    <td>
-                        <MudColorPicker Label="Цвет фона в заголовке"
-                                        @bind-Text="@ParametersFormData.SecondLevelBg"
-                                        Style="@($"background-color: {ParametersFormData.SecondLevelBg};")" Placeholder="Выберите цвет" />
-                    </td>
-                    <td>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <MudColorPicker Label="Цвет фона в теле"
-                                        @bind-Text="@ParametersFormData.SecondLevelBodyBg"
-                                        Style="@($"background-color: {ParametersFormData.SecondLevelBodyBg};")" Placeholder="Выберите цвет" />
-                    </td>
-                    <td>
-                    </td>
-                </tr>
-                <tr>
-                    <td><MudSwitch @bind-Checked="@ParametersFormData.SecondLevelFontWeight" Color="Color.Error" Converter="@(new BoldFontStringToBoolConverter())">Жирный шрифт</MudSwitch></td>
-                    <td>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <MudSlider @bind-Value="SecondLevelMarginTop" Min="0" Max="100" Step="5" Color="Color.Info">Отступ сверху: @ParametersFormData.SecondLevelMarginTop.ToString()</MudSlider>
-                    </td>
-                    <td>
-                    </td>
-                </tr>
-                <tr style="border-bottom:1px black solid;"><td colspan="2">Уровень 3</td></tr>
-                <tr>
-                    <td>
-                        <MudColorPicker Label="Цвет фона в заголовке"
-                                        @bind-Text="@ParametersFormData.ThirdLevelBg"
-                                        Style="@($"background-color: {ParametersFormData.ThirdLevelBg};")" Placeholder="Выберите цвет" />
-                    </td>
-                    <td>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <MudColorPicker Label="Цвет фона в теле"
-                                        @bind-Text="@ParametersFormData.ThirdLevelBodyBg"
-                                        Style="@($"background-color: {ParametersFormData.ThirdLevelBodyBg};")" Placeholder="Выберите цвет" />
-                    </td>
-                    <td>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <MudSwitch @bind-Checked="@ParametersFormData.ThirdLevelFontWeight"
-                                   Color="Color.Error" Converter="@(new BoldFontStringToBoolConverter())">Жирный шрифт</MudSwitch>
-                    </td>
-                    <td>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <MudSlider @bind-Value="ThirdLevelMarginTop" Min="0" Max="100" Step="5" Color="Color.Info">Отступ сверху: @ParametersFormData.ThirdLevelMarginTop.ToString()</MudSlider>
-                    </td>
-                    <td>
-                    </td>
-                </tr>
-            </table>
-        </div>
-    </div>
-</EditForm>
-
-<MudCard>
-    <MudCardHeader>
-        <CardHeaderContent>
+                    </MudItem>
+                </MudGrid>
+            }
+        </ChildContent>
+    </MudExpansionPanel>
+    <MudExpansionPanel>
+        <TitleContent>
+            <MudText Typo="Typo.h5">Визуальные</MudText>
+        </TitleContent>
+        <ChildContent>
+            <EditForm Model=@ParametersFormData>
+                <div class="card card-body col-lg-6 col-md-7 col-sm">
+                    <table>
+                        <tr>
+                            <td>Скрывать инструменты</td>
+                            <td>
+                                <InputCheckbox @bind-Value="@HideTools"></InputCheckbox>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MudColorPicker Label="Цвет Фона (изменится после перехода на другую страницу)"
+                                                @bind-Text="@ParametersFormData.MainBackground"
+                                                Style="@($"background-color: {ParametersFormData.MainBackground};")" Placeholder="Выберите цвет" />
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MudColorPicker Label="Цвет фона панели инструментов"
+                                                @bind-Text="@ParametersFormData.ToolsBg"
+                                                Style="@($"background-color: {ParametersFormData.ToolsBg};")" Placeholder="Выберите цвет" />
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MudSlider @bind-Value="BlocksPadding" Min="0" Max="2" Step="0.05" Color="Color.Info">Внутренний отступ блоков: @ParametersFormData.BlocksPadding.ToString()</MudSlider>
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MudSlider @bind-Value="BlocksPaddingLeft" Min="0" Max="2" Step="0.05" Color="Color.Info">Внутренний отступ блоков слева: @ParametersFormData.BlocksPaddingLeft.ToString()</MudSlider>
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MudSwitch @bind-Checked="@ParametersFormData.HideBlocksBorders" Color="Color.Primary" Converter="@(new RegularStringToBoolConverter())">Скрывать границы блоков</MudSwitch>
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="card card-body col-lg-6 col-md-7 col-sm">
+                    <table>
+                        <tr style="border-bottom:1px black solid;"><td colspan="2">Уровень 1</td></tr>
+                        <tr>
+                            <td>
+                                <MudColorPicker Label="Цвет фона в заголовке"
+                                                @bind-Text="@ParametersFormData.FirstLevelBg"
+                                                Style="@($"background-color: {ParametersFormData.FirstLevelBg};")" Placeholder="Выберите цвет" />
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MudColorPicker Label="Цвет фона в теле"
+                                                @bind-Text="@ParametersFormData.FirstLevelBodyBg"
+                                                Style="@($"background-color: {ParametersFormData.FirstLevelBodyBg};")" Placeholder="Выберите цвет" />
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><MudSwitch @bind-Checked="@ParametersFormData.FirstLevelFontWeight" Color="Color.Error" Converter="@(new BoldFontStringToBoolConverter())">Жирный шрифт</MudSwitch></td>
+                            <td>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MudSlider @bind-Value="FirstLevelMarginTop" Min="0" Max="100" Step="5" Color="Color.Info">Отступ сверху: @ParametersFormData.FirstLevelMarginTop.ToString()</MudSlider>
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+                        <tr style="border-bottom:1px black solid;"><td colspan="2">Уровень 2</td></tr>
+                        <tr>
+                            <td>
+                                <MudColorPicker Label="Цвет фона в заголовке"
+                                                @bind-Text="@ParametersFormData.SecondLevelBg"
+                                                Style="@($"background-color: {ParametersFormData.SecondLevelBg};")" Placeholder="Выберите цвет" />
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MudColorPicker Label="Цвет фона в теле"
+                                                @bind-Text="@ParametersFormData.SecondLevelBodyBg"
+                                                Style="@($"background-color: {ParametersFormData.SecondLevelBodyBg};")" Placeholder="Выберите цвет" />
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><MudSwitch @bind-Checked="@ParametersFormData.SecondLevelFontWeight" Color="Color.Error" Converter="@(new BoldFontStringToBoolConverter())">Жирный шрифт</MudSwitch></td>
+                            <td>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MudSlider @bind-Value="SecondLevelMarginTop" Min="0" Max="100" Step="5" Color="Color.Info">Отступ сверху: @ParametersFormData.SecondLevelMarginTop.ToString()</MudSlider>
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+                        <tr style="border-bottom:1px black solid;"><td colspan="2">Уровень 3</td></tr>
+                        <tr>
+                            <td>
+                                <MudColorPicker Label="Цвет фона в заголовке"
+                                                @bind-Text="@ParametersFormData.ThirdLevelBg"
+                                                Style="@($"background-color: {ParametersFormData.ThirdLevelBg};")" Placeholder="Выберите цвет" />
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MudColorPicker Label="Цвет фона в теле"
+                                                @bind-Text="@ParametersFormData.ThirdLevelBodyBg"
+                                                Style="@($"background-color: {ParametersFormData.ThirdLevelBodyBg};")" Placeholder="Выберите цвет" />
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MudSwitch @bind-Checked="@ParametersFormData.ThirdLevelFontWeight"
+                                           Color="Color.Error" Converter="@(new BoldFontStringToBoolConverter())">Жирный шрифт</MudSwitch>
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MudSlider @bind-Value="ThirdLevelMarginTop" Min="0" Max="100" Step="5" Color="Color.Info">Отступ сверху: @ParametersFormData.ThirdLevelMarginTop.ToString()</MudSlider>
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </EditForm>
+        </ChildContent>
+    </MudExpansionPanel>
+    <MudExpansionPanel>
+        <TitleContent>
             <MudText Typo="Typo.h5">Импорт/Экспорт параметров</MudText>
-        </CardHeaderContent>
-    </MudCardHeader>
-    <MudCardContent>
-        <MudButton Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.ArrowDownward" @onclick="ExportParamsToFile" Color="Color.Primary">Скачать текущие параметры</MudButton>
-        <MudDivider DividerType="DividerType.Middle" Class="my-6" />
-        <InputFile id="parametersFileInput" OnChange="LoadParameters" hidden />
-        <MudButton HtmlTag="label"
-                   Variant="Variant.Filled"
-                   Color="Color.Primary"
-                   StartIcon="@Icons.Filled.CloudUpload"
-                   for="parametersFileInput">
-            Загрузить параметры из файла
-        </MudButton>
-    </MudCardContent>
-</MudCard>
-
-<div class="card card-body" style="margin-bottom:10px;">
-    <h2 class="card-title">Системное</h2>
-    <div class="card card-body col-lg-6 col-md-7 col-sm">
-        <h5 class="card-title">Удалить Базу данных</h5>
-        <button type="button" class="btn btn-danger" @onclick="DeleteDb">Удалить</button>
-    </div>
-</div>
+        </TitleContent>
+        <ChildContent>
+            <MudButton Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.ArrowDownward" @onclick="ExportParamsToFile" Color="Color.Primary">Скачать текущие параметры</MudButton>
+            <MudDivider DividerType="DividerType.Middle" Class="my-6" />
+            <InputFile id="parametersFileInput" OnChange="LoadParameters" hidden />
+            <MudButton HtmlTag="label"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Filled.CloudUpload"
+                       for="parametersFileInput">
+                Загрузить параметры из файла
+            </MudButton>
+        </ChildContent>
+    </MudExpansionPanel>
+    <MudExpansionPanel>
+        <TitleContent>
+            <MudText Typo="Typo.h5">Системное</MudText>
+        </TitleContent>
+        <ChildContent>
+            <div class="card card-body col-lg-6 col-md-7 col-sm">
+                <h5 class="card-title">Удалить Базу данных</h5>
+                <button type="button" class="btn btn-danger" @onclick="DeleteDb">Удалить</button>
+            </div>
+        </ChildContent>
+    </MudExpansionPanel>
+</MudExpansionPanels>
 
 @code
 {
