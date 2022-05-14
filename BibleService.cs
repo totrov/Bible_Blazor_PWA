@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Bible_Blazer_PWA.DomainObjects;
+using Bible_Blazer_PWA.Services.TextHandlers;
 
 namespace Bible_Blazer_PWA
 {
@@ -46,12 +44,7 @@ namespace Bible_Blazer_PWA
                     VersesView versesView = new VersesView();
                     string toVerse = fromTo.ToVerse == null ? "" : $"-{fromTo.ToVerse}";
                     versesView.Badge = $"{badge}{fromTo.FromVerse}{toVerse}";
-                    versesView.RawText = (await verseTask)
-                        .Select(v => Regex.Replace(
-                            v.Value,
-                            @"(?:<S>.*?</S>)|(?:<f>.*?</f>)|<pb/>|<t>|</t>|<i>|</i>", "")
-                        )
-                        .Aggregate((a, b) => { return a + b; });
+                    versesView.RawText = _versesHandler.GetHtmlFromVerses(await verseTask, fromTo.ToVerse == null);
                     result.AddLast(versesView);
                 }
             }
@@ -60,6 +53,8 @@ namespace Bible_Blazer_PWA
         }
 
         private bool _isLoaded = false;
+        private VersesTextHandler _versesHandler;
+
         public bool IsLoaded { get { return _isLoaded; } }
         public void Init(Verse[] verses, Book[] books)
         {
@@ -70,6 +65,7 @@ namespace Bible_Blazer_PWA
         {
             _dataProvider = new DataBaseBibleServiceFetchStrategy(dataBase);
             _isLoaded = true;
+            _versesHandler = new VersesTextHandler();
         }
     }
 }

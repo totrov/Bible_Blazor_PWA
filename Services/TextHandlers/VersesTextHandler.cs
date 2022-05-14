@@ -1,0 +1,37 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
+
+namespace Bible_Blazer_PWA.Services.TextHandlers
+{
+    public class VersesTextHandler
+    {
+        internal string GetHtmlFromVerses(IEnumerable<BibleService.Verse> verses, bool singleVerse)
+        {
+            return verses.Select(v => HandleSingleVerse(v, singleVerse)).Aggregate((a, b) => { return a + b; });
+        }
+
+        private string HandleSingleVerse(BibleService.Verse verse, bool singleVerse)
+        {
+            return AddCursive(RemoveTags(AddNumberLabelIfNeeded(verse, singleVerse)));
+        }
+
+        private string AddCursive(string text)
+        {
+            return $"<i>{text}</i>";
+        }
+
+        private string AddNumberLabelIfNeeded(BibleService.Verse verse, bool singleVerse)
+        {
+            return singleVerse ? verse.Value : $"<sup>{verse.Id}</sup>{verse.Value}";
+        }
+
+        private string RemoveTags(string text)
+        {
+            return Regex.Replace(text, @"(?:<S>.*?</S>)|(?:<f>.*?</f>)|<pb/>|<t>|</t>|<i>|</i>|<J>|</J>", "");
+        }
+
+
+    }
+}

@@ -49,7 +49,7 @@
                 foreach (BibleService.VersesView view in _versesViewsDictionary[reference.ToString()])
                 {
                     <span class="badge badge-primary">@view.Badge</span>
-                    <i>@view.RawText.Replace("<J>", "").Replace("</J>", "")</i>
+                    @((MarkupString)view.RawText)
                 }
             }
             else
