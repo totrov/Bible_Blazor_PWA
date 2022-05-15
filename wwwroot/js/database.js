@@ -7,20 +7,24 @@
     debugMode: true,
     verbose: true,
     log: function (message) { if (this.debugMode) console.log(message); },
-    logVerbose: function (message) { if (this.debugMode && this.verbose) console.log(message); }
+    logVerbose: function (message) { if (this.debugMode && this.verbose) console.log(message); },
+    dataUpgradeAlreadyStarted: false
 };
 
-function DataUpgrade(synchronizer) {
+function DataUpgrade() {
+    if (window.context.dataUpgradeAlreadyStarted)
+        return;
+    window.context.dataUpgradeAlreadyStarted = true;
     console.log("Data upgrade started");
     console.log("dbVersion:" + context.db.version + " prevVersion:" + context.previousVersion);
 
     switch (context.previousVersion) {
         case 0:
-            database.dataUpgradeFunctions[0](synchronizer);
-            database.dataUpgradeFunctions[1](synchronizer);
+            database.dataUpgradeFunctions[0]();
+            database.dataUpgradeFunctions[1]();
             break;
         case 1:
-            database.dataUpgradeFunctions[1](synchronizer);
+            database.dataUpgradeFunctions[1]();
             break;
         default:
             console.log("no data upgrade script for current db version");
@@ -72,51 +76,27 @@ window.database = {
     },
 
     initDb: function (dotnetReference) {
-        Synchronizer = new Object();
-        Synchronizer.count = 0;
-        Synchronizer.allSuccess = true;
-        Synchronizer.handleFinish = function (success) {
-            Synchronizer.count--;
-            if (!success)
-                Synchronizer.allSuccess = false;
-            if (Synchronizer.count < 1) {
-                dotnetReference.invokeMethod('SetStatus', Synchronizer.allSuccess);
-            }
-        };
-        Synchronizer.handleStart = function () {
-            Synchronizer.count++;
-        };
-        window.database.getOpenRequest(Synchronizer);
+
     },
 
-    getOpenRequest: function (synchronizer) {
+    getOpenRequest: function (dotnetReference) {
 
         console.log("Open db request");
         let openRequest = indexedDB.open("db", context.currentVersion);
 
-        if (synchronizer)
-            synchronizer.handleStart();
-
         openRequest.onerror = function () {
             console.error("Open request error", openRequest.error);
-            if (synchronizer)
-                synchronizer.handleFinish(false);
         };
 
         openRequest.onSuccessHandlers = [];
         openRequest.onsuccess = function (e) {
 
             this.onSuccessHandlers.filter(v => typeof v === 'function').forEach(f => { f(e) });
-            if (synchronizer)
-                synchronizer.handleFinish(true);
         };
         openRequest.onSuccessHandlers.push(function (e) {
             context.db = openRequest.result;
-            if (context.justUpgraded) {
-                DataUpgrade(synchronizer);
-            }
-            else {
-                console.log("Open request successfully finished");
+            if (context.justUpgraded && !context.dataUpgradeAlreadyStarted) {
+                DataUpgrade();
             }
         });
 
@@ -332,7 +312,7 @@ window.database = {
         }
     },
     schemaUpgradeFunctions: [
-        function () {
+        function (dotnetHelper) {
             var booksObjectStore = context.db.createObjectStore('books', { keyPath: 'Id' });
             booksObjectStore.createIndex("ShortName", "ShortName", { unique: true });
             context.db.createObjectStore('verses', { keyPath: ['BookId', 'Chapter', 'Id'] });
@@ -343,53 +323,47 @@ window.database = {
             context.db.createObjectStore('parameters', { keyPath: ['Key'] });
         }
     ],
-    fetchJson: async (path, dbStore, synchronizer) => {
+    fetchJson: async (path, dbStore) => {
         const response = await fetch(path);
         var json = await response.json();
         var transaction = context.db.transaction(dbStore, "readwrite");
         var os = transaction.objectStore(dbStore);
         json.forEach(function (data) { os.add(data); });
 
-        if (synchronizer)
-            synchronizer.handleStart();
-
         transaction.oncomplete = function () {
             console.log(dbStore + ' ' + 'fetch transaction completed');
-            if (synchronizer)
-                synchronizer.handleFinish(true);
         };
 
         transaction.onerror = function (e) {
             console.log(dbStore + ' ' + 'fetch transaction failed. ' + transaction.error);
+            dotnetReference.invokeMethod('SetStatus', false);
             e.stopPropagation();
-            if (synchronizer)
-                synchronizer.handleFinish(false);
         };
     },
-    //importJson: async (dotnetHelper, jsonString, dbStore) => {
-    //    var transaction = context.db.transaction(dbStore, "readwrite");
-    //    var os = transaction.objectStore(dbStore);
-    //    var json = JSON.parse(jsonString);
-    //    json.forEach(function (data) { os.put(data); });
+    importJson: async (dotnetHelper, jsonString, dbStore) => {
+        var transaction = context.db.transaction(dbStore, "readwrite");
+        var os = transaction.objectStore(dbStore);
+        var json = JSON.parse(jsonString);
+        json.forEach(function (data) { os.put(data); });
 
-    //    transaction.oncomplete = function () {
-    //        console.log(dbStore + ' ' + 'import transaction completed for ' + json[0].UnitId);
-    //        dotnetHelper.invokeMethod('SetStatus', true);
-    //    };
+        transaction.oncomplete = function () {
+            console.log(dbStore + ' ' + 'import transaction completed for ' + json[0].UnitId);
+            dotnetHelper.invokeMethod('SetStatus', true);
+        };
 
-    //    transaction.onerror = function (e) {
-    //        console.log(dbStore + ' ' + 'import transaction failed for ' + json[0].UnitId + ': ' + transaction.error);
-    //        dotnetHelper.invokeMethod('SetStatus', false);
-    //        e.stopPropagation();
-    //    };
-    //},
+        transaction.onerror = function (e) {
+            console.log(dbStore + ' ' + 'import transaction failed for ' + json[0].UnitId + ': ' + transaction.error);
+            dotnetHelper.invokeMethod('SetStatus', false);
+            e.stopPropagation();
+        };
+    },
     dataUpgradeFunctions: [
-        function /*0*/(synchronizer) {
-            database.fetchJson('/Assets/books.json', 'books', synchronizer);
-            database.fetchJson('/Assets/verses.json', 'verses', synchronizer);
+        function /*0*/() {
+            database.fetchJson('/Assets/books.json', 'books');
+            database.fetchJson('/Assets/verses.json', 'verses');
         },
-        function /*1*/(synchronizer) {
-            database.fetchJson('/Assets/lessonUnits.json', 'lessonUnits', synchronizer);
+        function /*1*/() {
+            database.fetchJson('/Assets/lessonUnits.json', 'lessonUnits');
             //database.fetchJson('/Assets/lessons/Byt.json', 'lessons', dotnetReference).then(console.log("Byt initialization finished"));
             //database.fetchJson('/Assets/lessons/Evn.json', 'lessons', dotnetReference).then(console.log("Evn initialization finished"));
             //database.fetchJson('/Assets/lessons/Osn.json', 'lessons', dotnetReference).then(console.log("Database initialization finished"));
