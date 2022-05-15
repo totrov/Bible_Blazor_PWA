@@ -75,10 +75,6 @@ window.database = {
         }
     },
 
-    initDb: function (dotnetReference) {
-
-    },
-
     getOpenRequest: function (dotnetReference) {
 
         console.log("Open db request");
