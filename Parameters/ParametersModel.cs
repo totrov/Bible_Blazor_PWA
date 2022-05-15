@@ -3,16 +3,24 @@ using System.Reflection;
 using System.Linq;
 using System.Collections.Generic;
 using System;
+using Bible_Blazer_PWA.Parameters.ParameterInitializers;
 
 namespace Bible_Blazer_PWA.Parameters
 {
     public class ParametersModel
     {
         Dictionary<string, PropertyInfo> parameterProps;
+        private readonly Dictionary<Parameters, IConcreteParameterInitializer> parameterInitializers;
         public ParametersModel(DbParametersFacade dbParams)
         {
             _dbParams = dbParams;
             parameterProps = this.GetType().GetProperties().Where(p => p.GetCustomAttribute<ParameterAttribute>() is not null).ToDictionary(p => p.Name);
+
+            var initializerType = typeof(IConcreteParameterInitializer);
+            parameterInitializers = Assembly.GetAssembly(typeof(IConcreteParameterInitializer))
+                .GetTypes().Where<Type>(t => initializerType.IsAssignableFrom(t) && t.IsClass)
+                .Select(t => Activator.CreateInstance(t)).Cast<IConcreteParameterInitializer>()
+                .ToDictionary(i => i.Parameter);
         }
 
         internal async Task SetPropertyByName(string key, string value, bool updateDb = false)
@@ -39,93 +47,19 @@ namespace Bible_Blazer_PWA.Parameters
 
         public async Task InitFromDb()
         {
-            string mainBackgroundParameterString = await _dbParams.GetParameterAsync(Parameters.MainBackground, true);
-            MainBackground = mainBackgroundParameterString != null ? mainBackgroundParameterString : "";
-
-            string ToolsBackgroundString = await _dbParams.GetParameterAsync(Parameters.ToolsBg, true);
-            ToolsBg = ToolsBackgroundString != null ? ToolsBackgroundString : "";
-
-            string hideToolsParameterString = await _dbParams.GetParameterAsync(Parameters.HideTools, true);
-            HideTools = (hideToolsParameterString != null && hideToolsParameterString == "True").ToString();
-
-            AreReferencesOpened = await _dbParams.GetParameterAsync(Parameters.AreReferencesOpened, true);
-            if (AreReferencesOpened == null || AreReferencesOpened == "")
+            LinkedList<Task> tasks = new LinkedList<Task>();
+            foreach (var param in Enum.GetValues<Parameters>())
             {
-                AreReferencesOpened = "True";
+                Task<string> getValueTask = _dbParams.GetParameterAsync(param, true);
+
+                IGenericParameterInitializer initializer = new NullToEmptyParameterInitializer();
+                if (parameterInitializers.TryGetValue(param, out var concreteInitializer))
+                    initializer = concreteInitializer;
+                
+                Task initTask = getValueTask.ContinueWith(value => { parameterProps[param.ToString()].SetValue(this, initializer.InitParam(value.Result)); });
+                tasks.AddLast(initTask);
             }
-
-            CollapseLevel = await _dbParams.GetParameterAsync(Parameters.CollapseLevel, true);
-            if (CollapseLevel == null || CollapseLevel == "")
-            {
-                CollapseLevel = "3";
-            }
-
-            FontSize = await _dbParams.GetParameterAsync(Parameters.FontSize, true);
-            if (FontSize == null || FontSize == "")
-            {
-                FontSize = "14";
-            }
-
-            BlocksPadding = await _dbParams.GetParameterAsync(Parameters.BlocksPadding, true) ?? "125";
-            if (!int.TryParse(BlocksPadding, out int i))
-            {
-                if (double.TryParse(BlocksPadding, out double d))
-                {
-                    BlocksPadding = Math.Round(d * 100, 0).ToString();
-                }
-                else
-                {
-                    BlocksPadding = "125";
-                }   
-            }
-
-            BlocksPaddingLeft = await _dbParams.GetParameterAsync(Parameters.BlocksPaddingLeft, true) ?? "";
-            if (!int.TryParse(BlocksPaddingLeft, out i))
-            {
-                if (double.TryParse(BlocksPaddingLeft, out double d))
-                {
-                    BlocksPaddingLeft = Math.Round(d * 100, 0).ToString();
-                }
-                else
-                {
-                    BlocksPaddingLeft = "125";
-                }
-            }
-
-            HideBlocksBorders = await _dbParams.GetParameterAsync(Parameters.HideBlocksBorders, true) ?? "False";
-
-            #region FirstLevel
-            string FirstLevelBackgroundString = await _dbParams.GetParameterAsync(Parameters.FirstLevelBg, true);
-            FirstLevelBg = FirstLevelBackgroundString != null ? FirstLevelBackgroundString : "";
-            string FirstLevelBodyBackgroundString = await _dbParams.GetParameterAsync(Parameters.FirstLevelBodyBg, true);
-            FirstLevelBodyBg = FirstLevelBodyBackgroundString != null ? FirstLevelBodyBackgroundString : "";
-            string FirstLevelFontWeightString = await _dbParams.GetParameterAsync(Parameters.FirstLevelFontWeight, true);
-            FirstLevelFontWeight = FirstLevelFontWeightString != null ? FirstLevelFontWeightString : "";
-            string FirstLevelMarginTopString = await _dbParams.GetParameterAsync(Parameters.FirstLevelMarginTop, true);
-            FirstLevelMarginTop = (int.TryParse(FirstLevelMarginTopString, out int firstLevelMarginTop) ? firstLevelMarginTop : 0).ToString();
-            #endregion
-
-            #region SecondLevel
-            string SecondLevelBackgroundString = await _dbParams.GetParameterAsync(Parameters.SecondLevelBg, true);
-            SecondLevelBg = SecondLevelBackgroundString != null ? SecondLevelBackgroundString : "";
-            string SecondLevelBodyBackgroundString = await _dbParams.GetParameterAsync(Parameters.SecondLevelBodyBg, true);
-            SecondLevelBodyBg = SecondLevelBodyBackgroundString != null ? SecondLevelBodyBackgroundString : "";
-            string SecondLevelFontWeightString = await _dbParams.GetParameterAsync(Parameters.SecondLevelFontWeight, true);
-            SecondLevelFontWeight = SecondLevelFontWeightString != null ? SecondLevelFontWeightString : "";
-            string SecondLevelMarginTopString = await _dbParams.GetParameterAsync(Parameters.SecondLevelMarginTop, true);
-            SecondLevelMarginTop = (int.TryParse(SecondLevelMarginTopString, out int secondLevelMarginTop) ? secondLevelMarginTop : 0).ToString();
-            #endregion
-
-            #region ThirdLevel
-            string ThirdLevelBackgroundString = await _dbParams.GetParameterAsync(Parameters.ThirdLevelBg, true);
-            ThirdLevelBg = ThirdLevelBackgroundString != null ? ThirdLevelBackgroundString : "";
-            string ThirdLevelBodyBackgroundString = await _dbParams.GetParameterAsync(Parameters.ThirdLevelBodyBg, true);
-            ThirdLevelBodyBg = ThirdLevelBodyBackgroundString != null ? ThirdLevelBodyBackgroundString : "";
-            string ThirdLevelFontWeightString = await _dbParams.GetParameterAsync(Parameters.ThirdLevelFontWeight, true);
-            ThirdLevelFontWeight = ThirdLevelFontWeightString != null ? ThirdLevelFontWeightString : "";
-            string ThirdLevelMarginTopString = await _dbParams.GetParameterAsync(Parameters.ThirdLevelMarginTop, true);
-            ThirdLevelMarginTop = (int.TryParse(ThirdLevelMarginTopString, out int thirdLevelMarginTop) ? thirdLevelMarginTop : 0).ToString();
-            #endregion
+            await Task.WhenAll(tasks);
         }
 
         internal string GetParamPropByName(string paramName)
@@ -432,5 +366,22 @@ namespace Bible_Blazer_PWA.Parameters
         #endregion
 
         #endregion
+
+        #region BibleReferences
+
+        private string _startVersesOnANewLine;
+        [Parameter]
+        public string StartVersesOnANewLine
+        {
+            get => _startVersesOnANewLine; set
+            {
+                _dbParams.SetParameterAsync(Parameters.StartVersesOnANewLine, value);
+                _startVersesOnANewLine = value;
+            }
+        }
+
+        #endregion
     }
+
 }
+

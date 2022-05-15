@@ -1,0 +1,147 @@
+﻿using System;
+using System.Reflection.Metadata.Ecma335;
+
+namespace Bible_Blazer_PWA.Parameters.ParameterInitializers
+{
+    public class NullToEmptyParameterInitializer : IGenericParameterInitializer
+    {
+        public virtual string InitParam(string previousValue)
+        {
+            return previousValue ?? "";
+        }
+    }
+
+    public class HideToolsParameterInitializer : BooleanParameterInitializer, IConcreteParameterInitializer
+    {
+        public Parameters Parameter => Parameters.HideTools;
+
+        public override bool DefaultValue()
+        {
+            return false;
+        }
+    }
+
+    public class AreReferencesOpenedParameterInitializer : BooleanParameterInitializer, IConcreteParameterInitializer
+    {
+        public Parameters Parameter => Parameters.AreReferencesOpened;
+
+        public override bool DefaultValue()
+        {
+            return true;
+        }
+    }
+
+    public class CollapseLevelParameterInitializer : IntegerParameterInitializer, IConcreteParameterInitializer
+    {
+        public Parameters Parameter => Parameters.CollapseLevel;
+
+        public override int DefaultValue()
+        {
+            return 3;
+        }
+    }
+
+    public class FontSize : IntegerParameterInitializer, IConcreteParameterInitializer
+    {
+        public Parameters Parameter => Parameters.FontSize;
+
+        public override int DefaultValue()
+        {
+            return 14;
+        }
+    }
+
+    public class HideBlocksBordersParameterInitializer : BooleanParameterInitializer, IConcreteParameterInitializer
+    {
+        public Parameters Parameter => Parameters.HideBlocksBorders;
+
+        public override bool DefaultValue()
+        {
+            return false;
+        }
+    }
+
+    public class FirstLevelMarginTopParameterInitializer : IntegerParameterInitializer, IConcreteParameterInitializer
+    {
+        public Parameters Parameter => Parameters.FirstLevelMarginTop;
+
+        public override int DefaultValue()
+        {
+            return 15;
+        }
+    }
+
+    public class SecondLevelMarginTopParameterInitializer : IntegerParameterInitializer, IConcreteParameterInitializer
+    {
+        public Parameters Parameter => Parameters.SecondLevelMarginTop;
+
+        public override int DefaultValue()
+        {
+            return 10;
+        }
+    }
+
+    public class ThirdLevelMarginTopParameterInitializer : IntegerParameterInitializer, IConcreteParameterInitializer
+    {
+        public Parameters Parameter => Parameters.ThirdLevelMarginTop;
+
+        public override int DefaultValue()
+        {
+            return 5;
+        }
+    }
+
+    public class BlocksPaddingParameterInitializer : IConcreteParameterInitializer
+    {
+        public virtual Parameters Parameter => Parameters.BlocksPadding;
+
+        public string InitParam(string previousValue)
+        {
+            if (int.TryParse(previousValue, out int i))
+                return previousValue;
+            string result;
+                        
+            if (double.TryParse(previousValue, out double d)) //backward compatibility
+            {
+                result = Math.Round(d * 100, 0).ToString();
+            }
+            else
+            {
+                result = "125";
+            }
+            return result;            
+        }
+    }
+
+    public class BlocksPaddingLeftParameterInitializer : BlocksPaddingParameterInitializer
+    {
+        public override Parameters Parameter => Parameters.BlocksPaddingLeft;
+    }
+
+    public abstract class BooleanParameterInitializer : NullToEmptyParameterInitializer
+    {
+        public abstract bool DefaultValue();
+        public override string InitParam(string previousValue)
+        {
+            string curValue = base.InitParam(previousValue);
+            if (curValue != string.Empty && (curValue == "True" || curValue == "False"))
+                return curValue;
+
+            return DefaultValue() ? "True" : "False";
+        }
+    }
+
+    public abstract class IntegerParameterInitializer : IGenericParameterInitializer
+    {
+        public abstract int DefaultValue();
+        public string InitParam(string previousValue)
+        {
+            if (int.TryParse(previousValue, out int value))
+                return previousValue;
+
+            return DefaultValue().ToString();
+        }
+    }
+
+
+}

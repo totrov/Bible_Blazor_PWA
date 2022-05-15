@@ -22,6 +22,7 @@
         AreReferencesOpened,
         CollapseLevel,
         HideBlocksBorders,
-        BlocksPaddingLeft
+        BlocksPaddingLeft,
+        StartVersesOnANewLine
     }
 }
