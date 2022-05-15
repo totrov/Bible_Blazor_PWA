@@ -59,6 +59,12 @@ namespace Bible_Blazer_PWA.DataBase
             }
             return resultHandler;
         }
+
+        public async Task InitDb()
+        {
+            await (await CallVoidDbAsync(null, "initDb")).GetTaskCompletionSourceWrapper();
+        }
+
         public async Task<IndexedDBResultHandler> ImportLessonsJson(string json, Action callback = null)
         {
             return await this.CallVoidDbAsync(callback, "importJson", json, "lessons");
@@ -124,10 +130,12 @@ namespace Bible_Blazer_PWA.DataBase
         protected void Fail() => OnFail?.Invoke();
         public event Action OnDbResultOK;
         public event Action OnFail;
+        public bool? Success { get; private set; } = null;
 
         [JSInvokable("SetStatus")]
         public void SetResult(bool _status)
         {
+            Success = _status;
             if (_status)
             {
                 DbResultOK();
@@ -136,6 +144,13 @@ namespace Bible_Blazer_PWA.DataBase
             {
                 Fail();
             }
+        }
+        public async Task GetTaskCompletionSourceWrapper()
+        {
+            TaskCompletionSource taskCompletionSource = new TaskCompletionSource();
+            OnDbResultOK += () => { taskCompletionSource.SetResult(); };
+            OnFail += () => { taskCompletionSource.SetResult(); };
+            await taskCompletionSource.Task;
         }
     }
 
