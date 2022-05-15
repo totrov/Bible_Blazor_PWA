@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Bible_Blazer_PWA.DomainObjects;
+using Bible_Blazer_PWA.Parameters;
 using Bible_Blazer_PWA.Services.TextHandlers;
 
 namespace Bible_Blazer_PWA
@@ -44,7 +45,7 @@ namespace Bible_Blazer_PWA
                     VersesView versesView = new VersesView();
                     string toVerse = fromTo.ToVerse == null ? "" : $"-{fromTo.ToVerse}";
                     versesView.Badge = $"{badge}{fromTo.FromVerse}{toVerse}";
-                    versesView.RawText = _versesHandler.GetHtmlFromVerses(await verseTask, fromTo.ToVerse == null);
+                    versesView.RawText = _versesHandler.GetHtmlFromVerses(await verseTask, fromTo.ToVerse == null, _parametersModel.StartVersesOnANewLine == "True");
                     result.AddLast(versesView);
                 }
             }
@@ -54,6 +55,7 @@ namespace Bible_Blazer_PWA
 
         private bool _isLoaded = false;
         private VersesTextHandler _versesHandler;
+        private ParametersModel _parametersModel;
 
         public bool IsLoaded { get { return _isLoaded; } }
         public void Init(Verse[] verses, Book[] books)
@@ -61,11 +63,12 @@ namespace Bible_Blazer_PWA
             _dataProvider = new InMemoryBibleServiceFetchStrategy(verses, books);
             _isLoaded = true;
         }
-        public void Init(DataBase.DatabaseJSFacade dataBase)
+        public void Init(DataBase.DatabaseJSFacade dataBase, Parameters.ParametersModel parametersModel)
         {
             _dataProvider = new DataBaseBibleServiceFetchStrategy(dataBase);
             _isLoaded = true;
             _versesHandler = new VersesTextHandler();
+            _parametersModel = parametersModel;
         }
     }
 }

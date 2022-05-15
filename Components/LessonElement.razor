@@ -46,10 +46,16 @@
         <div class="card-body" style="@((IsActive(number) && RefsAreOpen && IsOpen) ? "":"display:none;") background-color:beige">
             @if (_versesLoaded)
             {
+                bool isFirst = true;
                 foreach (BibleService.VersesView view in _versesViewsDictionary[reference.ToString()])
                 {
+                    @if (dbParamFacade.ParametersModel.StartVersesOnANewLine == "True" && !isFirst)
+                    {
+                        <br />
+                    }
                     <span class="badge badge-primary">@view.Badge</span>
                     @((MarkupString)view.RawText)
+                    isFirst = false;
                 }
             }
             else

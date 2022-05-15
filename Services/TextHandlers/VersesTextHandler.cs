@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -7,9 +6,10 @@ namespace Bible_Blazer_PWA.Services.TextHandlers
 {
     public class VersesTextHandler
     {
-        internal string GetHtmlFromVerses(IEnumerable<BibleService.Verse> verses, bool singleVerse)
+        internal string GetHtmlFromVerses(IEnumerable<BibleService.Verse> verses, bool singleVerse, bool _startVersesOnANewLine)
         {
-            return verses.Select(v => HandleSingleVerse(v, singleVerse)).Aggregate((a, b) => { return a + b; });
+            var br = _startVersesOnANewLine ? "<br>" : "";
+            return verses.Select(v => HandleSingleVerse(v, singleVerse)).Aggregate((a, b) => { return $"{a}{br}{b}"; });
         }
 
         private string HandleSingleVerse(BibleService.Verse verse, bool singleVerse)
@@ -24,7 +24,7 @@ namespace Bible_Blazer_PWA.Services.TextHandlers
 
         private string AddNumberLabelIfNeeded(BibleService.Verse verse, bool singleVerse)
         {
-            return singleVerse ? verse.Value : $"<sup>{verse.Id}</sup>{verse.Value}";
+            return singleVerse ? verse.Value : $"<sup>{verse.Id} </sup>{verse.Value}";
         }
 
         private string RemoveTags(string text)

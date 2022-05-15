@@ -119,6 +119,21 @@
                         </tr>
                     </table>
                 </div>
+
+                <div class="card card-body col-lg-6 col-md-7 col-sm">
+                    <table>
+                        <tr style="border-bottom:1px black solid;"><td colspan="2">Места писания</td></tr>
+                        <tr>
+                            <td>
+                                <MudSwitch @bind-Checked="@ParametersFormData.StartVersesOnANewLine"
+                                           Color="Color.Primary" Converter="@(new RegularStringToBoolConverter())">Стихи с новой строки</MudSwitch>
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
                 <div class="card card-body col-lg-6 col-md-7 col-sm">
                     <table>
                         <tr style="border-bottom:1px black solid;"><td colspan="2">Уровень 1</td></tr>
