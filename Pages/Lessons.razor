@@ -6,8 +6,6 @@
 
 @if (_blocks != null)
 {
-    <h3>Оглавление</h3>
-
     <MudExpansionPanels>
         @foreach (LessonBlock block in _blocks)
         {
@@ -31,7 +29,7 @@
     </MudExpansionPanels>
 
 
-    <h3>Ниже страницы уроков, сделанные без использования БД (будет удалено позже)</h3>
+@*    <h3>Ниже страницы уроков, сделанные без использования БД (будет удалено позже)</h3>
 
     <ul>
         <li class="nav-item px-3">
@@ -64,7 +62,7 @@
                 <span class="oi oi-list-rich" aria-hidden="true"></span> Урок 6.
             </NavLink>
         </li>
-    </ul>
+    </ul>*@
 }
 
 @code {

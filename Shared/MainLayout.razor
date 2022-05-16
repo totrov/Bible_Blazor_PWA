@@ -1,27 +1,76 @@
 ﻿@inherits LayoutComponentBase
 @inject DbParametersFacade dbParamteres
+@inject NavigationManager navigation
 @using Bible_Blazer_PWA.Parameters;
 
-<MudThemeProvider/>
-<MudDialogProvider/>
-<MudSnackbarProvider/>
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
 
-<div class="sidebar">
-    <NavMenu />
-</div>
-
-<div class="main" style="background-color: @parametersModel.MainBackground">
-    <div class="content px-4" style="background-color: @parametersModel.MainBackground">
+<MudLayout>
+    <MudAppBar Color="Color.Primary" Fixed="false">
+        @Header
+        <MudIconButton Style=@ToolsAreHiddenCss Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        <MudSpacer />
+        <MudMenu Icon="@Icons.Material.Filled.MoreVert">
+            <MudMenuItem><MudNavLink Href="/">О программе</MudNavLink></MudMenuItem>
+            <MudMenuItem><MudNavLink Href="/lessons">Планы уроков</MudNavLink></MudMenuItem>
+            <MudMenuItem><MudNavLink Href="/setup">Параметры</MudNavLink></MudMenuItem>
+        </MudMenu>
+    </MudAppBar>
+    <MudDrawer @bind-Open="@DrawerOpen">
+    </MudDrawer>
+    <MudMainContent Style="padding-top:10px;">
         @Body
-    </div>
-</div>
+    </MudMainContent>
+</MudLayout>
 
 @code
 {
     private ParametersModel parametersModel;
-
+    string ToolsAreHiddenCss { get { return navigation.Uri.Contains("lessonNew") ? "" : "display:none;"; } }
+    string Header
+    {
+        get
+        {
+            var header = "О программе";
+            if (navigation.Uri.Contains("lessons")) header = "Планы уроков";
+            if (navigation.Uri.Contains("setup")) header = "Параметры";
+            if (navigation.Uri.Contains("lessonNew")) header = "";
+            return header;
+        }
+    }
     protected async override Task OnInitializedAsync()
     {
         parametersModel = dbParamteres.ParametersModel;
+        if (!navigation.Uri.Contains("lessonNew"))
+        {
+            _drawerOpen = false;
+        }
     }
-}
+
+    bool _drawerOpen = false;
+    bool DrawerOpen { get { return navigation.Uri.Contains("lessonNew") ? _drawerOpen : false; } set { _drawerOpen = value; } }
+    bool addedNavigationChangedHandler = false;
+    void DrawerToggle()
+    {
+        if (!addedNavigationChangedHandler)
+        {
+            navigation.LocationChanged += (s, e) =>
+            {
+                if (!e.Location.Contains("lessonNew"))
+                { _drawerOpen = false; }
+            };
+            addedNavigationChangedHandler = true;
+        }
+
+        if (!navigation.Uri.Contains("lessonNew"))
+        {
+            _drawerOpen = false;
+        }
+        else
+        {
+            _drawerOpen = !_drawerOpen;
+        }
+    }
+    }
