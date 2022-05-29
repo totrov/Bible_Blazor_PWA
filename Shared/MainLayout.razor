@@ -20,7 +20,8 @@
     </MudAppBar>
     <MudDrawer @bind-Open="@DrawerOpen">
     </MudDrawer>
-    <MudMainContent Style="padding-top:10px;">
+    @{var style = $"padding-top:10px; background-color:{parametersModel.MainBackground}";}
+    <MudMainContent Style="@style">
         @Body
     </MudMainContent>
 </MudLayout>

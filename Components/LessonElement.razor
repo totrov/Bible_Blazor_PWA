@@ -8,8 +8,9 @@
 
 @{
     var border = parameters.HideBlocksBorders == "True" ? "border:none;" : "";
-    var style = $"display:block; background-color:{@BodyBackgroundColor}; font-size:{parameters.FontSize}px);{border})";
+    var style = $"display:block; background-color:{@BackgroundColor}; font-size:{parameters.FontSize}px);{border})";
     var cardStyle = $"margin-top:{@MarginTop};";
+    var cardContentStyle = $"background-color:{BodyBackgroundColor}";
 }
 <MudCard class="card" style="@cardStyle">
     <MudCardHeader style="@style">
@@ -40,13 +41,13 @@
             <button type="button" class="btn btn-outline-primary btn-sm" style="display: inline;" @onclick="ToggleReferences">..</button>
         }
     </MudCardHeader>
-    @if (HasBibleReferences || ElementData.Children != null)
+    @if ((RefsAreOpen && HasBibleReferences) || (ElementData.Children != null && ElementData.Level < int.Parse(parameters.CollapseLevel) && IsOpen))
     {
-        <MudCardContent>
+        <MudCardContent Style="@cardContentStyle">
             @if (HasBibleReferences)
             {
                 var visibilityStyle = RefsAreOpen ? "" : "display:none;";
-                <MudTabs style="@visibilityStyle" @ref="tabs" Rounded="true">
+                <MudTabs style="@visibilityStyle" @ref="tabs" Rounded="true" ApplyEffectsToContainer="true">
                     @foreach (BibleReference reference in BibleReferences)
                     {
                         <MudTabPanel Text="@reference.ToString()" ID="@(reference.Id)">
