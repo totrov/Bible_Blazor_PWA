@@ -8,11 +8,15 @@
 
 @{
     var border = parameters.HideBlocksBorders == "True" ? "border:none;" : "";
-    var style = $"display:block; background-color:{@BackgroundColor}; font-size:{parameters.FontSize}px);{border})";
-    var cardStyle = $"margin-top:{@MarginTop};";
-    var cardContentStyle = $"background-color:{BodyBackgroundColor}";
+    var style = $"display:block; background-color:{@BackgroundColor}; font-size:{parameters.FontSize}px;{border}";
+    var cardStyle = $"margin-top:{@MarginTop};{border}";
+    var contentPaddingStyle = $"padding:{(double.Parse(parameters.BlocksPadding) / 100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem" +
+                                $" {(double.Parse(parameters.BlocksPaddingRight) / 100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem" +
+                                $" {(double.Parse(parameters.BlocksPadding) / 100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem" +
+                                $" {(double.Parse(parameters.BlocksPaddingLeft) / 100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem;";
+    var cardContentStyle = $"background-color:{BodyBackgroundColor}; {contentPaddingStyle}";
 }
-<MudCard class="card" style="@cardStyle">
+<MudCard class="card" style="@cardStyle" Elevation="0">
     <MudCardHeader style="@style">
         @{
             int referenceIndex = 0;
@@ -51,7 +55,8 @@
                     @foreach (BibleReference reference in BibleReferences)
                     {
                         <MudTabPanel Text="@reference.ToString()" ID="@(reference.Id)">
-                            <MudText style="background-color:beige;">
+                            @{var bibleRefTextStyle = $"background-color:beige;font-size:{parameters.FontSize}px;";}
+                            <MudText style="@bibleRefTextStyle">
                                 @if (_versesLoaded)
                                 {
                                     bool isFirst = true;
@@ -78,7 +83,11 @@
             @if (@ElementData.Children != null)
             {
                 var visibilityStyle = ElementData.Level < int.Parse(parameters.CollapseLevel) && IsOpen ? "" : "display:none;";
-                var subelementStyle = $"padding:{(double.Parse(parameters.BlocksPadding) / 100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem {(double.Parse(parameters.BlocksPadding) / 100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem {(double.Parse(parameters.BlocksPadding) / 100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem {(double.Parse(parameters.BlocksPaddingLeft) / 100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem; {visibilityStyle}";
+                var subelementStyle = $"padding:{(double.Parse(parameters.BlocksPadding) / 100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem"+
+                                              $"{(double.Parse(parameters.BlocksPaddingRight) / 100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem"+
+                                              $" {(double.Parse(parameters.BlocksPadding) / 100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem"+
+                                              $" {(double.Parse(parameters.BlocksPaddingLeft) / 100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem;"
+                                     +$" {visibilityStyle}";
                 <div style="@subelementStyle">
                     @foreach (LessonElementData data in ElementData.Children)
                     {

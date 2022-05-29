@@ -23,6 +23,7 @@
         CollapseLevel,
         HideBlocksBorders,
         BlocksPaddingLeft,
+        BlocksPaddingRight,
         StartVersesOnANewLine
     }
 }

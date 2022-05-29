@@ -118,6 +118,11 @@ namespace Bible_Blazer_PWA.Parameters.ParameterInitializers
         public override Parameters Parameter => Parameters.BlocksPaddingLeft;
     }
 
+    public class BlocksPaddingRightParameterInitializer : BlocksPaddingParameterInitializer
+    {
+        public override Parameters Parameter => Parameters.BlocksPaddingRight;
+    }
+
     public class StartVersesOnANewLineParameterInitializer : BooleanParameterInitializer, IConcreteParameterInitializer
     {
         public Parameters Parameter => Parameters.StartVersesOnANewLine;

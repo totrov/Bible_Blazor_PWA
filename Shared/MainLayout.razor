@@ -8,7 +8,8 @@
 <MudSnackbarProvider />
 
 <MudLayout>
-    <MudAppBar Color="Color.Primary" Fixed="false">
+    @{var appBarStyle = $"background-color:{parametersModel.ToolsBg}";}
+    <MudAppBar Color="Color.Primary" Fixed="false" Style="@appBarStyle">
         @Header
         <MudIconButton Style=@ToolsAreHiddenCss Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
         <MudSpacer />

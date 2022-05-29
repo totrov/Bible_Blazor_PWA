@@ -348,6 +348,20 @@ namespace Bible_Blazer_PWA.Parameters
         }
         #endregion
 
+        #region BlocksPaddingRight
+        private string _blocksPaddingRight;
+        [Parameter]
+        public string BlocksPaddingRight
+        {
+            get => _blocksPaddingRight;
+            set
+            {
+                _dbParams.SetParameterAsync(Parameters.BlocksPaddingRight, value);
+                _blocksPaddingRight = value;
+            }
+        }
+        #endregion
+
         #endregion
 
         #region BlocksBorder
