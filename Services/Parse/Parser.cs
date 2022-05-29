@@ -12,23 +12,51 @@ namespace Bible_Blazer_PWA.BibleReferenceParse
     public class Parser
     {
         private LinkedList<BibleReference> _bibleReferences;
+        private LinkedList<LessonElementToken> _tokens;
+        private bool parseCompleted = false;
 
         public Parser()
         {
             _bibleReferences = new LinkedList<BibleReference>();
+            _tokens = new LinkedList<LessonElementToken>();
         }
+
+        public LinkedList<LessonElementToken> GetTokens() => _tokens;
 
         public Parser ParseTextLineWithBibleReferences(string stringToParse)
         {
+            if (parseCompleted)
+                return this;
+            
             string stringWithReplacements = Replacer.ReplaceBookNames(stringToParse);
             stringWithReplacements = Replacer.HandleBrackets(stringWithReplacements);
+            var pos = 0;
             foreach (Match match in Regex.Matches(stringWithReplacements, BibleRegexHelper.GetBibleReferencesPattern()))
             {
+                CreateTokensAndSeekPos(stringWithReplacements, ref pos, match);
+
                 BibleReference bibleReference = this.CreateBibleReferenceFromMatch(match);
                 _bibleReferences.AddLast(bibleReference);
             }
-
+            this.AddTokenOfTextAfterLastReference(stringWithReplacements, pos);
+            parseCompleted = true;
             return this;
+        }
+
+        private void AddTokenOfTextAfterLastReference(string inputString, int pos)
+        {
+            _tokens.AddLast(new LessonElementToken() { Text = inputString.Substring(pos), Type = TokenType.PlainText });
+        }
+
+        private void CreateTokensAndSeekPos(string stringWithReplacements, ref int pos, Match match)
+        {
+            if (match.Index > pos)
+            {
+                var previousText = stringWithReplacements.Substring(pos, match.Index - pos);
+                _tokens.AddLast(new LessonElementToken() { Text = previousText, Type = TokenType.PlainText });
+            }
+            _tokens.AddLast(new LessonElementToken() { Text = match.Value, Type = TokenType.BibleReference });
+            pos = match.Index + match.Length;
         }
 
         private BibleReference CreateBibleReferenceFromMatch(Match match)

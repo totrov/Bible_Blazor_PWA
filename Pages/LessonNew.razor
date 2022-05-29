@@ -8,7 +8,6 @@
 @using Param = Microsoft.AspNetCore.Components.ParameterAttribute
 @if (lesson != null)
 {
-
     <Bible_Blazer_PWA.Components.FloatingComponent>
         <button type="button" class="btn btn-outline-primary" style="display: inline;" @onclick="ToggleCollapse"><span class="oi @getGlobalToggleCollapseStyle()" aria-hidden="true"></span></button>
         <button type="button" class="btn btn-outline-primary" style="display: inline;" @onclick="ToggleReferences"><span class="oi @getGlobalToggleRefsStyle()" aria-hidden="true"></span></button>
@@ -20,16 +19,15 @@
     </Bible_Blazer_PWA.Components.FloatingComponent>
 
     var composite = lesson.GetComposite();
-    <h3>@composite.Value</h3>
-
-    foreach (LessonElementData data in composite.Children)
+    <MudText Typo="Typo.h3">@composite.Value</MudText>
+    <MudContainer>
+    @foreach (LessonElementData data in composite.Children)
     {
-        LessonElementData data1 = data;
         <CascadingValue Value="parameters">
-            <LessonElement ElementData="data1"></LessonElement>
+            <LessonElement ElementData="data"></LessonElement>
         </CascadingValue>
     }
-
+    </MudContainer>
     <NavLink class="nav-link" href="@($"/lessonNew/{Id-1}/{UnitNumber}")" Match="NavLinkMatch.All"><span class="oi oi-arrow-circle-left" aria-hidden="true"></span> Предыдущий урок</NavLink>
     <NavLink class="nav-link" href="@($"/lessonNew/{Id+1}/{UnitNumber}")" Match="NavLinkMatch.All"><span class="oi oi-arrow-circle-right" aria-hidden="true"></span> Следующий урок</NavLink>
 }

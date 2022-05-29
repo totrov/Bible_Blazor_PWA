@@ -7,6 +7,7 @@ namespace Bible_Blazer_PWA.DomainObjects
 {
     public class BibleReference
     {
+        public string Id { get; set; }
         public string BookShortName { get; set; }
         public LinkedList<BibleVersesReference> References { get; set; }
         public override string ToString()

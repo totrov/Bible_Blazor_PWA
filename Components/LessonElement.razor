@@ -6,85 +6,115 @@
 @inject BibleService Bible
 @inject DbParametersFacade dbParamFacade;
 
-<div class="card" style="margin-top:@MarginTop; background-color:@BodyBackgroundColor; font-size:@($"{(parameters.FontSize)}px");@(parameters.HideBlocksBorders=="True"?"border:none;":"")">
-    <div class="card-header" style="background-color:@BackgroundColor; font-weight: @FontWeight;@(parameters.HideBlocksBorders=="True"?"border-bottom:none;":"")">
-        <span class="card-title">
-            @ElementData.Value
-            @if (@ElementData.Children != null)
+@{
+    var border = parameters.HideBlocksBorders == "True" ? "border:none;" : "";
+    var style = $"display:block; background-color:{@BodyBackgroundColor}; font-size:{parameters.FontSize}px);{border})";
+    var cardStyle = $"margin-top:{@MarginTop};";
+}
+<MudCard class="card" style="@cardStyle">
+    <MudCardHeader style="@style">
+        @{
+            int referenceIndex = 0;
+        }
+        @foreach (var token in Tokens)
+        {
+            switch (token.Type)
             {
-                <button type="button" class="btn @(IsOpen ? "btn-outline-primary" : "btn-outline-secondary") btn-outline-primary btn-sm" style="display: inline;" @onclick="Toggle">...</button>
+                case TokenType.PlainText:
+                    @((MarkupString)token.Text)
+                    break;
+                case TokenType.BibleReference:
+                    var avoidClosure = referenceIndex;
+                    var onclick = () => { Activate(avoidClosure); };
+                    <a href="" @onclick="onclick" @onclick:preventDefault>@token.Text</a>
+                    referenceIndex++;
+                    break;
             }
-            @if (HasBibleReferences)
-            {
-                <button type="button" class="btn btn-outline-primary btn-sm" style="display: inline;" @onclick="ToggleReferences">..</button>
-            }
-        </span>
-
+        }
+        @if (@ElementData.Children != null)
+        {
+            <button type="button" class="btn @(IsOpen ? "btn-outline-primary" : "btn-outline-secondary") btn-outline-primary btn-sm" style="display: inline;" @onclick="Toggle">...</button>
+        }
         @if (HasBibleReferences)
         {
-            <ul class="nav nav-tabs card-header-tabs" style="@((RefsAreOpen & IsOpen) ? "" : "display:none;")">
-                @{
-                    int counter = 0;
-                }
-
-                @foreach (BibleReference reference in BibleReferences)
-                {
-                    int number = counter++;
-                    <li class="nav-item">
-                        <a class="nav-link @(IsActive(number)?"active":"")" style="color:#007bff" @onclick="@(e => SetActive(e, number))">@reference.ToString()</a>
-                    </li>
-                }
-            </ul>
+            <button type="button" class="btn btn-outline-primary btn-sm" style="display: inline;" @onclick="ToggleReferences">..</button>
         }
-    </div>
-    @{
-        int counter1 = 0;
-    }
-    @foreach (BibleReference reference in BibleReferences)
+    </MudCardHeader>
+    @if (HasBibleReferences || ElementData.Children != null)
     {
-        int number = counter1++;
-        <div class="card-body" style="@((IsActive(number) && RefsAreOpen && IsOpen) ? "":"display:none;") background-color:beige">
-            @if (_versesLoaded)
+        <MudCardContent>
+            @if (HasBibleReferences)
             {
-                bool isFirst = true;
-                foreach (BibleService.VersesView view in _versesViewsDictionary[reference.ToString()])
-                {
-                    @if (dbParamFacade.ParametersModel.StartVersesOnANewLine == "True" && !isFirst)
+                var visibilityStyle = RefsAreOpen ? "" : "display:none;";
+                <MudTabs style="@visibilityStyle" @ref="tabs" Rounded="true">
+                    @foreach (BibleReference reference in BibleReferences)
                     {
-                        <br />
+                        <MudTabPanel Text="@reference.ToString()" ID="@(reference.Id)">
+                            <MudText style="background-color:beige;">
+                                @if (_versesLoaded)
+                                {
+                                    bool isFirst = true;
+                                    foreach (BibleService.VersesView view in _versesViewsDictionary[reference.ToString()])
+                                    {
+                                        @if (dbParamFacade.ParametersModel.StartVersesOnANewLine == "True" && !isFirst)
+                                        {
+                                            <br />
+                                        }
+                                        <span class="badge badge-primary">@view.Badge</span>
+                                        @((MarkupString)view.RawText)
+                                        isFirst = false;
+                                    }
+                                }
+                                else
+                                {
+                                    <span>Загрузка...</span>
+                                }
+                            </MudText>
+                        </MudTabPanel>
                     }
-                    <span class="badge badge-primary">@view.Badge</span>
-                    @((MarkupString)view.RawText)
-                    isFirst = false;
-                }
+                </MudTabs>
             }
-            else
+            @if (@ElementData.Children != null)
             {
-                <span>Загрузка...</span>
+                var visibilityStyle = ElementData.Level < int.Parse(parameters.CollapseLevel) && IsOpen ? "" : "display:none;";
+                var subelementStyle = $"padding:{(double.Parse(parameters.BlocksPadding) / 100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem {(double.Parse(parameters.BlocksPadding) / 100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem {(double.Parse(parameters.BlocksPadding) / 100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem {(double.Parse(parameters.BlocksPaddingLeft) / 100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem; {visibilityStyle}";
+                <div style="@subelementStyle">
+                    @foreach (LessonElementData data in ElementData.Children)
+                    {
+                        <LessonElement ElementData="data"></LessonElement>
+                    }
+                </div>
             }
-        </div>
+        </MudCardContent>
     }
-
-    @if (@ElementData.Children != null)
-    {
-        <div class="card-body" style="@($"padding:{(double.Parse(parameters.BlocksPadding)/100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem {(double.Parse(parameters.BlocksPadding)/100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem {(double.Parse(parameters.BlocksPadding)/100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem {(double.Parse(parameters.BlocksPaddingLeft)/100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem;" + (ElementData.Level < int.Parse(parameters.CollapseLevel) && IsOpen ? "" :"display:none;"))">
-            @foreach (LessonElementData data in ElementData.Children)
-            {
-                <LessonElement ElementData="data"></LessonElement>
-            }
-        </div>
-    }
-
-</div>
+</MudCard>
 
 @code {
     private int activeNumber = 0;
     private bool _versesLoaded = false;
+    private MudTabs tabs;
     protected bool RefsAreOpen { get; set; } = true;
     protected bool IsOpen { get; set; } = true;
     protected Dictionary<string, IEnumerable<BibleService.VersesView>> _versesViewsDictionary;
 
     protected LinkedList<BibleReference> _references;
+    protected LinkedList<LessonElementToken> _tokens;
+    public LinkedList<LessonElementToken> Tokens
+    {
+        get
+        {
+            if (_tokens == null)
+            {
+                _tokens = parser.ParseTextLineWithBibleReferences(ElementData.Value.ToString()).GetTokens();
+            }
+            return _tokens;
+        }
+    }
+
+    void Activate(int number)
+    {
+        tabs.ActivatePanel(number);
+    }
 
     [Param]
     public LessonElementData ElementData { get; set; }
@@ -163,7 +193,7 @@
         {
             if (_references == null)
             {
-                _references = new Parser().ParseTextLineWithBibleReferences(ElementData.Value.ToString()).GetBibleReferences();
+                _references = parser.ParseTextLineWithBibleReferences(ElementData.Value.ToString()).GetBibleReferences();
             }
             return _references;
         }
@@ -178,6 +208,8 @@
     {
         IsOpen = !IsOpen;
     }
+
+    private Parser parser = new Parser();
 
     private void SetActive(MouseEventArgs e, int buttonNumber)
     {
