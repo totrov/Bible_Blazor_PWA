@@ -3,9 +3,14 @@
 @namespace BibleComponents
 @inject HttpClient Http
 @inject DbParametersFacade DbParameters;
+@using Bible_Blazer_PWA.Services.Menu
+@inject MenuService menu
 @using Bible_Blazer_PWA.DomainObjects;
 @using Bible_Blazer_PWA.Parameters;
 @using Param = Microsoft.AspNetCore.Components.ParameterAttribute
+@using Bible_Blazer_PWA.Pages.Lesson
+@using Bible_Blazer_PWA.Services.Menu;
+
 @if (lesson != null)
 {
     <Bible_Blazer_PWA.Components.FloatingComponent>
@@ -19,14 +24,14 @@
     </Bible_Blazer_PWA.Components.FloatingComponent>
 
     var composite = lesson.GetComposite();
-    <MudText Typo="Typo.h3">@composite.Value</MudText>
     <MudContainer>
-    @foreach (LessonElementData data in composite.Children)
-    {
-        <CascadingValue Value="parameters">
-            <LessonElement ElementData="data"></LessonElement>
-        </CascadingValue>
-    }
+        <MudText Typo="Typo.h4" Style="overflow:hidden">@(composite.Value)</MudText>
+        @foreach (LessonElementData data in composite.Children)
+        {
+            <CascadingValue Value="parameters">
+                <LessonElement ElementData="data"></LessonElement>
+            </CascadingValue>
+        }
     </MudContainer>
     <NavLink class="nav-link" href="@($"/lessonNew/{Id-1}/{UnitNumber}")" Match="NavLinkMatch.All"><span class="oi oi-arrow-circle-left" aria-hidden="true"></span> Предыдущий урок</NavLink>
     <NavLink class="nav-link" href="@($"/lessonNew/{Id+1}/{UnitNumber}")" Match="NavLinkMatch.All"><span class="oi oi-arrow-circle-right" aria-hidden="true"></span> Следующий урок</NavLink>
@@ -53,6 +58,12 @@
         var resultHandler = await db.GetRecordFromObjectStoreByKey<LessonContainerDb>("lessons", unitId, Id.ToString());
         resultHandler.OnDbResultOK += () => { lesson = resultHandler.Result; taskCompletionSource.SetResult(); };
         await taskCompletionSource.Task;
+
+        IconResolver iconReolver = new IconResolver();
+        menu.Title = "";
+        menu.AddMenuButton(new LessonLevelHandler(iconReolver, StateHasChanged, parameters));
+        menu.AddMenuButton(new BibleRefToggleHandler(iconReolver, StateHasChanged, parameters));
+        menu.Update(this);
     }
 
     protected async override Task OnInitializedAsync()
@@ -105,7 +116,7 @@
         };
     }
 
-    
+
 
     string getGlobalToggleCollapseStyle() => parameters.CollapseLevel switch
     {

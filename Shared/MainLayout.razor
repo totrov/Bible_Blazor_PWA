@@ -1,18 +1,28 @@
 ﻿@inherits LayoutComponentBase
 @inject DbParametersFacade dbParamteres
 @inject NavigationManager navigation
+@inject MenuService menu
 @using Bible_Blazer_PWA.Parameters;
+@using Bible_Blazer_PWA.Services.Menu;
 
 <MudThemeProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
 
 <MudLayout>
-    @{var appBarStyle = $"background-color:{parametersModel.ToolsBg}";}
-    <MudAppBar Color="Color.Primary" Fixed="false" Style="@appBarStyle">
-        @Header
+    @{
+        var appBarStyle = $"background-color:{parametersModel.ToolsBg}";
+        bool isFixed = parametersModel.HideTools != "True";
+    }
+
+    <MudAppBar Color="Color.Primary" Fixed="isFixed" Style="@appBarStyle">
         <MudIconButton Style=@ToolsAreHiddenCss Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        <div style="overflow:hidden">@menu.Title</div>
         <MudSpacer />
+        @foreach (var button in menu.Buttons)
+        {
+            <MudIconButton Icon="@menu.Buttons[button.Key].Icon" OnClick="@button.Value.Click" Color="Color.Inherit"></MudIconButton>
+        }
         <MudMenu Icon="@Icons.Material.Filled.MoreVert">
             <MudMenuItem><MudNavLink Href="/">О программе</MudNavLink></MudMenuItem>
             <MudMenuItem><MudNavLink Href="/lessons">Планы уроков</MudNavLink></MudMenuItem>
@@ -21,7 +31,10 @@
     </MudAppBar>
     <MudDrawer @bind-Open="@DrawerOpen">
     </MudDrawer>
-    @{var style = $"padding-top:10px; background-color:{parametersModel.MainBackground}";}
+    @{
+        var paddingTop = parametersModel.HideTools == "True" ? "padding-top:10px; " : "";
+        var style = $"{paddingTop}background-color:{parametersModel.MainBackground}";
+    }
     <MudMainContent Style="@style">
         @Body
     </MudMainContent>
@@ -39,6 +52,7 @@
             if (navigation.Uri.Contains("lessons")) header = "Планы уроков";
             if (navigation.Uri.Contains("setup")) header = "Параметры";
             if (navigation.Uri.Contains("lessonNew")) header = "";
+            var ret = string.IsNullOrEmpty(menu.Title) ? header : menu.Title;
             return header;
         }
     }
@@ -49,6 +63,7 @@
         {
             _drawerOpen = false;
         }
+        menu.OnUpdate += (s, e) => this.StateHasChanged();
     }
 
     bool _drawerOpen = false;

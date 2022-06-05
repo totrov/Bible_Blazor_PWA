@@ -4,10 +4,10 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Bible_Blazer_PWA.Shared;
 using Microsoft.JSInterop;
 using MudBlazor.Services;
 using Microsoft.AspNetCore.Components.Web;
+using Bible_Blazer_PWA.Services.Menu;
 
 namespace Bible_Blazer_PWA
 {
@@ -29,6 +29,7 @@ namespace Bible_Blazer_PWA
             builder.Services.AddSingleton(dbFacade);
             var dbParametersFacade = new Parameters.DbParametersFacade(dbFacade);
             builder.Services.AddSingleton(dbParametersFacade);
+            builder.Services.AddSingleton(new MenuService());
 
             var host = builder.Build();
 

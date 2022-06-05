@@ -1,6 +1,9 @@
 ﻿@page "/"
+@using Bible_Blazer_PWA.Services.Menu
+@inject MenuService menu
 @inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
 @inject BibleService bible;
+
 
 <MudExpansionPanels>
     <MudExpansionPanel>
@@ -44,5 +47,12 @@
         </ChildContent>
     </MudExpansionPanel>
 </MudExpansionPanels>
+
+@code{
+    protected override void OnInitialized()
+    {
+        menu.Title = "О программе";
+    }
+}
 
 

@@ -8,6 +8,8 @@
 @using System.Net.Http
 @using Bible_Blazer_PWA.Parameters
 @using Bible_Blazer_PWA.DomainObjects
+@using Services.Menu
+@inject MenuService menu
 @inject HttpClient Http
 @inject DbParametersFacade dbParams
 @inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
@@ -331,6 +333,7 @@
         base.OnInitialized();
         lessonNames.ToList().ForEach(l => ((HashSet<string>)options).Add(l));
         ParametersFormData = dbParams.ParametersModel;
+        menu.Title = "Параметры";
     }
 
     class LoadingItem

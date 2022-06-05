@@ -2,6 +2,8 @@
 @using Bible_Blazer_PWA.DataSources
 @using static Bible_Blazer_PWA.DataSources.LessonDS
 @using Bible_Blazer_PWA.DomainObjects
+@using Bible_Blazer_PWA.Services.Menu
+@inject MenuService menu
 @inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
 
 @if (_blocks != null)
@@ -73,5 +75,7 @@
     {
         _lessonDS = new LessonDS(db);
         _blocks = await _lessonDS.GetBlocks();
+        menu.Title = "Планы уроков";
+        menu.Update(this);
     }
 }
