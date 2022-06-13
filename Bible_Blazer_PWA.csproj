@@ -50,8 +50,4 @@
     <Folder Include="b2xtranslator\" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Services\Services.csproj" />
-  </ItemGroup>
-
 </Project>
