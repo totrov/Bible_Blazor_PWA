@@ -76,6 +76,7 @@
         _lessonDS = new LessonDS(db);
         _blocks = await _lessonDS.GetBlocks();
         menu.Title = "Планы уроков";
+        menu.ClearMenuButtons();
         menu.Update(this);
     }
 }

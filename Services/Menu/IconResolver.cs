@@ -14,6 +14,8 @@ namespace Bible_Blazer_PWA.Services.Menu
                 "3level" => @Icons.Filled.Apps,
                 "CollapseBibleRef" => @Icons.Filled.ExpandLess,
                 "ExpandBibleRef" => @Icons.Filled.ExpandMore,
+                "IncreaseFontSize" => @Icons.Filled.TextIncrease,
+                "DecreaseFontSize" => @Icons.Filled.TextDecrease,
                 _ => "",
             };
         }

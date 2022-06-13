@@ -5,36 +5,24 @@
 @inject DbParametersFacade DbParameters;
 @using Bible_Blazer_PWA.Services.Menu
 @inject MenuService menu
+@inject NavigationManager NavigationManager
 @using Bible_Blazer_PWA.DomainObjects;
 @using Bible_Blazer_PWA.Parameters;
 @using Param = Microsoft.AspNetCore.Components.ParameterAttribute
 @using Bible_Blazer_PWA.Pages.Lesson
-@using Bible_Blazer_PWA.Services.Menu;
+@using System.Text.RegularExpressions
 
 @if (lesson != null)
 {
-    <Bible_Blazer_PWA.Components.FloatingComponent>
-        <button type="button" class="btn btn-outline-primary" style="display: inline;" @onclick="ToggleCollapse"><span class="oi @getGlobalToggleCollapseStyle()" aria-hidden="true"></span></button>
-        <button type="button" class="btn btn-outline-primary" style="display: inline;" @onclick="ToggleReferences"><span class="oi @getGlobalToggleRefsStyle()" aria-hidden="true"></span></button>
-        <button type="button" class="btn btn-outline-primary" style="display: inline;" @onclick="IncreaseFont">
-            <span class="oi oi-text" aria-hidden="true"></span>
-            <span class="oi oi-plus" aria-hidden="true"></span>
-        </button>
-        <button type="button" class="btn btn-outline-primary" style="display: inline;" @onclick="DecreaseFont"><span class="oi oi-text" aria-hidden="true"></span><span class="oi oi-minus" aria-hidden="true"></span></button>
-    </Bible_Blazer_PWA.Components.FloatingComponent>
-
-    var composite = lesson.GetComposite();
     <MudContainer>
-        <MudText Typo="Typo.h4" Style="overflow:hidden">@(composite.Value)</MudText>
-        @foreach (LessonElementData data in composite.Children)
+        <MudText Typo="Typo.h4" Style="overflow:hidden">@(Regex.Replace(Composite.Value,",(?=[а-яА-Яa-zA-Z])",", "))</MudText>
+        @foreach (LessonElementData data in CompositeChildren)
         {
-            <CascadingValue Value="parameters">
-                <LessonElement ElementData="data"></LessonElement>
-            </CascadingValue>
+            <LessonElement ElementData="data"></LessonElement>
         }
+        <MudButton OnClick="NavigatePrev" StartIcon="@Icons.Filled.ArrowBack">Предыдущий урок</MudButton>
+        <MudButton OnClick="NavigateNext" EndIcon="@Icons.Filled.ArrowForward">Следующий урок</MudButton>
     </MudContainer>
-    <NavLink class="nav-link" href="@($"/lessonNew/{Id-1}/{UnitNumber}")" Match="NavLinkMatch.All"><span class="oi oi-arrow-circle-left" aria-hidden="true"></span> Предыдущий урок</NavLink>
-    <NavLink class="nav-link" href="@($"/lessonNew/{Id+1}/{UnitNumber}")" Match="NavLinkMatch.All"><span class="oi oi-arrow-circle-right" aria-hidden="true"></span> Следующий урок</NavLink>
 }
 
 @code {
@@ -48,85 +36,54 @@
 
     protected LessonContainerDb lesson;
     private ParametersModel parameters;
+    public LessonElementData Composite { get; set; }
+    public LinkedList<LessonElementData> CompositeChildren { get; set; }
 
     async protected override Task OnParametersSetAsync()
     {
+        var refreshNeeded = lesson != null;
+
         TaskCompletionSource taskCompletionSource = new TaskCompletionSource();
         var unitId = Unit.GetShortNameByUnitNumber(UnitNumber);
         var idStringified = Id.ToString();
 
         var resultHandler = await db.GetRecordFromObjectStoreByKey<LessonContainerDb>("lessons", unitId, Id.ToString());
-        resultHandler.OnDbResultOK += () => { lesson = resultHandler.Result; taskCompletionSource.SetResult(); };
+        resultHandler.OnDbResultOK += () =>
+        {
+            lesson = resultHandler.Result;
+            Composite = lesson.GetComposite();
+            CompositeChildren = Composite.Children;
+            taskCompletionSource.SetResult();
+        };
         await taskCompletionSource.Task;
 
         IconResolver iconReolver = new IconResolver();
         menu.Title = "";
+        menu.ClearMenuButtons();
         menu.AddMenuButton(new LessonLevelHandler(iconReolver, StateHasChanged, parameters));
         menu.AddMenuButton(new BibleRefToggleHandler(iconReolver, StateHasChanged, parameters));
+        menu.AddMenuButton(new FontSizeIncreaseHandler(iconReolver, StateHasChanged, parameters));
+        menu.AddMenuButton(new FontSizeDecreaseHandler(iconReolver, StateHasChanged, parameters));
         menu.Update(this);
+        if (refreshNeeded)
+        {
+            StateHasChanged();
+        }
     }
 
     protected async override Task OnInitializedAsync()
     {
         parameters = DbParameters.ParametersModel;
     }
-
-    void ToggleReferences()
+    protected void NavigatePrev()
     {
-        parameters.AreReferencesOpened = (!bool.Parse(parameters.AreReferencesOpened)).ToString();
+        NavigationManager.NavigateTo($"/");
+        NavigationManager.NavigateTo($"/lessonNew/{Id - 1}/{UnitNumber}");
     }
 
-    async Task IncreaseFont()
+    protected void NavigateNext()
     {
-        var fontSizeParameter = Parameters.FontSize;
-        int newFontSize = 15;
-        if (int.TryParse((await DbParameters.GetParameterAsync(Parameters.FontSize)), out int fontSize))
-        {
-            newFontSize = fontSize + 1;
-        }
-        await DbParameters.SetParameterAsync(fontSizeParameter, $"{newFontSize}");
-        if (int.TryParse((await DbParameters.GetParameterAsync(Parameters.FontSize, true)), out int fontSizeNew))
-        {
-            parameters.FontSize = fontSizeNew.ToString();
-        }
-    }
-
-    async Task DecreaseFont()
-    {
-        var fontSizeParameter = Parameters.FontSize;
-        int newFontSize = 15;
-        if (int.TryParse((await DbParameters.GetParameterAsync(Parameters.FontSize)), out int fontSize))
-        {
-            newFontSize = fontSize - 1;
-        }
-        await DbParameters.SetParameterAsync(fontSizeParameter, $"{newFontSize}");
-        if (int.TryParse((await DbParameters.GetParameterAsync(Parameters.FontSize, true)), out int fontSizeNew))
-        {
-            parameters.FontSize = fontSizeNew.ToString();
-        }
-    }
-
-    void ToggleCollapse()
-    {
-        parameters.CollapseLevel = parameters.CollapseLevel switch
-        {
-            "3" => "1",
-            "1" => "2",
-            _ => "3"
-        };
-    }
-
-
-
-    string getGlobalToggleCollapseStyle() => parameters.CollapseLevel switch
-    {
-        "1" => "oi-media-stop",
-        "2" => "oi-grid-two-up",
-        _ => "oi-grid-three-up"
-    };
-
-    string getGlobalToggleRefsStyle()
-    {
-        return bool.Parse(parameters.AreReferencesOpened) ? "oi-collapse-up" : "oi-collapse-down";
+        NavigationManager.NavigateTo($"/");
+        NavigationManager.NavigateTo($"/lessonNew/{Id + 1}/{UnitNumber}");
     }
 }
