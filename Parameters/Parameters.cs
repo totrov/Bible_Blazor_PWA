@@ -27,6 +27,8 @@
         StartVersesOnANewLine,
         BibleRefBgColor,
         BibleRefFontColor,
-        BibleRefHighlightColor
+        BibleRefHighlightColor,
+        BibleRefVersesNumbersColor,
+        BibleRefVersesIntervalsColor
     }
 }

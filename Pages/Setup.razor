@@ -160,9 +160,27 @@
                         </tr>
                         <tr>
                             <td>
-                                <MudColorPicker Label="Цвет выделения в местах Писания"
+                                <MudColorPicker Label="Цвет номеров стихов"
+                                                @bind-Text="@ParametersFormData.BibleRefVersesNumbersColor"
+                                                Style="@($"background-color: {ParametersFormData.BibleRefVersesNumbersColor};")" Placeholder="Выберите цвет" />
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MudColorPicker Label="Цвет фона выделенных стихов"
                                                 @bind-Text="@ParametersFormData.BibleRefHighlightColor"
                                                 Style="@($"background-color: {ParametersFormData.BibleRefHighlightColor};")" Placeholder="Выберите цвет" />
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MudColorPicker Label="Цвет текста выделенных стихов"
+                                                @bind-Text="@ParametersFormData.BibleRefVersesIntervalsColor"
+                                                Style="@($"background-color: {ParametersFormData.BibleRefVersesIntervalsColor};")" Placeholder="Выберите цвет" />
                             </td>
                             <td>
                             </td>

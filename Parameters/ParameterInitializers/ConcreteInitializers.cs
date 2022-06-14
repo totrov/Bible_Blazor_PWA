@@ -196,4 +196,16 @@ namespace Bible_Blazer_PWA.Parameters.ParameterInitializers
         public override Parameters Parameter => Parameters.BibleRefHighlightColor;
         public override string DefaultValue => "#594ae2ff";
     }
+    public class BibleRefVersesNumbersColorParametersInitializer : ColorIitializerBase, IConcreteParameterInitializer
+    {
+        public override Parameters Parameter => Parameters.BibleRefVersesNumbersColor;
+        public override string DefaultValue => "#594ae2ff";
+    }
+
+    public class BibleRefVersesIntervalsColorParametersInitializer : ColorIitializerBase, IConcreteParameterInitializer
+    {
+        public override Parameters Parameter => Parameters.BibleRefVersesIntervalsColor;
+
+        public override string DefaultValue => "#ffffff";
+    }
 }

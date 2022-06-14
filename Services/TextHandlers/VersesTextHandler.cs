@@ -6,6 +6,13 @@ namespace Bible_Blazer_PWA.Services.TextHandlers
 {
     public class VersesTextHandler
     {
+        private string bibleRefVersesNumbersColor;
+
+        public VersesTextHandler(string bibleRefVersesNumbersColor)
+        {
+            this.bibleRefVersesNumbersColor = bibleRefVersesNumbersColor;
+        }
+
         internal string GetHtmlFromVerses(IEnumerable<BibleService.Verse> verses, bool singleVerse, bool _startVersesOnANewLine)
         {
             var br = _startVersesOnANewLine ? "<br>" : "";
@@ -24,7 +31,7 @@ namespace Bible_Blazer_PWA.Services.TextHandlers
 
         private string AddNumberLabelIfNeeded(BibleService.Verse verse, bool singleVerse)
         {
-            return singleVerse ? verse.Value : $"<sup>{verse.Id} </sup>{verse.Value}";
+            return singleVerse ? verse.Value : $"<sup style=\"color:{bibleRefVersesNumbersColor};\">{verse.Id} </sup>{verse.Value}";
         }
 
         private string RemoveTags(string text)

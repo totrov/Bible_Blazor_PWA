@@ -430,6 +430,29 @@ namespace Bible_Blazer_PWA.Parameters
             }
         }
 
+        private string _bibleRefVersesNumbersColor;
+        [Parameter]
+        public string BibleRefVersesNumbersColor
+        {
+            get => _bibleRefVersesNumbersColor;
+            set
+            {
+                _dbParams.SetParameterAsync(Parameters.BibleRefVersesNumbersColor, value);
+                _bibleRefVersesNumbersColor = value;
+            }
+        }
+
+        private string _bibleRefVersesIntervalsColor;
+        [Parameter]
+        public string BibleRefVersesIntervalsColor
+        {
+            get => _bibleRefVersesIntervalsColor;
+            set
+            {
+                _dbParams.SetParameterAsync(Parameters.BibleRefVersesIntervalsColor, value);
+                _bibleRefVersesIntervalsColor = value;
+            }
+        }
         #endregion
     }
 

@@ -67,7 +67,7 @@ namespace Bible_Blazer_PWA
         {
             _dataProvider = new DataBaseBibleServiceFetchStrategy(dataBase);
             _isLoaded = true;
-            _versesHandler = new VersesTextHandler();
+            _versesHandler = new VersesTextHandler(parametersModel.BibleRefVersesNumbersColor);
             _parametersModel = parametersModel;
         }
     }
