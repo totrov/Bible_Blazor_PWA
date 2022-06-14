@@ -394,6 +394,42 @@ namespace Bible_Blazer_PWA.Parameters
             }
         }
 
+        private string _bibleRefBgColor;
+        [Parameter]
+        public string BibleRefBgColor
+        {
+            get => _bibleRefBgColor;
+            set
+            {
+                _dbParams.SetParameterAsync(Parameters.BibleRefBgColor, value);
+                _bibleRefBgColor = value;
+            }
+        }
+
+        private string _bibleRefFontColor;
+        [Parameter]
+        public string BibleRefFontColor
+        {
+            get => _bibleRefFontColor;
+            set
+            {
+                _dbParams.SetParameterAsync(Parameters.BibleRefFontColor, value);
+                _bibleRefFontColor = value;
+            }
+        }
+
+        private string _bibleRefHighlightColor;
+        [Parameter]
+        public string BibleRefHighlightColor
+        {
+            get => _bibleRefHighlightColor;
+            set
+            {
+                _dbParams.SetParameterAsync(Parameters.BibleRefHighlightColor, value);
+                _bibleRefHighlightColor = value;
+            }
+        }
+
         #endregion
     }
 

@@ -140,6 +140,33 @@
                             <td>
                             </td>
                         </tr>
+                        <tr>
+                            <td>
+                                <MudColorPicker Label="Цвет фона в местах Писания"
+                                                @bind-Text="@ParametersFormData.BibleRefBgColor"
+                                                Style="@($"background-color: {ParametersFormData.BibleRefBgColor};")" Placeholder="Выберите цвет" />
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MudColorPicker Label="Цвет текста в местах Писания"
+                                                @bind-Text="@ParametersFormData.BibleRefFontColor"
+                                                Style="@($"background-color: {ParametersFormData.BibleRefFontColor};")" Placeholder="Выберите цвет" />
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MudColorPicker Label="Цвет выделения в местах Писания"
+                                                @bind-Text="@ParametersFormData.BibleRefHighlightColor"
+                                                Style="@($"background-color: {ParametersFormData.BibleRefHighlightColor};")" Placeholder="Выберите цвет" />
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
                     </table>
                 </div>
 

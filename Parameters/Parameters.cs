@@ -24,6 +24,9 @@
         HideBlocksBorders,
         BlocksPaddingLeft,
         BlocksPaddingRight,
-        StartVersesOnANewLine
+        StartVersesOnANewLine,
+        BibleRefBgColor,
+        BibleRefFontColor,
+        BibleRefHighlightColor
     }
 }

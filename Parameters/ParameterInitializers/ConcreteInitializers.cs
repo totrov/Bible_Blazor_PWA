@@ -158,14 +158,42 @@ namespace Bible_Blazer_PWA.Parameters.ParameterInitializers
         }
     }
 
-    public class ToolsBgParametersInitializer : IConcreteParameterInitializer
+    public abstract class ColorIitializerBase : IGenericParameterInitializer
     {
-        public Parameters Parameter => Parameters.ToolsBg;
+        public abstract Parameters Parameter { get; }
+        public abstract string DefaultValue { get; }
+
         public string InitParam(string previousValue)
         {
-            if (previousValue.StartsWith('#'))
+            if (previousValue.StartsWith("#"))
                 return previousValue;
-            return "#594ae2ff";
+            return this.DefaultValue;
         }
+    }
+
+    public class ToolsBgParametersInitializer : ColorIitializerBase, IConcreteParameterInitializer
+    {
+        public override Parameters Parameter => Parameters.ToolsBg;
+
+        public override string DefaultValue => "#594ae2ff";
+    }
+    public class BibleRefBgParametersInitializer : ColorIitializerBase, IConcreteParameterInitializer
+    {
+        public override Parameters Parameter => Parameters.BibleRefBgColor;
+
+        public override string DefaultValue => "#f5f5dc";
+    }
+
+    public class BibleRefFontColorParametersInitializer : ColorIitializerBase, IConcreteParameterInitializer
+    {
+        public override Parameters Parameter => Parameters.BibleRefFontColor;
+
+        public override string DefaultValue => "#212529";
+    }
+
+    public class BibleRefHighlightColorParametersInitializer : ColorIitializerBase, IConcreteParameterInitializer
+    {
+        public override Parameters Parameter => Parameters.BibleRefHighlightColor;
+        public override string DefaultValue => "#594ae2ff";
     }
 }
