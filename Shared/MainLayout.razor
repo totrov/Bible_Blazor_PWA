@@ -15,7 +15,7 @@
         bool isFixed = parametersModel.HideTools != "True";
     }
 
-    <MudAppBar Color="Color.Primary" Fixed="isFixed" Style="@appBarStyle">
+    <MudAppBar Color="Color.Inherit" Fixed="isFixed" Style="@appBarStyle">
         <MudIconButton Style=@ToolsAreHiddenCss Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
         <div style="overflow:hidden">@menu.Title</div>
         <MudSpacer />

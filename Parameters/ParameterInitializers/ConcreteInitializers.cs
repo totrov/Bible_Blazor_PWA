@@ -100,7 +100,7 @@ namespace Bible_Blazer_PWA.Parameters.ParameterInitializers
             if (int.TryParse(previousValue, out int i))
                 return previousValue;
             string result;
-                        
+
             if (double.TryParse(previousValue, out double d)) //backward compatibility
             {
                 result = Math.Round(d * 100, 0).ToString();
@@ -109,7 +109,7 @@ namespace Bible_Blazer_PWA.Parameters.ParameterInitializers
             {
                 result = "125";
             }
-            return result;            
+            return result;
         }
     }
 
@@ -158,5 +158,14 @@ namespace Bible_Blazer_PWA.Parameters.ParameterInitializers
         }
     }
 
-
+    public class ToolsBgParametersInitializer : IConcreteParameterInitializer
+    {
+        public Parameters Parameter => Parameters.ToolsBg;
+        public string InitParam(string previousValue)
+        {
+            if (previousValue.StartsWith('#'))
+                return previousValue;
+            return "#594ae2ff";
+        }
+    }
 }
