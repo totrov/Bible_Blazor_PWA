@@ -23,6 +23,12 @@ namespace Bible_Blazer_PWA.DataSources
             public string Name { get; set; }
             public string Content { get; set; }
         }
+        public class LessonInfoLightweight
+        {
+            public string UnitId { get; set; }
+            public string Id { get; set; }
+            public string Name { get; set; }
+        }
 
         public class LessonBlock
         {
@@ -76,7 +82,7 @@ namespace Bible_Blazer_PWA.DataSources
                 };
             }
 
-            return new LinkedList<LessonBlock>(_blocks.OrderBy(x=>order(x.Name)));
+            return new LinkedList<LessonBlock>(_blocks.OrderBy(x => order(x.Name)));
         }
 
         private async Task<IEnumerable<LessonInfo>> GetLessonsForBlock(string unitId)
@@ -86,6 +92,15 @@ namespace Bible_Blazer_PWA.DataSources
             var lessonsResult = await db.GetRangeFromObjectStoreByKey<LessonInfo>("lessons", unitId, "0", "999999");
             lessonsResult.OnDbResultOK += () => { tcs.SetResult(lessonsResult.Result); };
             return await tcs.Task;
+        }
+
+        public async Task<IEnumerable<LessonInfoLightweight>> GetLessonInfoLightweightForBlock(string unitId)
+        {
+            TaskCompletionSource<IEnumerable<LessonInfoLightweight>> tcs = new TaskCompletionSource<IEnumerable<LessonInfoLightweight>>();
+
+            var lessonsResult = await db.GetAllFromIndex<LessonInfoLightweight>("lessons", "UnitId_Id_Name");
+            lessonsResult.OnDbResultOK += () => { tcs.SetResult(lessonsResult.Result); };
+            return (await tcs.Task).Where(x => x.UnitId == unitId);
         }
     }
 

@@ -3,6 +3,7 @@
 @namespace BibleComponents
 @inject HttpClient Http
 @inject DbParametersFacade DbParameters;
+@using Bible_Blazer_PWA.DataSources
 @using Bible_Blazer_PWA.Services.Menu
 @inject MenuService menu
 @inject NavigationManager NavigationManager
@@ -11,6 +12,7 @@
 @using Param = Microsoft.AspNetCore.Components.ParameterAttribute
 @using Bible_Blazer_PWA.Pages.Lesson
 @using System.Text.RegularExpressions
+@using static Bible_Blazer_PWA.DataSources.LessonDS
 
 @if (lesson != null)
 {
@@ -20,8 +22,14 @@
         {
             <LessonElement ElementData="data"></LessonElement>
         }
-        <MudButton OnClick="NavigatePrev" StartIcon="@Icons.Filled.ArrowBack">Предыдущий урок</MudButton>
-        <MudButton OnClick="NavigateNext" EndIcon="@Icons.Filled.ArrowForward">Следующий урок</MudButton>
+        @if (PrevLesson != null)
+        {
+            <MudButton OnClick="NavigatePrev" StartIcon="@Icons.Filled.ArrowBack">@PrevLesson.Name</MudButton>
+        }
+        @if (NextLesson != null)
+        {
+            <MudButton OnClick="NavigateNext" EndIcon="@Icons.Filled.ArrowForward">@NextLesson.Name</MudButton>
+        }
     </MudContainer>
 }
 
@@ -37,7 +45,10 @@
     protected LessonContainerDb lesson;
     private ParametersModel parameters;
     public LessonElementData Composite { get; set; }
+    public LessonInfoLightweight PrevLesson { get; set; } = null;
+    public LessonInfoLightweight NextLesson { get; set; } = null;
     public LinkedList<LessonElementData> CompositeChildren { get; set; }
+    private LessonDS _lessonDS;
 
     async protected override Task OnParametersSetAsync()
     {
@@ -69,6 +80,22 @@
         {
             StateHasChanged();
         }
+        _lessonDS = new LessonDS(db);
+        LessonInfoLightweight[] lessons = (await _lessonDS.GetLessonInfoLightweightForBlock(unitId)).OrderBy(x => int.Parse(x.Id)).ToArray();
+        for (int i = 0; i <= lessons.Length; i++)
+        {
+            if (int.Parse(lessons[i].Id) == Id)
+            {
+                if (i > 0)
+                {
+                    PrevLesson = lessons[i - 1];
+                }
+                if (i < lessons.Length - 1)
+                {
+                    NextLesson = lessons[i + 1];
+                }
+            }
+        }
     }
 
     protected async override Task OnInitializedAsync()
@@ -78,12 +105,12 @@
     protected void NavigatePrev()
     {
         NavigationManager.NavigateTo($"/");
-        NavigationManager.NavigateTo($"/lessonNew/{Id - 1}/{UnitNumber}");
+        NavigationManager.NavigateTo($"/lessonNew/{PrevLesson.Id}/{UnitNumber}");
     }
 
     protected void NavigateNext()
     {
         NavigationManager.NavigateTo($"/");
-        NavigationManager.NavigateTo($"/lessonNew/{Id + 1}/{UnitNumber}");
+        NavigationManager.NavigateTo($"/lessonNew/{NextLesson.Id}/{UnitNumber}");
     }
 }

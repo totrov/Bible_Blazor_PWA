@@ -8,7 +8,8 @@
     verbose: true,
     log: function (message) { if (this.debugMode) console.log(message); },
     logVerbose: function (message) { if (this.debugMode && this.verbose) console.log(message); },
-    dataUpgradeAlreadyStarted: false
+    dataUpgradeAlreadyStarted: false,
+    upgradeTransaction: null
 };
 
 function DataUpgrade() {
@@ -110,7 +111,9 @@ window.database = {
         openRequest.onupgradeneeded = function (e) {
             context.db = openRequest.result;
             context.previousVersion = e.oldVersion;
+            context.upgradeTransaction = e.target.transaction;
             SchemaUpgrade();
+            context.upgradeTransaction = null;
         }
         return openRequest;
     },
@@ -248,6 +251,34 @@ window.database = {
             };
         });
     },
+    getAllFromIndex: function (dotnetHelper, params) {
+        context.log('getAllKeysFromIndex was called. Object store: ' + params[0] + '; index:' + params[1]);
+        var openRequest = database.getOpenRequest();
+
+        openRequest.onSuccessHandlers.push(function (event) {
+            context.log('db opened');
+            context.db = openRequest.result;
+            var transaction = context.db.transaction(params[0], "readonly");
+
+            transaction.oncomplete = function (event) {
+                context.log('getAllKeysFromIndex: Transaction completed.');
+            };
+
+            transaction.onerror = function (event) {
+                context.log('getAllKeysFromIndex: Transaction not opened due to error: ' + transaction.error);
+            };
+
+            var objectStore = transaction.objectStore(params[0]);
+
+            var index = objectStore.index(params[1]);
+            var getAllRequest = index.getAll();
+            getAllRequest.onsuccess = function () {
+                result = getAllRequest.result;
+                context.logVerbose('getAllRequest: Transaction returned: ' + JSON.stringify(result));
+                dotnetHelper.invokeMethod('SetStatusAndResult', true, result);
+            }
+        });
+    },
     putKeyValueIntoObjectStore: function (dotnetHelper, params) {
         context.log('putKeyValueIntoObjectStore was called with params:' + params.join());
         var openRequest = database.getOpenRequest();
@@ -308,7 +339,7 @@ window.database = {
 
             objectStoreRequest.onsuccess = function (event) {
                 result = objectStoreRequest.result;
-                context.logVerbose('getCountFromObjectStoreByKey: Transaction returned: ' + result);
+                context.logVerbose('getCountFromObjectStoreByKey: Transaction returned: ' + JSON.stringify(result));
                 dotnetHelper.invokeMethod('SetStatusAndResult', true, result);
             };
         });
@@ -330,7 +361,15 @@ window.database = {
             context.db.createObjectStore('parameters', { keyPath: ['Key'] });
         },
         function /*2*/() {
-            //do nothing. New version bd is for cleaning up the lessons object store by cause of new id algorithm was introduced.
+            var lessonStore;
+            if (!context.db.objectStoreNames.contains("lessons")) {
+                lessonStore = context.db.createObjectStore("lessons");
+            } else {
+                lessonStore = context.upgradeTransaction.objectStore('lessons');
+            }
+            if (!lessonStore.indexNames.contains("UnitId_Id_Name")) {
+                lessonStore.createIndex("UnitId_Id_Name", ['UnitId', 'Id', 'Name'], { unique: true });
+            }
         }
     ],
     fetchJson: async (path, dbStore) => {

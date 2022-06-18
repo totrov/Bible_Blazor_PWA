@@ -103,6 +103,12 @@ namespace Bible_Blazer_PWA.DataBase
             return await this.CallDbAsync<IEnumerable<T>>(
                 null, "getRangeFromObjectStoreByKey", objectStoreName, parameters);
         }
+        public async Task<IndexedDBResultHandler<IEnumerable<T>>> GetAllFromIndex<T>(string objectStoreName, string indexName)
+        {
+            return await this.CallDbAsync<IEnumerable<T>>(
+                null, "getAllFromIndex", objectStoreName, indexName);
+        }
+        
         public async Task<IndexedDBResultHandler<int>> GetCountFromObjectStoreByKey(string objectStoreName, params object[] parameters)
         {
             return await this.CallDbAsync<int>(
