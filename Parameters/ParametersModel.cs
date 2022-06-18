@@ -453,6 +453,17 @@ namespace Bible_Blazer_PWA.Parameters
                 _bibleRefVersesIntervalsColor = value;
             }
         }
+
+        private string _hideBibleRefTabs;
+        [Parameter]
+        public string HideBibleRefTabs
+        {
+            get => _hideBibleRefTabs; set
+            {
+                _dbParams.SetParameterAsync(Parameters.HideBibleRefTabs, value);
+                _hideBibleRefTabs = value;
+            }
+        }
         #endregion
     }
 

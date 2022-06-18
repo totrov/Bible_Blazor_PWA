@@ -1,7 +1,7 @@
 ﻿window.context = {
     db: null,
     justUpgraded: false,
-    currentVersion: 3,
+    currentVersion: 4,
     previousVersion: 0,
     dbName: 'db',
     debugMode: true,
@@ -22,9 +22,15 @@ function DataUpgrade() {
         case 0:
             database.dataUpgradeFunctions[0]();
             database.dataUpgradeFunctions[1]();
+            database.dataUpgradeFunctions[2]();
             break;
         case 1:
             database.dataUpgradeFunctions[1]();
+            database.dataUpgradeFunctions[2]();
+            break;
+        case 2:
+        case 3:
+            database.dataUpgradeFunctions[2]();
             break;
         default:
             console.log("no data upgrade script for current db version");
@@ -42,10 +48,15 @@ function SchemaUpgrade() {
         case 0:
             database.schemaUpgradeFunctions[0]();
             database.schemaUpgradeFunctions[1]();
+            database.schemaUpgradeFunctions[2]();
             break;
         case 1:
         case 2:
             database.schemaUpgradeFunctions[1]();
+            database.schemaUpgradeFunctions[2]();
+            break;
+        case 3:
+            database.schemaUpgradeFunctions[2]();
             break;
         default:
             upgradeWasNotSuccess = true;
@@ -317,6 +328,9 @@ window.database = {
         },
         function /*1*/() {
             context.db.createObjectStore('parameters', { keyPath: ['Key'] });
+        },
+        function /*2*/() {
+            //do nothing. New version bd is for cleaning up the lessons object store by cause of new id algorithm was introduced.
         }
     ],
     fetchJson: async (path, dbStore) => {
@@ -360,10 +374,18 @@ window.database = {
         },
         function /*1*/() {
             database.fetchJson('/Assets/lessonUnits.json', 'lessonUnits');
-            //database.fetchJson('/Assets/lessons/Byt.json', 'lessons', dotnetReference).then(console.log("Byt initialization finished"));
-            //database.fetchJson('/Assets/lessons/Evn.json', 'lessons', dotnetReference).then(console.log("Evn initialization finished"));
-            //database.fetchJson('/Assets/lessons/Osn.json', 'lessons', dotnetReference).then(console.log("Database initialization finished"));
-            //database.fetchJson('/Assets/lessons/IskhSol.json', 'lessons', dotnetReference)
+        },
+        function /*2*/() {
+            var transaction = context.db.transaction("lessons", "readwrite");
+            var os = transaction.objectStore("lessons");
+            os.clear();
+            transaction.oncomplete = function (event) {
+                console.log("lessons store was cleaned");
+            };
+
+            transaction.onerror = function (event) {
+                console.log("clean of lessons sotre failed: " + transaction.error);
+            };
         }
     ],
 };

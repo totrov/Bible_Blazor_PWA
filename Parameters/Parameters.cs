@@ -29,6 +29,7 @@
         BibleRefFontColor,
         BibleRefHighlightColor,
         BibleRefVersesNumbersColor,
-        BibleRefVersesIntervalsColor
+        BibleRefVersesIntervalsColor,
+        HideBibleRefTabs
     }
 }

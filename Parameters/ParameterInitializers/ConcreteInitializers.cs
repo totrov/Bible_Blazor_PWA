@@ -208,4 +208,13 @@ namespace Bible_Blazer_PWA.Parameters.ParameterInitializers
 
         public override string DefaultValue => "#ffffff";
     }
+    public class HideBibleRefsTabsParametersInitializer : BooleanParameterInitializer, IConcreteParameterInitializer
+    {
+        public Parameters Parameter => Parameters.HideBibleRefTabs;
+
+        public override bool DefaultValue()
+        {
+            return true;
+        }
+    }    
 }
