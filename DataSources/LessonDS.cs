@@ -33,7 +33,7 @@ namespace Bible_Blazer_PWA.DataSources
         public class LessonBlock
         {
             public string Name { get; set; }
-            public IEnumerable<LessonInfo> Lessons { get; set; }
+            public IEnumerable<LessonInfoLightweight> Lessons { get; set; }
         }
 
         public class LessonUnit
@@ -63,7 +63,7 @@ namespace Bible_Blazer_PWA.DataSources
                     _blocks.AddLast(new LessonBlock
                     {
                         Name = lessonUnit.Name,
-                        Lessons = (await this.GetLessonsForBlock(lessonUnit.Id)).OrderBy(x => Convert.ToInt32(x.Id))
+                        Lessons = (await this.GetLessonInfoLightweightForBlock(lessonUnit.Id)).OrderBy(x => Convert.ToInt32(x.Id))
                     });
                 }
             }
@@ -98,9 +98,9 @@ namespace Bible_Blazer_PWA.DataSources
         {
             TaskCompletionSource<IEnumerable<LessonInfoLightweight>> tcs = new TaskCompletionSource<IEnumerable<LessonInfoLightweight>>();
 
-            var lessonsResult = await db.GetAllFromIndex<LessonInfoLightweight>("lessons", "UnitId_Id_Name");
+            var lessonsResult = await db.GetRangeFromObjectStoreByKey<LessonInfoLightweight>("lessons", unitId, "0", "999999");
             lessonsResult.OnDbResultOK += () => { tcs.SetResult(lessonsResult.Result); };
-            return (await tcs.Task).Where(x => x.UnitId == unitId);
+            return await tcs.Task;
         }
     }
 

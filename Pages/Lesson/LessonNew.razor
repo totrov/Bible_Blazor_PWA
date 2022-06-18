@@ -82,7 +82,7 @@
         }
         _lessonDS = new LessonDS(db);
         LessonInfoLightweight[] lessons = (await _lessonDS.GetLessonInfoLightweightForBlock(unitId)).OrderBy(x => int.Parse(x.Id)).ToArray();
-        for (int i = 0; i <= lessons.Length; i++)
+        for (int i = 0; i < lessons.Length; i++)
         {
             if (int.Parse(lessons[i].Id) == Id)
             {
