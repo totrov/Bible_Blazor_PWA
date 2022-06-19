@@ -36,6 +36,11 @@ namespace Bible_Blazer_PWA.Services.Parse
             {"Фил","Флп" }
         };
 
+        internal static string ReplaceBibleRefs(string stringWithReplacements)
+        {
+            throw new NotImplementedException();
+        }
+
         internal static string HandleBrackets(string stringToParse)
         {
             string buf = stringToParse;

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+﻿using Bible_Blazer_PWA.DataBase;
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -19,7 +20,7 @@ namespace Bible_Blazer_PWA.Services.Parse
             public string Name { get; set; }
             public string Content { get; set; }
         }
-        public static async Task<string> ParseLessons(string _input)
+        public static async Task<string> ParseLessons(string _input, DatabaseJSFacade dbFacade = null)
         {
             var idSet = new HashSet<int>();
             var idSetIncremented = new HashSet<int>();
@@ -28,7 +29,7 @@ namespace Bible_Blazer_PWA.Services.Parse
             var contents = Regex.Split(_input, regex);
 
             string UnitId = GetUnitId(contents[0]);
-            contents = Regex.Split(ApplyReplacements(_input, UnitId), regex);
+            contents = Regex.Split(ApplyReplacements(_input, UnitId, dbFacade), regex);
 
             var lessonModel = new LessonModel() { UnitId = UnitId };
             var lessonsList = new LinkedList<LessonModel>();
@@ -85,7 +86,7 @@ namespace Bible_Blazer_PWA.Services.Parse
             }
         }
 
-        private static string ApplyReplacements(string input, string unitId)
+        private static string ApplyReplacements(string input, string unitId, DatabaseJSFacade dbFacade = null)
         {
             string ret = input;
             switch (unitId)
@@ -144,12 +145,8 @@ namespace Bible_Blazer_PWA.Services.Parse
                         )
                         .Replace(
                             "Итог:",
-                            "0)Итог:"
-                        )
-                        ;
-
-
-
+                            "000)Итог:"
+                        );
                     break;
                 #endregion
                 case "ДеянОткр":
@@ -260,115 +257,41 @@ namespace Bible_Blazer_PWA.Services.Parse
                             "5.1)Рим.6:1-11; - важность понимания С.Б.,Завета,Хр.",
                             "18.5.Римлянам - урок 5\r1)Рим.6:1-11; - важность понимания С.Б.,Завета,Хр."
                         ).Replace(
-                            "6.1)Рим.8:1-16; - понимания С.Б.,Завета,Хр.",
-                            "18.6.Римлянам - урок 6\r1)Рим.8:1-16; - понимания С.Б.,Завета,Хр."
+                            "6.1)Рим.7:1-8; - важность понимания С.Б.,Завета,Хр.,",
+                            "18.6.Римлянам - урок 6\r1)Рим.7:1-8; - важность понимания С.Б.,Завета,Хр.,"
+                        )
+                        .Replace(
+                            "7.1)Рим.8:1-16; - понимания С.Б.,Завета,Хр.",
+                            "18.7.Римлянам - урок 7\r.1)Рим.8:1-16; - понимания С.Б.,Завета,Хр."
                         ).Replace(
-                            "8.1)Рим.9; - понимание Божьего суверенитета и спасения.",
-                            "18.8.Римлянам - урок 8\r1)Рим.9; - понимание Божьего суверенитета и спасения."
+                            "8.Божий суверенитет,судьба человека.",
+                            "18.8.Римлянам - урок 8 - Божий суверенитет,судьба человека."
                         ).Replace(
-                            "9.1)Рим.10; - важность понимания сути и смысла спасения.",
-                            "18.9.Римлянам - урок 9\r1)Рим.10; - важность понимания сути и смысла спасения."
+                            "9.1)Рим.9; - понимание Божьего суверенитета и спасения.",
+                            "18.9.Римлянам - урок 9\r1)Рим.9; - понимание Божьего суверенитета и спасения."
                         ).Replace(
-                            "10.1)Рим.11:1-6; - Божий суверенитет и контроль,народ Божий.",
-                            "18.10.Римлянам - урок 10\r1)Рим.11:1-6; - Божий суверенитет и контроль,народ Божий."
+                            "10.1)Рим.10:1-2; - важность понимания спасения",
+                            "18.10.Римлянам - урок 10\r.1)Рим.10:1-2; - важность понимания спасения"
+                        )
+                        .Replace(
+                            "11.1)Рим.11:1-6; - Божий суверенитет и контроль,народ Божий.",
+                            "18.11.Римлянам - урок 11\r1)Рим.11:1-6; - Божий суверенитет и контроль,народ Божий."
                         ).Replace(
-                            "11.1)Рим.12; - понимания и исполнения предназначения.",
-                            "18.11.Римлянам - урок 11\r1)Рим.12; - понимания и исполнения предназначения."
+                            "12.1)Рим.12:1-2;",
+                            "18.12.Римлянам - урок 12\r1)Рим.12:1-2;"
                         ).Replace(
-                            "12.1)Рим.14; - важность С.Б.,Завета,Хр.",
-                            "18.12.Римлянам - урок 12\r1)Рим.14; - важность С.Б.,Завета,Хр."
+                            "13.1)Рим.13:1-7; - понимание Б. суверенитета и контроля.",
+                            "18.13.Римлянам - урок 13\r1)Рим.13:1-7; - понимание Б. суверенитета и контроля."
                         ).Replace(
-                            "13.Обзор послания к Римлянам.",
-                            "18.13.Обзор послания к Римлянам."
-                        //.Replace(
-                        //    "",
-                        //    ""
-                        //).Replace(
-                        //    "",
-                        //    ""
-                        //).Replace(
-                        //    "",
-                        //    ""
-                        //).Replace(
-                        //    "",
-                        //    ""
-                        //).Replace(
-                        //    "",
-                        //    ""
-                        //
-
-
-                        //).Replace(
-                        //    "",
-                        //    ""
-                        //).Replace(
-                        //    "",
-                        //    ""
-                        //).Replace(
-                        //    "",
-                        //    ""
-                        //).Replace(
-                        //    "",
-                        //    ""
-                        //);
-                        //.Replace(;
-                        //    "",
-                        //    ""
-                        //).Replace(
-                        //    "",
-                        //    ""
-                        //).Replace(
-                        //    "",
-                        //    ""
-                        //).Replace(
-                        //    "",
-                        //    ""
-                        //).Replace(
-                        //    "",
-                        //    ""
-                        //).Replace(
-                        //    "",
-                        //    ""
-                        //).Replace(
-                        //    "",
-                        //    ""
-                        //
-
-                        //).Replace(
-                        //    "",
-                        //    ""
-                        //).Replace(
-                        //    "",
-                        //    ""
-                        //).Replace(
-                        //    "",
-                        //    ""
-                        //).Replace(
-                        //    "",
-                        //    ""
-                        //);
-                        //.Replace(;
-                        //    "",
-                        //    ""
-                        //).Replace(
-                        //    "",
-                        //    ""
-                        //).Replace(
-                        //    "",
-                        //    ""
-                        //).Replace(
-                        //    "",
-                        //    ""
-                        //).Replace(
-                        //    "",
-                        //    ""
-                        //).Replace(
-                        //    "",
-                        //    ""
-                        //).Replace(
-                        //    "",
-                        //    ""
-                        //
+                            "14.1)Рим.14; - важность С.Б.,Завета,Хр.",
+                            "18.14.Римлянам - урок 14\r1)Рим.14; - важность С.Б.,Завета,Хр."
+                        .Replace(
+                            "15.1)Рим.15; - важность познания и передачи С.Б.,Завета,Хр.",
+                            "18.15.Римлянам - урок 15\r1)Рим.15; - важность познания и передачи С.Б.,Завета,Хр."
+                        ).Replace(
+                                "16.Обзор послания к Римлянам.",
+                                "18.16.Обзор послания к Римлянам."
+                        )
                         );
                     break;
                 #endregion
@@ -528,6 +451,24 @@ namespace Bible_Blazer_PWA.Services.Parse
                     //    "",
                     //    ""
                     //
+                    #endregion
+                    break;
+                case "Осн":
+                    #region
+                    ret = input
+                        .Replace(
+                            "Евр.3:12-19(14);6:4-6;10:26;",
+                            "Евр.3:12-19(14);Евр.6:4-6;10:26;"
+                        ).Replace(
+                            "Лев.7:20-21,25-27;32:30;",
+                            "Лев.7:20-21,25-27;"
+                        ).Replace(
+                            "Еф.2:2;Дн.26:18;1-е Тим.2:25-26.",
+                            "Еф.2:2;Дн.26:18."
+                        ).Replace(
+                            ";1-е Тим.4:22",
+                            ""
+                        );
                     #endregion
                     break;
             }

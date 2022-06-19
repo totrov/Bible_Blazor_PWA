@@ -142,7 +142,7 @@ window.database = {
             var objectStoreRequest = objectStore.get(key);
             objectStoreRequest.onsuccess = function (event) {
                 result = objectStoreRequest.result;
-                context.logVerbose('getRecordFromObjectStoreByKey: Transaction returned: ' + result);
+                context.logVerbose('getRecordFromObjectStoreByKey: Transaction returned for key ' + key + ':' + JSON.stringify(result));
                 dotnetHelper.invokeMethod('SetStatusAndResult', true, result);
             };
         });

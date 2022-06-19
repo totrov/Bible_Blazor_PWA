@@ -419,7 +419,7 @@
             if (readSucceeded)
             {
                 UpdateItemStatus(item, "Чтение из облака завершено. Разбор текста...");
-                string json = await LessonParser.ParseLessons(stringContent);
+                string json = await LessonParser.ParseLessons(stringContent, db);
                 var resultHandler = await db.ImportLessonsJson(json);
                 resultHandler.OnDbResultOK += () => { UpdateItemStatus(item, "Успешно загружено"); };
             }

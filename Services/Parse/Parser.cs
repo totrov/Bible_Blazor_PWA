@@ -30,6 +30,7 @@ namespace Bible_Blazer_PWA.BibleReferenceParse
             
             string stringWithReplacements = Replacer.ReplaceBookNames(stringToParse);
             stringWithReplacements = Replacer.HandleBrackets(stringWithReplacements);
+            //stringWithReplacements = Replacer.ReplaceBibleRefs(stringWithReplacements);
             var pos = 0;
             foreach (Match match in Regex.Matches(stringWithReplacements, BibleRegexHelper.GetBibleReferencesPattern()))
             {
