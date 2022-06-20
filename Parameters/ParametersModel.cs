@@ -4,6 +4,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System;
 using Bible_Blazer_PWA.Parameters.ParameterInitializers;
+using Microsoft.AspNetCore.Components;
 
 namespace Bible_Blazer_PWA.Parameters
 {
@@ -462,8 +463,10 @@ namespace Bible_Blazer_PWA.Parameters
             {
                 _dbParams.SetParameterAsync(Parameters.HideBibleRefTabs, value);
                 _hideBibleRefTabs = value;
+                OnHideBibleRefTabs?.Invoke();
             }
         }
+        public event Action OnHideBibleRefTabs;
         #endregion
     }
 

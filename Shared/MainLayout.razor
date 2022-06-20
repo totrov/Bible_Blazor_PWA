@@ -4,6 +4,7 @@
 @inject MenuService menu
 @using Bible_Blazer_PWA.Parameters;
 @using Bible_Blazer_PWA.Services.Menu;
+@using Bible_Blazer_PWA.Services.MudBlazorHelpers;
 
 <MudThemeProvider />
 <MudDialogProvider />
@@ -30,7 +31,23 @@
         </MudMenu>
     </MudAppBar>
     <MudDrawer @bind-Open="@DrawerOpen">
+        <MudDrawerHeader>
+            <MudText Typo="Typo.h6">Параметры</MudText>
+        </MudDrawerHeader>
+        <MudList>
+            <MudListItem Text="Места Писания">
+                <NestedList>
+                    <MudListItem>
+                        <MudSwitch @bind-Checked="@parametersModel.HideBibleRefTabs" Color="Color.Primary" Converter="@(new RegularStringToBoolConverter())">
+                            @(parametersModel.HideBibleRefTabs == "True" ? "Режим для телефона" : "Режим для большого экрана")
+                        </MudSwitch>
+                    </MudListItem>
+                </NestedList>
+            </MudListItem>
+        </MudList>
     </MudDrawer>
+
+
     @{
         var paddingTop = parametersModel.HideTools == "True" ? "padding-top:10px; " : "";
         var style = $"{paddingTop}background-color:{parametersModel.MainBackground}";
@@ -64,6 +81,13 @@
             _drawerOpen = false;
         }
         menu.OnUpdate += (s, e) => this.StateHasChanged();
+        parametersModel.OnHideBibleRefTabs += async () =>
+        {
+            await Task.Delay(500);
+            var currentUri = navigation.Uri;
+            navigation.NavigateTo("/");
+            navigation.NavigateTo(currentUri);
+        };
     }
 
     bool _drawerOpen = false;
@@ -90,4 +114,4 @@
             _drawerOpen = !_drawerOpen;
         }
     }
-    }
+}

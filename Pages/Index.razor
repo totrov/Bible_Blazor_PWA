@@ -9,8 +9,34 @@
     <MudExpansionPanel>
         <TitleContent>
             <div class="d-flex">
-                <MudText>Версия 0.5.7</MudText>
+                <MudText>Версия 0.6.0</MudText>
                 <MudChip Color="Color.Success" Size="Size.Small">Текущая</MudChip>
+                <MudChip Color="Color.Error" Size="Size.Small">Важно! Прочитай!</MudChip>
+            </div>
+        </TitleContent>
+        <ChildContent>
+            <h5><MudIcon Icon="@Icons.Filled.FiberNew" Color="Color.Primary" Size="Size.Large" /> Добавлена новая функциональность: </h5>
+            Добавлен специальный режим показа мест Писания, при котором они всплывают при нажатии на ссылку.
+            Блоки, в которых выводятся места Писания убраны и не занимают места на экране.
+            Это может быть очень удобно при использовании приложения с телефона, поэтому режим пока получил именно такое название - "для телефона".
+            Режим <b>включен по умолчанию</b>. Для выключения необходимо:
+            <MudList>
+                <MudListItem>
+                    нажать на меню параметров в левом верхнем углу <b>на странице открытого урока</b>
+                    <img src="/Assets/drawerButtonScreen.png" />
+                </MudListItem>
+                <MudListItem>
+                    открыть подраздел "Места Писания", выключить режим для телефона.
+                    <img src="/Assets/bibleRefModeChange.png" />
+                </MudListItem>
+            </MudList>
+            После изменения этого параметра страница с уроком перезагружается, чтобы переотрисовать компоненты.
+        </ChildContent>
+    </MudExpansionPanel>
+    <MudExpansionPanel>
+        <TitleContent>
+            <div class="d-flex">
+                <MudText>Версия 0.5.7</MudText>
             </div>
         </TitleContent>
         <ChildContent>
@@ -25,7 +51,7 @@
         </TitleContent>
         <ChildContent>
             <h5><MudIcon Icon="@Icons.Filled.FiberNew" Color="Color.Primary" Size="Size.Large" /> Доработаны ссылки на предыдущий и следующий уроки. </h5>
-            <h5><MudIcon Icon="@Icons.Filled.FiberNew" Color="Color.Error" Size="Size.Large" /> Улучшена производительность меню с планами.</h5>
+            <h5><MudIcon Icon="@Icons.Filled.FiberNew" Color="Color.Primary" Size="Size.Large" /> Улучшена производительность меню с планами.</h5>
         </ChildContent>
     </MudExpansionPanel>
     <MudExpansionPanel>
@@ -93,7 +119,7 @@
     </MudExpansionPanel>
 </MudExpansionPanels>
 
-@code{
+@code {
     protected override void OnInitialized()
     {
         menu.Title = "О программе";

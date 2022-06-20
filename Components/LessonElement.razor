@@ -5,6 +5,7 @@
 @using Param = Microsoft.AspNetCore.Components.ParameterAttribute
 @inject BibleService Bible
 @inject DbParametersFacade dbParamFacade;
+@inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
 
 @{
     var border = parameters.HideBlocksBorders == "True" ? "border:none;" : "";
@@ -31,7 +32,14 @@
                 case TokenType.BibleReference:
                     var avoidClosure = referenceIndex;
                     var onclick = () => { Activate(avoidClosure); };
-                    <a href="" @onclick="onclick" @onclick:preventDefault>@token.Text</a>
+                    @if (parameters.HideBibleRefTabs != "True")
+                    {
+                        <a href="" @onclick="onclick" @onclick:preventDefault>@token.Text</a>
+                    }
+                    else
+                    {
+                        <a href="" @onmouseenter="onclick" @onmouseout="()=>Activate(-1)" @onclick:preventDefault>@token.Text</a>
+                    }
                     referenceIndex++;
                     break;
             }
@@ -40,22 +48,29 @@
         {
             <button type="button" class="btn @(IsOpen ? "btn-outline-primary" : "btn-outline-secondary") btn-outline-primary btn-sm" style="display: inline;" @onclick="Toggle">...</button>
         }
-        @if (HasBibleReferences)
+        @if (HasBibleReferences && parameters.HideBibleRefTabs != "True")
         {
             <button type="button" class="btn btn-outline-primary btn-sm" style="display: inline;" @onclick="ToggleReferences">..</button>
         }
     </MudCardHeader>
-    @if ((RefsAreOpen && HasBibleReferences) || (ElementData.Children != null && ElementData.Level < int.Parse(parameters.CollapseLevel) && IsOpen))
-    {
-        <MudCardContent Style="@cardContentStyle">
-            @if (HasBibleReferences)
+    @{
+        var showBibleRefTabs =
+        parameters.HideBibleRefTabs != "True" &&
+        ((RefsAreOpen && HasBibleReferences) || (ElementData.Children != null && ElementData.Level < int.Parse(parameters.CollapseLevel) && IsOpen));
+    }
+    <MudCardContent Style="@cardContentStyle">
+        @if (HasBibleReferences)
+        {
+            var visibilityStyle = RefsAreOpen ? "" : "display:none;";
+            @if (showBibleRefTabs)
             {
-                var visibilityStyle = RefsAreOpen ? "" : "display:none;";
                 <MudTabs style="@visibilityStyle" @ref="tabs" Rounded="true" ApplyEffectsToContainer="true">
                     @foreach (BibleReference reference in BibleReferences)
                     {
                         <MudTabPanel Text="@reference.ToString()" ID="@(reference.Id)">
-                            @{var bibleRefTextStyle = $"background-color:{parameters.BibleRefBgColor};font-size:{parameters.FontSize}px;color:{parameters.BibleRefFontColor};";}
+                            @{
+                                var bibleRefTextStyle = $"background-color:{parameters.BibleRefBgColor};font-size:{parameters.FontSize}px;color:{parameters.BibleRefFontColor};";
+                            }
                             <MudText style="@bibleRefTextStyle">
                                 @if (_versesLoaded)
                                 {
@@ -80,23 +95,58 @@
                     }
                 </MudTabs>
             }
-            @if (@ElementData.Children != null)
+            else
             {
-                var visibilityStyle = ElementData.Level < int.Parse(parameters.CollapseLevel) && IsOpen ? "" : "display:none;";
-                var subelementStyle = $"padding:{(double.Parse(parameters.BlocksPadding) / 100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem"+
-                                              $"{(double.Parse(parameters.BlocksPaddingRight) / 100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem"+
-                                              $" {(double.Parse(parameters.BlocksPadding) / 100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem"+
-                                              $" {(double.Parse(parameters.BlocksPaddingLeft) / 100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem;"
-                                     +$" {visibilityStyle}";
-                <div style="@subelementStyle">
-                    @foreach (LessonElementData data in ElementData.Children)
-                    {
-                        <LessonElement ElementData="data"></LessonElement>
-                    }
-                </div>
+                int referenceIndex = 0;
+                @foreach (BibleReference reference in BibleReferences)
+                {
+                    <MudPopover Open="CurrentPopoverIndex == referenceIndex" OverflowBehavior="OverflowBehavior.FlipNever" AnchorOrigin="Origin.TopCenter" TransformOrigin="Origin.TopCenter" Paper="false">
+                        @{
+                            var bibleRefTextStyle = $"background-color:{parameters.BibleRefBgColor};font-size:{parameters.FontSize}px;color:{parameters.BibleRefFontColor};";
+                        }
+                        <MudPaper Outlined="true" Class="px-3 py-3" style="@bibleRefTextStyle">
+                            <MudText>
+                                @if (_versesLoaded)
+                                {
+                                    bool isFirst = true;
+                                    foreach (BibleService.VersesView view in _versesViewsDictionary[reference.ToString()])
+                                    {
+                                        @if (dbParamFacade.ParametersModel.StartVersesOnANewLine == "True" && !isFirst)
+                                        {
+                                            <br />
+                                        }
+                                        <span class="badge badge-primary" style="background-color:@parameters.BibleRefHighlightColor;color:@parameters.BibleRefVersesIntervalsColor;">@view.Badge</span>
+                                        @((MarkupString)view.RawText)
+                                        isFirst = false;
+                                    }
+                                }
+                                else
+                                {
+                                    <span>Загрузка...</span>
+                                }
+                            </MudText>
+                        </MudPaper>
+                    </MudPopover>
+                    referenceIndex++;
+                }
             }
-        </MudCardContent>
-    }
+        }
+        @if (@ElementData.Children != null)
+        {
+            var visibilityStyle = ElementData.Level < int.Parse(parameters.CollapseLevel) && IsOpen ? "" : "display:none;";
+            var subelementStyle = $"padding:{(double.Parse(parameters.BlocksPadding) / 100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem" +
+            $"{(double.Parse(parameters.BlocksPaddingRight) / 100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem" +
+            $" {(double.Parse(parameters.BlocksPadding) / 100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem" +
+            $" {(double.Parse(parameters.BlocksPaddingLeft) / 100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem;"
+            + $" {visibilityStyle}";
+            <div style="@subelementStyle">
+                @foreach (LessonElementData data in ElementData.Children)
+                {
+                    <LessonElement ElementData="data"></LessonElement>
+                }
+            </div>
+        }
+    </MudCardContent>
 </MudCard>
 
 @code {
@@ -106,6 +156,7 @@
     protected bool RefsAreOpen { get; set; } = true;
     protected bool IsOpen { get; set; } = true;
     protected Dictionary<string, IEnumerable<BibleService.VersesView>> _versesViewsDictionary;
+    protected int CurrentPopoverIndex { get; set; } = -1;
 
     protected LinkedList<BibleReference> _references;
     protected LinkedList<LessonElementToken> _tokens;
@@ -123,7 +174,14 @@
 
     void Activate(int number)
     {
-        tabs.ActivatePanel(number);
+        if (parameters.HideBibleRefTabs == "True")
+        {
+            CurrentPopoverIndex = number;
+        }
+        else
+        {
+            tabs.ActivatePanel(number);
+        }
     }
 
     [Param]
