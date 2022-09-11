@@ -4,11 +4,13 @@
 @using Bible_Blazer_PWA.Services.MudBlazorHelpers
 @using Bible_Blazer_PWA.Services.Parse
 @using Bible_Blazer_PWA.Services.Readers
+@using System.Text.Json
 @using b2xtranslator.StructuredStorage.Reader
 @using System.Net.Http
 @using Bible_Blazer_PWA.Parameters
 @using Bible_Blazer_PWA.DomainObjects
 @using Services.Menu
+@using Bible_Blazer_PWA
 @inject MenuService menu
 @inject HttpClient Http
 @inject DbParametersFacade dbParams
@@ -23,6 +25,7 @@
         </TitleContent>
         <ChildContent>
             <h5 class="card-title">Загрузить из облака (требуется интернет)</h5>
+            <h6>Последнее обновление:@LastUpdate</h6>
             <MudGrid>
                 <MudItem xs="8">
                     <MudSelect T="string" Label="Какие уроки загрузить:" MultiSelection="true" @bind-Value="selectedLessonsValue" @bind-SelectedValues="options">
@@ -368,18 +371,31 @@
 
     IBrowserFile parametrsFile = null;
 
-
+    private string LastUpdate { get; set; } = "Неизвестно";
     private string selectedLessonsValue { get; set; } = "Ничего не выбрано";
     private IEnumerable<string> lessonNames = LessonLoadConfig.GetLessonNames();
     private IEnumerable<string> options { get; set; } = new HashSet<string>();
 
-    protected override void OnInitialized()
+    protected async override Task OnInitializedAsync()
     {
-        base.OnInitialized();
+        await base.OnInitializedAsync();
         lessonNames.ToList().ForEach(l => ((HashSet<string>)options).Add(l));
         ParametersFormData = dbParams.ParametersModel;
         menu.Title = "Параметры";
         menu.ClearMenuButtons();
+        using var httpClient = new HttpClient();
+        httpClient.BaseAddress = new Uri("https://covenant-of-christ.onrender.com");
+        try
+        {
+            string manifestString = await httpClient.GetStringAsync(
+                Config.LessonLoadConfig.GetManifestUrl());
+            LessonStorageManifest manifest = JsonSerializer.Deserialize<LessonStorageManifest>(manifestString);
+            LastUpdate = manifest?.lastUpdateDate.ToString("dd.MM.yyyy");
+        }
+        catch (Exception ex)
+        {
+            db.JSLog(ex.Message);
+        }
     }
 
     class LoadingItem
@@ -424,6 +440,7 @@
                 resultHandler.OnDbResultOK += () => { UpdateItemStatus(item, "Успешно загружено"); };
             }
         }
+        
         IsDisabled = false;
     }
 

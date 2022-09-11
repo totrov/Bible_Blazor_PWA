@@ -6,12 +6,12 @@ namespace Bible_Blazer_PWA.Config
     {
         private static Dictionary<string, string> lessonNameUrl = new()
         {
-            {"Бытие", "https://bibleblazorpwastorage.blob.core.windows.net/lesson-units/Бытие.docx" },
-            {"Исход - Соломон", "https://bibleblazorpwastorage.blob.core.windows.net/lesson-units/Исход - Соломон.docx" },
-            {"Пророки", "https://bibleblazorpwastorage.blob.core.windows.net/lesson-units/Пророки..docx" },
-            {"Евангелия", "https://bibleblazorpwastorage.blob.core.windows.net/lesson-units/Евангелия..docx" },
-            {"Деяния - Откровение", "https://bibleblazorpwastorage.blob.core.windows.net/lesson-units/Деяния - Откровение..docx" },
-            {"Основы веры", "https://bibleblazorpwastorage.blob.core.windows.net/lesson-units/Основы веры..docx" }
+            {"Бытие", "/Assets/lessons/Бытие.docx" },
+            {"Исход - Соломон", "/Assets/lessons/Исход - Соломон.docx" },
+            {"Пророки", "/Assets/lessons/Пророки..docx" },
+            {"Евангелия", "/Assets/lessons/Евангелия..docx" },
+            {"Деяния - Откровение", "/Assets/lessons/Деяния - Откровение..docx" },
+            {"Основы веры", "/Assets/lessons/Основы веры..docx" }
         };
 
         public static IEnumerable<string> GetLessonNames()
@@ -22,6 +22,11 @@ namespace Bible_Blazer_PWA.Config
         public static string GetUrlByLessonName(string lessonName)
         {
             return lessonNameUrl[lessonName];
+        }
+
+        public static string GetManifestUrl()
+        {
+            return "https://covenant-of-christ.onrender.com/Assets/lessons/manifest.json";
         }
     }
 }

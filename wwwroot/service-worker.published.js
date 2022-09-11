@@ -1,4 +1,4 @@
-// Caution! Be sure you understand the caveats before publishing an application with
+﻿// Caution! Be sure you understand the caveats before publishing an application with
 // offline support. See https://aka.ms/blazor-offline-considerations
 // version 0.6.0
 
@@ -10,7 +10,15 @@ self.addEventListener('fetch', event => event.respondWith(onFetch(event)));
 const cacheNamePrefix = 'offline-cache-';
 const cacheName = `${cacheNamePrefix}${self.assetsManifest.version}`;
 const offlineAssetsInclude = [ /\.dll$/, /\.pdb$/, /\.wasm/, /\.html/, /\.js$/, /\.json$/, /\.css$/, /\.woff$/, /\.png$/, /\.jpe?g$/, /\.gif$/, /\.ico$/ ];
-const offlineAssetsExclude = [ /^service-worker\.js$/ ];
+const offlineAssetsExclude = [/^service-worker\.js$/, /^manifest\.json$/,
+    /^Бытие\.docx$/,
+    /^Деяния - Откровение\.\.docx$/,
+    /^Евангелия\.\.docx$/,
+    /^Исход - Соломон\.docx$/,
+    /^Основы веры\.\.docx$/,
+    /^Пророки\.\.docx$/,
+    /lessons\//
+];
 
 async function onInstall(event) {
     console.info('Service worker: Install');

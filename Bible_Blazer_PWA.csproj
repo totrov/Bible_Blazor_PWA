@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Config\LessonStorageManifest.cs" />
     <Content Include="Pages\YoutubeDownloader.txt" />
   </ItemGroup>
 
