@@ -61,5 +61,11 @@ namespace Bible_Blazer_PWA.Services.Parse
 
             return fromToVersesRegex;
         }
+
+        internal static string GetSublessonsPattern()
+        {
+            var lookaround = "(?:^|(?:<br>))[0-9]{1,2}[.](?=1[)])";
+            return $"(?<={lookaround}).*?(?=(?:{lookaround}|$))";
+        }
     }
 }
