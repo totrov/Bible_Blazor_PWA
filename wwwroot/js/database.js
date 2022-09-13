@@ -367,6 +367,21 @@ window.database = {
             e.stopPropagation();
         };
     },
+    clearObjectStore: function (dotnetHelper, dbStore)
+    {
+        var transaction = context.db.transaction(dbStore, "readwrite");
+        var os = transaction.objectStore(dbStore);
+        os.clear();
+        transaction.oncomplete = function () {
+            console.log(dbStore + ' ' + 'was trancated successfully');
+            dotnetHelper.invokeMethod('SetStatus', true);
+            };
+        transaction.onerror = function (e) {
+            console.log(dbStore + ' ' + 'trancation fialed:'+ transaction.error);
+            dotnetHelper.invokeMethod('SetStatus', false);
+            e.stopPropagation();
+        };
+    },
     dataUpgradeFunctions: [
         function /*0*/() {
             database.fetchJson('/Assets/books.json', 'books');

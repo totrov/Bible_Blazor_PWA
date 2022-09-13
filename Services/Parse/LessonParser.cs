@@ -25,19 +25,20 @@ namespace Bible_Blazer_PWA.Services.Parse
         {
             var idSet = new HashSet<int>();
 
-            string regex = "\r[\\s]*([0-9]+[.]?[0-9]*[.](?![0-9])(?!Тело – плоть)(?!Дух – сердце)(?!Душа – разум)(?!Сторона).*?)\r";
+            string regex = BibleRegexHelper.GetLessonsPattern();
             var contents = Regex.Split(_input, regex);
 
             string UnitId = GetUnitId(contents[0]);
             contents = Regex.Split(ApplyReplacements(_input, UnitId, dbFacade), regex);
 
-            var lessonModel = new LessonModel() { UnitId = UnitId };
+            LessonModel lessonModel = null;
             var lessonsList = new LinkedList<LessonModel>();
             var numberRegex = "([0-9]+[.]?[0-9]*)[.]";
             for (int i = 1; i < contents.Length; i++)
             {
                 if (i % 2 == 1)
                 {
+                    lessonModel = new LessonModel() { UnitId = UnitId };
                     var split = Regex.Split(contents[i], numberRegex);
                     lessonModel.Name = Regex.Split(contents[i], numberRegex)[2];
                     lessonModel.Id = Regex.Match(contents[i], numberRegex).Value;
@@ -46,15 +47,14 @@ namespace Bible_Blazer_PWA.Services.Parse
                 else
                 {
                     lessonModel.Content = contents[i].Replace("\r", "<br>");
-                    if (lessonModel.Content.StartsWith("1.1)"))
+                    //if (lessonModel.Content.StartsWith("1.1)"))
+                    if (Regex.IsMatch(lessonModel.Content, BibleRegexHelper.GetSublessonHeaderPattern(false)))
                     {
                         AddSublessons(lessonsList, lessonModel, idSet);
-                        lessonModel = new LessonModel();
                     }
                     else
                     {
                         lessonsList.AddLast(lessonModel);
-                        lessonModel = new LessonModel { UnitId = UnitId };
                     }
                 }
             }
@@ -69,21 +69,19 @@ namespace Bible_Blazer_PWA.Services.Parse
 
         private static void AddSublessons(LinkedList<LessonModel> lessonsList, LessonModel lessonModel, HashSet<int> idSet)
         {
-            string name = lessonModel.Name;
+            string name = lessonModel.Name.TrimEnd('.');
             int sublessonNumber = 1;
-            lessonModel.Name = $"{name}. Урок {sublessonNumber++}";
 
             foreach (Match sublessonMatch in Regex.Matches(lessonModel.Content, BibleRegexHelper.GetSublessonsPattern()))
             {
-                var groups = sublessonMatch.Groups;
-                lessonModel.Content = sublessonMatch.Value;
-                lessonsList.AddLast(lessonModel);
-                lessonModel = new LessonModel
+                var a = sublessonMatch.Groups.Values.Aggregate("", (x, y) => { return x + y.Name + ":" + y.Value + ";"; });
+                lessonsList.AddLast(new LessonModel
                 {
                     Id = GetId(lessonModel.Id, idSet),
                     UnitId = lessonModel.UnitId,
-                    Name = $"{name}  Урок {sublessonNumber++}"
-                };
+                    Name = $"{name}.  Урок {sublessonNumber++} {a}",
+                    Content = sublessonMatch.Value
+                });
             }
         }
 
@@ -188,6 +186,7 @@ namespace Bible_Blazer_PWA.Services.Parse
                 case "ДеянОткр":
                     #region ДеянОткр
                     ret = input
+                        .Replace("Деяния.\r1.Дн.1-2;", "1.Деяния.\r1.Дн.1-2;")
                         .Replace("15.Откровение(понимание будущего).", "15_.Откровение(понимание будущего).")
                         .Replace(
                             "1.Отк.1-3; - Сохранение и передача Завета,Хр.",

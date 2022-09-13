@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Bible_Blazer_PWA.Services.Parse
@@ -62,10 +64,41 @@ namespace Bible_Blazer_PWA.Services.Parse
             return fromToVersesRegex;
         }
 
+        internal static string GetLessonsPattern()
+        {
+            List<string> negativeLookaheads = new List<string>()
+            {
+                "[0-9]",
+                "Тело – плоть",
+                "Дух – сердце",
+                "Душа – разум",
+                "Сторона",
+                "Дн."
+            };
+            StringBuilder sb = new();
+            sb.Append("(?:\r|^)[\\s]*([0-9]+[.]?[0-9]*[.]");
+            foreach (var lookahead in negativeLookaheads)
+            {
+                sb.Append("(?!");
+                sb.Append(lookahead);
+                sb.Append(")");
+            }
+            sb.Append(".*?)\r");
+            return sb.ToString();
+        }
+
+        internal static string GetSublessonHeaderPattern(bool namedHeaderGroup)
+        {
+            var headerNamePart = namedHeaderGroup ? "(?<header>.*?)" : ".*?";
+            return "(?:^|(?:<br>))[0-9]{1,2}[.]"+ headerNamePart + "(?=1[)])";
+        }
+
         internal static string GetSublessonsPattern()
         {
-            var lookaround = "(?:^|(?:<br>))[0-9]{1,2}[.](?=1[)])";
-            return $"(?<={lookaround}).*?(?=(?:{lookaround}|$))";
+            //var lookaround = "(?:^|(?:<br>))[0-9]{1,2}[.](?=1[)])";
+            var lookbehind = GetSublessonHeaderPattern(true);
+            var lookahead = GetSublessonHeaderPattern(false);
+            return $"(?<={lookbehind}).*?(?=(?:{lookahead}|$))";
         }
     }
 }

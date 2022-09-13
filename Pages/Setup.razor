@@ -52,7 +52,14 @@
                 Загрузить из word файлов (можно выбрать несколько сразу)
             </MudButton>
             <MudDivider DividerType="DividerType.Middle" Class="my-6" />
-
+            <MudButton HtmlTag="label"
+                       Variant="Variant.Filled"
+                       Color="Color.Secondary"
+                       StartIcon="@Icons.Filled.Delete"
+                       Disabled="@IsDisabled"
+                       OnClick="RemoveLessons">
+                Удалить все ранее загруженные уроки.
+            </MudButton>
             @if (LoadingItems.Any())
             {
                 <MudGrid>
@@ -440,7 +447,26 @@
                 resultHandler.OnDbResultOK += () => { UpdateItemStatus(item, "Успешно загружено"); };
             }
         }
-        
+
+        IsDisabled = false;
+    }
+
+    public async Task RemoveLessons()
+    {
+        IsDisabled = true;
+        var item = new LoadingItem { Name = "Удвление загруженных уроков", Status = "В процессе..." };
+        LoadingItems.Add(item);
+
+        try
+        {
+            var resultHandler = await db.ClearObjectStore("lessons");
+            resultHandler.OnDbResultOK += () => { UpdateItemStatus(item, "Готово."); };
+        }
+        catch (ReaderException ex)
+        {
+            UpdateItemStatus(item, ex.Message);
+        }
+
         IsDisabled = false;
     }
 
@@ -494,20 +520,6 @@
             }
         }
         IsDisabled = false;
-
-        //string connectionString = "DefaultEndpointsProtocol=https;AccountName=bibleblazorpwastorage;AccountKey=IZer1LD5t3UXlmSRdISWmJ6lXQX3Gzp/H0e+0xh1jdMNGBLiD1PbSqnlLAMTR3q9SLqqQkMEN8L2LfOONOr94A==;EndpointSuffix=core.windows.net";
-        //string containerName = "lesson-units";
-        //string blobName = file.Name;
-        //string filePath = file.Name;
-
-        //var content = new StreamContent(fs);
-        //content.Headers.TryAddWithoutValidation("Authorization", "SharedKey bibleblazorpwastorage:IZer1LD5t3UXlmSRdISWmJ6lXQX3Gzp/H0e+0xh1jdMNGBLiD1PbSqnlLAMTR3q9SLqqQkMEN8L2LfOONOr94A==");
-        //content.Headers.TryAddWithoutValidation("x-ms-lease-id", "c016d911-0d71-438b-af87-8c7c232ac612");
-        //content.Headers.TryAddWithoutValidation("x-ms-version", "2015-12-11");
-        //content.Headers.TryAddWithoutValidation("x-ms-date", DateTime.UtcNow.ToString("R"));
-        //content.Headers.TryAddWithoutValidation("x-ms-blob-type", "BlockBlob");
-        //content.Headers.ContentLength = fs.Length;
-        //await Http.PutAsync("https://bibleblazorpwastorage.blob.core.windows.net/lesson-units/Бытие.doc", content);
     }
 
     private async Task LoadParameters(InputFileChangeEventArgs e)

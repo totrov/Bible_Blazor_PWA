@@ -63,6 +63,10 @@ namespace Bible_Blazer_PWA.DataBase
         {
             return await this.CallVoidDbAsync(callback, "importJson", json, "lessons", true);
         }
+        public async Task<IndexedDBResultHandler> ClearObjectStore(string objectSotre, Action callback = null)
+        {
+            return await this.CallVoidDbAsync(callback, "clearObjectStore", objectSotre, "lessons");
+        }
 
         protected async Task<IndexedDBResultHandler> ImportJson(string json, string objectStore, Action callback = null, bool clearFirst = false)
         {
