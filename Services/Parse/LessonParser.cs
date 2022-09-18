@@ -74,7 +74,8 @@ namespace Bible_Blazer_PWA.Services.Parse
 
             foreach (Match sublessonMatch in Regex.Matches(lessonModel.Content, BibleRegexHelper.GetSublessonsPattern()))
             {
-                var lessonHeader = sublessonMatch.Groups["header"].Value.Replace("<br>", "");
+                var lessonHeader = sublessonMatch.Groups["header"].Value;
+                lessonHeader = lessonHeader.Replace("<br>", "");
                 lessonHeader = String.IsNullOrEmpty(lessonHeader) ? lessonHeader : $": {lessonHeader}";
                 lessonsList.AddLast(new LessonModel
                 {
@@ -223,7 +224,23 @@ namespace Bible_Blazer_PWA.Services.Parse
                         )
                         .Replace(
                         "2.1)1-е Кор.7:10-17; - особенная ",
-                        "2.Брак и семья II 1)1-е Кор.7:10-17; - особенная "
+                        "2. Брак и семья II 1)1-е Кор.7:10-17; - особенная "
+                        )
+                        .Replace(
+                            "13.1.Любовь ",
+                            "I часть 1)Любовь "
+                        )
+                        .Replace(
+                            "13.2.Любовь ",
+                            "13.Понимание любви Божьей II часть 1)Любовь "
+                        )
+                        .Replace(
+                            "13.3.Любовь ",
+                            "13.Понимание любви Божьей III часть 1)Любовь "
+                        )
+                        .Replace(
+                            "С.Д.<br>Спасение",
+                            "С.Д.1)Спасение"
                         )
                         .Replace("15.Откровение(понимание будущего).", "15_.Откровение(понимание будущего).")
                         .Replace(
