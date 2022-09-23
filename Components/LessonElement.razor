@@ -2,11 +2,12 @@
 @using Bible_Blazer_PWA.BibleReferenceParse
 @using Bible_Blazer_PWA.DomainObjects
 @using Bible_Blazer_PWA.Parameters
+@using Bible_Blazer_PWA.Services.Parse
 @using Param = Microsoft.AspNetCore.Components.ParameterAttribute
 @inject BibleService Bible
 @inject DbParametersFacade dbParamFacade;
 @inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
-@inject Parser Parser;
+@inject Replacer Replacer;
 
 @{
     var border = parameters.HideBlocksBorders == "True" ? "border:none;" : "";
@@ -167,7 +168,7 @@
         {
             if (_tokens == null)
             {
-                _tokens = Parser.ParseTextLineWithBibleReferences(ElementData.Value.ToString()).GetTokens();
+                _tokens = parser.ParseTextLineWithBibleReferences(ElementData.Value.ToString()).GetTokens();
             }
             return _tokens;
         }
@@ -197,6 +198,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        parser = new Parser(Replacer);
         parameters = dbParamFacade.ParametersModel;
         _versesViewsDictionary = new Dictionary<string, IEnumerable<BibleService.VersesView>>();
         foreach (BibleReference reference in BibleReferences)
@@ -262,7 +264,7 @@
         {
             if (_references == null)
             {
-                _references = Parser.ParseTextLineWithBibleReferences(ElementData.Value.ToString()).GetBibleReferences();
+                _references = parser.ParseTextLineWithBibleReferences(ElementData.Value.ToString()).GetBibleReferences();
             }
             return _references;
         }
@@ -277,6 +279,8 @@
     {
         IsOpen = !IsOpen;
     }
+
+    private Parser parser;
 
     private void SetActive(MouseEventArgs e, int buttonNumber)
     {
