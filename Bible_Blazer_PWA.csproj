@@ -23,6 +23,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <_ContentIncludedByDefault Remove="wwwroot\Assets\lessons\replacements.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="Config\LessonStorageManifest.cs" />
     <Content Include="Pages\YoutubeDownloader.txt" />
   </ItemGroup>
