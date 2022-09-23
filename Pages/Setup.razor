@@ -17,6 +17,7 @@
 @inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
 @inject IJSRuntime JS
 @inject ISnackbar Snackbar
+@inject Replacer Replacer;
 
 <MudExpansionPanels>
     <MudExpansionPanel>
@@ -442,7 +443,7 @@
             if (readSucceeded)
             {
                 UpdateItemStatus(item, "Чтение из облака завершено. Разбор текста...");
-                string json = await LessonParser.ParseLessons(stringContent, Http);
+                string json = await LessonParser.ParseLessons(stringContent, Replacer);
                 var resultHandler = await db.ImportLessonsJson(json);
                 resultHandler.OnDbResultOK += () => { UpdateItemStatus(item, "Успешно загружено"); };
             }
@@ -514,7 +515,7 @@
             }
             if (readSucceeded)
             {
-                string json = await LessonParser.ParseLessons(stringContent, Http);
+                string json = await LessonParser.ParseLessons(stringContent, Replacer);
                 var resultHandler = await db.ImportLessonsJson(json);
                 resultHandler.OnDbResultOK += () => { UpdateItemStatus(item, "Успешно загружено"); };
             }

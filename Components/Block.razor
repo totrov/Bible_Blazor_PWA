@@ -2,6 +2,7 @@
 @using Bible_Blazer_PWA.BibleReferenceParse
 @using Bible_Blazer_PWA.DomainObjects
 @inject BibleService Bible
+@inject Parser Parser
 
 <div class="card">
     <div class="card-header">
@@ -97,7 +98,7 @@
         {
             if (_references == null)
             {
-                _references = new Parser().ParseTextLineWithBibleReferences(Title.ToString()).GetBibleReferences();
+                _references = Parser.ParseTextLineWithBibleReferences(Title.ToString()).GetBibleReferences();
             }
             return _references;
         }

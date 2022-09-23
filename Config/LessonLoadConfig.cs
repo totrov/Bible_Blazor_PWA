@@ -26,7 +26,9 @@ namespace Bible_Blazer_PWA.Config
 
         public static string GetReplacementsUrl(bool external)
         {
-            return "/Assets/lessons/replacements.json";
+            return external
+                ? "https://covenant-of-christ.onrender.com/Assets/online/lessons/replacements.json"
+                : "/Assets/lessons/replacements.json";
         }
 
         public static string GetManifestUrl()

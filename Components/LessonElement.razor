@@ -6,6 +6,7 @@
 @inject BibleService Bible
 @inject DbParametersFacade dbParamFacade;
 @inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
+@inject Parser Parser;
 
 @{
     var border = parameters.HideBlocksBorders == "True" ? "border:none;" : "";
@@ -166,7 +167,7 @@
         {
             if (_tokens == null)
             {
-                _tokens = parser.ParseTextLineWithBibleReferences(ElementData.Value.ToString()).GetTokens();
+                _tokens = Parser.ParseTextLineWithBibleReferences(ElementData.Value.ToString()).GetTokens();
             }
             return _tokens;
         }
@@ -261,7 +262,7 @@
         {
             if (_references == null)
             {
-                _references = parser.ParseTextLineWithBibleReferences(ElementData.Value.ToString()).GetBibleReferences();
+                _references = Parser.ParseTextLineWithBibleReferences(ElementData.Value.ToString()).GetBibleReferences();
             }
             return _references;
         }
@@ -276,8 +277,6 @@
     {
         IsOpen = !IsOpen;
     }
-
-    private Parser parser = new Parser();
 
     private void SetActive(MouseEventArgs e, int buttonNumber)
     {

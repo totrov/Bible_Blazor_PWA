@@ -1,14 +1,17 @@
-﻿using System;
+﻿using Bible_Blazer_PWA.Config;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Bible_Blazer_PWA.Services.Parse
 {
-    public static class Replacer
+    public class Replacer
     {
-        private static readonly Dictionary<string, string> mapping = new Dictionary<string, string>
+        private readonly Dictionary<string, string> mapping = new Dictionary<string, string>
         {
             {"Мф.","Мат" },
             {"1-е Кор.","1Кор" },
@@ -35,13 +38,50 @@ namespace Bible_Blazer_PWA.Services.Parse
             {"Авк", "Авв" },
             {"Фил","Флп" }
         };
-
-        internal static string ReplaceBibleRefs(string stringWithReplacements)
+        Dictionary<string, Dictionary<string, string>> replacements = null;
+        HttpClient Http;
+        public Replacer(HttpClient Http)
         {
-            throw new NotImplementedException();
+            this.Http = Http;
         }
 
-        internal static string HandleBrackets(string stringToParse)
+        private async Task InitReplacements()
+        {
+            try
+            {
+                replacements = await Http.GetFromJsonAsync<Dictionary<string, Dictionary<string, string>>>(
+                    LessonLoadConfig.GetReplacementsUrl(true));
+            }
+            catch (Exception)
+            {
+                replacements = await Http.GetFromJsonAsync<Dictionary<string, Dictionary<string, string>>>(
+                    LessonLoadConfig.GetReplacementsUrl(false));
+            }
+        }
+
+        public async Task<string> ApplyHighLevelReplacements(string input, string unitId)
+        {
+            if (replacements == null)
+            {
+                await InitReplacements();
+            }
+            if (replacements.ContainsKey(unitId))
+            {
+                return MultipleReplace(input, replacements[unitId]);
+            }
+            return input;
+        }
+
+        private string MultipleReplace(string text, Dictionary<string, string> replacements)
+        {
+            return Regex.Replace(
+                text,
+                "(" + String.Join("|", replacements.Keys).Replace("(", "[(]").Replace(")", "[)]") + ")",
+                (Match m) => { return replacements[m.Value]; }
+            );
+        }
+
+        internal string HandleBrackets(string stringToParse)
         {
             string buf = stringToParse;
             foreach (Match match in Regex.Matches(stringToParse, BibleRegexHelper.GetBracketsHandlerPattern()))
@@ -53,7 +93,7 @@ namespace Bible_Blazer_PWA.Services.Parse
             return buf;
         }
 
-        internal static string ReplaceBookNames(string stringToParse)
+        internal string ReplaceBookNames(string stringToParse)
         {
             return mapping.Aggregate(stringToParse, (str, replacement) => { return str.Replace(replacement.Key, replacement.Value); });
         }

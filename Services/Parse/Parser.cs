@@ -1,10 +1,8 @@
 ﻿using Bible_Blazer_PWA.DomainObjects;
 using Bible_Blazer_PWA.Services.Parse;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Bible_Blazer_PWA.BibleReferenceParse
 {
@@ -14,11 +12,13 @@ namespace Bible_Blazer_PWA.BibleReferenceParse
         private LinkedList<BibleReference> _bibleReferences;
         private LinkedList<LessonElementToken> _tokens;
         private bool parseCompleted = false;
+        private Replacer replacer;
 
-        public Parser()
+        public Parser(Replacer replacer)
         {
             _bibleReferences = new LinkedList<BibleReference>();
             _tokens = new LinkedList<LessonElementToken>();
+            this.replacer = replacer;
         }
 
         public LinkedList<LessonElementToken> GetTokens() => _tokens;
@@ -28,9 +28,9 @@ namespace Bible_Blazer_PWA.BibleReferenceParse
             if (parseCompleted)
                 return this;
             
-            string stringWithReplacements = Replacer.ReplaceBookNames(stringToParse);
-            stringWithReplacements = Replacer.HandleBrackets(stringWithReplacements);
-            //stringWithReplacements = Replacer.ReplaceBibleRefs(stringWithReplacements);
+            string stringWithReplacements = replacer.ReplaceBookNames(stringToParse);
+            stringWithReplacements = replacer.HandleBrackets(stringWithReplacements);
+
             var pos = 0;
             foreach (Match match in Regex.Matches(stringWithReplacements, BibleRegexHelper.GetBibleReferencesPattern()))
             {
