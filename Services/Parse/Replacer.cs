@@ -1,4 +1,5 @@
 ﻿using Bible_Blazer_PWA.Config;
+using Bible_Blazer_PWA.Facades;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,18 +46,9 @@ namespace Bible_Blazer_PWA.Services.Parse
             this.Http = Http;
         }
 
-        private async Task InitReplacements()
+        public async Task InitReplacements()
         {
-            try
-            {
-                replacements = await Http.GetFromJsonAsync<Dictionary<string, Dictionary<string, string>>>(
-                    LessonLoadConfig.GetReplacementsUrl(true));
-            }
-            catch (Exception)
-            {
-                replacements = await Http.GetFromJsonAsync<Dictionary<string, Dictionary<string, string>>>(
-                    LessonLoadConfig.GetReplacementsUrl(false));
-            }
+            replacements = await new HttpFacade(Http).GetRepacementsFromJsonAsync();
         }
 
         public async Task<string> ApplyHighLevelReplacements(string input, string unitId)

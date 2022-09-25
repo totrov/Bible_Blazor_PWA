@@ -1,6 +1,7 @@
 ﻿@page "/setup"
 @using System.IO
 @using Bible_Blazer_PWA.Config
+@using Bible_Blazer_PWA.Facades
 @using Bible_Blazer_PWA.Services.MudBlazorHelpers
 @using Bible_Blazer_PWA.Services.Parse
 @using Bible_Blazer_PWA.Services.Readers
@@ -379,7 +380,7 @@
 
     IBrowserFile parametrsFile = null;
 
-    private string LastUpdate { get; set; } = "Неизвестно";
+    private string LastUpdate { get; set; } = "25.09.2022 (для более свежей версии необходимо интернет соединение)";
     private string selectedLessonsValue { get; set; } = "Ничего не выбрано";
     private IEnumerable<string> lessonNames = LessonLoadConfig.GetLessonNames();
     private IEnumerable<string> options { get; set; } = new HashSet<string>();
@@ -423,12 +424,11 @@
         IsDisabled = true;
         foreach (var lessonName in options)
         {
-            string url = Config.LessonLoadConfig.GetUrlByLessonName(lessonName);
             string stringContent = "";
             bool readSucceeded = false;
             var item = new LoadingItem { Name = lessonName, Status = "Чтение из облака..." };
             LoadingItems.Add(item);
-            var builder = new ReaderBuilder(await Http.GetStreamAsync(url));
+            var builder = new ReaderBuilder(await new HttpFacade(Http).GetStreamByLessonNameAsync(lessonName));
             try
             {
                 using (var reader = builder.GetReader())

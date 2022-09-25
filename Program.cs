@@ -34,6 +34,7 @@ namespace Bible_Blazer_PWA
             builder.Services.AddSingleton(dbParametersFacade);
             builder.Services.AddSingleton(new MenuService());
             var replacer = new Replacer(http);
+            await replacer.InitReplacements();
             builder.Services.AddSingleton(replacer);
 
             var host = builder.Build();
