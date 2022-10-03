@@ -1,20 +1,9 @@
-﻿using AngleSharp.Dom;
-using Bible_Blazer_PWA.BibleReferenceParse;
-using Bible_Blazer_PWA.Config;
-using Bible_Blazer_PWA.DataBase;
-using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using static System.Net.WebRequestMethods;
 
 namespace Bible_Blazer_PWA.Services.Parse
 {
@@ -27,15 +16,15 @@ namespace Bible_Blazer_PWA.Services.Parse
             public string Name { get; set; }
             public string Content { get; set; }
         }
-        public static async Task<string> ParseLessons(string _input, Replacer replacer)
+        public static async Task<string> ParseLessons(string _input, Corrector corrector)
         {
             var idSet = new HashSet<int>();
 
-            string regex = BibleRegexHelper.GetLessonsPattern();
+            string regex = corrector.RegexHelper.GetLessonsPattern();
             var contents = Regex.Split(_input, regex);
 
             string UnitId = GetUnitId(contents[0]);
-            contents = Regex.Split(await replacer.ApplyHighLevelReplacements(_input, UnitId), regex);
+            contents = Regex.Split(corrector.ApplyHighLevelReplacements(_input, UnitId), regex);
 
             LessonModel lessonModel = null;
             var lessonsList = new LinkedList<LessonModel>();
@@ -53,9 +42,9 @@ namespace Bible_Blazer_PWA.Services.Parse
                 else
                 {
                     lessonModel.Content = contents[i].Replace("\r", "<br>");
-                    if (Regex.IsMatch(lessonModel.Content, BibleRegexHelper.GetSublessonHeaderPattern(false)))
+                    if (Regex.IsMatch(lessonModel.Content, corrector.RegexHelper.GetSublessonHeaderPattern(false)))
                     {
-                        AddSublessons(lessonsList, lessonModel, idSet);
+                        AddSublessons(lessonsList, lessonModel, idSet, corrector);
                     }
                     else
                     {
@@ -72,12 +61,12 @@ namespace Bible_Blazer_PWA.Services.Parse
             return result;
         }
 
-        private static void AddSublessons(LinkedList<LessonModel> lessonsList, LessonModel lessonModel, HashSet<int> idSet)
+        private static void AddSublessons(LinkedList<LessonModel> lessonsList, LessonModel lessonModel, HashSet<int> idSet, Corrector corrector)
         {
             string name = lessonModel.Name.TrimEnd('.');
             int sublessonNumber = 1;
 
-            foreach (Match sublessonMatch in Regex.Matches(lessonModel.Content, BibleRegexHelper.GetSublessonsPattern()))
+            foreach (Match sublessonMatch in Regex.Matches(lessonModel.Content, corrector.RegexHelper.GetSublessonsPattern()))
             {
                 var lessonHeader = sublessonMatch.Groups["header"].Value;
                 lessonHeader = lessonHeader.Replace("<br>", "");

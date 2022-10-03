@@ -7,7 +7,7 @@
 @inject BibleService Bible
 @inject DbParametersFacade dbParamFacade;
 @inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
-@inject Replacer Replacer;
+@inject Corrector Corrector;
 
 @{
     var border = parameters.HideBlocksBorders == "True" ? "border:none;" : "";
@@ -198,7 +198,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        parser = new Parser(Replacer);
+        parser = new Parser(Corrector);
         parameters = dbParamFacade.ParametersModel;
         _versesViewsDictionary = new Dictionary<string, IEnumerable<BibleService.VersesView>>();
         foreach (BibleReference reference in BibleReferences)

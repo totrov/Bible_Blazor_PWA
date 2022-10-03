@@ -2,6 +2,7 @@
 @using System.IO
 @using Bible_Blazer_PWA.Config
 @using Bible_Blazer_PWA.Facades
+@using Bible_Blazer_PWA.Services
 @using Bible_Blazer_PWA.Services.MudBlazorHelpers
 @using Bible_Blazer_PWA.Services.Parse
 @using Bible_Blazer_PWA.Services.Readers
@@ -18,7 +19,7 @@
 @inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
 @inject IJSRuntime JS
 @inject ISnackbar Snackbar
-@inject Replacer Replacer;
+@inject Corrector Corrector;
 
 <MudExpansionPanels>
     <MudExpansionPanel>
@@ -424,31 +425,14 @@
         IsDisabled = true;
         foreach (var lessonName in options)
         {
-            string stringContent = "";
-            bool readSucceeded = false;
+            LessonImporter importer = new LessonImporter(Http, Corrector, db);
             var item = new LoadingItem { Name = lessonName, Status = "Чтение из облака..." };
+            importer.OnReaderException += ex => UpdateItemStatus(item, ex.Message);
+            importer.OnReadCompleted += () => UpdateItemStatus(item, "Чтение из облака завершено. Разбор текста...");
+            importer.OnImportCompleted += () => UpdateItemStatus(item, "Успешно загружено");
             LoadingItems.Add(item);
-            var builder = new ReaderBuilder(await new HttpFacade(Http).GetStreamByLessonNameAsync(lessonName));
-            try
-            {
-                using (var reader = builder.GetReader())
-                {
-                    stringContent = reader.ReadDocumentToString(out readSucceeded);
-                }
-            }
-            catch (ReaderException ex)
-            {
-                UpdateItemStatus(item, ex.Message);
-            }
-            if (readSucceeded)
-            {
-                UpdateItemStatus(item, "Чтение из облака завершено. Разбор текста...");
-                string json = await LessonParser.ParseLessons(stringContent, Replacer);
-                var resultHandler = await db.ImportLessonsJson(json);
-                resultHandler.OnDbResultOK += () => { UpdateItemStatus(item, "Успешно загружено"); };
-            }
+            await importer.LoadPredefinedLesson(lessonName);
         }
-
         IsDisabled = false;
     }
 
@@ -515,7 +499,7 @@
             }
             if (readSucceeded)
             {
-                string json = await LessonParser.ParseLessons(stringContent, Replacer);
+                string json = await LessonParser.ParseLessons(stringContent, Corrector);
                 var resultHandler = await db.ImportLessonsJson(json);
                 resultHandler.OnDbResultOK += () => { UpdateItemStatus(item, "Успешно загружено"); };
             }

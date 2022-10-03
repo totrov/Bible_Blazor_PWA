@@ -5,7 +5,6 @@ using System.IO;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using static System.Net.WebRequestMethods;
 
 namespace Bible_Blazer_PWA.Facades
 {
@@ -19,32 +18,41 @@ namespace Bible_Blazer_PWA.Facades
 
         public async Task<Stream> GetStreamByLessonNameAsync(string lessonName)
         {
-            Stream result;
-            try
-            {
-                result = await client.GetStreamAsync(LessonLoadConfig.GetUrlByLessonName(lessonName, true));
-            }
-            catch(HttpRequestException)
-            {
-                result = await client.GetStreamAsync(LessonLoadConfig.GetUrlByLessonName(lessonName, false));
-            }
-            return result;
+            return await GetOnlineFirst(
+                async (url) => await client.GetStreamAsync(url),
+                online => LessonLoadConfig.GetUrlByLessonName(lessonName, online)
+                );
+        }
+
+        internal async Task<List<string>> GetNegativeLookaheads()
+        {
+            return await GetOnlineFirst(
+                async (url) => await client.GetFromJsonAsync<List<string>>(url),
+                LessonLoadConfig.GetNegativeLookaheadsUrl
+                );
         }
 
         internal async Task<Dictionary<string, Dictionary<string, string>>> GetRepacementsFromJsonAsync()
         {
-            Dictionary<string, Dictionary<string, string>> replacements;
+            return await GetOnlineFirst(
+                async (url) => await client.GetFromJsonAsync<Dictionary<string, Dictionary<string, string>>>(url),
+                LessonLoadConfig.GetReplacementsUrl
+                );
+        }
+
+        delegate string UrlGetterMethod(bool online);
+        private async Task<T> GetOnlineFirst<T>(Func<string, Task<T>> func, UrlGetterMethod urlGetterMethod)
+        {
+            T result;
             try
             {
-                replacements = await client.GetFromJsonAsync<Dictionary<string, Dictionary<string, string>>>(
-                    LessonLoadConfig.GetReplacementsUrl(true));
+                result = await func(urlGetterMethod(true));
             }
-            catch (Exception)
+            catch (HttpRequestException)
             {
-                replacements = await client.GetFromJsonAsync<Dictionary<string, Dictionary<string, string>>>(
-                    LessonLoadConfig.GetReplacementsUrl(false));
+                result = await func(urlGetterMethod(false));
             }
-            return replacements;
+            return result;
         }
     }
 }

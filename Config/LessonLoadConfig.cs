@@ -6,22 +6,22 @@ namespace Bible_Blazer_PWA.Config
     {
         private static Dictionary<string, string> lessonNameUrl = new()
         {
-            {"Бытие", "/Assets/lessons/Бытие.docx" },
-            {"Исход - Соломон", "/Assets/lessons/Исход - Соломон.docx" },
-            {"Пророки", "/Assets/lessons/Пророки..docx" },
-            {"Евангелия", "/Assets/lessons/Евангелия..docx" },
-            {"Деяния - Откровение", "/Assets/lessons/Деяния - Откровение..docx" },
-            {"Основы веры", "/Assets/lessons/Основы веры..docx" }
+            {"Бытие", "/Assets/lessons/Byt.docx" },
+            {"Исход - Соломон", "/Assets/lessons/IshodSolomon.docx" },
+            {"Пророки", "/Assets/lessons/Pror.docx" },
+            {"Евангелия", "/Assets/lessons/Evn.docx" },
+            {"Деяния - Откровение", "/Assets/lessons/DeyanOtkr.docx" },
+            {"Основы веры", "/Assets/lessons/OsnVer.docx" }
         };
 
         private static Dictionary<string, string> lessonNameUrlOnline = new()
         {
-            {"Бытие", "https://covenant-of-christ.onrender.com/Assets/online/lessons/Бытие.docx" },
-            {"Исход - Соломон", "https://covenant-of-christ.onrender.com/Assets/online/lessons/Исход - Соломон.docx" },
-            {"Пророки", "https://covenant-of-christ.onrender.com/Assets/online/lessons/Пророки..docx" },
-            {"Евангелия", "https://covenant-of-christ.onrender.com/Assets/online/lessons/Евангелия..docx" },
-            {"Деяния - Откровение", "https://covenant-of-christ.onrender.com/Assets/online/lessons/Деяния - Откровение..docx" },
-            {"Основы веры", "https://covenant-of-christ.onrender.com/Assets/online/lessons/Основы веры..docx" }
+            {"Бытие", "https://covenant-of-christ.onrender.com/Assets/online/lessons/Byt.docx" },
+            {"Исход - Соломон", "https://covenant-of-christ.onrender.com/Assets/online/lessons/IshodSolomon.docx" },
+            {"Пророки", "https://covenant-of-christ.onrender.com/Assets/online/lessons/Pror.docx" },
+            {"Евангелия", "https://covenant-of-christ.onrender.com/Assets/online/lessons/Evn.docx" },
+            {"Деяния - Откровение", "https://covenant-of-christ.onrender.com/Assets/online/lessons/DeyanOtkr.docx" },
+            {"Основы веры", "https://covenant-of-christ.onrender.com/Assets/online/lessons/OsnVer.docx" }
         };
 
         public static IEnumerable<string> GetLessonNames()
@@ -41,6 +41,12 @@ namespace Bible_Blazer_PWA.Config
             return online
                 ? "https://covenant-of-christ.onrender.com/Assets/online/lessons/replacements.json"
                 : "/Assets/lessons/replacements.json";
+        }
+        public static string GetNegativeLookaheadsUrl(bool online)
+        {
+            return online
+                ? "https://covenant-of-christ.onrender.com/Assets/online/lessons/negativeLookaheads.json"
+                : "/Assets/lessons/negativeLookaheads.json";
         }
 
         public static string GetManifestUrl()

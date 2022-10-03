@@ -12,13 +12,13 @@ namespace Bible_Blazer_PWA.BibleReferenceParse
         private LinkedList<BibleReference> _bibleReferences;
         private LinkedList<LessonElementToken> _tokens;
         private bool parseCompleted = false;
-        private Replacer replacer;
+        private Corrector corrector;
 
-        public Parser(Replacer replacer)
+        public Parser(Corrector corrector)
         {
             _bibleReferences = new LinkedList<BibleReference>();
             _tokens = new LinkedList<LessonElementToken>();
-            this.replacer = replacer;
+            this.corrector = corrector;
         }
 
         public LinkedList<LessonElementToken> GetTokens() => _tokens;
@@ -28,11 +28,11 @@ namespace Bible_Blazer_PWA.BibleReferenceParse
             if (parseCompleted)
                 return this;
             
-            string stringWithReplacements = replacer.ReplaceBookNames(stringToParse);
-            stringWithReplacements = replacer.HandleBrackets(stringWithReplacements);
+            string stringWithReplacements = corrector.ReplaceBookNames(stringToParse);
+            stringWithReplacements = corrector.HandleBrackets(stringWithReplacements);
 
             var pos = 0;
-            foreach (Match match in Regex.Matches(stringWithReplacements, BibleRegexHelper.GetBibleReferencesPattern()))
+            foreach (Match match in Regex.Matches(stringWithReplacements, corrector.RegexHelper.GetBibleReferencesPattern()))
             {
                 CreateTokensAndSeekPos(stringWithReplacements, ref pos, match);
 
@@ -77,7 +77,7 @@ namespace Bible_Blazer_PWA.BibleReferenceParse
         {
             BibleVersesReference bibleVersesReference = new BibleVersesReference();
 
-            Match match = Regex.Match(stringToParse, BibleRegexHelper.GetBibleVerseReferencesPattern());
+            Match match = Regex.Match(stringToParse, corrector.RegexHelper.GetBibleVerseReferencesPattern());
             bibleVersesReference.Chapter = int.Parse(match.Groups.Cast<Group>().Where(g => g.Name == "chapter").First().Value);
             bibleVersesReference.FromToVerses = new LinkedList<FromToVerses>();
             foreach (Capture capture in match.Groups.Cast<Group>().Where(g => g.Name == "fromTo").First().Captures)
@@ -91,7 +91,7 @@ namespace Bible_Blazer_PWA.BibleReferenceParse
         private FromToVerses CreateFromToVerseFromString(string stringToParse)
         {
             FromToVerses fromToVerses = new FromToVerses();
-            Match match = Regex.Match(stringToParse, BibleRegexHelper.GetFromToVersesPattern());
+            Match match = Regex.Match(stringToParse, corrector.RegexHelper.GetFromToVersesPattern());
             fromToVerses.FromVerse = int.Parse(match.Groups.Cast<Group>().Where(g => g.Name == "from").First().Value);
             var groups = match.Groups.Cast<Group>().Where(g => g.Name == "to");
             var debug = groups.FirstOrDefault();
