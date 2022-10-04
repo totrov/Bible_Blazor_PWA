@@ -4,6 +4,7 @@ using Bible_Blazer_PWA.Services.Parse;
 using Bible_Blazer_PWA.Services.Readers;
 using DocumentFormat.OpenXml.Features;
 using System;
+using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using static System.Net.WebRequestMethods;
@@ -21,6 +22,9 @@ namespace Bible_Blazer_PWA.Services
 
         public event Action OnImportCompleted;
         protected void ImportCompletedHandler() => OnImportCompleted?.Invoke();
+
+        public event Action OnReadFinalization;
+        protected void ReadFinalizationHandler() => OnReadFinalization?.Invoke();
         #endregion
         #region fields
         private readonly HttpFacade httpFacade;
@@ -41,6 +45,12 @@ namespace Bible_Blazer_PWA.Services
             await LoadLesson(readerBuilder);
         }
 
+        public async Task LoadLessonFromFile(string fileName)
+        {
+            var readerBuilder = new ReaderBuilder(fileName);
+            await LoadLesson(readerBuilder);
+        }
+
         protected async Task LoadLesson(ReaderBuilder readerBuilder)
         {
             string stringContent = "";
@@ -56,6 +66,10 @@ namespace Bible_Blazer_PWA.Services
             catch (ReaderException ex)
             {
                 ReaderExceptionHandler(ex);
+            }
+            finally
+            {
+                ReadFinalizationHandler();
             }
             if (readSucceeded)
             {

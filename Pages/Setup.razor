@@ -439,7 +439,7 @@
     public async Task RemoveLessons()
     {
         IsDisabled = true;
-        var item = new LoadingItem { Name = "Удвление загруженных уроков", Status = "В процессе..." };
+        var item = new LoadingItem { Name = "Удаление загруженных уроков", Status = "В процессе..." };
         LoadingItems.Add(item);
 
         try
@@ -479,30 +479,15 @@
             await file.OpenReadStream(2000000).CopyToAsync(fs);
             UpdateItemStatus(item, "Чтение...");
 
-            string stringContent = "";
-            bool readSucceeded = false;
+
             var builder = new ReaderBuilder(file.Name);
-            try
-            {
-                using (var reader = builder.GetReader())
-                {
-                    stringContent = reader.ReadDocumentToString(out readSucceeded);
-                }
-            }
-            catch (ReaderException ex)
-            {
-                UpdateItemStatus(item, ex.Message);
-            }
-            finally
-            {
-                System.IO.File.Delete(file.Name);
-            }
-            if (readSucceeded)
-            {
-                string json = await LessonParser.ParseLessons(stringContent, Corrector);
-                var resultHandler = await db.ImportLessonsJson(json);
-                resultHandler.OnDbResultOK += () => { UpdateItemStatus(item, "Успешно загружено"); };
-            }
+
+            LessonImporter importer = new LessonImporter(Http, Corrector, db);
+            importer.OnReaderException += ex => UpdateItemStatus(item, ex.Message);
+            importer.OnReadCompleted += () => UpdateItemStatus(item, "Разбор текста...");
+            importer.OnImportCompleted += () => UpdateItemStatus(item, "Успешно загружено");
+            importer.OnReadFinalization += () => System.IO.File.Delete(file.Name);
+            await importer.LoadLessonFromFile(file.Name);
         }
         IsDisabled = false;
     }
