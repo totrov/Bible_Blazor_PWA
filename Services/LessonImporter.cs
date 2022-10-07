@@ -2,41 +2,26 @@
 using Bible_Blazer_PWA.Facades;
 using Bible_Blazer_PWA.Services.Parse;
 using Bible_Blazer_PWA.Services.Readers;
-using DocumentFormat.OpenXml.Features;
-using System;
-using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
-using static System.Net.WebRequestMethods;
 
 namespace Bible_Blazer_PWA.Services
 {
     public class LessonImporter
     {
-        #region events
-        public event Action<ReaderException> OnReaderException;
-        protected void ReaderExceptionHandler(ReaderException ex) => OnReaderException?.Invoke(ex);
-
-        public event Action OnReadCompleted;
-        protected void ReadCompletedHandler() => OnReadCompleted?.Invoke();
-
-        public event Action OnImportCompleted;
-        protected void ImportCompletedHandler() => OnImportCompleted?.Invoke();
-
-        public event Action OnReadFinalization;
-        protected void ReadFinalizationHandler() => OnReadFinalization?.Invoke();
-        #endregion
         #region fields
         private readonly HttpFacade httpFacade;
         private readonly Corrector corrector;
         private readonly DatabaseJSFacade db;
+        private readonly ALessonImportHandler handler;
         #endregion
 
-        public LessonImporter(HttpClient http, Corrector corrector, DatabaseJSFacade db)
+        public LessonImporter(HttpClient http, Corrector corrector, DatabaseJSFacade db, ALessonImportHandler handler)
         {
             httpFacade = new HttpFacade(http);
             this.corrector = corrector;
             this.db = db;
+            this.handler = handler;
         }
 
         public async Task LoadPredefinedLesson(string lessonName)
@@ -55,6 +40,7 @@ namespace Bible_Blazer_PWA.Services
         {
             string stringContent = "";
             bool readSucceeded = false;
+            handler.HandleStartReading();
 
             try
             {
@@ -65,18 +51,19 @@ namespace Bible_Blazer_PWA.Services
             }
             catch (ReaderException ex)
             {
-                ReaderExceptionHandler(ex);
+                handler.HandleReaderException(ex);
             }
             finally
             {
-                ReadFinalizationHandler();
+                handler.HandleReadFinalization();
             }
             if (readSucceeded)
             {
-                ReadCompletedHandler();
+                handler.HandleReadCompleted();
                 string json = await LessonParser.ParseLessons(stringContent, corrector);
                 var resultHandler = await db.ImportLessonsJson(json);
-                resultHandler.OnDbResultOK += () => { ImportCompletedHandler(); };
+                resultHandler.OnDbResultOK += () => { handler.HandleImportCompleted(); };
+                await resultHandler.GetTaskCompletionSourceWrapper();
             }
         }
     }

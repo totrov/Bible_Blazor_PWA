@@ -141,6 +141,13 @@ namespace Bible_Blazer_PWA.DataBase
                 Fail();
             }
         }
+
+        public Task GetTaskCompletionSourceWrapper()
+        {
+            TaskCompletionSource taskCompletionSource = new TaskCompletionSource();
+            OnDbResultOK += () => { taskCompletionSource.SetResult(); };
+            return taskCompletionSource.Task;
+        }
     }
 
     public class IndexedDBResultHandler<T> : IndexedDBResultHandler

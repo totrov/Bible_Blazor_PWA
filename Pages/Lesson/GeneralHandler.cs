@@ -18,14 +18,4 @@ namespace Bible_Blazer_PWA.Pages.Lesson
             postHandleAction?.Invoke();
         }
     }
-
-    //public abstract class IconResolvableParameterHandeler : IconResolvableHandler
-    //{
-    //    protected readonly ParametersModel parametersModel;
-
-    //    public IconResolvableParameterHandeler(IconResolver iconResolver, ParametersModel parametersModel) : base(iconResolver)
-    //    {
-    //        this.parametersModel = parametersModel;
-    //    }
-    //}
 }

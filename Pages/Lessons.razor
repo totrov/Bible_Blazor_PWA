@@ -1,10 +1,22 @@
-﻿@page "/lessons"
+﻿@page "/"
+@using Bible_Blazer_PWA.Components
+@using Bible_Blazer_PWA.Config
 @using Bible_Blazer_PWA.DataSources
 @using static Bible_Blazer_PWA.DataSources.LessonDS
 @using Bible_Blazer_PWA.DomainObjects
+@using Bible_Blazer_PWA.Services
 @using Bible_Blazer_PWA.Services.Menu
+@using System.Text.Json
+@using Bible_Blazer_PWA.Services.Parse
+@using System.IO
+@using Bible_Blazer_PWA.Services.Readers
 @inject MenuService menu
+@inject HttpClient Http
+@inject Corrector Corrector;
 @inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
+@inject NavigationManager navigation
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
 
 @if (_blocks != null)
 {
@@ -17,10 +29,14 @@
                 </TitleContent>
                 <ChildContent>
                     <MudList Clickable="true">
+                        @{
+                            var loadAction = () => LoadFromAzure(@block.Name);
+                        }
+                        <MudFab Size="Size.Small" Color="Color.Primary" StartIcon="@Icons.Filled.CloudDownload"
+                        @onclick="loadAction" Disabled="@IsDisabled" />
                         @foreach (LessonInfoLightweight lesson in block.Lessons)
                         {
                             <MudListItem>
-                                @*<span class="iconify" data-icon="bx:bx-bible" style="color: #0366d6;"></span><i class="fas fa-bible"></i>*@
                                 <NavLink class="nav-link" href="@($"lessonNew/{lesson.Id}/{Unit.GetUnitNumberByShortName(lesson.UnitId)}")" Match="NavLinkMatch.All">@lesson.Name</NavLink>
                             </MudListItem>
                         }
@@ -29,9 +45,69 @@
             </MudExpansionPanel>
         }
     </MudExpansionPanels>
+}
+
+@code {
+    private LessonDS _lessonDS { get; set; }
+    private LinkedList<LessonBlock> _blocks;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _lessonDS = new LessonDS(db);
+        _blocks = await _lessonDS.GetBlocks();
+        menu.Title = "Планы уроков";
+        menu.ClearMenuButtons();
+        menu.AddMenuButton(new SimpleActionButtonHandler(Icons.Filled.CloudDownload, () => {
+            var options = new DialogOptions { CloseButton = true, CloseOnEscapeKey = true, DisableBackdropClick = true };
+            DialogService.Show<LoadLessonsDialog>("Автоматическая загрузка уроков", options);
+        }));
+        menu.AddMenuButton(new SimpleActionButtonHandler(Icons.Filled.UploadFile, () => {
+            var options = new DialogOptions { CloseButton = true, CloseOnEscapeKey = true, DisableBackdropClick = true };
+            DialogService.Show<ManualLessonLoadDialog>("Ручная загрузка уроков", options);
+        }));
+        menu.AddMenuButton(new SimpleActionButtonHandler(Icons.Filled.Delete, () =>
+        {
+            var options = new DialogOptions { CloseButton = true, CloseOnEscapeKey = true, DisableBackdropClick = true };
+            DialogService.Show<DeleteLoadedLessons>("Удалить загруженные уроки", options);
+        }));
+
+        menu.Update(this);
+    }
+
+    private bool IsDisabled { get; set; } = false;
+
+    public async Task LoadFromAzure(string lessonToLoad)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("ImagePath", "/Assets/CloudLoading.gif");
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, DisableBackdropClick = true };
+        DialogService.Show<ImageDialog>($"Загрузка урока {lessonToLoad}", parameters, options);
+
+        var importHandler = new SnackbarImportHandler(null, Snackbar);
+        LessonImporter importer = new LessonImporter(Http, Corrector, db, importHandler);
+        await importer.LoadPredefinedLesson(lessonToLoad).ContinueWith(async any => { await ReloadPage(); });
+    }
+
+    private async Task ReloadPage()
+    {
+        await Task.Delay(500);
+        var currentUri = navigation.Uri;
+        navigation.NavigateTo("/setup");
+        navigation.NavigateTo(currentUri);
+    }
+
+    private void UpdateItemStatus(Services.LoadingItem item, string newStatus)
+    {
+        item.Status = newStatus;
+        StateHasChanged();
+    }
+}
 
 
-@*    <h3>Ниже страницы уроков, сделанные без использования БД (будет удалено позже)</h3>
+
+                
+
+    @*    <h3>Ниже страницы уроков, сделанные без использования БД (будет удалено позже)</h3>
 
     <ul>
         <li class="nav-item px-3">
@@ -65,18 +141,3 @@
             </NavLink>
         </li>
     </ul>*@
-}
-
-@code {
-    private LessonDS _lessonDS { get; set; }
-    private LinkedList<LessonBlock> _blocks;
-
-    protected override async Task OnInitializedAsync()
-    {
-        _lessonDS = new LessonDS(db);
-        _blocks = await _lessonDS.GetBlocks();
-        menu.Title = "Планы уроков";
-        menu.ClearMenuButtons();
-        menu.Update(this);
-    }
-}

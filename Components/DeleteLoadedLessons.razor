@@ -1,0 +1,44 @@
+﻿@using Bible_Blazer_PWA.Services.Readers
+@inject NavigationManager navigation
+@inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
+@inject ISnackbar Snackbar;
+
+<MudButton HtmlTag="label"
+           Variant="Variant.Filled"
+           Color="Color.Secondary"
+           StartIcon="@Icons.Filled.Delete"
+           Disabled="@IsDisabled"
+           OnClick="RemoveLessons">
+    Удалить все ранее загруженные уроки.
+</MudButton>
+
+@code {
+    private bool IsDisabled { get; set; } = false;
+
+    public async Task RemoveLessons()
+    {
+        IsDisabled = true;
+        Snackbar.Add("Удаление уроков в процессе...", Severity.Info);
+
+        try
+        {
+            var resultHandler = await db.ClearObjectStore("lessons");
+            resultHandler.OnDbResultOK += () => { Snackbar.Add("Удаление уроков завершено", Severity.Info); };
+        }
+        catch (ReaderException ex)
+        {
+            Snackbar.Add("ошибка во время удаления уроков", Severity.Error);
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+
+        await ReloadPage();
+    }
+
+    private async Task ReloadPage()
+    {
+        await Task.Delay(500);
+        var currentUri = navigation.Uri;
+        navigation.NavigateTo("/setup");
+        navigation.NavigateTo(currentUri);
+    }
+}

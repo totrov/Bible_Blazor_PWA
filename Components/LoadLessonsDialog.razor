@@ -1,0 +1,90 @@
+﻿@using Bible_Blazer_PWA.Config
+@using System.Text.Json
+@using Bible_Blazer_PWA.Services
+@using Bible_Blazer_PWA.Services.Parse
+@inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
+@inject HttpClient Http
+@inject Corrector Corrector;
+@inject ISnackbar Snackbar;
+@inject NavigationManager navigation;
+
+<h6>Последнее обновление:@LastUpdate</h6>
+<MudGrid>
+    <MudItem xs="8">
+        <MudSelect T="string" Label="Какие уроки загрузить:" MultiSelection="true" @bind-Value="selectedLessonsValue" @bind-SelectedValues="options">
+            @foreach (var lessonName in lessonNames)
+            {
+                <MudSelectItem T="string" Value="@lessonName">@lessonName</MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+    <MudItem xs="4">
+        <MudFab Color="Color.Primary" StartIcon="@Icons.Filled.CloudDownload"
+                @onclick="()=>LoadFromAzure(options)" Disabled="@IsDisabled" />
+    </MudItem>
+</MudGrid>
+@if (LoadingItems.Any())
+{
+    <MudGrid>
+        <MudItem xs="8">
+            <MudList Clickable="false">
+                @foreach (var item in LoadingItems)
+                {
+                    <Bible_Blazer_PWA.Components.LoadingItem Name="@item.Name" Status="@item.Status"></Bible_Blazer_PWA.Components.LoadingItem>
+                }
+            </MudList>
+
+        </MudItem>
+    </MudGrid>
+}
+
+@code {
+    private string LastUpdate { get; set; } = "25.09.2022 (для более свежей версии необходимо интернет соединение)";
+    private string selectedLessonsValue { get; set; } = "Ничего не выбрано";
+    private IEnumerable<string> lessonNames = LessonLoadConfig.GetLessonNames();
+    private IEnumerable<string> options { get; set; } = new HashSet<string>();
+    private List<Services.LoadingItem> LoadingItems { get; set; } = new List<Services.LoadingItem>();
+    private bool IsDisabled { get; set; } = false;
+
+    protected async override Task OnInitializedAsync()
+    {
+        lessonNames.ToList().ForEach(l => ((HashSet<string>)options).Add(l));
+        using var httpClient = new HttpClient();
+        httpClient.BaseAddress = new Uri("https://covenant-of-christ.onrender.com");
+        try
+        {
+            string manifestString = await httpClient.GetStringAsync(
+                Config.LessonLoadConfig.GetManifestUrl());
+            LessonStorageManifest manifest = JsonSerializer.Deserialize<LessonStorageManifest>(manifestString);
+            LastUpdate = manifest?.lastUpdateDate.ToString("dd.MM.yyyy");
+        }
+        catch (Exception ex)
+        {
+            db.JSLog(ex.Message);
+        }
+    }
+
+    public async Task LoadFromAzure(IEnumerable<string> lessonsToLoad)
+    {
+        LoadingItems.Clear();
+        IsDisabled = true;
+        List<Task> tasks = new List<Task>(lessonsToLoad.Count());
+        foreach (var lessonName in lessonsToLoad)
+        {
+            var item = new Services.LoadingItem { Name = lessonName };
+            LoadingItems.Add(item);
+            var importHandler = new OnPageImportHandler(null, item);
+            LessonImporter importer = new LessonImporter(Http, Corrector, db, importHandler);
+            await importer.LoadPredefinedLesson(lessonName);
+        }
+        await ReloadPage();
+    }
+
+    private async Task ReloadPage()
+    {
+        await Task.Delay(500);
+        var currentUri = navigation.Uri;
+        navigation.NavigateTo("/setup");
+        navigation.NavigateTo(currentUri);
+    }
+}

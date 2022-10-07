@@ -1,0 +1,79 @@
+﻿@using Bible_Blazer_PWA.Services
+@using System.IO
+@using Bible_Blazer_PWA.Services.Parse
+@inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
+@inject HttpClient Http
+@inject Corrector Corrector;
+@inject ISnackbar Snackbar;
+@inject NavigationManager navigation;
+
+<InputFile id="lessonFilesInput" OnChange="LoadFiles" hidden multiple />
+                <MudButton HtmlTag="label"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Filled.UploadFile"
+                       Disabled="@IsDisabled"
+                       for="lessonFilesInput">
+                    Загрузить из word файлов (можно выбрать несколько сразу)
+                </MudButton>
+@if (LoadingItems.Any())
+{
+    <MudGrid>
+        <MudItem xs="8">
+            <MudList Clickable="false">
+                @foreach (var item in LoadingItems)
+                {
+                    <Bible_Blazer_PWA.Components.LoadingItem Name="@item.Name" Status="@item.Status"></Bible_Blazer_PWA.Components.LoadingItem>
+                }
+            </MudList>
+
+        </MudItem>
+    </MudGrid>
+}
+@code {
+    private List<Services.LoadingItem> LoadingItems { get; set; } = new List<Services.LoadingItem>();
+    private bool IsDisabled { get; set; } = false;
+
+    private async Task LoadFiles(InputFileChangeEventArgs e)
+    {
+        LoadingItems.Clear();
+        IsDisabled = true;
+        bool useSnackar = e.FileCount < 2;
+
+        foreach (var file in e.GetMultipleFiles(10))
+        {
+            ALessonImportHandler importHandler;
+            if (useSnackar)
+            {
+                importHandler = new SnackbarImportHandler(() => System.IO.File.Delete(file.Name), Snackbar);
+            }
+            else
+            {
+                var item = new Services.LoadingItem { Name = file.Name };
+                LoadingItems.Add(item);
+                importHandler = new OnPageImportHandler(() => System.IO.File.Delete(file.Name), item);
+            }
+
+            await using FileStream fs = new(file.Name, FileMode.Create);
+            await file.OpenReadStream(2000000).CopyToAsync(fs);
+
+            LessonImporter importer = new LessonImporter(Http, Corrector, db, importHandler);
+            await importer.LoadLessonFromFile(file.Name);
+        }
+        await ReloadPage();
+    }
+
+    private async Task ReloadPage()
+    {
+        await Task.Delay(500);
+        var currentUri = navigation.Uri;
+        navigation.NavigateTo("/setup");
+        navigation.NavigateTo(currentUri);
+    }
+
+    private void UpdateItemStatus(Services.LoadingItem item, string newStatus)
+    {
+        item.Status = newStatus;
+        StateHasChanged();
+    }
+}

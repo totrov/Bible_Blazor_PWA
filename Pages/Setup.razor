@@ -1,6 +1,5 @@
 ﻿@page "/setup"
 @using System.IO
-@using Bible_Blazer_PWA.Config
 @using Bible_Blazer_PWA.Facades
 @using Bible_Blazer_PWA.Services
 @using Bible_Blazer_PWA.Services.MudBlazorHelpers
@@ -14,71 +13,12 @@
 @using Services.Menu
 @using Bible_Blazer_PWA
 @inject MenuService menu
-@inject HttpClient Http
 @inject DbParametersFacade dbParams
 @inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
 @inject IJSRuntime JS
 @inject ISnackbar Snackbar
-@inject Corrector Corrector;
 
 <MudExpansionPanels>
-    <MudExpansionPanel>
-        <TitleContent>
-            <MudText Typo="Typo.h5">Загрузка планов уроков</MudText>
-        </TitleContent>
-        <ChildContent>
-            <h5 class="card-title">Загрузить из облака (требуется интернет)</h5>
-            <h6>Последнее обновление:@LastUpdate</h6>
-            <MudGrid>
-                <MudItem xs="8">
-                    <MudSelect T="string" Label="Какие уроки загрузить:" MultiSelection="true" @bind-Value="selectedLessonsValue" @bind-SelectedValues="options">
-                        @foreach (var lessonName in lessonNames)
-                        {
-                            <MudSelectItem T="string" Value="@lessonName">@lessonName</MudSelectItem>
-                        }
-                    </MudSelect>
-                </MudItem>
-                <MudItem xs="4">
-                    <MudFab Color="Color.Primary" StartIcon="@Icons.Filled.CloudDownload" @onclick="LoadFromAzure" Disabled="@IsDisabled" />
-                </MudItem>
-            </MudGrid>
-
-            <MudDivider DividerType="DividerType.Middle" Class="my-6" />
-            <h5 class="card-title">Загрузить из своих файлов</h5>
-            <InputFile id="lessonFilesInput" OnChange="LoadFiles" hidden multiple />
-            <MudButton HtmlTag="label"
-                       Variant="Variant.Filled"
-                       Color="Color.Primary"
-                       StartIcon="@Icons.Filled.UploadFile"
-                       Disabled="@IsDisabled"
-                       for="lessonFilesInput">
-                Загрузить из word файлов (можно выбрать несколько сразу)
-            </MudButton>
-            <MudDivider DividerType="DividerType.Middle" Class="my-6" />
-            <MudButton HtmlTag="label"
-                       Variant="Variant.Filled"
-                       Color="Color.Secondary"
-                       StartIcon="@Icons.Filled.Delete"
-                       Disabled="@IsDisabled"
-                       OnClick="RemoveLessons">
-                Удалить все ранее загруженные уроки.
-            </MudButton>
-            @if (LoadingItems.Any())
-            {
-                <MudGrid>
-                    <MudItem xs="8">
-                        <MudList Clickable="false">
-                            @foreach (var item in LoadingItems)
-                            {
-                                <Bible_Blazer_PWA.Components.LoadingItem Name="@item.Name" Status="@item.Status"></Bible_Blazer_PWA.Components.LoadingItem>
-                            }
-                        </MudList>
-
-                    </MudItem>
-                </MudGrid>
-            }
-        </ChildContent>
-    </MudExpansionPanel>
     <MudExpansionPanel>
         <TitleContent>
             <MudText Typo="Typo.h5">Визуальные</MudText>
@@ -381,78 +321,17 @@
 
     IBrowserFile parametrsFile = null;
 
-    private string LastUpdate { get; set; } = "25.09.2022 (для более свежей версии необходимо интернет соединение)";
-    private string selectedLessonsValue { get; set; } = "Ничего не выбрано";
-    private IEnumerable<string> lessonNames = LessonLoadConfig.GetLessonNames();
-    private IEnumerable<string> options { get; set; } = new HashSet<string>();
-
-    protected async override Task OnInitializedAsync()
-    {
-        await base.OnInitializedAsync();
-        lessonNames.ToList().ForEach(l => ((HashSet<string>)options).Add(l));
-        ParametersFormData = dbParams.ParametersModel;
-        menu.Title = "Параметры";
-        menu.ClearMenuButtons();
-        using var httpClient = new HttpClient();
-        httpClient.BaseAddress = new Uri("https://covenant-of-christ.onrender.com");
-        try
-        {
-            string manifestString = await httpClient.GetStringAsync(
-                Config.LessonLoadConfig.GetManifestUrl());
-            LessonStorageManifest manifest = JsonSerializer.Deserialize<LessonStorageManifest>(manifestString);
-            LastUpdate = manifest?.lastUpdateDate.ToString("dd.MM.yyyy");
-        }
-        catch (Exception ex)
-        {
-            db.JSLog(ex.Message);
-        }
-    }
-
-    class LoadingItem
-    {
-        public string Name { get; set; }
-        public string Status { get; set; }
-    }
-    private bool IsDisabled { get; set; } = false;
-    private List<LoadingItem> LoadingItems { get; set; } = new List<LoadingItem>();
     public async Task DeleteDb()
     {
         await db.CallVoidDbAsync(null, "delete");
     }
-    public async Task LoadFromAzure()
+
+    protected async override Task OnInitializedAsync()
     {
-        LoadingItems.Clear();
-        IsDisabled = true;
-        foreach (var lessonName in options)
-        {
-            LessonImporter importer = new LessonImporter(Http, Corrector, db);
-            var item = new LoadingItem { Name = lessonName, Status = "Чтение из облака..." };
-            importer.OnReaderException += ex => UpdateItemStatus(item, ex.Message);
-            importer.OnReadCompleted += () => UpdateItemStatus(item, "Чтение из облака завершено. Разбор текста...");
-            importer.OnImportCompleted += () => UpdateItemStatus(item, "Успешно загружено");
-            LoadingItems.Add(item);
-            await importer.LoadPredefinedLesson(lessonName);
-        }
-        IsDisabled = false;
-    }
-
-    public async Task RemoveLessons()
-    {
-        IsDisabled = true;
-        var item = new LoadingItem { Name = "Удаление загруженных уроков", Status = "В процессе..." };
-        LoadingItems.Add(item);
-
-        try
-        {
-            var resultHandler = await db.ClearObjectStore("lessons");
-            resultHandler.OnDbResultOK += () => { UpdateItemStatus(item, "Готово."); };
-        }
-        catch (ReaderException ex)
-        {
-            UpdateItemStatus(item, ex.Message);
-        }
-
-        IsDisabled = false;
+        await base.OnInitializedAsync();
+        ParametersFormData = dbParams.ParametersModel;
+        menu.Title = "Параметры";
+        menu.ClearMenuButtons();
     }
 
     public async Task ExportParamsToFile()
@@ -460,36 +339,6 @@
         using var stream = await dbParams.ExportToJson();
         using var streamRef = new DotNetStreamReference(stream);
         await JS.InvokeVoidAsync("downloadFileFromStream", "Parameters.json", streamRef);
-    }
-
-    private void UpdateItemStatus(LoadingItem item, string newStatus)
-    {
-        item.Status = newStatus;
-        StateHasChanged();
-    }
-    private async Task LoadFiles(InputFileChangeEventArgs e)
-    {
-        LoadingItems.Clear();
-        IsDisabled = true;
-        foreach (var file in e.GetMultipleFiles(10))
-        {
-            var item = new LoadingItem { Name = file.Name, Status = "Копирование..." };
-            LoadingItems.Add(item);
-            await using FileStream fs = new(file.Name, FileMode.Create);
-            await file.OpenReadStream(2000000).CopyToAsync(fs);
-            UpdateItemStatus(item, "Чтение...");
-
-
-            var builder = new ReaderBuilder(file.Name);
-
-            LessonImporter importer = new LessonImporter(Http, Corrector, db);
-            importer.OnReaderException += ex => UpdateItemStatus(item, ex.Message);
-            importer.OnReadCompleted += () => UpdateItemStatus(item, "Разбор текста...");
-            importer.OnImportCompleted += () => UpdateItemStatus(item, "Успешно загружено");
-            importer.OnReadFinalization += () => System.IO.File.Delete(file.Name);
-            await importer.LoadLessonFromFile(file.Name);
-        }
-        IsDisabled = false;
     }
 
     private async Task LoadParameters(InputFileChangeEventArgs e)
