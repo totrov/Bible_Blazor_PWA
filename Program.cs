@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Bible_Blazer_PWA.Services.Menu;
 using Bible_Blazer_PWA.Services.Parse;
 using Bible_Blazer_PWA.BibleReferenceParse;
+using BlazorWorker.Core;
 
 namespace Bible_Blazer_PWA
 {
@@ -24,6 +25,7 @@ namespace Bible_Blazer_PWA
             var http = new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) };
             builder.Services.AddScoped(sp => http);
             builder.Services.AddMudServices();
+            builder.Services.AddWorkerFactory();
 
             var bibleService = new BibleService();
             builder.Services.AddSingleton(bibleService);

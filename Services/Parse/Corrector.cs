@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace Bible_Blazer_PWA.Services.Parse
 {
-    public class Corrector
+    public class Corrector : ICorrector
     {
         public BibleRegexHelper RegexHelper;
 
@@ -32,7 +32,7 @@ namespace Bible_Blazer_PWA.Services.Parse
             );
         }
 
-        internal string HandleBrackets(string stringToParse)
+        public string HandleBrackets(string stringToParse)
         {
             string buf = stringToParse;
             foreach (Match match in Regex.Matches(stringToParse, RegexHelper.GetBracketsHandlerPattern()))
@@ -44,7 +44,7 @@ namespace Bible_Blazer_PWA.Services.Parse
             return buf;
         }
 
-        internal string ReplaceBookNames(string stringToParse)
+        public string ReplaceBookNames(string stringToParse)
         {
             return RegexHelper.GetReplacements()["bookNames"]
                 .Aggregate(stringToParse, (str, replacement) => { return str.Replace(replacement.Key, replacement.Value); });

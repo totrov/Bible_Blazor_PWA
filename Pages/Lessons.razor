@@ -10,6 +10,13 @@
 @using Bible_Blazer_PWA.Services.Parse
 @using System.IO
 @using Bible_Blazer_PWA.Services.Readers
+
+@using BlazorWorker.BackgroundServiceFactory
+@using BlazorWorker.Core
+@using BlazorWorker.Demo.IoCExample
+@using BlazorWorker.Extensions.JSRuntime
+@using BlazorWorker.WorkerBackgroundService
+
 @inject MenuService menu
 @inject HttpClient Http
 @inject Corrector Corrector;
@@ -17,6 +24,7 @@
 @inject NavigationManager navigation
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
+@inject IWorkerFactory workerFactory
 
 @if (_blocks != null)
 {
@@ -45,6 +53,22 @@
             </MudExpansionPanel>
         }
     </MudExpansionPanels>
+    <MudFab Size="Size.Small" Color="Color.Primary" StartIcon="@Icons.Filled.CloudDownload"
+        @onclick="Test" Disabled="@IsDisabled" />
+
+    @foreach (var item in new string[] { "Persistant startup class", "Startup class disposed with service" })
+    {
+        <div>
+            <input type="radio" name="variant" id="@item" value="@item" @onchange="RadioSelection" checked=@(RadioValue.Equals(item,StringComparison.OrdinalIgnoreCase)) />
+            <label for="@item">@item</label>
+        </div>
+    }
+    <button disabled=@RunDisabled @onclick=OnClick class="btn btn-primary">Run test</button>
+    <br />
+    <br />
+    <pre>
+        @output
+    </pre>
 }
 
 @code {
@@ -100,6 +124,139 @@
     {
         item.Status = newStatus;
         StateHasChanged();
+    }
+
+
+
+    ///////////////////////////////////////BlazorWorkerTest//////////////////////////////////////////////////
+
+
+    string output = "";
+    IWorker worker;
+    IWorkerBackgroundService<BlazorWorker.Demo.IoCExample.MyServiceStartup> startupService;
+    string canDisposeWorker => worker == null ? null : "disabled";
+    string RunDisabled => Running ? "disabled" : null;
+    bool Running = false;
+    string RadioValue = "Persistant startup class";
+    void RadioSelection(ChangeEventArgs args)
+    {
+        RadioValue = args.Value.ToString();
+    }
+    public async Task OnClick(EventArgs _)
+    {
+        Running = true;
+        //output = "";
+        var rn = Environment.NewLine;
+        try
+        {
+
+            if (worker == null)
+            {
+                worker = await workerFactory.CreateAsync();
+            }
+
+            var sw = new System.Diagnostics.Stopwatch();
+            IWorkerBackgroundService<LessonImportService> myIocService;
+            var persistedStartup = RadioValue == "Persistant startup class";
+
+            var serviceCollectionDependencies = new string[] {
+                    "Microsoft.Extensions.DependencyInjection.Abstractions.dll"
+#if NET5_0_OR_GREATER
+                ,"System.Diagnostics.Tracing.dll"
+#endif
+#if NET6_0_OR_GREATER
+                ,"Microsoft.Extensions.DependencyInjection.dll"
+#endif
+            };
+            if (persistedStartup)
+            {
+
+                if (startupService == null)
+                {
+                    output = $"{rn}{LogDate()} Creating background service...";
+                    StateHasChanged();
+
+                    sw.Start();
+                    startupService = await worker.CreateBackgroundServiceAsync<MyServiceStartup>(wo =>
+                        wo.AddConventionalAssemblyOfService()
+                          .AddAssemblyOf<Microsoft.Extensions.DependencyInjection.ServiceCollection>()
+                          .AddAssemblies(serviceCollectionDependencies)
+                          .AddBlazorWorkerJsRuntime()
+                        );
+
+                    output += $"{rn}{LogDate()} Background service created in {sw.ElapsedMilliseconds}ms";
+                    StateHasChanged();
+                }
+                output += $"{rn}{LogDate()} Resolving instance...";
+                myIocService = await startupService.CreateBackgroundServiceAsync(startup => startup.Resolve<LessonImportService>());
+            }
+            else
+            {
+                output += $"{rn}{LogDate()} Resolving Startup & instance...";
+                myIocService = await worker.CreateBackgroundServiceUsingFactoryAsync<MyServiceStartup, LessonImportService>(
+                    startup => startup.Resolve<LessonImportService>(), wo =>
+                        wo.AddConventionalAssemblyOfService()
+                            .AddAssemblyOf<Microsoft.Extensions.DependencyInjection.ServiceCollection>()
+                            .AddAssemblies(serviceCollectionDependencies)
+                            .AddBlazorWorkerJsRuntime()
+                            );
+            }
+
+            await using (myIocService)
+            {
+                await myIocService.RegisterEventListenerAsync(nameof(LessonImportService.FiveCalled),
+                       (object s, int five) =>
+                       {
+                           output += $"{rn}{LogDate()} OnFiveCalled: {five}";
+                           StateHasChanged();
+                       });
+                output += $"{rn}{LogDate()} Calling Five()...";
+                output += $"{rn}{LogDate()} Five() = {await myIocService.RunAsync(s => s.Five())}";
+            }
+
+            StateHasChanged();
+
+        }
+        catch (Exception e)
+        {
+            output += $"{rn}Error = {e}";
+        }
+        finally
+        {
+            Running = false;
+        }
+    }
+
+    public async Task OnDisposeWorker()
+    {
+        await worker.DisposeAsync();
+        worker = null;
+        startupService = null;
+    }
+
+    private string LogDate()
+    {
+        return DateTime.Now.ToString("HH:mm:ss:fff");
+    }
+
+
+
+
+
+
+
+
+    public async Task Test()
+    {
+        var worker = await workerFactory.CreateAsync();
+        var service = await worker.CreateBackgroundServiceAsync<LessonImportService>();
+        var localParameterValue = new TestParameter("test");
+        var result = await service.RunAsync(s => s.Test(localParameterValue));
+
+        var parameters = new DialogParameters();
+        parameters.Add("ImagePath", "/Assets/CloudLoading.gif");
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, DisableBackdropClick = true };
+        DialogService.Show<ImageDialog>($"{result}", parameters, options);
     }
 }
 
