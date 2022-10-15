@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Bible_Blazer_PWA.Services.Parse
 {
-    public class BibleRegexHelper
+    public class BibleRegexHelper : IRegexHelper
     {
         private string spases = @"\s*";
         private string bookRegex = @"(?<book>Быт|Исх|Лев|Чис|Втор|Нав|Суд|Руфь|1Цар|2Цар|3Цар|4Цар|1Пар|2Пар|Ездр|Неем|Есф|Иов|Пс|Прит|Еккл|Песн|Ис|Иер|Плач|Иез|Дан|Ос|Иоил|Ам|Авд|Ион|Мих|Наум|Авв|Соф|Агг|Зах|Мал|Мат|Мар|Лук|Ин|Деян|Иак|1Пет|2Пет|1Ин|2Ин|3Ин|Иуд|Рим|1Кор|2Кор|Гал|Еф|Флп|Кол|1Фес|2Фес|1Тим|2Тим|Тит|Флм|Евр|Откр)\.?";
@@ -40,7 +40,7 @@ namespace Bible_Blazer_PWA.Services.Parse
             return bracketsHandleRegex;
         }
 
-        internal string GetBibleVerseReferencesPattern()
+        public string GetBibleVerseReferencesPattern()
         {
             string refRegex = string.Join(spases,
                 chapterRegex,
@@ -52,7 +52,7 @@ namespace Bible_Blazer_PWA.Services.Parse
             return refRegex;
         }
 
-        internal string GetFromToVersesPattern()
+        public string GetFromToVersesPattern()
         {
             string fromToVersesRegex = string.Join(spases,
                 @"(?:,?(?:",
@@ -63,7 +63,7 @@ namespace Bible_Blazer_PWA.Services.Parse
             return fromToVersesRegex;
         }
 
-        internal string GetLessonsPattern()
+        public string GetLessonsPattern()
         {
             List<string> negativeLookaheads = GetNegativeLookaheadsForLessonHeaders();
             StringBuilder sb = new();
@@ -78,13 +78,13 @@ namespace Bible_Blazer_PWA.Services.Parse
             return sb.ToString();
         }
 
-        internal string GetSublessonHeaderPattern(bool namedHeaderGroup)
+        public string GetSublessonHeaderPattern(bool namedHeaderGroup)
         {
             var headerNamePart = namedHeaderGroup ? "(?<header>.*?)" : ".*?";
             return "(?:^|(?:<br>))[0-9]{1,2}[.]" + headerNamePart + "(?=1[)])";
         }
 
-        internal string GetSublessonsPattern()
+        public string GetSublessonsPattern()
         {
             var lookbehind = GetSublessonHeaderPattern(true);
             var lookahead = GetSublessonHeaderPattern(false);

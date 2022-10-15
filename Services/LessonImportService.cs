@@ -39,15 +39,18 @@ namespace Bible_Blazer_PWA.Services
         }
 
         private int FiveCalledCounter = 0;
+        private readonly ICorrector corrector;
 
         public LessonImportService(
             IWorkerMessageService workerMessageService,
             IMyServiceDependency aServiceDependency,
-            Corrector corrector,
+            HttpClient httpClient,
+            ICorrector Corrector,
             IJSRuntime jSRuntime)
         {
             WorkerMessageService = workerMessageService;
             AServiceDependency = aServiceDependency;
+            corrector = Corrector;
             JSRuntime = jSRuntime;
         }
 
@@ -57,8 +60,9 @@ namespace Bible_Blazer_PWA.Services
             this.FiveCalled?.Invoke(this, FiveCalledCounter++);
             try
             {
+                string tst = corrector.ReplaceBookNames("1-е Ин");
                 var theNumberOfTheBeast = await this.JSRuntime.InvokeAsync<int>("eval",
-                    "(function(){ console.log('Hello world invoke call from LessonImportService'); return 666; })()");
+                    "(function(){ console.log('my test:" + tst + ";Hello world invoke call from LessonImportService'); return 666; })()");
 
                 Console.WriteLine($"{theNumberOfTheBeast} : The number of the beast");
                 return this.AServiceDependency.Five();

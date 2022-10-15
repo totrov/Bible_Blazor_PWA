@@ -7,9 +7,9 @@ namespace Bible_Blazer_PWA.Services.Parse
 {
     public class Corrector : ICorrector
     {
-        public BibleRegexHelper RegexHelper;
+        public IRegexHelper RegexHelper;
 
-        public Corrector(BibleRegexHelper regexHelper)
+        public Corrector(IRegexHelper regexHelper)
         {
             this.RegexHelper = regexHelper;
         }
@@ -46,8 +46,9 @@ namespace Bible_Blazer_PWA.Services.Parse
 
         public string ReplaceBookNames(string stringToParse)
         {
-            return RegexHelper.GetReplacements()["bookNames"]
-                .Aggregate(stringToParse, (str, replacement) => { return str.Replace(replacement.Key, replacement.Value); });
+            return stringToParse;
+            //return RegexHelper.GetReplacements()["bookNames"]
+            //    .Aggregate(stringToParse, (str, replacement) => { return str.Replace(replacement.Key, replacement.Value); });
         }
     }
 }

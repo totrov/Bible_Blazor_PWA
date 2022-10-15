@@ -160,13 +160,29 @@
             var persistedStartup = RadioValue == "Persistant startup class";
 
             var serviceCollectionDependencies = new string[] {
-                    "Microsoft.Extensions.DependencyInjection.Abstractions.dll"
+                    "Microsoft.Extensions.DependencyInjection.Abstractions.dll",
 #if NET5_0_OR_GREATER
-                ,"System.Diagnostics.Tracing.dll"
+                "System.Diagnostics.Tracing.dll",
 #endif
 #if NET6_0_OR_GREATER
-                ,"Microsoft.Extensions.DependencyInjection.dll"
+                "Microsoft.Extensions.DependencyInjection.dll",
 #endif
+            "System.Net.Http.dll",
+            "System.Security.Cryptography.X509Certificates.dll",
+            "System.Net.Primitives.dll",
+            "System.Net.Requests.dll",
+            "System.Net.Security.dll",
+            "System.Net.dll",
+            //"System.Diagnostics.Tracing.dll",
+
+            "Bible_Blazer_PWA.Services.Parse",
+            "System.Text.RegularExpressions",
+            "System.Collections.Generic",
+            "Bible_Blazer_PWA.Facades",
+            "System.Threading.Tasks",
+            "System.Linq",
+            "System.Text",
+            "System"
             };
             if (persistedStartup)
             {
@@ -179,6 +195,7 @@
                     sw.Start();
                     startupService = await worker.CreateBackgroundServiceAsync<MyServiceStartup>(wo =>
                         wo.AddConventionalAssemblyOfService()
+                          .AddHttpClient()
                           .AddAssemblyOf<Microsoft.Extensions.DependencyInjection.ServiceCollection>()
                           .AddAssemblies(serviceCollectionDependencies)
                           .AddBlazorWorkerJsRuntime()
@@ -196,6 +213,7 @@
                 myIocService = await worker.CreateBackgroundServiceUsingFactoryAsync<MyServiceStartup, LessonImportService>(
                     startup => startup.Resolve<LessonImportService>(), wo =>
                         wo.AddConventionalAssemblyOfService()
+                            .AddHttpClient()
                             .AddAssemblyOf<Microsoft.Extensions.DependencyInjection.ServiceCollection>()
                             .AddAssemblies(serviceCollectionDependencies)
                             .AddBlazorWorkerJsRuntime()
