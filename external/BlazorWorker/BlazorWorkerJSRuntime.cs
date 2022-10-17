@@ -74,6 +74,7 @@ namespace BlazorWorker.Extensions.JSRuntime
         {
             if (!isJsInitialized && !JSInvokeService.IsObjectDefined("BlazorWorkerJSRuntimeSerializer"))
             {
+                JSInvokeService.ImportLocalScripts("js/database.js");
                 JSInvokeService.ImportLocalScripts("BlazorWorkerJSRuntime.js");
                 isJsInitialized = true;
             }
@@ -81,31 +82,33 @@ namespace BlazorWorker.Extensions.JSRuntime
 
         public static string InvokeMethod(string objectInstanceId, string argsString)
         {
-#if DEBUG
-            Console.WriteLine($"{nameof(BlazorWorkerJSRuntime)}.{nameof(InvokeMethod)}({objectInstanceId}, {argsString})");
-#endif
-            try
-            {
-                var obj = DotNetObjectReferenceTracker.GetObjectReference(long.Parse(objectInstanceId));
-                var serializer = DotNetObjectReferenceTracker.GetCallbackJSRuntime(obj).Serializer;
-                var callBackArgs = serializer.Deserialize<CallBackArgs>(argsString);
-                var method = obj.GetType().GetMethod(
-                    callBackArgs.Method, 
-                    callBackArgs.MethodArgs.Select(arg => arg.GetType()).ToArray());
+            //#if DEBUG
+            //            Console.WriteLine($"{nameof(BlazorWorkerJSRuntime)}.{nameof(InvokeMethod)}({objectInstanceId}, {argsString})");
+            //#endif
+            //            try
+            //            {
+            //                var obj = DotNetObjectReferenceTracker.GetObjectReference(long.Parse(objectInstanceId));
+            //                var serializer = DotNetObjectReferenceTracker.GetCallbackJSRuntime(obj).Serializer;
+            //                var callBackArgs = serializer.Deserialize<CallBackArgs>(argsString);
+            //                var method = obj.GetType().GetMethod(
+            //                    callBackArgs.Method, 
+            //                    callBackArgs.MethodArgs.Select(arg => arg.GetType()).ToArray());
 
-                var resultObj = method.Invoke(obj, callBackArgs.MethodArgs);
-                if (resultObj is null)
-                {
-                    return null;
-                }
+            //                var resultObj = method.Invoke(obj, callBackArgs.MethodArgs);
+            //                if (resultObj is null)
+            //                {
+            //                    return "No Result from dotnetObject";
+            //                }
 
-                return serializer.Serialize(resultObj);
-            }
-            catch (Exception e)
-            {
-                Console.Error.WriteLine($"{nameof(BlazorWorkerJSRuntime)}.{nameof(InvokeMethod)}({objectInstanceId}, {argsString}) error: {e.ToString()}");
-                throw;
-            }
+            //                return serializer.Serialize(resultObj);
+            //            }
+            //            catch (Exception e)
+            //            {
+            //                Console.Error.WriteLine($"{nameof(BlazorWorkerJSRuntime)}.{nameof(InvokeMethod)}({objectInstanceId}, {argsString}) error: {e.ToString()}");
+            //                throw;
+            //            }
+            throw new Exception("ThrowDDDDD");
+            return "testInvokeMethod";
         }
 
         public class CallBackArgs { 

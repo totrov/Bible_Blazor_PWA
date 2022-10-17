@@ -16,7 +16,7 @@ namespace Bible_Blazer_PWA.Services.Parse
             public string Name { get; set; }
             public string Content { get; set; }
         }
-        public static async Task<string> ParseLessons(string _input, Corrector corrector)
+        public static async Task<string> ParseLessons(string _input, ICorrector corrector)
         {
             var idSet = new HashSet<int>();
 
@@ -61,7 +61,7 @@ namespace Bible_Blazer_PWA.Services.Parse
             return result;
         }
 
-        private static void AddSublessons(LinkedList<LessonModel> lessonsList, LessonModel lessonModel, HashSet<int> idSet, Corrector corrector)
+        private static void AddSublessons(LinkedList<LessonModel> lessonsList, LessonModel lessonModel, HashSet<int> idSet, ICorrector corrector)
         {
             string name = lessonModel.Name.TrimEnd('.');
             int sublessonNumber = 1;

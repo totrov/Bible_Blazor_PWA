@@ -5,5 +5,6 @@
         string ApplyHighLevelReplacements(string input, string unitId);
         string HandleBrackets(string stringToParse);
         string ReplaceBookNames(string stringToParse);
+        IRegexHelper RegexHelper { get; }
     }
 }

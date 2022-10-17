@@ -2,6 +2,7 @@
 using Bible_Blazer_PWA.Facades;
 using Bible_Blazer_PWA.Services.Parse;
 using Bible_Blazer_PWA.Services.Readers;
+using Microsoft.JSInterop;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -11,12 +12,12 @@ namespace Bible_Blazer_PWA.Services
     {
         #region fields
         private readonly HttpFacade httpFacade;
-        private readonly Corrector corrector;
+        private readonly ICorrector corrector;
         private readonly DatabaseJSFacade db;
         private readonly ALessonImportHandler handler;
         #endregion
 
-        public LessonImporter(HttpClient http, Corrector corrector, DatabaseJSFacade db, ALessonImportHandler handler)
+        public LessonImporter(HttpClient http, ICorrector corrector, DatabaseJSFacade db, ALessonImportHandler handler)
         {
             httpFacade = new HttpFacade(http);
             this.corrector = corrector;
@@ -62,6 +63,8 @@ namespace Bible_Blazer_PWA.Services
                 handler.HandleReadCompleted();
                 string json = await LessonParser.ParseLessons(stringContent, corrector);
                 var resultHandler = await db.ImportLessonsJson(json);
+
+                handler.HandleReaderException(new ReaderException("qwer", null));
                 resultHandler.OnDbResultOK += () => { handler.HandleImportCompleted(); };
                 await resultHandler.GetTaskCompletionSourceWrapper();
             }

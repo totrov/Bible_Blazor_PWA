@@ -2,16 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace Bible_Blazer_PWA.Services.Parse
 {
-    public class Corrector : ICorrector
+    public class Corrector : ICorrector, IAsyncInitializable
     {
-        public IRegexHelper RegexHelper;
+        public IRegexHelper RegexHelper { get; private set; }
+
+        public Task InitTask => _initializationTask;
+        private Task _initializationTask;
 
         public Corrector(IRegexHelper regexHelper)
         {
-            this.RegexHelper = regexHelper;
+            RegexHelper = regexHelper;
+            _initializationTask = regexHelper.Init();
         }
 
         public string ApplyHighLevelReplacements(string input, string unitId)
@@ -46,9 +51,8 @@ namespace Bible_Blazer_PWA.Services.Parse
 
         public string ReplaceBookNames(string stringToParse)
         {
-            return stringToParse;
-            //return RegexHelper.GetReplacements()["bookNames"]
-            //    .Aggregate(stringToParse, (str, replacement) => { return str.Replace(replacement.Key, replacement.Value); });
+            return RegexHelper.GetReplacements()["bookNames"]
+                .Aggregate(stringToParse, (str, replacement) => { return str.Replace(replacement.Key, replacement.Value); });
         }
     }
 }

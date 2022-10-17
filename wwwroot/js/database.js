@@ -1,4 +1,5 @@
-﻿window.context = {
+﻿var window = self;
+window.context = {
     db: null,
     justUpgraded: false,
     currentVersion: 4,
@@ -351,21 +352,34 @@ window.database = {
         };
     },
     importJson: async (dotnetHelper, jsonString, dbStore) => {
-        var transaction = context.db.transaction(dbStore, "readwrite");
-        var os = transaction.objectStore(dbStore);
-        var json = JSON.parse(jsonString);
-        json.forEach(function (data) { os.put(data); });
+        var openRequest = database.getOpenRequest();
 
-        transaction.oncomplete = function () {
-            console.log(dbStore + ' ' + 'import transaction completed for ' + json[0].UnitId);
-            dotnetHelper.invokeMethod('SetStatus', true);
-        };
+        openRequest.onSuccessHandlers.push(function (event) {
+            context.db = openRequest.result;
 
-        transaction.onerror = function (e) {
-            console.log(dbStore + ' ' + 'import transaction failed for ' + json[0].UnitId + ': ' + transaction.error);
-            dotnetHelper.invokeMethod('SetStatus', false);
-            e.stopPropagation();
-        };
+            var transaction = window.context.db.transaction(dbStore, "readwrite");
+            var os = transaction.objectStore(dbStore);
+            var json = JSON.parse(jsonString);
+            json.forEach(function (data) { os.put(data); });
+
+            transaction.oncomplete = function () {
+                console.log(dbStore + ' ' + 'import transaction completed for ' + json[0].UnitId);
+                Object.keys(dotnetHelper.__dotNetObject).forEach((prop) => console.log(prop));
+                Object.keys(dotnetHelper.serializer).forEach((prop) => console.log(prop));
+                var dbg = dotnetHelper.invokeMethodAsync('SetStatus', true);
+            };
+
+            transaction.onerror = function (e) {
+                console.log(dbStore + ' ' + 'import transaction failed for ' + json[0].UnitId + ': ' + transaction.error);
+                dotnetHelper.invokeMethodAsync('SetStatus', false);
+                e.stopPropagation();
+            };
+        });
+
+        openRequest.onerror = function (event) {
+            context.log('getRecordFromObjectStoreByKey: Database not opened due to error: ' + openRequest.error);
+            dotnetHelper.invokeMethod('SetStatusAndResult', false, null);
+        }
     },
     clearObjectStore: function (dotnetHelper, dbStore)
     {

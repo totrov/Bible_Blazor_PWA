@@ -7,9 +7,7 @@ using System.Threading.Tasks;
 using BlazorWorker.Demo.IoCExample;
 
 using Bible_Blazer_PWA.DataBase;
-using Bible_Blazer_PWA.Facades;
 using Bible_Blazer_PWA.Services.Parse;
-using Bible_Blazer_PWA.Services.Readers;
 using System.Net.Http;
 
 namespace Bible_Blazer_PWA.Services
@@ -24,7 +22,7 @@ namespace Bible_Blazer_PWA.Services
         {
             StringBuilder sb = new StringBuilder();
             Stack<char> stack = new Stack<char>();
-            
+
             foreach (var ch in test.S)
             {
                 stack.Push(ch);
@@ -40,6 +38,8 @@ namespace Bible_Blazer_PWA.Services
 
         private int FiveCalledCounter = 0;
         private readonly ICorrector corrector;
+        private LessonImporter lessonImporter;
+
 
         public LessonImportService(
             IWorkerMessageService workerMessageService,
@@ -52,6 +52,12 @@ namespace Bible_Blazer_PWA.Services
             AServiceDependency = aServiceDependency;
             corrector = Corrector;
             JSRuntime = jSRuntime;
+            DatabaseJSFacade databaseJSFacade = new DatabaseJSFacade();
+            databaseJSFacade.SetJS(jSRuntime);
+            InterProcessImportHandler handler = new(() => { workerMessageService.PostMessageAsync("IReadCompleted"); }, workerMessageService);
+            lessonImporter = new(httpClient, corrector, databaseJSFacade, handler);
+            workerMessageService.PostMessageAsync("Iinitialized");
+
         }
 
         public async Task<int> Five()
@@ -60,9 +66,8 @@ namespace Bible_Blazer_PWA.Services
             this.FiveCalled?.Invoke(this, FiveCalledCounter++);
             try
             {
-                string tst = corrector.ReplaceBookNames("1-е Ин");
                 var theNumberOfTheBeast = await this.JSRuntime.InvokeAsync<int>("eval",
-                    "(function(){ console.log('my test:" + tst + ";Hello world invoke call from LessonImportService'); return 666; })()");
+                    "(function(){ console.log('my test:" + ";Hello world invoke call from LessonImportService'); return 666; })()");
 
                 Console.WriteLine($"{theNumberOfTheBeast} : The number of the beast");
                 return this.AServiceDependency.Five();
@@ -76,6 +81,10 @@ namespace Bible_Blazer_PWA.Services
             }
         }
 
+        //var theNumberOfTheBeast = await this.JSRuntime.InvokeAsync<int>("eval",
+        //        "(function(){ console.log('my test:" + tst + ";Hello world invoke call from LessonImportService'); return 666; })()");
+        public async Task LoadPredefinedLesson(string lessonName) => await lessonImporter.LoadPredefinedLesson(lessonName);
+        public async Task LoadLessonFromFile(string fileName) => await lessonImporter.LoadLessonFromFile(fileName);
         public event EventHandler<int> FiveCalled;
         public IWorkerMessageService WorkerMessageService { get; }
         public IMyServiceDependency AServiceDependency { get; }

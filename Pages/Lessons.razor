@@ -172,18 +172,33 @@
             "System.Net.Primitives.dll",
             "System.Net.Requests.dll",
             "System.Net.Security.dll",
-            "System.Net.dll",
-            //"System.Diagnostics.Tracing.dll",
+            "System.Net.Http.Json.dll",            
 
+            "DocumentFormat.OpenXml.Wordprocessing.dll",
+            
+            "BlazorWorker.BackgroundServiceFactory.dll",
+            "BlazorWorker.Core.dll",
+            "BlazorWorker.WorkerBackgroundService.dll",
+            "BlazorWorker.WorkerCore.dll",
+
+            "DocumentFormat.OpenXml.Packaging.dll",
             "Bible_Blazer_PWA.Services.Parse",
             "System.Text.RegularExpressions",
+            "DocumentFormat.OpenXml.dll",
             "System.Collections.Generic",
+            "DocumentFormat.OpenXml.dll",
+            "System.IO.Compression.dll",
+            "System.Xml.XDocument.dll",
             "Bible_Blazer_PWA.Facades",
+            "Bible_Blazer_PWA.Config",
+            "System.IO.Packaging.dll",
             "System.Threading.Tasks",
             "System.Linq",
             "System.Text",
+            "System.IO",
+            "MudBlazor.dll",
             "System"
-            };
+    };
             if (persistedStartup)
             {
 
@@ -194,13 +209,14 @@
 
                     sw.Start();
                     startupService = await worker.CreateBackgroundServiceAsync<MyServiceStartup>(wo =>
-                        wo.AddConventionalAssemblyOfService()
+                        wo.AddBlazorWorkerJsRuntime()
+                          .AddConventionalAssemblyOfService()
                           .AddHttpClient()
                           .AddAssemblyOf<Microsoft.Extensions.DependencyInjection.ServiceCollection>()
                           .AddAssemblies(serviceCollectionDependencies)
-                          .AddBlazorWorkerJsRuntime()
+                          
                         );
-
+                    worker.IncomingMessage += OnWorkerMessage;
                     output += $"{rn}{LogDate()} Background service created in {sw.ElapsedMilliseconds}ms";
                     StateHasChanged();
                 }
@@ -228,8 +244,9 @@
                            output += $"{rn}{LogDate()} OnFiveCalled: {five}";
                            StateHasChanged();
                        });
-                output += $"{rn}{LogDate()} Calling Five()...";
+                output += $"{rn}{LogDate()} Calling LoadPredefinedLesson()...";
                 output += $"{rn}{LogDate()} Five() = {await myIocService.RunAsync(s => s.Five())}";
+                await myIocService.RunAsync(s => s.LoadPredefinedLesson("Бытие"));
             }
 
             StateHasChanged();
@@ -243,6 +260,12 @@
         {
             Running = false;
         }
+    }
+
+    public void OnWorkerMessage(object sender, string message)
+    {
+        output += message;
+        StateHasChanged();
     }
 
     public async Task OnDisposeWorker()

@@ -8,7 +8,7 @@ namespace Bible_Blazer_PWA.DataBase
 {
     public class DatabaseJSFacade
     {
-        protected IJSRuntime JS { get; set; }
+        public IJSRuntime JS { get; set; }//TODO exposed for debugging purposes. TB Encapsulated.
         internal bool IsInitialized
         {
             get
@@ -57,6 +57,7 @@ namespace Bible_Blazer_PWA.DataBase
             {
                 await JS.InvokeVoidAsync($"database.{methodName}", resultHandlerReference);
             }
+
             return resultHandler;
         }
         public async Task<IndexedDBResultHandler> ImportLessonsJson(string json, Action callback = null)

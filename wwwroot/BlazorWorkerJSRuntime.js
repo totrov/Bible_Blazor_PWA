@@ -11,7 +11,8 @@
                     methodName,
                     methodargs: methodArgs || []
                 });
-                var result = self.Module.mono_call_static_method("[BlazorWorker.Extensions.JSRuntime]BlazorWorker.Extensions.JSRuntime.BlazorWorkerJSRuntime:InvokeMethod", this.__dotNetObject, argsString);
+                //var result = self.Module.mono_call_static_method("[BlazorWorker.Extensions.JSRuntime]BlazorWorker.Extensions.JSRuntime.BlazorWorkerJSRuntime:InvokeMethod", this.__dotNetObject, argsString);
+                var result = self.Module.mono_call_static_method("[Bible_Blazer_PWA]BlazorWorker.Extensions.JSRuntime.BlazorWorkerJSRuntime:InvokeMethod", this.__dotNetObject, argsString);
                 resolve(result);
             } catch (e) {
                 reject(e);
