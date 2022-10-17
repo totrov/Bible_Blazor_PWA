@@ -61,12 +61,11 @@ namespace Bible_Blazer_PWA.Services
             if (readSucceeded)
             {
                 handler.HandleReadCompleted();
-                string json = await LessonParser.ParseLessons(stringContent, corrector);
-                var resultHandler = await db.ImportLessonsJson(json);
-
-                handler.HandleReaderException(new ReaderException("qwer", null));
-                resultHandler.OnDbResultOK += () => { handler.HandleImportCompleted(); };
-                await resultHandler.GetTaskCompletionSourceWrapper();
+                await foreach (string json in LessonParser.ParseLessons(stringContent, corrector))
+                {
+                    await db.ImportLessonsJson(json);
+                    handler.HandleReaderException(new ReaderException(json[..15], null));
+                }
             }
         }
     }

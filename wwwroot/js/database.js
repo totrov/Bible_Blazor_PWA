@@ -351,7 +351,7 @@ window.database = {
             e.stopPropagation();
         };
     },
-    importJson: async (dotnetHelper, jsonString, dbStore) => {
+    importJsonArray: async (dotnetHelper, jsonString, dbStore) => {
         var openRequest = database.getOpenRequest();
 
         openRequest.onSuccessHandlers.push(function (event) {
@@ -374,6 +374,39 @@ window.database = {
 
             transaction.onerror = function (e) {
                 console.log(dbStore + ' ' + 'import transaction failed for ' + json[0].UnitId + ': ' + transaction.error);
+                dotnetHelper.invokeMethodAsync('SetStatus', false);
+                e.stopPropagation();
+            };
+        });
+
+        openRequest.onerror = function (event) {
+            context.log('getRecordFromObjectStoreByKey: Database not opened due to error: ' + openRequest.error);
+            dotnetHelper.invokeMethod('SetStatusAndResult', false, null);
+        }
+    },
+    importJson: async (dotnetHelper, jsonString, dbStore) => {
+        var openRequest = database.getOpenRequest();
+
+        openRequest.onSuccessHandlers.push(function (event) {
+            context.db = openRequest.result;
+
+            var transaction = window.context.db.transaction(dbStore, "readwrite");
+            var os = transaction.objectStore(dbStore);
+            var json = JSON.parse(jsonString);
+            os.put(json);
+
+            transaction.oncomplete = function () {
+                console.log(dbStore + ' ' + 'import transaction completed for ' + json.UnitId);
+                if (self.document) {
+                    dotnetHelper.invokeMethodAsync('SetStatus', true);
+                }
+                else {
+                    postMessage("Iimport completed");
+                }
+            };
+
+            transaction.onerror = function (e) {
+                console.log(dbStore + ' ' + 'import transaction failed for ' + json.UnitId + ': ' + transaction.error);
                 dotnetHelper.invokeMethodAsync('SetStatus', false);
                 e.stopPropagation();
             };

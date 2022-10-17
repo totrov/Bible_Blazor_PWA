@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BibleComponents;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
@@ -16,7 +17,7 @@ namespace Bible_Blazer_PWA.Services.Parse
             public string Name { get; set; }
             public string Content { get; set; }
         }
-        public static async Task<string> ParseLessons(string _input, ICorrector corrector)
+        public static async IAsyncEnumerable<string> ParseLessons(string _input, ICorrector corrector)
         {
             var idSet = new HashSet<int>();
 
@@ -27,7 +28,6 @@ namespace Bible_Blazer_PWA.Services.Parse
             contents = Regex.Split(corrector.ApplyHighLevelReplacements(_input, UnitId), regex);
 
             LessonModel lessonModel = null;
-            var lessonsList = new LinkedList<LessonModel>();
             var numberRegex = "([0-9]+[.]?[0-9]*)[.]";
             for (int i = 1; i < contents.Length; i++)
             {
@@ -44,24 +44,30 @@ namespace Bible_Blazer_PWA.Services.Parse
                     lessonModel.Content = contents[i].Replace("\r", "<br>");
                     if (Regex.IsMatch(lessonModel.Content, corrector.RegexHelper.GetSublessonHeaderPattern(false)))
                     {
-                        AddSublessons(lessonsList, lessonModel, idSet, corrector);
+                        foreach (var lesson in GetSublessons(lessonModel, idSet, corrector))
+                        {
+                            yield return await ConvertLessonToJSON(lesson);
+                        }
                     }
                     else
                     {
-                        lessonsList.AddLast(lessonModel);
+                        yield return await ConvertLessonToJSON(lessonModel);
                     }
                 }
             }
+        }
 
+        private static async Task<string> ConvertLessonToJSON(LessonModel lessonModel)
+        {
             using MemoryStream memoryStream = new MemoryStream();
-            await JsonSerializer.SerializeAsync(memoryStream, lessonsList, new JsonSerializerOptions() { WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
+            await JsonSerializer.SerializeAsync(memoryStream, lessonModel, new JsonSerializerOptions() { WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
             memoryStream.Position = 0;
             using StreamReader sr = new(memoryStream);
             string result = sr.ReadToEnd();
             return result;
         }
 
-        private static void AddSublessons(LinkedList<LessonModel> lessonsList, LessonModel lessonModel, HashSet<int> idSet, ICorrector corrector)
+        private static IEnumerable<LessonModel> GetSublessons(LessonModel lessonModel, HashSet<int> idSet, ICorrector corrector)
         {
             string name = lessonModel.Name.TrimEnd('.');
             int sublessonNumber = 1;
@@ -71,13 +77,13 @@ namespace Bible_Blazer_PWA.Services.Parse
                 var lessonHeader = sublessonMatch.Groups["header"].Value;
                 lessonHeader = lessonHeader.Replace("<br>", "");
                 lessonHeader = String.IsNullOrEmpty(lessonHeader) ? lessonHeader : $": {lessonHeader}";
-                lessonsList.AddLast(new LessonModel
+                yield return new LessonModel
                 {
                     Id = GetId(lessonModel.Id, idSet),
                     UnitId = lessonModel.UnitId,
                     Name = $"{name}.  Урок {sublessonNumber++}{lessonHeader}",
                     Content = sublessonMatch.Value
-                });
+                };
             }
         }
 

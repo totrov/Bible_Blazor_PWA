@@ -1,21 +1,19 @@
 ﻿@page "/"
 @using Bible_Blazer_PWA.Components
-@using Bible_Blazer_PWA.Config
 @using Bible_Blazer_PWA.DataSources
-@using static Bible_Blazer_PWA.DataSources.LessonDS
-@using Bible_Blazer_PWA.DomainObjects
 @using Bible_Blazer_PWA.Services
 @using Bible_Blazer_PWA.Services.Menu
-@using System.Text.Json
 @using Bible_Blazer_PWA.Services.Parse
-@using System.IO
-@using Bible_Blazer_PWA.Services.Readers
-
-@using BlazorWorker.BackgroundServiceFactory
 @using BlazorWorker.Core
+@using BlazorWorker.WorkerBackgroundService
+@using static Bible_Blazer_PWA.DataSources.LessonDS
+@using Bible_Blazer_PWA.Config
+@using Bible_Blazer_PWA.DomainObjects
+@using System.Text.Json
+@using System.IO
+@using BlazorWorker.BackgroundServiceFactory
 @using BlazorWorker.Demo.IoCExample
 @using BlazorWorker.Extensions.JSRuntime
-@using BlazorWorker.WorkerBackgroundService
 
 @inject MenuService menu
 @inject HttpClient Http
@@ -53,8 +51,6 @@
             </MudExpansionPanel>
         }
     </MudExpansionPanels>
-    <MudFab Size="Size.Small" Color="Color.Primary" StartIcon="@Icons.Filled.CloudDownload"
-        @onclick="Test" Disabled="@IsDisabled" />
 
     @foreach (var item in new string[] { "Persistant startup class", "Startup class disposed with service" })
     {
@@ -133,7 +129,7 @@
 
     string output = "";
     IWorker worker;
-    IWorkerBackgroundService<BlazorWorker.Demo.IoCExample.MyServiceStartup> startupService;
+    IWorkerBackgroundService<LessonImportServiceStartup> startupService;
     string canDisposeWorker => worker == null ? null : "disabled";
     string RunDisabled => Running ? "disabled" : null;
     bool Running = false;
@@ -145,7 +141,6 @@
     public async Task OnClick(EventArgs _)
     {
         Running = true;
-        //output = "";
         var rn = Environment.NewLine;
         try
         {
@@ -167,66 +162,47 @@
 #if NET6_0_OR_GREATER
                 "Microsoft.Extensions.DependencyInjection.dll",
 #endif
-            "System.Net.Http.dll",
             "System.Security.Cryptography.X509Certificates.dll",
-            "System.Net.Primitives.dll",
-            "System.Net.Requests.dll",
-            "System.Net.Security.dll",
-            "System.Net.Http.Json.dll",            
-
             "DocumentFormat.OpenXml.Wordprocessing.dll",
-            
             "BlazorWorker.BackgroundServiceFactory.dll",
-            "BlazorWorker.Core.dll",
             "BlazorWorker.WorkerBackgroundService.dll",
-            "BlazorWorker.WorkerCore.dll",
-
             "DocumentFormat.OpenXml.Packaging.dll",
-            "Bible_Blazer_PWA.Services.Parse",
-            "System.Text.RegularExpressions",
+            "BlazorWorker.WorkerCore.dll",
             "DocumentFormat.OpenXml.dll",
-            "System.Collections.Generic",
             "DocumentFormat.OpenXml.dll",
+            "System.Net.Primitives.dll",
             "System.IO.Compression.dll",
             "System.Xml.XDocument.dll",
-            "Bible_Blazer_PWA.Facades",
-            "Bible_Blazer_PWA.Config",
+            "System.Net.Http.Json.dll",
+            "System.Net.Requests.dll",
+            "System.Net.Security.dll",
             "System.IO.Packaging.dll",
-            "System.Threading.Tasks",
-            "System.Linq",
-            "System.Text",
-            "System.IO",
-            "MudBlazor.dll",
-            "System"
+            "BlazorWorker.Core.dll",
+            "System.Net.Http.dll",
+            "MudBlazor.dll"
     };
             if (persistedStartup)
             {
-
                 if (startupService == null)
                 {
-                    output = $"{rn}{LogDate()} Creating background service...";
                     StateHasChanged();
 
                     sw.Start();
-                    startupService = await worker.CreateBackgroundServiceAsync<MyServiceStartup>(wo =>
+                    startupService = await worker.CreateBackgroundServiceAsync<LessonImportServiceStartup>(wo =>
                         wo.AddBlazorWorkerJsRuntime()
                           .AddConventionalAssemblyOfService()
                           .AddHttpClient()
                           .AddAssemblyOf<Microsoft.Extensions.DependencyInjection.ServiceCollection>()
                           .AddAssemblies(serviceCollectionDependencies)
-                          
                         );
                     worker.IncomingMessage += OnWorkerMessage;
-                    output += $"{rn}{LogDate()} Background service created in {sw.ElapsedMilliseconds}ms";
                     StateHasChanged();
                 }
-                output += $"{rn}{LogDate()} Resolving instance...";
                 myIocService = await startupService.CreateBackgroundServiceAsync(startup => startup.Resolve<LessonImportService>());
             }
             else
             {
-                output += $"{rn}{LogDate()} Resolving Startup & instance...";
-                myIocService = await worker.CreateBackgroundServiceUsingFactoryAsync<MyServiceStartup, LessonImportService>(
+                myIocService = await worker.CreateBackgroundServiceUsingFactoryAsync<LessonImportServiceStartup, LessonImportService>(
                     startup => startup.Resolve<LessonImportService>(), wo =>
                         wo.AddConventionalAssemblyOfService()
                             .AddHttpClient()
@@ -238,14 +214,12 @@
 
             await using (myIocService)
             {
-                await myIocService.RegisterEventListenerAsync(nameof(LessonImportService.FiveCalled),
-                       (object s, int five) =>
-                       {
-                           output += $"{rn}{LogDate()} OnFiveCalled: {five}";
-                           StateHasChanged();
-                       });
-                output += $"{rn}{LogDate()} Calling LoadPredefinedLesson()...";
-                output += $"{rn}{LogDate()} Five() = {await myIocService.RunAsync(s => s.Five())}";
+                //await myIocService.RegisterEventListenerAsync(nameof(LessonImportService.FiveCalled),
+                //       (object s, int five) =>
+                //       {
+                //           output += $"{rn}{LogDate()} OnFiveCalled: {five}";
+                //           StateHasChanged();
+                //       });
                 await myIocService.RunAsync(s => s.LoadPredefinedLesson("Бытие"));
             }
 
@@ -273,31 +247,6 @@
         await worker.DisposeAsync();
         worker = null;
         startupService = null;
-    }
-
-    private string LogDate()
-    {
-        return DateTime.Now.ToString("HH:mm:ss:fff");
-    }
-
-
-
-
-
-
-
-
-    public async Task Test()
-    {
-        var worker = await workerFactory.CreateAsync();
-        var service = await worker.CreateBackgroundServiceAsync<LessonImportService>();
-        var localParameterValue = new TestParameter("test");
-        var result = await service.RunAsync(s => s.Test(localParameterValue));
-
-        var parameters = new DialogParameters();
-        parameters.Add("ImagePath", "/Assets/CloudLoading.gif");
-        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, DisableBackdropClick = true };
-        DialogService.Show<ImageDialog>($"{result}", parameters, options);
     }
 }
 
