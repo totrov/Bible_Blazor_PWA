@@ -144,7 +144,7 @@ window.database = {
             objectStoreRequest.onsuccess = function (event) {
                 result = objectStoreRequest.result;
                 context.logVerbose('getRecordFromObjectStoreByKey: Transaction returned for key ' + key + ':' + JSON.stringify(result));
-                dotnetHelper.invokeMethod('SetStatusAndResult', true, result);
+                dotnetHelper.invokeMethod('SetStatusAndResult', true, result);                
             };
         });
 
@@ -364,9 +364,12 @@ window.database = {
 
             transaction.oncomplete = function () {
                 console.log(dbStore + ' ' + 'import transaction completed for ' + json[0].UnitId);
-                Object.keys(dotnetHelper.__dotNetObject).forEach((prop) => console.log(prop));
-                Object.keys(dotnetHelper.serializer).forEach((prop) => console.log(prop));
-                var dbg = dotnetHelper.invokeMethodAsync('SetStatus', true);
+                if (self.document) {
+                    dotnetHelper.invokeMethodAsync('SetStatus', true);
+                }
+                else {
+                    postMessage("Iimport completed");
+                }
             };
 
             transaction.onerror = function (e) {
