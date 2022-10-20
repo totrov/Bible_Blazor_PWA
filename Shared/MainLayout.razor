@@ -20,9 +20,16 @@
         <MudIconButton Style=@ToolsAreHiddenCss Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
         <div style="overflow:hidden">@menu.Title</div>
         <MudSpacer />
-        @foreach (var button in menu.Buttons)
+        @foreach (var button in menu.Buttons.Where(b => b.Value.Visible))
         {
-            <MudIconButton Icon="@menu.Buttons[button.Key].Icon" OnClick="@button.Value.Click" Color="Color.Inherit"></MudIconButton>
+            if (button.Value.IsClickable)
+            {
+                <MudIconButton Icon="@menu.Buttons[button.Key].Icon" OnClick="@button.Value.Click" Color="Color.Inherit"></MudIconButton>
+            }
+            else
+            {
+                <MudImage Src="@button.Value.Icon" Width="50" Height="50"></MudImage>
+            }
         }
         <MudMenu Icon="@Icons.Material.Filled.MoreVert">
             <MudMenuItem><MudNavLink Href="/">Планы уроков</MudNavLink></MudMenuItem>

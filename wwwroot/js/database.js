@@ -401,7 +401,7 @@ window.database = {
                     dotnetHelper.invokeMethodAsync('SetStatus', true);
                 }
                 else {
-                    postMessage("Iimport completed");
+                    postMessage("DB_PUT              " + jsonString);
                 }
             };
 

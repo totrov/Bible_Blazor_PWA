@@ -1,23 +1,19 @@
-﻿using BibleComponents;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text.Json;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Bible_Blazer_PWA.Services.Parse
 {
+    public record LessonModel
+    {
+        public string UnitId { get; set; }
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string Content { get; set; }
+    }
     public class LessonParser
     {
-        class LessonModel
-        {
-            public string UnitId { get; set; }
-            public string Id { get; set; }
-            public string Name { get; set; }
-            public string Content { get; set; }
-        }
-        public static async IAsyncEnumerable<string> ParseLessons(string _input, ICorrector corrector)
+        public static IEnumerable<LessonModel> ParseLessons(string _input, ICorrector corrector)
         {
             var idSet = new HashSet<int>();
 
@@ -46,25 +42,15 @@ namespace Bible_Blazer_PWA.Services.Parse
                     {
                         foreach (var lesson in GetSublessons(lessonModel, idSet, corrector))
                         {
-                            yield return await ConvertLessonToJSON(lesson);
+                            yield return lesson;
                         }
                     }
                     else
                     {
-                        yield return await ConvertLessonToJSON(lessonModel);
+                        yield return lessonModel;
                     }
                 }
             }
-        }
-
-        private static async Task<string> ConvertLessonToJSON(LessonModel lessonModel)
-        {
-            using MemoryStream memoryStream = new MemoryStream();
-            await JsonSerializer.SerializeAsync(memoryStream, lessonModel, new JsonSerializerOptions() { WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
-            memoryStream.Position = 0;
-            using StreamReader sr = new(memoryStream);
-            string result = sr.ReadToEnd();
-            return result;
         }
 
         private static IEnumerable<LessonModel> GetSublessons(LessonModel lessonModel, HashSet<int> idSet, ICorrector corrector)

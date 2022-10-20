@@ -2,6 +2,7 @@
 @using System.Text.Json
 @using Bible_Blazer_PWA.Services
 @using Bible_Blazer_PWA.Services.Parse
+@using BlazorWorker.WorkerBackgroundService
 @inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
 @inject HttpClient Http
 @inject Corrector Corrector;
@@ -46,6 +47,13 @@
     private List<Services.LoadingItem> LoadingItems { get; set; } = new List<Services.LoadingItem>();
     private bool IsDisabled { get; set; } = false;
 
+    [Parameter]
+    public IWorkerBackgroundService<LessonImportService> LessonImportService { get; set; }
+    [Parameter]
+    public Action<bool> DisableEnableAction { get; set; }
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; }
+
     protected async override Task OnInitializedAsync()
     {
         lessonNames.ToList().ForEach(l => ((HashSet<string>)options).Add(l));
@@ -69,15 +77,13 @@
         LoadingItems.Clear();
         IsDisabled = true;
         List<Task> tasks = new List<Task>(lessonsToLoad.Count());
+        DisableEnableAction(true);
+        MudDialog.Close(DialogResult.Ok(true));
         foreach (var lessonName in lessonsToLoad)
         {
-            var item = new Services.LoadingItem { Name = lessonName };
-            LoadingItems.Add(item);
-            var importHandler = new OnPageImportHandler(null, item);
-            LessonImporter importer = new LessonImporter(Http, Corrector, db, importHandler);
-            await importer.LoadPredefinedLesson(lessonName);
+            await LessonImportService.RunAsync(s => s.LoadPredefinedLesson(lessonName));
         }
-        await ReloadPage();
+        DisableEnableAction(false);
     }
 
     private async Task ReloadPage()

@@ -15,15 +15,17 @@ namespace Bible_Blazer_PWA.Services.Menu
             _buttonCache = new Dictionary<string, MenuButton>();
             Buttons = new Dictionary<string, MenuButton>();
         }
-        public void AddMenuButton(IButtonStateHandler handler)
+        public MenuButton AddMenuButton(IButtonStateHandler handler)
         {
             if (Buttons.ContainsKey(handler.Key))
-                return;
+                return Buttons[handler.Key];
             if (!_buttonCache.ContainsKey(handler.Key))
             {
                 _buttonCache.Add(handler.Key, new(handler));
             }
-            Buttons.Add(handler.Key, _buttonCache[handler.Key]);
+            var button = _buttonCache[handler.Key];
+            Buttons.Add(handler.Key, button);
+            return button;
         }
         public void ClearMenuButtons()
         {

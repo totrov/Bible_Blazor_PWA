@@ -1,6 +1,7 @@
 ﻿@page "/"
 @using Bible_Blazer_PWA.Components
 @using Bible_Blazer_PWA.DataSources
+@using Bible_Blazer_PWA.Extensions
 @using Bible_Blazer_PWA.Services
 @using Bible_Blazer_PWA.Services.Menu
 @using Bible_Blazer_PWA.Services.Parse
@@ -27,7 +28,7 @@
 @if (_blocks != null)
 {
     <MudExpansionPanels>
-        @foreach (LessonBlock block in _blocks)
+        @foreach (LessonBlock block in _blocks.Values)
         {
             <MudExpansionPanel>
                 <TitleContent>
@@ -38,10 +39,19 @@
                         @{
                             var loadAction = () => LoadFromAzure(@block.Name);
                         }
-                        <MudFab Size="Size.Small" Color="Color.Primary" StartIcon="@Icons.Filled.CloudDownload"
-                        @onclick="loadAction" Disabled="@IsDisabled" />
-                        @foreach (LessonInfoLightweight lesson in block.Lessons)
+                        @if (IsDisabled)
                         {
+                            <MudImage Src="/Assets/CloudLoading.gif" Width="50" Height="50"></MudImage>
+                        }
+                        else
+                        {
+                            <MudFab Size="Size.Small" Color="Color.Primary" StartIcon="@Icons.Filled.CloudDownload"
+                                @onclick="loadAction" Disabled="@IsDisabled" />
+                        }
+                        @foreach (KeyValuePair<int, LessonInfoLightweight> keyValue in block.Lessons)
+                        {
+                            var lesson = keyValue.Value;
+
                             <MudListItem>
                                 <NavLink class="nav-link" href="@($"lessonNew/{lesson.Id}/{Unit.GetUnitNumberByShortName(lesson.UnitId)}")" Match="NavLinkMatch.All">@lesson.Name</NavLink>
                             </MudListItem>
@@ -51,25 +61,11 @@
             </MudExpansionPanel>
         }
     </MudExpansionPanels>
-
-    @foreach (var item in new string[] { "Persistant startup class", "Startup class disposed with service" })
-    {
-        <div>
-            <input type="radio" name="variant" id="@item" value="@item" @onchange="RadioSelection" checked=@(RadioValue.Equals(item,StringComparison.OrdinalIgnoreCase)) />
-            <label for="@item">@item</label>
-        </div>
-    }
-    <button disabled=@RunDisabled @onclick=OnClick class="btn btn-primary">Run test</button>
-    <br />
-    <br />
-    <pre>
-        @output
-    </pre>
 }
 
 @code {
     private LessonDS _lessonDS { get; set; }
-    private LinkedList<LessonBlock> _blocks;
+    private SortedDictionary<string, LessonBlock> _blocks;
 
     protected override async Task OnInitializedAsync()
     {
@@ -77,84 +73,56 @@
         _blocks = await _lessonDS.GetBlocks();
         menu.Title = "Планы уроков";
         menu.ClearMenuButtons();
-        menu.AddMenuButton(new SimpleActionButtonHandler(Icons.Filled.CloudDownload, () => {
-            var options = new DialogOptions { CloseButton = true, CloseOnEscapeKey = true, DisableBackdropClick = true };
-            DialogService.Show<LoadLessonsDialog>("Автоматическая загрузка уроков", options);
-        }));
-        menu.AddMenuButton(new SimpleActionButtonHandler(Icons.Filled.UploadFile, () => {
-            var options = new DialogOptions { CloseButton = true, CloseOnEscapeKey = true, DisableBackdropClick = true };
-            DialogService.Show<ManualLessonLoadDialog>("Ручная загрузка уроков", options);
-        }));
-        menu.AddMenuButton(new SimpleActionButtonHandler(Icons.Filled.Delete, () =>
+        var actionableMenuButtons = new[]
         {
-            var options = new DialogOptions { CloseButton = true, CloseOnEscapeKey = true, DisableBackdropClick = true };
-            DialogService.Show<DeleteLoadedLessons>("Удалить загруженные уроки", options);
-        }));
+            menu.AddMenuButton(new SimpleActionButtonHandler(Icons.Filled.CloudDownload, () =>
+            {
+                var options = new DialogOptions { CloseButton = true, CloseOnEscapeKey = true, DisableBackdropClick = true };
+                var parameters = new DialogParameters();
+                parameters.Add("LessonImportService", lessonImportService);
+                parameters.Add("DisableEnableAction", (bool b) => { IsDisabled = b; });
+                DialogService.Show<LoadLessonsDialog>(
+                    "Автоматическая загрузка уроков",
+                    parameters,
+                    options);
+            })),
+            menu.AddMenuButton(new SimpleActionButtonHandler(Icons.Filled.UploadFile, () =>
+            {
+                var options = new DialogOptions { CloseButton = true, CloseOnEscapeKey = true, DisableBackdropClick = true };
+                DialogService.Show<ManualLessonLoadDialog>("Ручная загрузка уроков", options);
+            })),
+            menu.AddMenuButton(new SimpleActionButtonHandler(Icons.Filled.Delete, () =>
+            {
+                var options = new DialogOptions { CloseButton = true, CloseOnEscapeKey = true, DisableBackdropClick = true };
+                DialogService.Show<DeleteLoadedLessons>("Удалить загруженные уроки", options);
+            }))
+    };
+        var loadingImage = menu.AddMenuButton(new EmptyButtonHandler("/Assets/CloudLoading.gif"));
+
+        OnEnableDisable += boolean =>
+        {
+            actionableMenuButtons.Aggregate((button1, button2) => { button2.Visible = !boolean; return button2; });
+            loadingImage.Visible = boolean;
+            menu.Update(this);
+        };
+        IsDisabled = false;
 
         menu.Update(this);
-    }
 
-    private bool IsDisabled { get; set; } = false;
+        messageParser = new();
+        messageParser.OnDBPut += HandleLessonDBPut;
+        messageParser.OnWarning += s => Snackbar.Add(s, Severity.Warning);
+        messageParser.OnMessage += s => Snackbar.Add(s, Severity.Normal);
+        messageParser.OnInfo += s => Snackbar.Add(s, Severity.Info);
+        messageParser.OnError += s => Snackbar.Add(s, Severity.Error);
+        messageParser.OnSuccess += s => Snackbar.Add(s, Severity.Success);
 
-    public async Task LoadFromAzure(string lessonToLoad)
-    {
-        var parameters = new DialogParameters();
-        parameters.Add("ImagePath", "/Assets/CloudLoading.gif");
-        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, DisableBackdropClick = true };
-        DialogService.Show<ImageDialog>($"Загрузка урока {lessonToLoad}", parameters, options);
-
-        var importHandler = new SnackbarImportHandler(null, Snackbar);
-        LessonImporter importer = new LessonImporter(Http, Corrector, db, importHandler);
-        await importer.LoadPredefinedLesson(lessonToLoad).ContinueWith(async any => { await ReloadPage(); });
-    }
-
-    private async Task ReloadPage()
-    {
-        await Task.Delay(500);
-        var currentUri = navigation.Uri;
-        navigation.NavigateTo("/setup");
-        navigation.NavigateTo(currentUri);
-    }
-
-    private void UpdateItemStatus(Services.LoadingItem item, string newStatus)
-    {
-        item.Status = newStatus;
-        StateHasChanged();
-    }
-
-
-
-    ///////////////////////////////////////BlazorWorkerTest//////////////////////////////////////////////////
-
-
-    string output = "";
-    IWorker worker;
-    IWorkerBackgroundService<LessonImportServiceStartup> startupService;
-    string canDisposeWorker => worker == null ? null : "disabled";
-    string RunDisabled => Running ? "disabled" : null;
-    bool Running = false;
-    string RadioValue = "Persistant startup class";
-    void RadioSelection(ChangeEventArgs args)
-    {
-        RadioValue = args.Value.ToString();
-    }
-    public async Task OnClick(EventArgs _)
-    {
-        Running = true;
-        var rn = Environment.NewLine;
-        try
+        if (worker == null)
         {
+            worker = await workerFactory.CreateAsync();
+        }
 
-            if (worker == null)
-            {
-                worker = await workerFactory.CreateAsync();
-            }
-
-            var sw = new System.Diagnostics.Stopwatch();
-            IWorkerBackgroundService<LessonImportService> myIocService;
-            var persistedStartup = RadioValue == "Persistant startup class";
-
-            var serviceCollectionDependencies = new string[] {
+        var serviceCollectionDependencies = new string[] {
                     "Microsoft.Extensions.DependencyInjection.Abstractions.dll",
 #if NET5_0_OR_GREATER
                 "System.Diagnostics.Tracing.dll",
@@ -180,66 +148,97 @@
             "BlazorWorker.Core.dll",
             "System.Net.Http.dll",
             "MudBlazor.dll"
-    };
-            if (persistedStartup)
-            {
-                if (startupService == null)
-                {
-                    StateHasChanged();
+        };
 
-                    sw.Start();
-                    startupService = await worker.CreateBackgroundServiceAsync<LessonImportServiceStartup>(wo =>
-                        wo.AddBlazorWorkerJsRuntime()
-                          .AddConventionalAssemblyOfService()
-                          .AddHttpClient()
-                          .AddAssemblyOf<Microsoft.Extensions.DependencyInjection.ServiceCollection>()
-                          .AddAssemblies(serviceCollectionDependencies)
-                        );
-                    worker.IncomingMessage += OnWorkerMessage;
-                    StateHasChanged();
-                }
-                myIocService = await startupService.CreateBackgroundServiceAsync(startup => startup.Resolve<LessonImportService>());
-            }
-            else
-            {
-                myIocService = await worker.CreateBackgroundServiceUsingFactoryAsync<LessonImportServiceStartup, LessonImportService>(
-                    startup => startup.Resolve<LessonImportService>(), wo =>
-                        wo.AddConventionalAssemblyOfService()
-                            .AddHttpClient()
-                            .AddAssemblyOf<Microsoft.Extensions.DependencyInjection.ServiceCollection>()
-                            .AddAssemblies(serviceCollectionDependencies)
-                            .AddBlazorWorkerJsRuntime()
-                            );
-            }
-
-            await using (myIocService)
-            {
-                //await myIocService.RegisterEventListenerAsync(nameof(LessonImportService.FiveCalled),
-                //       (object s, int five) =>
-                //       {
-                //           output += $"{rn}{LogDate()} OnFiveCalled: {five}";
-                //           StateHasChanged();
-                //       });
-                await myIocService.RunAsync(s => s.LoadPredefinedLesson("Бытие"));
-            }
-
-            StateHasChanged();
-
-        }
-        catch (Exception e)
+        if (startupService == null)
         {
-            output += $"{rn}Error = {e}";
-        }
-        finally
-        {
-            Running = false;
+            try
+            {
+                startupService = await worker.CreateBackgroundServiceAsync<LessonImportServiceStartup>(wo =>
+                    wo.AddBlazorWorkerJsRuntime()
+                        .AddConventionalAssemblyOfService()
+                        .AddHttpClient()
+                        .AddAssemblyOf<Microsoft.Extensions.DependencyInjection.ServiceCollection>()
+                        .AddAssemblies(serviceCollectionDependencies)
+                    );
+                worker.IncomingMessage += OnWorkerMessage;
+                lessonImportService = await startupService.CreateBackgroundServiceAsync(startup => startup.Resolve<LessonImportService>());
+            }
+            catch (Exception e)
+            {
+                Snackbar.Add(e.Message, Severity.Error);
+            }
         }
     }
 
+    private bool _isDisabled = false;
+    private bool IsDisabled { get => _isDisabled; set { _isDisabled = value; OnEnableDisable?.Invoke(_isDisabled); } }
+    private event Action<bool> OnEnableDisable;
+    public async Task LoadFromAzure(string lessonToLoad)
+    {
+        IsDisabled = true;
+        try
+        {
+            await lessonImportService.RunAsync(s => s.LoadPredefinedLesson(lessonToLoad));
+        }
+        catch (Exception e)
+        {
+            Snackbar.Add(e.Message, Severity.Error);
+        }
+        finally
+        {
+            IsDisabled = false;
+        }
+    }
+
+    private async Task ReloadPage()
+    {
+        await Task.Delay(500);
+        var currentUri = navigation.Uri;
+        navigation.NavigateTo("/setup");
+        navigation.NavigateTo(currentUri);
+    }
+
+    private void UpdateItemStatus(Services.LoadingItem item, string newStatus)
+    {
+        item.Status = newStatus;
+        StateHasChanged();
+    }
+
+
+
+    ///////////////////////////////////////BlazorWorkerTest//////////////////////////////////////////////////
+
+
+    string output { get; set; }
+    IWorker worker;
+    WebWorkerMessageParser messageParser;
+    IWorkerBackgroundService<LessonImportServiceStartup> startupService;
+    IWorkerBackgroundService<LessonImportService> lessonImportService;
+    string canDisposeWorker => worker == null ? null : "disabled";
+    string RunDisabled => Running ? "disabled" : null;
+    bool Running = false;
+
     public void OnWorkerMessage(object sender, string message)
     {
-        output += message;
+        messageParser.ParseMessage(message);
         StateHasChanged();
+    }
+
+    public void HandleLessonDBPut(string json)
+    {
+        var lessonInfo = System.Text.Json.JsonSerializer.Deserialize<LessonInfoLightweight>(json);
+        string blockName = lessonInfo.UnitId switch
+        {
+            "Быт" => "Бытие",
+            "ИсхСол" => "Исход - Соломон",
+            "Прор" => "Пророки",
+            "Евн" => "Евангелия",
+            "ДеянОткр" => "Деяния - Откровение",
+            "Осн" => "Основы веры"
+        };
+        _blocks[blockName].Lessons.Put(Convert.ToInt32(lessonInfo.Id), lessonInfo);
+        lessonImportService.RunAsync(s => s.NotifyImportCompleted());
     }
 
     public async Task OnDisposeWorker()
@@ -252,7 +251,7 @@
 
 
 
-                
+
 
     @*    <h3>Ниже страницы уроков, сделанные без использования БД (будет удалено позже)</h3>
 

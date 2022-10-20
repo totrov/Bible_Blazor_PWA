@@ -2,8 +2,10 @@
 using Bible_Blazer_PWA.Facades;
 using Bible_Blazer_PWA.Services.Parse;
 using Bible_Blazer_PWA.Services.Readers;
-using Microsoft.JSInterop;
+using BlazorWorker.WorkerCore;
+using System.IO;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Bible_Blazer_PWA.Services
@@ -15,8 +17,9 @@ namespace Bible_Blazer_PWA.Services
         private readonly ICorrector corrector;
         private readonly DatabaseJSFacade db;
         private readonly ALessonImportHandler handler;
+        private string lessonName;
         #endregion
-
+        public TaskCompletionSource LessonDbImportAwaiter { get; private set; }
         public LessonImporter(HttpClient http, ICorrector corrector, DatabaseJSFacade db, ALessonImportHandler handler)
         {
             httpFacade = new HttpFacade(http);
@@ -27,6 +30,7 @@ namespace Bible_Blazer_PWA.Services
 
         public async Task LoadPredefinedLesson(string lessonName)
         {
+            this.lessonName = lessonName;
             var readerBuilder = new ReaderBuilder(await httpFacade.GetStreamByLessonNameAsync(lessonName));
             await LoadLesson(readerBuilder);
         }
@@ -61,12 +65,23 @@ namespace Bible_Blazer_PWA.Services
             if (readSucceeded)
             {
                 handler.HandleReadCompleted();
-                await foreach (string json in LessonParser.ParseLessons(stringContent, corrector))
+                foreach (LessonModel lesson in LessonParser.ParseLessons(stringContent, corrector))
                 {
-                    await db.ImportLessonsJson(json);
-                    handler.HandleReaderException(new ReaderException(json[..15], null));
+                    await db.ImportLessonsJson(await ConvertLessonToJSON(lesson));
+                    LessonDbImportAwaiter = new TaskCompletionSource();
+                    await LessonDbImportAwaiter.Task;
                 }
             }
+            handler.HandleImportCompleted(lessonName);
+        }
+        private static async Task<string> ConvertLessonToJSON(LessonModel lessonModel)
+        {
+            using MemoryStream memoryStream = new MemoryStream();
+            await JsonSerializer.SerializeAsync(memoryStream, lessonModel, new JsonSerializerOptions() { WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
+            memoryStream.Position = 0;
+            using StreamReader sr = new(memoryStream);
+            string result = sr.ReadToEnd();
+            return result;
         }
     }
 }

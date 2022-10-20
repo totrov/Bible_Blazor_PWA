@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Bible_Blazer_PWA.DataSources
 {
     public class LessonDS
     {
-        private LinkedList<LessonBlock> _blocks;
+        private SortedDictionary<string, LessonBlock> _blocks;
         private readonly DataBase.DatabaseJSFacade db;
 
         public class LessonContainer
@@ -33,7 +32,7 @@ namespace Bible_Blazer_PWA.DataSources
         public class LessonBlock
         {
             public string Name { get; set; }
-            public IEnumerable<LessonInfoLightweight> Lessons { get; set; }
+            public SortedDictionary<int, LessonInfoLightweight> Lessons { get; set; }
         }
 
         public class LessonUnit
@@ -47,7 +46,25 @@ namespace Bible_Blazer_PWA.DataSources
             db = _facade;
         }
 
-        public async Task<LinkedList<LessonBlock>> GetBlocks()
+        private class BlockNameComparer : IComparer<string>
+        {
+            private int Order(char firstChar) => firstChar switch
+            {
+                'Б' => 10,
+                'И' => 20,
+                'П' => 30,
+                'Е' => 40,
+                'Д' => 50,
+                'О' => 60,
+                _ => 9999999
+            };
+            public int Compare(string x, string y)
+            {
+                return Order(x[0]) - Order(y[0]);
+            }
+        }
+
+        public async Task<SortedDictionary<string, LessonBlock>> GetBlocks()
         {
             if (_blocks is null)
             {
@@ -57,32 +74,18 @@ namespace Bible_Blazer_PWA.DataSources
                 lessonUnitsResult.OnDbResultOK += () => { tcs.SetResult(lessonUnitsResult.Result); };
                 var lessonUnits = await tcs.Task;
 
-                _blocks = new LinkedList<LessonBlock>();
+                _blocks = new SortedDictionary<string, LessonBlock>(new BlockNameComparer());
                 foreach (var lessonUnit in lessonUnits)
                 {
-                    _blocks.AddLast(new LessonBlock
+                    _blocks.Add(lessonUnit.Name, new LessonBlock
                     {
                         Name = lessonUnit.Name,
-                        Lessons = (await this.GetLessonInfoLightweightForBlock(lessonUnit.Id)).OrderBy(x => Convert.ToInt32(x.Id))
+                        Lessons = await this.GetLessonInfoLightweightForBlock(lessonUnit.Id)
                     });
                 }
             }
 
-            int order(string name)
-            {
-                return name.Substring(0, 5) switch
-                {
-                    "Бытие" => 10,
-                    "Исход" => 20,
-                    "Проро" => 30,
-                    "Еванг" => 40,
-                    "Деяни" => 50,
-                    "Основ" => 60,
-                    _ => 9999999
-                };
-            }
-
-            return new LinkedList<LessonBlock>(_blocks.OrderBy(x => order(x.Name)));
+            return _blocks;
         }
 
         private async Task<IEnumerable<LessonInfo>> GetLessonsForBlock(string unitId)
@@ -94,13 +97,19 @@ namespace Bible_Blazer_PWA.DataSources
             return await tcs.Task;
         }
 
-        public async Task<IEnumerable<LessonInfoLightweight>> GetLessonInfoLightweightForBlock(string unitId)
+        public async Task<SortedDictionary<int, LessonInfoLightweight>> GetLessonInfoLightweightForBlock(string unitId)
         {
+            SortedDictionary<int, LessonInfoLightweight> ret = new SortedDictionary<int, LessonInfoLightweight>();
             TaskCompletionSource<IEnumerable<LessonInfoLightweight>> tcs = new TaskCompletionSource<IEnumerable<LessonInfoLightweight>>();
 
             var lessonsResult = await db.GetRangeFromObjectStoreByKey<LessonInfoLightweight>("lessons", unitId, "0", "999999");
             lessonsResult.OnDbResultOK += () => { tcs.SetResult(lessonsResult.Result); };
-            return await tcs.Task;
+            var lessons = await tcs.Task;
+            foreach (var lesson in lessons)
+            {
+                ret.Add(Convert.ToInt32(lesson.Id), lesson);
+            }
+            return ret;
         }
     }
 

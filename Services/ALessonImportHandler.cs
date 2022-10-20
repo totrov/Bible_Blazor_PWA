@@ -1,7 +1,6 @@
 ﻿using Bible_Blazer_PWA.Services.Readers;
 using MudBlazor;
 using System;
-using System.Threading.Tasks;
 
 namespace Bible_Blazer_PWA.Services
 {
@@ -13,9 +12,9 @@ namespace Bible_Blazer_PWA.Services
         {
             this.finalizationAction = finalizationAction;
         }
-        internal void HandleImportCompleted()
+        internal void HandleImportCompleted(string lessonName)
         {
-            Inform("Успешно загружено", Severity.Success);
+            Inform($"{lessonName}: Успешно загружено", Severity.Success);
         }
 
         internal void HandleReadCompleted()

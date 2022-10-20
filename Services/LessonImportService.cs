@@ -26,10 +26,14 @@ namespace Bible_Blazer_PWA.Services
             databaseJSFacade.SetJS(jSRuntime);
             InterProcessImportHandler handler = new(() => { workerMessageService.PostMessageAsync("IReadCompleted"); }, workerMessageService);
             lessonImporter = new(httpClient, corrector, databaseJSFacade, handler);
-            workerMessageService.PostMessageAsync("Iinitialized");
         }
-        public async Task LoadPredefinedLesson(string lessonName) => await lessonImporter.LoadPredefinedLesson(lessonName);
+        public async Task<string> LoadPredefinedLesson(string lessonName)
+        {
+            await lessonImporter.LoadPredefinedLesson(lessonName);
+            return "workaround for bug in backgroud worker library. Return type is needed";
+        }
         public async Task LoadLessonFromFile(string fileName) => await lessonImporter.LoadLessonFromFile(fileName);
+        public void NotifyImportCompleted() => lessonImporter.LessonDbImportAwaiter.SetResult();
         public IWorkerMessageService WorkerMessageService { get; }
         public IJSRuntime JSRuntime { get; }
     }
