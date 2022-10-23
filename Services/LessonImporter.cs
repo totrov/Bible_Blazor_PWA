@@ -32,20 +32,20 @@ namespace Bible_Blazer_PWA.Services
         {
             this.lessonName = lessonName;
             var readerBuilder = new ReaderBuilder(await httpFacade.GetStreamByLessonNameAsync(lessonName));
-            await LoadLesson(readerBuilder);
+            await LoadLesson(readerBuilder, lessonName);
         }
 
         public async Task LoadLessonFromFile(string fileName)
         {
             var readerBuilder = new ReaderBuilder(fileName);
-            await LoadLesson(readerBuilder);
+            await LoadLesson(readerBuilder, fileName);
         }
 
-        protected async Task LoadLesson(ReaderBuilder readerBuilder)
+        protected async Task LoadLesson(ReaderBuilder readerBuilder, string lessonName)
         {
             string stringContent = "";
             bool readSucceeded = false;
-            handler.HandleStartReading();
+            handler.HandleStartReading(lessonName);
 
             try
             {
@@ -64,7 +64,7 @@ namespace Bible_Blazer_PWA.Services
             }
             if (readSucceeded)
             {
-                handler.HandleReadCompleted();
+                handler.HandleReadCompleted(lessonName);
                 foreach (LessonModel lesson in LessonParser.ParseLessons(stringContent, corrector))
                 {
                     await db.ImportLessonsJson(await ConvertLessonToJSON(lesson));

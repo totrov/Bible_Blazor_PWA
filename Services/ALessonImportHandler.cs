@@ -17,9 +17,9 @@ namespace Bible_Blazer_PWA.Services
             Inform($"{lessonName}: Успешно загружено", Severity.Success);
         }
 
-        internal void HandleReadCompleted()
+        internal void HandleReadCompleted(string lessonName)
         {
-            Inform("Чтение завершено. Разбор текста...");
+            Inform($"{lessonName}: Разбор текста...");
         }
 
         internal void HandleReaderException(ReaderException ex)
@@ -33,9 +33,9 @@ namespace Bible_Blazer_PWA.Services
         }
 
         protected abstract void Inform(string message, Severity severity = Severity.Info);
-        internal void HandleStartReading()
+        internal void HandleStartReading(string lessonName)
         {
-            Inform("Чтение из облака...");
+            Inform($"{lessonName}:Чтение...");
         }
     }
 }

@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Bible_Blazer_PWA.DataBase;
 using Bible_Blazer_PWA.Services.Parse;
 using System.Net.Http;
+using System.IO;
+using System.Text.Json;
 
 namespace Bible_Blazer_PWA.Services
 {
@@ -12,6 +14,9 @@ namespace Bible_Blazer_PWA.Services
     {
         private readonly ICorrector corrector;
         private LessonImporter lessonImporter;
+        private string lessonFileName;
+        private FileStream file;
+        private bool? fileExplicitlyClosed = null;
 
         public LessonImportService(
             IWorkerMessageService workerMessageService,
@@ -24,15 +29,45 @@ namespace Bible_Blazer_PWA.Services
             JSRuntime = jSRuntime;
             DatabaseJSFacade databaseJSFacade = new DatabaseJSFacade();
             databaseJSFacade.SetJS(jSRuntime);
-            InterProcessImportHandler handler = new(() => { workerMessageService.PostMessageAsync("IReadCompleted"); }, workerMessageService);
+            InterProcessImportHandler handler = new(
+                () => { if (!string.IsNullOrEmpty(lessonFileName)) File.Delete(lessonFileName); },
+                workerMessageService);
             lessonImporter = new(httpClient, corrector, databaseJSFacade, handler);
         }
+
+        public async Task<string> WriteBytesToLessonFile(string lessonFileName, string serializedBytes, bool isChunkLast)
+        {
+            if (lessonFileName != this.lessonFileName)
+            {
+                if (fileExplicitlyClosed == false)
+                {
+                    file.Close();
+                    File.Delete(file.Name);
+                }
+                file = new FileStream(lessonFileName, FileMode.Create, FileAccess.Write);
+                this.lessonFileName = lessonFileName;
+                fileExplicitlyClosed = false;
+            }
+            var bytes = System.Convert.FromBase64String(serializedBytes);
+            await file.WriteAsync(bytes);
+            if (isChunkLast)
+            {
+                file.Close();
+                fileExplicitlyClosed = true;
+            }
+            return "workaround for bug in backgroud worker library. Return type is needed";
+        }
+
         public async Task<string> LoadPredefinedLesson(string lessonName)
         {
             await lessonImporter.LoadPredefinedLesson(lessonName);
             return "workaround for bug in backgroud worker library. Return type is needed";
         }
-        public async Task LoadLessonFromFile(string fileName) => await lessonImporter.LoadLessonFromFile(fileName);
+        public async Task<string> LoadLessonFromFile()
+        {
+            await lessonImporter.LoadLessonFromFile(lessonFileName);
+            return "workaround for bug in backgroud worker library. Return type is needed";
+        }
         public void NotifyImportCompleted() => lessonImporter.LessonDbImportAwaiter.SetResult();
         public IWorkerMessageService WorkerMessageService { get; }
         public IJSRuntime JSRuntime { get; }

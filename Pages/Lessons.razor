@@ -73,41 +73,6 @@
         _blocks = await _lessonDS.GetBlocks();
         menu.Title = "Планы уроков";
         menu.ClearMenuButtons();
-        var actionableMenuButtons = new[]
-        {
-            menu.AddMenuButton(new SimpleActionButtonHandler(Icons.Filled.CloudDownload, () =>
-            {
-                var options = new DialogOptions { CloseButton = true, CloseOnEscapeKey = true, DisableBackdropClick = true };
-                var parameters = new DialogParameters();
-                parameters.Add("LessonImportService", lessonImportService);
-                parameters.Add("DisableEnableAction", (bool b) => { IsDisabled = b; });
-                DialogService.Show<LoadLessonsDialog>(
-                    "Автоматическая загрузка уроков",
-                    parameters,
-                    options);
-            })),
-            menu.AddMenuButton(new SimpleActionButtonHandler(Icons.Filled.UploadFile, () =>
-            {
-                var options = new DialogOptions { CloseButton = true, CloseOnEscapeKey = true, DisableBackdropClick = true };
-                DialogService.Show<ManualLessonLoadDialog>("Ручная загрузка уроков", options);
-            })),
-            menu.AddMenuButton(new SimpleActionButtonHandler(Icons.Filled.Delete, () =>
-            {
-                var options = new DialogOptions { CloseButton = true, CloseOnEscapeKey = true, DisableBackdropClick = true };
-                DialogService.Show<DeleteLoadedLessons>("Удалить загруженные уроки", options);
-            }))
-    };
-        var loadingImage = menu.AddMenuButton(new EmptyButtonHandler("/Assets/CloudLoading.gif"));
-
-        OnEnableDisable += boolean =>
-        {
-            actionableMenuButtons.Aggregate((button1, button2) => { button2.Visible = !boolean; return button2; });
-            loadingImage.Visible = boolean;
-            menu.Update(this);
-        };
-        IsDisabled = false;
-
-        menu.Update(this);
 
         messageParser = new();
         messageParser.OnDBPut += HandleLessonDBPut;
@@ -169,6 +134,43 @@
                 Snackbar.Add(e.Message, Severity.Error);
             }
         }
+
+        var parameters = new DialogParameters();
+        parameters.Add("LessonImportService", lessonImportService);
+        parameters.Add("DisableEnableAction", (bool b) => { IsDisabled = b; });
+
+        var actionableMenuButtons = new[]
+        {
+            menu.AddMenuButton(new SimpleActionButtonHandler(Icons.Filled.CloudDownload, () =>
+            {
+                var options = new DialogOptions { CloseButton = true, CloseOnEscapeKey = true, DisableBackdropClick = true };
+                DialogService.Show<LoadLessonsDialog>(
+                    "Автоматическая загрузка",
+                    parameters,
+                    options);
+            })),
+            menu.AddMenuButton(new SimpleActionButtonHandler(Icons.Filled.UploadFile, () =>
+            {
+                var options = new DialogOptions { CloseButton = true, CloseOnEscapeKey = true, DisableBackdropClick = true };
+                DialogService.Show<ManualLessonLoadDialog>("Ручная загрузка уроков", parameters, options);
+            })),
+            menu.AddMenuButton(new SimpleActionButtonHandler(Icons.Filled.Delete, () =>
+            {
+                var options = new DialogOptions { CloseButton = true, CloseOnEscapeKey = true, DisableBackdropClick = true };
+                DialogService.Show<DeleteLoadedLessons>("Удалить загруженные уроки", options);
+            }))
+    };
+        var loadingImage = menu.AddMenuButton(new EmptyButtonHandler("/Assets/CloudLoading.gif"));
+
+        OnEnableDisable += boolean =>
+        {
+            actionableMenuButtons.Aggregate("", (str, button) => { button.Visible = !boolean; return ""; });
+            loadingImage.Visible = boolean;
+            menu.Update(this);
+        };
+        IsDisabled = false;
+
+        menu.Update(this);
     }
 
     private bool _isDisabled = false;

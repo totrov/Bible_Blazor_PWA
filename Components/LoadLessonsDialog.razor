@@ -9,43 +9,28 @@
 @inject ISnackbar Snackbar;
 @inject NavigationManager navigation;
 
-<h6>Последнее обновление:@LastUpdate</h6>
-<MudGrid>
-    <MudItem xs="8">
-        <MudSelect T="string" Label="Какие уроки загрузить:" MultiSelection="true" @bind-Value="selectedLessonsValue" @bind-SelectedValues="options">
-            @foreach (var lessonName in lessonNames)
-            {
-                <MudSelectItem T="string" Value="@lessonName">@lessonName</MudSelectItem>
-            }
-        </MudSelect>
-    </MudItem>
-    <MudItem xs="4">
-        <MudFab Color="Color.Primary" StartIcon="@Icons.Filled.CloudDownload"
-                @onclick="()=>LoadFromAzure(options)" Disabled="@IsDisabled" />
-    </MudItem>
-</MudGrid>
-@if (LoadingItems.Any())
-{
+<MudContainer>
+    <h6>Последнее обновление:@LastUpdate</h6>
     <MudGrid>
         <MudItem xs="8">
-            <MudList Clickable="false">
-                @foreach (var item in LoadingItems)
+            <MudSelect T="string" Label="Какие уроки загрузить:" MultiSelection="true" @bind-Value="selectedLessonsValue" @bind-SelectedValues="options">
+                @foreach (var lessonName in lessonNames)
                 {
-                    <Bible_Blazer_PWA.Components.LoadingItem Name="@item.Name" Status="@item.Status"></Bible_Blazer_PWA.Components.LoadingItem>
+                    <MudSelectItem T="string" Value="@lessonName">@lessonName</MudSelectItem>
                 }
-            </MudList>
-
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="4">
+            <MudFab Color="Color.Primary" StartIcon="@Icons.Filled.CloudDownload"
+                    @onclick="()=>LoadFromAzure(options)" />
         </MudItem>
     </MudGrid>
-}
-
+</MudContainer>
 @code {
     private string LastUpdate { get; set; } = "25.09.2022 (для более свежей версии необходимо интернет соединение)";
     private string selectedLessonsValue { get; set; } = "Ничего не выбрано";
     private IEnumerable<string> lessonNames = LessonLoadConfig.GetLessonNames();
     private IEnumerable<string> options { get; set; } = new HashSet<string>();
-    private List<Services.LoadingItem> LoadingItems { get; set; } = new List<Services.LoadingItem>();
-    private bool IsDisabled { get; set; } = false;
 
     [Parameter]
     public IWorkerBackgroundService<LessonImportService> LessonImportService { get; set; }
@@ -74,9 +59,6 @@
 
     public async Task LoadFromAzure(IEnumerable<string> lessonsToLoad)
     {
-        LoadingItems.Clear();
-        IsDisabled = true;
-        List<Task> tasks = new List<Task>(lessonsToLoad.Count());
         DisableEnableAction(true);
         MudDialog.Close(DialogResult.Ok(true));
         foreach (var lessonName in lessonsToLoad)
@@ -84,13 +66,5 @@
             await LessonImportService.RunAsync(s => s.LoadPredefinedLesson(lessonName));
         }
         DisableEnableAction(false);
-    }
-
-    private async Task ReloadPage()
-    {
-        await Task.Delay(500);
-        var currentUri = navigation.Uri;
-        navigation.NavigateTo("/setup");
-        navigation.NavigateTo(currentUri);
     }
 }
