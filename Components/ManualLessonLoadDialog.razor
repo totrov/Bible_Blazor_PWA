@@ -56,21 +56,14 @@
             files.Add((file.Name, System.Convert.ToBase64String(buf)));
         }
 
+        MudDialog.Close(DialogResult.Ok(true));
+
         foreach ((var filename, var file) in files)
         {
-            //var offset = 2500;
-            //for (int pos = 0; pos < file.Length; pos += offset)
-            //{
-            //    bool isChunkLast = file.Length - pos <= offset;
-            //    int bytesCount = isChunkLast ? (int)file.Length - pos : offset;
-            //    var bytes = System.Convert.ToBase64String(file.Skip(pos).Take(bytesCount).ToArray());
-            //    await LessonImportService.RunAsync(s => s.WriteBytesToLessonFile(filename, bytes, isChunkLast));
-            //}
-            await LessonImportService.RunAsync(s => s.WriteBytesToLessonFile(filename, file, true));
+            await LessonImportService.RunAsync(s => s.WriteBytesToLessonFile(filename, file));
             await LessonImportService.RunAsync(s => s.LoadLessonFromFile());
         }
         DisableEnableAction(false);
-        MudDialog.Close(DialogResult.Ok(true));
     }
 
     private async Task ReloadPage()

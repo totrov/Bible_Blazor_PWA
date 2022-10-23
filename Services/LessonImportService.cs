@@ -16,7 +16,6 @@ namespace Bible_Blazer_PWA.Services
         private LessonImporter lessonImporter;
         private string lessonFileName;
         private FileStream file;
-        private bool? fileExplicitlyClosed = null;
 
         public LessonImportService(
             IWorkerMessageService workerMessageService,
@@ -35,26 +34,14 @@ namespace Bible_Blazer_PWA.Services
             lessonImporter = new(httpClient, corrector, databaseJSFacade, handler);
         }
 
-        public async Task<string> WriteBytesToLessonFile(string lessonFileName, string serializedBytes, bool isChunkLast)
+        public async Task<string> WriteBytesToLessonFile(string lessonFileName, string serializedBytes)
         {
-            if (lessonFileName != this.lessonFileName)
-            {
-                if (fileExplicitlyClosed == false)
-                {
-                    file.Close();
-                    File.Delete(file.Name);
-                }
-                file = new FileStream(lessonFileName, FileMode.Create, FileAccess.Write);
-                this.lessonFileName = lessonFileName;
-                fileExplicitlyClosed = false;
-            }
-            var bytes = System.Convert.FromBase64String(serializedBytes);
-            await file.WriteAsync(bytes);
-            if (isChunkLast)
-            {
-                file.Close();
-                fileExplicitlyClosed = true;
-            }
+            this.lessonFileName = lessonFileName;
+
+            file = new FileStream(lessonFileName, FileMode.Create, FileAccess.Write);
+            await file.WriteAsync(System.Convert.FromBase64String(serializedBytes));
+            file.Close();
+
             return "workaround for bug in backgroud worker library. Return type is needed";
         }
 
