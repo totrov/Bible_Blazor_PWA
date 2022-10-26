@@ -51,7 +51,7 @@ namespace Bible_Blazer_PWA.Config
 
         public static string GetManifestUrl()
         {
-            return "https://covenant-of-christ.onrender.com/Assets/lessons/manifest.json";
+            return "https://covenant-of-christ.onrender.com/Assets/online/lessons/manifest.json";
         }
     }
 }
