@@ -18,7 +18,6 @@ namespace Bible_Blazer_PWA
     }
     public class LessonElementData
     {
-        private int currentIndex = 0; // wierd issues with ?compilation? when it is local
         public string Value { get; set; }
         public LinkedList<LessonElementData> Children { get; set; }
         public int Level { get; set; }
@@ -29,10 +28,7 @@ namespace Bible_Blazer_PWA
 
         private LessonElementData AddChild(LessonElementData parent, int level, string value)
         {
-            if (parent.Children == null)
-            {
-                parent.Children = new LinkedList<LessonElementData>();
-            }
+            parent.Children ??= new LinkedList<LessonElementData>();
             var newChild = new LessonElementData { Level = level, Value = value };
             parent.Children.AddLast(newChild);
             return newChild;
