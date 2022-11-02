@@ -2,7 +2,7 @@
 window.context = {
     db: null,
     justUpgraded: false,
-    currentVersion: 4,
+    currentVersion: 5,
     previousVersion: 0,
     dbName: 'db',
     debugMode: true,
@@ -31,7 +31,6 @@ function DataUpgrade() {
             break;
         case 2:
         case 3:
-            database.dataUpgradeFunctions[2]();
             break;
         default:
             console.log("no data upgrade script for current db version");
@@ -50,14 +49,20 @@ function SchemaUpgrade() {
             database.schemaUpgradeFunctions[0]();
             database.schemaUpgradeFunctions[1]();
             database.schemaUpgradeFunctions[2]();
+            database.schemaUpgradeFunctions[3]();
             break;
         case 1:
         case 2:
             database.schemaUpgradeFunctions[1]();
             database.schemaUpgradeFunctions[2]();
+            database.schemaUpgradeFunctions[3]();
             break;
         case 3:
             database.schemaUpgradeFunctions[2]();
+            database.schemaUpgradeFunctions[3]();
+            break;
+        case 4:
+            database.schemaUpgradeFunctions[3]();
             break;
         default:
             upgradeWasNotSuccess = true;
@@ -332,6 +337,9 @@ window.database = {
         },
         function /*2*/() {
             //do nothing. New version bd is for cleaning up the lessons object store by cause of new id algorithm was introduced.
+        },
+        function /*3*/() {
+            context.db.createObjectStore('lessonElementData', { keyPath: ['UnitId', 'LessonId', 'Id'] });
         }
     ],
     fetchJson: async (path, dbStore) => {

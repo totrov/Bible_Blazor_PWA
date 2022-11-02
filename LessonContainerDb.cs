@@ -3,20 +3,6 @@ using System.Linq;
 
 namespace Bible_Blazer_PWA
 {
-    public class LessonContainer
-    {
-        public string LinkName { get; set; }
-        public string Content { get; set; }
-        private string[] GetLines()
-        {
-            return Content.Split("<br>");
-        }
-        public LessonElementData GetComposite()
-        {
-            return new LessonElementData(this.GetLines());
-        }
-    }
-
     public class LessonContainerDb
     {
         public string UnitId { get; set; }
@@ -33,7 +19,8 @@ namespace Bible_Blazer_PWA
         }
         public LessonElementData GetComposite()
         {
-            return new LessonElementData(this.GetLines());
+            return new LessonElementData(
+                new ParseLines_LessonElementDataInitializationStrategy(this.GetLines()));
         }
     }
 }

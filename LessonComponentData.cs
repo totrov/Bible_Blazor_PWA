@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bible_Blazer_PWA.Services.Parse;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -26,68 +27,21 @@ namespace Bible_Blazer_PWA
         private LessonElementData()
         { }
 
-        private LessonElementData AddChild(int level, string value)
+        private LessonElementData AddChild(LessonElementData parent, int level, string value)
         {
-            if (Children == null)
+            if (parent.Children == null)
             {
-                Children = new LinkedList<LessonElementData>();
+                parent.Children = new LinkedList<LessonElementData>();
             }
             var newChild = new LessonElementData { Level = level, Value = value };
-            Children.AddLast(newChild);
+            parent.Children.AddLast(newChild);
             return newChild;
         }
 
-        public LessonElementData(string[] lines)
+        public LessonElementData(ILessonDataInitializationStrategy initialization)
         {
-            var enumerator = lines.AsEnumerable().GetEnumerator();
-            enumerator.MoveNext();
-            string current = enumerator.Current;
-            Value = "";
-            Level = 0;
-
-            bool CheckMatchForFirstLevel(string input, out string match)
-            {
-                match = Regex.Match(input, "^([0-9][.]?[0-9]?[)])|(Заключение)|(000[)])").Value;
-                return !String.IsNullOrEmpty(match);
-            }
-
-            while (currentIndex < lines.Length)
-            {
-                if (CheckMatchForFirstLevel(lines[currentIndex], out string firstLevelMatch))
-                {
-                    var child1 = this.AddChild(1, ElementDataProcessor.ProcessFirstLevel(lines[currentIndex++], firstLevelMatch));
-                    while(currentIndex < lines.Length && !Regex.IsMatch(lines[currentIndex], "^([0-9][.]?[0-9]?[)])|(Заключение)|(000[)])"))
-                    {
-                        if (Regex.IsMatch(lines[currentIndex], "^[(][0-9][.]?[0-9]?[)]"))
-                        {
-                            var child2 = child1.AddChild(2, lines[currentIndex++]);
-                            while (currentIndex < lines.Length && !Regex.IsMatch(lines[currentIndex], "^([(]?[0-9][.]?[0-9]?[)])|(Заключение)|(000[)])"))
-                            {
-                                if (Regex.IsMatch(lines[currentIndex], "^[(][а-я][)]"))
-                                {
-                                    var child3 = child2.AddChild(3, lines[currentIndex++]);
-                                    while (currentIndex < lines.Length && !Regex.IsMatch(lines[currentIndex], "^([(]?(([0-9][.]?[0-9]?)|[а-я])[)])|(Заключение)|(000[)])"))
-                                    {
-                                        child3.Value += " " + lines[currentIndex++];
-                                    }
-                                }
-                                else
-                                {
-                                    child2.Value += " " + lines[currentIndex++];
-                                }
-                            }
-                        }
-                        else
-                        {
-                            child1.Value += " " + lines[currentIndex++];
-                        }
-                    }
-                }
-                else
-                {
-                    Value += " " + lines[currentIndex++];
-                }
-            }
+            initialization.SetAddChildMethod(AddChild);
+            initialization.Initialize(this);
         }
     }
 }
