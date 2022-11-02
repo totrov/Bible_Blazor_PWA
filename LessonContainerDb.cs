@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Bible_Blazer_PWA.DataBase;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Bible_Blazer_PWA
@@ -14,13 +15,13 @@ namespace Bible_Blazer_PWA
         {
             var list = new LinkedList<string>();
             list.AddLast(Name);
-            Content.Split("<br>").Aggregate( list, (l, s) => { l.AddLast(s); return l; });
+            Content.Split("<br>").Aggregate(list, (l, s) => { l.AddLast(s); return l; });
             return list.ToArray();
         }
-        public LessonElementData GetComposite()
+        public LessonElementData GetComposite(DatabaseJSFacade db)
         {
             return new LessonElementData(
-                new ParseLines_LessonElementDataInitializationStrategy(this.GetLines()));
+                new ParseLines_LessonElementDataInitializationStrategy(this.GetLines(), UnitId, Id, db));
         }
     }
 }

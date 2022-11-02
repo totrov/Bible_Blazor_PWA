@@ -114,11 +114,16 @@ namespace Bible_Blazer_PWA.DataBase
                         null, "getCountFromObjectStoreByKey", objectStoreName, parameters);
         }
 
-
-        public async Task<IndexedDBResultHandler<bool>> SetKeyValueIntoObjectStore(string objectStoreName, string id, string value)
+        public async Task<IndexedDBResultHandler<bool>> SetKeyValueIntoObjectStore(string objectStoreName, object key, object value)
         {
             return await this.CallDbAsync<bool>(
-                    null, "putKeyValueIntoObjectStore", objectStoreName, id, value);
+                    null, "putKeyValueIntoObjectStore", objectStoreName, key, value);
+
+        }
+        public async Task<IndexedDBResultHandler<bool>> StartPutIntoObjectStore(string objectStoreName, object obj)
+        {
+            return await this.CallDbAsync<bool>(
+                    null, "putIntoObjectStore", objectStoreName, obj);
 
         }
     }

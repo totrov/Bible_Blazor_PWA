@@ -62,7 +62,7 @@
         resultHandler.OnDbResultOK += () =>
         {
             lesson = resultHandler.Result;
-            Composite = lesson.GetComposite();
+            Composite = lesson.GetComposite(db);
             CompositeChildren = Composite.Children;
             taskCompletionSource.SetResult();
         };

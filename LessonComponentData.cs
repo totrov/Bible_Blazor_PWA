@@ -1,9 +1,5 @@
 ﻿using Bible_Blazer_PWA.Services.Parse;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Bible_Blazer_PWA
 {
@@ -39,5 +35,13 @@ namespace Bible_Blazer_PWA
             initialization.SetAddChildMethod(AddChild);
             initialization.Initialize(this);
         }
+    }
+
+    public class LessonElementDataDb
+    {
+        public int[] Id { get; set; }
+        public string UnitId { get; set; }
+        public string LessonId { get; set; }
+        public string Content { get; set; }
     }
 }

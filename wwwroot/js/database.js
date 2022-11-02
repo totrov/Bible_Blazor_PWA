@@ -289,6 +289,40 @@ window.database = {
             };
         });
     },
+    putIntoObjectStore: function (dotnetHelper, params) {
+        context.log('putIntoObjectStore was called with params:' + params.join());
+        var openRequest = database.getOpenRequest();
+
+        openRequest.onSuccessHandlers.push(function (event) {
+            context.log('db opened');
+            context.db = openRequest.result;
+            let objectStoreName = params.shift();
+            var transaction = context.db.transaction(objectStoreName, "readwrite");
+
+            transaction.oncomplete = function (event) {
+                context.log('putIntoObjectStore: Transaction completed.');
+            };
+
+            transaction.onerror = function (event) {
+                context.log('putIntoObjectStore: Transaction not opened due to error: ' + transaction.error);
+            };
+
+            var objectStore = transaction.objectStore(objectStoreName);
+            var obj = params.shift();
+            var objectStoreRequest = objectStore.put(obj);
+            objectStoreRequest.onsuccess = function (event) {
+                result = true;
+                context.logVerbose('putIntoObjectStore: Transaction returned: ' + result);
+                dotnetHelper.invokeMethod('SetStatusAndResult', true, result);
+            };
+
+            objectStoreRequest.onerror = function (event) {
+                result = false;
+                context.logVerbose('putIntoObjectStore: Transaction returned: ' + result);
+                dotnetHelper.invokeMethod('SetStatusAndResult', false, result);
+            };
+        });
+    },
     getCountFromObjectStoreByKey: function (dotnetHelper, params) {
         context.log('getCountFromObjectStoreByKey was called');
         var openRequest = database.getOpenRequest();
@@ -339,7 +373,7 @@ window.database = {
             //do nothing. New version bd is for cleaning up the lessons object store by cause of new id algorithm was introduced.
         },
         function /*3*/() {
-            context.db.createObjectStore('lessonElementData', { keyPath: ['UnitId', 'LessonId', 'Id'] });
+            context.db.createObjectStore('lessonElementData', { keyPath: ['unitId', 'lessonId', 'id'] });
         }
     ],
     fetchJson: async (path, dbStore) => {
