@@ -43,14 +43,20 @@ namespace Bible_Blazer_PWA
             identifier[level - 1]++;
 
             var lessonElementData = addChildMethod(parent, level, value);
-            LessonElementDataDb lessonElementDataDb = new() {
+            await StartPutLessonElementData(identifier, lessonId, unitId, lessonElementData.Value);
+            return lessonElementData;
+        }
+
+        private async Task StartPutLessonElementData(int[] identifier, string lessonId, string unitId, string value)
+        {
+            LessonElementDataDb lessonElementDataDb = new()
+            {
                 Id = identifier,
                 LessonId = lessonId,
                 UnitId = unitId,
-                Content = lessonElementData.Value
+                Content = value
             };
             await dbFacade.StartPutIntoObjectStore("lessonElementData", lessonElementDataDb);
-            return lessonElementData;
         }
 
         public async Task Initialize(LessonElementData lessonElementData)
@@ -102,6 +108,7 @@ namespace Bible_Blazer_PWA
                 else
                 {
                     lessonElementData.Value += " " + lines[currentIndex++];
+                    await StartPutLessonElementData(new[] { 0, 0, 0 }, lessonId, unitId, lessonElementData.Value);
                 }
             }
         }

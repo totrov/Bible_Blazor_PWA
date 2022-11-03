@@ -14,10 +14,10 @@
 @using System.Text.RegularExpressions
 @using static Bible_Blazer_PWA.DataSources.LessonDS
 
-@if (lesson != null)
+@if (Composite != null)
 {
     <MudContainer>
-        <MudText Typo="Typo.h4" Style="overflow:hidden">@(Regex.Replace(Composite.Value,",(?=[а-яА-Яa-zA-Z])",", "))</MudText>
+        <MudText Typo="Typo.h4" Style="overflow:hidden">@(Regex.Replace(Composite.Value, ",(?=[а-яА-Яa-zA-Z])", ", "))</MudText>
         @foreach (LessonElementData data in CompositeChildren)
         {
             <LessonElement ElementData="data"></LessonElement>
@@ -54,19 +54,8 @@
     {
         var refreshNeeded = lesson != null;
 
-        TaskCompletionSource taskCompletionSource = new TaskCompletionSource();
-        var unitId = Unit.GetShortNameByUnitNumber(UnitNumber);
-        var idStringified = Id.ToString();
-
-        var resultHandler = await db.GetRecordFromObjectStoreByKey<LessonContainerDb>("lessons", unitId, Id.ToString());
-        resultHandler.OnDbResultOK += () =>
-        {
-            lesson = resultHandler.Result;
-            Composite = lesson.GetComposite(db);
-            CompositeChildren = Composite.Children;
-            taskCompletionSource.SetResult();
-        };
-        await taskCompletionSource.Task;
+        Composite = await GetLessonCompositeAsync();
+        CompositeChildren = Composite.Children;
 
         IconResolver iconReolver = new IconResolver();
         menu.Title = "";
@@ -81,7 +70,8 @@
             StateHasChanged();
         }
         _lessonDS = new LessonDS(db);
-        LessonInfoLightweight[] lessons = (await _lessonDS.GetLessonInfoLightweightForBlock(unitId)).Values.ToArray();
+        LessonInfoLightweight[] lessons =
+            (await _lessonDS.GetLessonInfoLightweightForBlock(Unit.GetShortNameByUnitNumber(UnitNumber))).Values.ToArray();
         for (int i = 0; i < lessons.Length; i++)
         {
             if (int.Parse(lessons[i].Id) == Id)
@@ -96,6 +86,25 @@
                 }
             }
         }
+    }
+
+    protected async Task<LessonElementData> GetLessonCompositeAsync()
+    {
+        var unitId = Unit.GetShortNameByUnitNumber(UnitNumber);
+        var idStringified = Id.ToString();
+
+        LessonElementData lessonElement = new(new DBLessonDataInitializationStrategy(db, unitId, Id.ToString()));
+        await lessonElement.InitTask;
+        if (!string.IsNullOrEmpty(lessonElement.Value))
+        {
+            return lessonElement;
+        }
+
+        var resultHandler = await db.GetRecordFromObjectStoreByKey<LessonContainerDb>("lessons", unitId, Id.ToString());
+        var result = await resultHandler.GetTaskCompletionSourceWrapper();
+        var ret = result.GetComposite(db);
+        await ret.InitTask;
+        return ret;
     }
 
     protected async override Task OnInitializedAsync()

@@ -1,5 +1,6 @@
 ﻿using Bible_Blazer_PWA.Services.Parse;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Bible_Blazer_PWA
 {
@@ -12,15 +13,19 @@ namespace Bible_Blazer_PWA
             return input;
         }
     }
-    public class LessonElementData
+    public class LessonElementData:IAsyncInitializable
     {
         public string Value { get; set; }
         public LinkedList<LessonElementData> Children { get; set; }
         public int Level { get; set; }
         public string Key { get; set; }
 
+        public Task InitTask => initializationTask;
+
+        private Task initializationTask;
         private LessonElementData()
         { }
+
 
         private LessonElementData AddChild(LessonElementData parent, int level, string value)
         {
@@ -33,7 +38,7 @@ namespace Bible_Blazer_PWA
         public LessonElementData(ILessonDataInitializationStrategy initialization)
         {
             initialization.SetAddChildMethod(AddChild);
-            initialization.Initialize(this);
+            initializationTask = initialization.Initialize(this);
         }
     }
 
