@@ -33,40 +33,62 @@ namespace Bible_Blazer_PWA
 
             if (result.Any())
             {
-                lessonElementData.Value = result.First().Content;
-                Stack<LessonElementData> stack = new();
-                stack.Push(lessonElementData);
-                int[] prevIdentifier = new[] { 0, 0, 0 };
-                foreach (var lessonElement in result.Skip(1))
+                PutLessonElementDatasIntoHierarchy(result, lessonElementData);
+            }
+        }
+
+        private void PutLessonElementDatasIntoHierarchy(IEnumerable<LessonElementDataDb> elements, LessonElementData rootElement)
+        {
+            rootElement.Value = elements.First().Content;
+            LessonElementData lastAddedElement = rootElement;
+            Stack<LessonElementData> stack = new();
+            stack.Push(rootElement);
+            int[] prevIdentifier = new[] { 0, 0, 0 };
+
+            foreach (var element in elements.Skip(1))
+            {
+                int stackOffset = CalcOffsetAndUpdatePrevIdentifier(prevIdentifier, element.Id);
+                if (stackOffset == 1)
                 {
-                    CalcOffsetAndUpdatePrevIdentifier(prevIdentifier, lessonElement.Id);
-                    addChildMethod(currentElement, lessonElement.Id[], result..Take(1).First().Content);
+                    stack.Push(lastAddedElement);
+                    lastAddedElement = addChildMethod(lastAddedElement, stack.Count - 1, element.Content);
+                }
+                else
+                {
+                    UpdateStack(stack, stackOffset);
+                    lastAddedElement = addChildMethod(stack.Peek(), stack.Count - 1, element.Content);
                 }
             }
         }
 
-        private int CalcOffsetAndUpdatePrevIdentifier(int[] prevIdentifier, int[] currentIdentifier)
+        private static void UpdateStack(Stack<LessonElementData> stack, int stackOffset)
         {
-            int stackOffset = -1;
-            bool previousEqual = true;
+            for (int i = 0; i > stackOffset; i--)
+            {
+                stack.Pop();
+            }
+        }
+
+        private static int CalcOffsetAndUpdatePrevIdentifier(int[] prevIdentifier, int[] currentIdentifier)
+        {
+            int stackOffset = 0;
+            bool isChildOfPrev = false;
             for (int i = 0; i < currentIdentifier.Length; i++)
             {
-                if (previousEqual)
+                if ((prevIdentifier[i] == 0 ^ currentIdentifier[i] == 0) && !isChildOfPrev)
                 {
-                    if (prevIdentifier[i] != currentIdentifier[i])
+                    if (prevIdentifier[i] == 0)
                     {
-                        stackOffset++;
-                        prevIdentifier[i] = currentIdentifier[i];
-                        previousEqual = false;
+                        isChildOfPrev = true;
+                    }
+                    else
+                    {
+                        stackOffset--;
                     }
                 }
-                else
-                {
-                    stackOffset++;
-                    prevIdentifier[i] = currentIdentifier[i];
-                }
+                prevIdentifier[i] = currentIdentifier[i];
             }
-            return stackOffset;
+            return isChildOfPrev ? 1 : stackOffset;
         }
 
         public void SetAddChildMethod(Func<LessonElementData, int, string, LessonElementData> addChildMethod)
@@ -75,3 +97,20 @@ namespace Bible_Blazer_PWA
         }
     }
 }
+
+//bool previousEqual = true;
+
+//if (previousEqual)
+//{
+//    if (prevIdentifier[i] != currentIdentifier[i])
+//    {
+//        stackOffset++;
+//        prevIdentifier[i] = currentIdentifier[i];
+//        previousEqual = false;
+//    }
+//}
+//else
+//{
+//    stackOffset++;
+//    prevIdentifier[i] = currentIdentifier[i];
+//}
