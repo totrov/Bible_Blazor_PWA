@@ -2,7 +2,9 @@
 using Bible_Blazer_PWA.BibleReferenceParse;
 using Bible_Blazer_PWA.DomainObjects;
 using Bible_Blazer_PWA.Parameters;
+using DocumentFormat.OpenXml.Bibliography;
 using MudBlazor;
+using Serialize.Linq.Factories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -54,6 +56,7 @@ namespace BibleComponents
             }
         }
         internal bool VersesLoaded { get => _versesLoaded; }
+        internal bool ShouldDrawBody { get => GetShouldDrawBody(); }
         internal Dictionary<string, IEnumerable<BibleService.VersesView>> VersesViewsDictionary { get => _versesViewsDictionary; }
         internal string Border { get => Parameters.HideBlocksBorders == "True" ? "border:none;" : ""; }
         #endregion
@@ -148,6 +151,14 @@ namespace BibleComponents
 
         internal LessonElementMediator()
         {
+        }
+
+        private bool GetShouldDrawBody()
+        {
+            return
+                ElementData.Children != null
+                || (HasBibleReferences && Parameters.HideBibleRefTabs != "True" && RefsAreOpen);
+
         }
     }
 }

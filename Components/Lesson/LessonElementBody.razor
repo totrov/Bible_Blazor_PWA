@@ -34,10 +34,12 @@
     }
     string CardContentStyle
     {
-        get => $"background-color:{Mediator.BodyBackgroundColor}; {ContentPaddingStyle}";
+        get => Mediator.ShouldDrawBody
+        ? $"background-color:{Mediator.BodyBackgroundColor}; {ContentPaddingStyle}"
+        : "padding:0;";
     }
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         Mediator.Parameters.OnReferenceToggle += (sender, args) => { Mediator.RefsAreOpen = bool.Parse(Mediator.Parameters.AreReferencesOpened); };
     }
