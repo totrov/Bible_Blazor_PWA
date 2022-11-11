@@ -1,0 +1,70 @@
+﻿@namespace BibleComponents
+@using Bible_Blazer_PWA.BibleReferenceParse
+@using Bible_Blazer_PWA.DomainObjects
+@using Bible_Blazer_PWA.Parameters
+@using Bible_Blazer_PWA.Services.Parse
+@using Param = Microsoft.AspNetCore.Components.ParameterAttribute
+
+
+<MudCardHeader style="@Style">
+    @{
+        int referenceIndex = 0;
+    }
+    @foreach (var token in Tokens)
+    {
+        switch (token.Type)
+        {
+            case TokenType.PlainText:
+                @((MarkupString)token.Text)
+                break;
+            case TokenType.BibleReference:
+                var avoidClosure = referenceIndex;
+                var onclick = () => { Mediator.Activate(avoidClosure); };
+                @if (Mediator.Parameters.HideBibleRefTabs != "True")
+                {
+                    <a href="" @onclick="onclick" @onclick:preventDefault>@token.Text</a>
+                }
+                else
+                {
+                    <a href="" @onmouseenter="onclick" @onmouseout="()=>Mediator.Activate(-1)" @onclick:preventDefault>@token.Text</a>
+                }
+                referenceIndex++;
+                break;
+        }
+    }
+    @if (Mediator.ElementData.Children != null)
+    {
+        <button type="button" class="btn @(Mediator.IsOpen ? "btn-outline-primary" : "btn-outline-secondary") btn-outline-primary btn-sm" style="display: inline;" @onclick="Mediator.Toggle">...</button>
+    }
+    @if (Mediator.HasBibleReferences && Mediator.Parameters.HideBibleRefTabs != "True")
+    {
+        <button type="button" class="btn btn-outline-primary btn-sm" style="display: inline;" @onclick="Mediator.ToggleReferences">..</button>
+    }
+</MudCardHeader>
+
+@code {
+    [Microsoft.AspNetCore.Components.Parameter]
+    public LessonElementMediator Mediator { get; set; }
+
+    private string Style
+    {
+        get => $"display:block; background-color:{@Mediator.BackgroundColor}; font-size:{Mediator.Parameters.FontSize}px;{Mediator.Border}";
+    }
+
+    private LinkedList<LessonElementToken> _tokens;
+    private LinkedList<LessonElementToken> Tokens
+    {
+        get
+        {
+            if (_tokens == null)
+            {
+                _tokens = Mediator.Parser.ParseTextLineWithBibleReferences(Mediator.ElementData.Value.ToString()).GetTokens();
+            }
+            return _tokens;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+    }
+}

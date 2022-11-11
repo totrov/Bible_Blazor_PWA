@@ -1,0 +1,122 @@
+﻿@*@namespace BibleComponents;*@
+@using BibleComponents;
+@using Bible_Blazer_PWA.DomainObjects;
+
+<MudCardContent Style="@CardContentStyle">
+    @if (Mediator.HasBibleReferences)
+    {
+        var showBibleRefTabs =
+        Mediator.Parameters.HideBibleRefTabs != "True" &&
+        ((Mediator.RefsAreOpen && Mediator.HasBibleReferences) || (Mediator.ElementData.Children != null && Mediator.ElementData.Level < int.Parse(Mediator.Parameters.CollapseLevel) && Mediator.IsOpen));
+
+        var visibilityStyle = Mediator.RefsAreOpen ? "" : "display:none;";
+        @if (showBibleRefTabs)
+        {
+            <MudTabs style="@visibilityStyle" @ref="tabs" Rounded="true" ApplyEffectsToContainer="true">
+                @foreach (BibleReference reference in Mediator.BibleReferences)
+                {
+                    <MudTabPanel Text="@reference.ToString()" ID="@(reference.Id)">
+                        @{
+                            var bibleRefTextStyle = $"background-color:{Mediator.Parameters.BibleRefBgColor};font-size:{Mediator.Parameters.FontSize}px;color:{Mediator.Parameters.BibleRefFontColor};";
+                        }
+                        <MudText style="@bibleRefTextStyle">
+                            @if (Mediator.VersesLoaded)
+                            {
+                                bool isFirst = true;
+                                foreach (BibleService.VersesView view in Mediator.VersesViewsDictionary[reference.ToString()])
+                                {
+                                    @if (Mediator.DbParamFacade.ParametersModel.StartVersesOnANewLine == "True" && !isFirst)
+                                    {
+                                        <br />
+                                    }
+                                    <span class="badge badge-primary" style="background-color:@Mediator.Parameters.BibleRefHighlightColor;color:@Mediator.Parameters.BibleRefVersesIntervalsColor;">@view.Badge</span>
+                                    @((MarkupString)view.RawText)
+                                    isFirst = false;
+                                }
+                            }
+                            else
+                            {
+                                <span>Загрузка...</span>
+                            }
+                        </MudText>
+                    </MudTabPanel>
+                }
+            </MudTabs>
+        }
+        else
+        {
+            int referenceIndex = 0;
+            @foreach (BibleReference reference in Mediator.BibleReferences)
+            {
+                <MudPopover Open="Mediator.CurrentPopoverIndex == referenceIndex" OverflowBehavior="OverflowBehavior.FlipNever" AnchorOrigin="Origin.TopCenter" TransformOrigin="Origin.TopCenter" Paper="false">
+                    @{
+                        var bibleRefTextStyle = $"background-color:{Mediator.Parameters.BibleRefBgColor};font-size:{Mediator.Parameters.FontSize}px;color:{Mediator.Parameters.BibleRefFontColor};";
+                    }
+                    <MudPaper Outlined="true" Class="px-3 py-3" style="@bibleRefTextStyle">
+                        <MudText>
+                            @if (Mediator.VersesLoaded)
+                            {
+                                bool isFirst = true;
+                                foreach (BibleService.VersesView view in Mediator.VersesViewsDictionary[reference.ToString()])
+                                {
+                                    @if (Mediator.DbParamFacade.ParametersModel.StartVersesOnANewLine == "True" && !isFirst)
+                                    {
+                                        <br />
+                                    }
+                                    <span class="badge badge-primary" style="background-color:@Mediator.Parameters.BibleRefHighlightColor;color:@Mediator.Parameters.BibleRefVersesIntervalsColor;">@view.Badge</span>
+                                    @((MarkupString)view.RawText)
+                                    isFirst = false;
+                                }
+                            }
+                            else
+                            {
+                                <span>Загрузка...</span>
+                            }
+                        </MudText>
+                    </MudPaper>
+                </MudPopover>
+                referenceIndex++;
+            }
+        }
+    }
+    @if (Mediator.ElementData.Children != null)
+    {
+        var visibilityStyle = Mediator.ElementData.Level < int.Parse(Mediator.Parameters.CollapseLevel) && Mediator.IsOpen ? "" : "display:none;";
+        var subelementStyle = $"padding:{(double.Parse(Mediator.Parameters.BlocksPadding) / 100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem" +
+        $"{(double.Parse(Mediator.Parameters.BlocksPaddingRight) / 100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem" +
+        $" {(double.Parse(Mediator.Parameters.BlocksPadding) / 100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem" +
+        $" {(double.Parse(Mediator.Parameters.BlocksPaddingLeft) / 100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem;"
+        + $" {visibilityStyle}";
+        <div style="@subelementStyle">
+            @foreach (LessonElementData data in Mediator.ElementData.Children)
+            {
+                <LessonElement ElementData="data"></LessonElement>
+            }
+        </div>
+    }
+</MudCardContent>
+
+@code {
+    [Parameter]
+    public LessonElementMediator Mediator { get; set; }
+
+    string ContentPaddingStyle {
+        get => $"padding:{(double.Parse(Mediator.Parameters.BlocksPadding) / 100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem" +
+                                    $" {(double.Parse(Mediator.Parameters.BlocksPaddingRight) / 100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem" +
+                                    $" {(double.Parse(Mediator.Parameters.BlocksPadding) / 100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem" +
+                                    $" {(double.Parse(Mediator.Parameters.BlocksPaddingLeft) / 100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem;";
+    }
+    string CardContentStyle
+    {
+        get => $"background-color:{Mediator.BodyBackgroundColor}; {ContentPaddingStyle}";
+    }
+
+    private MudTabs tabs;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Mediator.Parameters.OnReferenceToggle += (sender, args) => { Mediator.RefsAreOpen = bool.Parse(Mediator.Parameters.AreReferencesOpened); };
+        Mediator.StateHasChanged += type => { if (type == this.GetType()) StateHasChanged(); };
+    }
+
+}
