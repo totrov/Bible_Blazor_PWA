@@ -1,0 +1,28 @@
+﻿@namespace BibleComponents
+@using Bible_Blazer_PWA.DomainObjects;
+
+@if (ShowBibleRefTabs)
+{
+    <LessonElementRefTabs Mediator="Mediator"></LessonElementRefTabs>
+}
+else
+{
+    <LessonElementRefPopovers Mediator="Mediator"></LessonElementRefPopovers>
+}
+
+@code {
+    [Parameter]
+    public LessonElementMediator Mediator { get; set; }
+
+    private bool ShowBibleRefTabs
+    {
+        get =>
+        Mediator.Parameters.HideBibleRefTabs != "True" &&
+        ((Mediator.RefsAreOpen && Mediator.HasBibleReferences) || (Mediator.ElementData.Children != null && Mediator.ElementData.Level < int.Parse(Mediator.Parameters.CollapseLevel) && Mediator.IsOpen));
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Mediator.StateHasChanged += type => { if (type == this.GetType()) StateHasChanged(); };
+    }
+}

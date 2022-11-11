@@ -1,6 +1,5 @@
 ﻿using Bible_Blazer_PWA;
 using Bible_Blazer_PWA.BibleReferenceParse;
-using Bible_Blazer_PWA.Components.Lesson;
 using Bible_Blazer_PWA.DomainObjects;
 using Bible_Blazer_PWA.Parameters;
 using MudBlazor;
@@ -83,12 +82,12 @@ namespace BibleComponents
             if (Parameters.HideBibleRefTabs == "True")
             {
                 CurrentPopoverIndex = number;
+                StateHasChanged?.Invoke(typeof(LessonElementRefPopovers));
             }
             else
             {
                 Tabs?.ActivatePanel(number);
             }
-            StateHasChanged?.Invoke(typeof(LessonElementBody));
         }
 
         #endregion

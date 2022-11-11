@@ -1,0 +1,47 @@
+﻿@namespace BibleComponents
+@using Bible_Blazer_PWA.DomainObjects;
+
+<MudTabs style="@VisibilityStyle" @ref="tabs" Rounded="true" ApplyEffectsToContainer="true">
+    @foreach (BibleReference reference in Mediator.BibleReferences)
+    {
+        <MudTabPanel Text="@reference.ToString()" ID="@(reference.Id)">
+            @{
+                var bibleRefTextStyle = $"background-color:{Mediator.Parameters.BibleRefBgColor};font-size:{Mediator.Parameters.FontSize}px;color:{Mediator.Parameters.BibleRefFontColor};";
+            }
+            <MudText style="@bibleRefTextStyle">
+                @if (Mediator.VersesLoaded)
+                {
+                    bool isFirst = true;
+                    foreach (BibleService.VersesView view in Mediator.VersesViewsDictionary[reference.ToString()])
+                    {
+                        @if (Mediator.DbParamFacade.ParametersModel.StartVersesOnANewLine == "True" && !isFirst)
+                        {
+                            <br />
+                        }
+                        <span class="badge badge-primary" style="background-color:@Mediator.Parameters.BibleRefHighlightColor;color:@Mediator.Parameters.BibleRefVersesIntervalsColor;">@view.Badge</span>
+                        @((MarkupString)view.RawText)
+                        isFirst = false;
+                    }
+                }
+                else
+                {
+                    <span>Загрузка...</span>
+                }
+            </MudText>
+        </MudTabPanel>
+    }
+</MudTabs>
+
+@code {
+    [Parameter]
+    public LessonElementMediator Mediator { get; set; }
+    private MudTabs tabs;
+
+    private string VisibilityStyle { get => Mediator.RefsAreOpen ? "" : "display:none;"; }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        Mediator.Tabs = tabs;
+        base.OnAfterRender(firstRender);
+    }
+}

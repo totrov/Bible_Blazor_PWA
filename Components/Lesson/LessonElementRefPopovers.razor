@@ -1,0 +1,54 @@
+﻿@namespace BibleComponents
+@using Bible_Blazer_PWA.DomainObjects;
+
+@{
+    int referenceIndex = 0;
+}
+
+@foreach (BibleReference reference in Mediator.BibleReferences)
+{
+    <MudPopover Open="Mediator.CurrentPopoverIndex == referenceIndex" OverflowBehavior="OverflowBehavior.FlipNever" AnchorOrigin="Origin.TopCenter" TransformOrigin="Origin.TopCenter" Paper="false">
+        <MudPaper Outlined="true" Class="px-3 py-3" style="@BibleRefTextStyle">
+            <MudText Style="@FontSizeStyle">
+                @if (Mediator.VersesLoaded)
+                {
+                    bool isFirst = true;
+                    foreach (BibleService.VersesView view in Mediator.VersesViewsDictionary[reference.ToString()])
+                    {
+                        @if (Mediator.DbParamFacade.ParametersModel.StartVersesOnANewLine == "True" && !isFirst)
+                        {
+                            <br />
+                        }
+                        <span class="badge badge-primary" style="background-color:@Mediator.Parameters.BibleRefHighlightColor;color:@Mediator.Parameters.BibleRefVersesIntervalsColor;">@view.Badge</span>
+                        @((MarkupString)view.RawText)
+                        isFirst = false;
+                    }
+                }
+                else
+                {
+                    <span>Загрузка...</span>
+                }
+            </MudText>
+        </MudPaper>
+    </MudPopover>
+    referenceIndex++;
+}
+
+@code {
+    [Parameter]
+    public LessonElementMediator Mediator { get; set; }
+    public string FontSizeStyle
+    {
+        get => $"font-size:{Mediator.Parameters.FontSize}px;";
+    }
+    public string BibleRefTextStyle
+    {
+        get => $"background-color:{Mediator.Parameters.BibleRefBgColor};font-size:{Mediator.Parameters.FontSize}px;color:{Mediator.Parameters.BibleRefFontColor};";
+    }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        Mediator.StateHasChanged += type => { if (type == this.GetType()) StateHasChanged(); };
+    }
+}

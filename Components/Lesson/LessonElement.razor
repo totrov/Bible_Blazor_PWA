@@ -1,6 +1,5 @@
 ﻿@namespace BibleComponents
 @using Bible_Blazer_PWA.BibleReferenceParse
-@using Bible_Blazer_PWA.Components.Lesson
 @using Bible_Blazer_PWA.DomainObjects
 @using Bible_Blazer_PWA.Parameters
 @using Bible_Blazer_PWA.Services.Parse
@@ -33,9 +32,6 @@
 
     [Param]
     public LessonElementData ElementData { get; set; }
-
-
-
 
     protected override async Task OnInitializedAsync()
     {
