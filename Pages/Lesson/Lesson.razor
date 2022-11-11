@@ -1,8 +1,9 @@
-﻿@page "/lessonNew/{Id:int}/{UnitNumber:int}"
+﻿@page "/lesson/{Id:int}/{UnitNumber:int}"
 @inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
 @namespace BibleComponents
 @inject HttpClient Http
 @inject DbParametersFacade DbParameters;
+@using Bible_Blazer_PWA.DataBase.DTO;
 @using Bible_Blazer_PWA.DataSources
 @using Bible_Blazer_PWA.Services.Menu
 @inject MenuService menu
@@ -42,11 +43,11 @@
 
     public string ToolsBackgroundColor { get; set; } = "white";
 
-    protected LessonContainerDb lesson;
+    protected LessonDTO lesson;
     private ParametersModel parameters;
     public LessonElementData Composite { get; set; }
-    public LessonInfoLightweight PrevLesson { get; set; } = null;
-    public LessonInfoLightweight NextLesson { get; set; } = null;
+    public LessonLightweightDTO PrevLesson { get; set; } = null;
+    public LessonLightweightDTO NextLesson { get; set; } = null;
     public LinkedList<LessonElementData> CompositeChildren { get; set; }
     private LessonDS _lessonDS;
 
@@ -54,7 +55,7 @@
     {
         var refreshNeeded = lesson != null;
 
-        Composite = await GetLessonCompositeAsync();
+        Composite = await LessonElementData.GetLessonCompositeAsync(UnitNumber, Id, db, Http);
         CompositeChildren = Composite.Children;
 
         IconResolver iconReolver = new IconResolver();
@@ -70,8 +71,8 @@
             StateHasChanged();
         }
         _lessonDS = new LessonDS(db);
-        LessonInfoLightweight[] lessons =
-            (await _lessonDS.GetLessonInfoLightweightForBlock(Unit.GetShortNameByUnitNumber(UnitNumber))).Values.ToArray();
+        LessonLightweightDTO[] lessons =
+            (await _lessonDS.GetLessonLightweightDTOForBlock(Unit.GetShortNameByUnitNumber(UnitNumber))).Values.ToArray();
         for (int i = 0; i < lessons.Length; i++)
         {
             if (int.Parse(lessons[i].Id) == Id)
@@ -86,25 +87,6 @@
                 }
             }
         }
-    }
-
-    protected async Task<LessonElementData> GetLessonCompositeAsync()
-    {
-        var unitId = Unit.GetShortNameByUnitNumber(UnitNumber);
-        var idStringified = Id.ToString();
-
-        LessonElementData lessonElement = new(new DBLessonDataInitializationStrategy(db, unitId, Id.ToString()));
-        await lessonElement.InitTask;
-        if (!string.IsNullOrEmpty(lessonElement.Value))
-        {
-            return lessonElement;
-        }
-
-        var resultHandler = await db.GetRecordFromObjectStoreByKey<LessonContainerDb>("lessons", unitId, Id.ToString());
-        var result = await resultHandler.GetTaskCompletionSourceWrapper();
-        var ret = result.GetComposite(db);
-        await ret.InitTask;
-        return ret;
     }
 
     protected async override Task OnInitializedAsync()

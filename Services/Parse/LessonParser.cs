@@ -1,19 +1,13 @@
-﻿using System;
+﻿using Bible_Blazer_PWA.DataBase.DTO;
+using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace Bible_Blazer_PWA.Services.Parse
 {
-    public record LessonModel
-    {
-        public string UnitId { get; set; }
-        public string Id { get; set; }
-        public string Name { get; set; }
-        public string Content { get; set; }
-    }
     public class LessonParser
     {
-        public static IEnumerable<LessonModel> ParseLessons(string _input, ICorrector corrector)
+        public static IEnumerable<LessonDTO> ParseLessons(string _input, ICorrector corrector, DateTime versionDate)
         {
             var idSet = new HashSet<int>();
 
@@ -23,37 +17,37 @@ namespace Bible_Blazer_PWA.Services.Parse
             string UnitId = GetUnitId(contents[0]);
             contents = Regex.Split(corrector.ApplyHighLevelReplacements(_input, UnitId), regex);
 
-            LessonModel lessonModel = null;
+            LessonDTO lessonDTO = null;
             var numberRegex = "([0-9]+[.]?[0-9]*)[.]";
             for (int i = 1; i < contents.Length; i++)
             {
                 if (i % 2 == 1)
                 {
-                    lessonModel = new LessonModel() { UnitId = UnitId };
+                    lessonDTO = new LessonDTO() { UnitId = UnitId, VersionDate = versionDate };
                     var split = Regex.Split(contents[i], numberRegex);
-                    lessonModel.Name = Regex.Split(contents[i], numberRegex)[2];
-                    lessonModel.Id = Regex.Match(contents[i], numberRegex).Value;
-                    lessonModel.Id = GetId(lessonModel.Id.Substring(0, lessonModel.Id.Length - 1), idSet);
+                    lessonDTO.Name = Regex.Split(contents[i], numberRegex)[2];
+                    lessonDTO.Id = Regex.Match(contents[i], numberRegex).Value;
+                    lessonDTO.Id = GetId(lessonDTO.Id.Substring(0, lessonDTO.Id.Length - 1), idSet);
                 }
                 else
                 {
-                    lessonModel.Content = contents[i].Replace("\r", "<br>");
-                    if (Regex.IsMatch(lessonModel.Content, corrector.RegexHelper.GetSublessonHeaderPattern(false)))
+                    lessonDTO.Content = contents[i].Replace("\r", "<br>");
+                    if (Regex.IsMatch(lessonDTO.Content, corrector.RegexHelper.GetSublessonHeaderPattern(false)))
                     {
-                        foreach (var lesson in GetSublessons(lessonModel, idSet, corrector))
+                        foreach (var lesson in GetSublessons(lessonDTO, idSet, corrector))
                         {
                             yield return lesson;
                         }
                     }
                     else
                     {
-                        yield return lessonModel;
+                        yield return lessonDTO;
                     }
                 }
             }
         }
 
-        private static IEnumerable<LessonModel> GetSublessons(LessonModel lessonModel, HashSet<int> idSet, ICorrector corrector)
+        private static IEnumerable<LessonDTO> GetSublessons(LessonDTO lessonModel, HashSet<int> idSet, ICorrector corrector)
         {
             string name = lessonModel.Name.TrimEnd('.');
             int sublessonNumber = 1;
@@ -63,12 +57,13 @@ namespace Bible_Blazer_PWA.Services.Parse
                 var lessonHeader = sublessonMatch.Groups["header"].Value;
                 lessonHeader = lessonHeader.Replace("<br>", "");
                 lessonHeader = String.IsNullOrEmpty(lessonHeader) ? lessonHeader : $": {lessonHeader}";
-                yield return new LessonModel
+                yield return new LessonDTO
                 {
                     Id = GetId(lessonModel.Id, idSet),
                     UnitId = lessonModel.UnitId,
                     Name = $"{name}.  Урок {sublessonNumber++}{lessonHeader}",
-                    Content = sublessonMatch.Value
+                    Content = sublessonMatch.Value,
+                    VersionDate = lessonModel.VersionDate
                 };
             }
         }

@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Bible_Blazer_PWA.Config
 {
-    public class LessonLoadConfig
+    public static class LessonLoadConfig
     {
         private static Dictionary<string, string> lessonNameUrl = new()
         {
@@ -52,6 +53,14 @@ namespace Bible_Blazer_PWA.Config
         public static string GetManifestUrl()
         {
             return "https://covenant-of-christ.onrender.com/Assets/online/lessons/manifest.json";
+        }
+        public static DateTime GetOfflineVersionDate()
+        {
+            return new DateTime(2022, 10, 26);
+        }
+        public static string ToRussianDateFormatString(this DateTime date)
+        {
+            return date.ToString("dd.MM.yyyy");
         }
     }
 }

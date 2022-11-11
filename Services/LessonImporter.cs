@@ -1,8 +1,10 @@
 ﻿using Bible_Blazer_PWA.DataBase;
+using Bible_Blazer_PWA.DataBase.DTO;
 using Bible_Blazer_PWA.Facades;
 using Bible_Blazer_PWA.Services.Parse;
 using Bible_Blazer_PWA.Services.Readers;
 using BlazorWorker.WorkerCore;
+using System;
 using System.IO;
 using System.Net.Http;
 using System.Text.Json;
@@ -31,17 +33,18 @@ namespace Bible_Blazer_PWA.Services
         public async Task LoadPredefinedLesson(string lessonName)
         {
             this.lessonName = lessonName;
-            var readerBuilder = new ReaderBuilder(await httpFacade.GetStreamByLessonNameAsync(lessonName));
-            await LoadLesson(readerBuilder, lessonName);
+            (var stream, DateTime versionDate) = await httpFacade.GetStreamByLessonNameAsync(lessonName);
+            var readerBuilder = new ReaderBuilder(stream);
+            await LoadLesson(readerBuilder, lessonName, versionDate);
         }
 
         public async Task LoadLessonFromFile(string fileName)
         {
             var readerBuilder = new ReaderBuilder(fileName);
-            await LoadLesson(readerBuilder, fileName);
+            await LoadLesson(readerBuilder, fileName, DateTime.MaxValue);
         }
 
-        protected async Task LoadLesson(ReaderBuilder readerBuilder, string lessonName)
+        protected async Task LoadLesson(ReaderBuilder readerBuilder, string lessonName, DateTime versionDate)
         {
             string stringContent = "";
             bool readSucceeded = false;
@@ -65,7 +68,7 @@ namespace Bible_Blazer_PWA.Services
             if (readSucceeded)
             {
                 handler.HandleReadCompleted(lessonName);
-                foreach (LessonModel lesson in LessonParser.ParseLessons(stringContent, corrector))
+                foreach (LessonDTO lesson in LessonParser.ParseLessons(stringContent, corrector, versionDate))
                 {
                     await db.ImportLessonsJson(await ConvertLessonToJSON(lesson));
                     LessonDbImportAwaiter = new TaskCompletionSource();
@@ -74,7 +77,7 @@ namespace Bible_Blazer_PWA.Services
             }
             handler.HandleImportCompleted(lessonName);
         }
-        private static async Task<string> ConvertLessonToJSON(LessonModel lessonModel)
+        private static async Task<string> ConvertLessonToJSON(LessonDTO lessonModel)
         {
             using MemoryStream memoryStream = new MemoryStream();
             await JsonSerializer.SerializeAsync(memoryStream, lessonModel, new JsonSerializerOptions() { WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping });

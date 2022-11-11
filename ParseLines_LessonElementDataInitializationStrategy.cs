@@ -4,6 +4,9 @@ using System.Text.RegularExpressions;
 using System;
 using Bible_Blazer_PWA.DataBase;
 using System.Threading.Tasks;
+using System.Net.Http;
+using Bible_Blazer_PWA.Config;
+using System.Text.Json;
 
 namespace Bible_Blazer_PWA
 {
@@ -13,6 +16,8 @@ namespace Bible_Blazer_PWA
         private readonly string unitId;
         private readonly string lessonId;
         private readonly DatabaseJSFacade dbFacade;
+        private readonly DateTime versionDate;
+        private readonly HttpClient http;
         private int currentIndex = 0; // wierd issues with ?compilation? when it is local
         private int currentLevel = 0;
         private Func<LessonElementData, int, string, LessonElementData> addChildMethod;
@@ -22,12 +27,14 @@ namespace Bible_Blazer_PWA
             string[] lines,
             string unitId,
             string lessonId,
-            DatabaseJSFacade dbFacade)
+            DatabaseJSFacade dbFacade,
+            DateTime versionDate)
         {
             this.lines = lines;
             this.unitId = unitId;
             this.lessonId = lessonId;
             this.dbFacade = dbFacade;
+            this.versionDate = versionDate;
         }
 
         private async Task<LessonElementData> AddChild(LessonElementData parent, int level, string value)
@@ -43,18 +50,19 @@ namespace Bible_Blazer_PWA
             identifier[level - 1]++;
 
             var lessonElementData = addChildMethod(parent, level, value);
-            await StartPutLessonElementData(identifier, lessonId, unitId, lessonElementData.Value);
+            await StartPutLessonElementData(identifier, lessonId, unitId, lessonElementData.Value, versionDate);
             return lessonElementData;
         }
 
-        private async Task StartPutLessonElementData(int[] identifier, string lessonId, string unitId, string value)
+        private async Task StartPutLessonElementData(int[] identifier, string lessonId, string unitId, string value, DateTime versionDate)
         {
             LessonElementDataDb lessonElementDataDb = new()
             {
                 Id = identifier,
                 LessonId = lessonId,
                 UnitId = unitId,
-                Content = value
+                Content = value,
+                VersionDate = versionDate
             };
             await dbFacade.StartPutIntoObjectStore("lessonElementData", lessonElementDataDb);
         }
@@ -108,7 +116,7 @@ namespace Bible_Blazer_PWA
                 else
                 {
                     lessonElementData.Value += " " + lines[currentIndex++];
-                    await StartPutLessonElementData(new[] { 0, 0, 0 }, lessonId, unitId, lessonElementData.Value);
+                    await StartPutLessonElementData(new[] { 0, 0, 0 }, lessonId, unitId, lessonElementData.Value, versionDate);
                 }
             }
         }

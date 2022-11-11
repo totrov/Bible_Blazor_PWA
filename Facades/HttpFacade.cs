@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Bible_Blazer_PWA.Facades
@@ -16,12 +17,24 @@ namespace Bible_Blazer_PWA.Facades
             this.client = client;
         }
 
-        public async Task<Stream> GetStreamByLessonNameAsync(string lessonName)
+        public async Task<DateTime> GetVersionDateAsync()
         {
-            return await GetOnlineFirst(
+            string manifestString = await client.GetStringAsync(
+                LessonLoadConfig.GetManifestUrl());
+            if (!string.IsNullOrEmpty(manifestString))
+            {
+                return JsonSerializer.Deserialize<LessonStorageManifestDTO>(manifestString).lastUpdateDate;
+            }
+
+            return LessonLoadConfig.GetOfflineVersionDate();
+        }
+
+        public async Task<(Stream, DateTime)> GetStreamByLessonNameAsync(string lessonName)
+        {
+            return (await GetOnlineFirst(
                 async (url) => await client.GetStreamAsync(url),
                 online => LessonLoadConfig.GetUrlByLessonName(lessonName, online)
-                );
+                ), await GetVersionDateAsync());
         }
 
         internal async Task<List<string>> GetNegativeLookaheads()

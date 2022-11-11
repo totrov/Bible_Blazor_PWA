@@ -1,5 +1,13 @@
-﻿using Bible_Blazer_PWA.Services.Parse;
+﻿using Bible_Blazer_PWA.Config;
+using Bible_Blazer_PWA.DataBase;
+using Bible_Blazer_PWA.DataBase.DTO;
+using Bible_Blazer_PWA.DomainObjects;
+using Bible_Blazer_PWA.Facades;
+using Bible_Blazer_PWA.Services.Parse;
+using System;
 using System.Collections.Generic;
+using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Bible_Blazer_PWA
@@ -40,6 +48,26 @@ namespace Bible_Blazer_PWA
             initialization.SetAddChildMethod(AddChild);
             initializationTask = initialization.Initialize(this);
         }
+
+        public static async Task<LessonElementData> GetLessonCompositeAsync(int unitNumber, int id, DatabaseJSFacade db, HttpClient http)
+        {
+            var unitId = Unit.GetShortNameByUnitNumber(unitNumber);
+            var idStringified = id.ToString();
+            var versionDate = await new HttpFacade(http).GetVersionDateAsync();
+
+            LessonElementData lessonElement = new(new DBLessonDataInitializationStrategy(db, unitId, idStringified, versionDate));
+            await lessonElement.InitTask;
+            if (!string.IsNullOrEmpty(lessonElement.Value))
+            {
+                return lessonElement;
+            }
+
+            var resultHandler = await db.GetRecordFromObjectStoreByKey<LessonDTO>("lessons", unitId, idStringified);
+            var result = await resultHandler.GetTaskCompletionSourceWrapper();
+            var ret = result.GetComposite(db, http);
+            await ret.InitTask;
+            return ret;
+        }
     }
 
     public class LessonElementDataDb
@@ -48,5 +76,6 @@ namespace Bible_Blazer_PWA
         public string UnitId { get; set; }
         public string LessonId { get; set; }
         public string Content { get; set; }
+        public DateTime VersionDate { get; set; }
     }
 }

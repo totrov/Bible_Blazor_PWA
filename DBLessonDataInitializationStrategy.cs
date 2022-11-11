@@ -13,13 +13,15 @@ namespace Bible_Blazer_PWA
         private readonly DatabaseJSFacade db;
         private readonly string unitId;
         private readonly string lessonId;
+        private readonly DateTime minimumVersionDate;
         private Func<LessonElementData, int, string, LessonElementData> addChildMethod;
 
-        public DBLessonDataInitializationStrategy(DatabaseJSFacade dbFacade, string unitId, string lessonId)
+        public DBLessonDataInitializationStrategy(DatabaseJSFacade dbFacade, string unitId, string lessonId, DateTime minimumVersionDate)
         {
             this.db = dbFacade;
             this.unitId = unitId;
             this.lessonId = lessonId;
+            this.minimumVersionDate = minimumVersionDate;
         }
         public async Task Initialize(LessonElementData lessonElementData)
         {
@@ -31,7 +33,7 @@ namespace Bible_Blazer_PWA
                 );
             var result = await resultHandler.GetTaskCompletionSourceWrapper();
 
-            if (result.Any())
+            if (result.Any() && result.All(lesson => lesson?.VersionDate >= minimumVersionDate))
             {
                 PutLessonElementDatasIntoHierarchy(result, lessonElementData);
             }
@@ -97,20 +99,3 @@ namespace Bible_Blazer_PWA
         }
     }
 }
-
-//bool previousEqual = true;
-
-//if (previousEqual)
-//{
-//    if (prevIdentifier[i] != currentIdentifier[i])
-//    {
-//        stackOffset++;
-//        prevIdentifier[i] = currentIdentifier[i];
-//        previousEqual = false;
-//    }
-//}
-//else
-//{
-//    stackOffset++;
-//    prevIdentifier[i] = currentIdentifier[i];
-//}

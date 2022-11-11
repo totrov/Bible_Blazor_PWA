@@ -58,12 +58,7 @@ namespace Bible_Blazer_PWA
         private ParametersModel _parametersModel;
 
         public bool IsLoaded { get { return _isLoaded; } }
-        public void Init(Verse[] verses, Book[] books)
-        {
-            _dataProvider = new InMemoryBibleServiceFetchStrategy(verses, books);
-            _isLoaded = true;
-        }
-        public void Init(DataBase.DatabaseJSFacade dataBase, Parameters.ParametersModel parametersModel)
+        public void Init(DataBase.DatabaseJSFacade dataBase, ParametersModel parametersModel)
         {
             _dataProvider = new DataBaseBibleServiceFetchStrategy(dataBase);
             _isLoaded = true;

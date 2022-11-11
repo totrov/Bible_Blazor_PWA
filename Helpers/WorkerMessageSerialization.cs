@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bible_Blazer_PWA.DataBase.DTO;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text;
@@ -13,12 +14,12 @@ namespace Bible_Blazer_PWA.Helpers
         {
             patternCollection = new();
             patternCollection
-                .Register<LessonInfo>(
+                .Register<LessonDTO>(
                     (l => l.Name, '|'),
                     (l => l.UnitId, '|'),
                     (l => l.Id, '|'),
                     (l => l.Content, '|'))
-                .Register<LessonInfoLightweight>(
+                .Register<LessonLightweightDTO>(
                     (l => l.Name, '|'),
                     (l => l.UnitId, '|'),
                     (l => l.Id, '|')

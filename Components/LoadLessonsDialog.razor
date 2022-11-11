@@ -27,7 +27,7 @@
     </MudGrid>
 </MudContainer>
 @code {
-    private string LastUpdate { get; set; } = "10.26.2022 (для более свежей версии необходимо интернет соединение)";
+    private string LastUpdate { get; set; } = $"{LessonLoadConfig.GetOfflineVersionDate().ToRussianDateFormatString()} (для более свежей версии необходимо интернет соединение)";
     private string selectedLessonsValue { get; set; } = "Ничего не выбрано";
     private IEnumerable<string> lessonNames = LessonLoadConfig.GetLessonNames();
     private IEnumerable<string> options { get; set; } = new HashSet<string>();
@@ -48,8 +48,8 @@
         {
             string manifestString = await httpClient.GetStringAsync(
                 Config.LessonLoadConfig.GetManifestUrl());
-            LessonStorageManifest manifest = JsonSerializer.Deserialize<LessonStorageManifest>(manifestString);
-            LastUpdate = manifest?.lastUpdateDate.ToString("dd.MM.yyyy");
+            LessonStorageManifestDTO manifest = JsonSerializer.Deserialize<LessonStorageManifestDTO>(manifestString);
+            LastUpdate = manifest?.lastUpdateDate.ToRussianDateFormatString();
         }
         catch (Exception ex)
         {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bible_Blazer_PWA.DataBase.DTO;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -11,28 +12,14 @@ namespace Bible_Blazer_PWA.DataSources
 
         public class LessonContainer
         {
-            public LessonInfo info { get; set; }
+            public LessonDTO lessonDTO { get; set; }
             public LinkedList<LessonRecordingLink> lessonRecordingLinks { get; set; }
-        }
-
-        public class LessonInfo
-        {
-            public string UnitId { get; set; }
-            public string Id { get; set; }
-            public string Name { get; set; }
-            public string Content { get; set; }
-        }
-        public class LessonInfoLightweight
-        {
-            public string UnitId { get; set; }
-            public string Id { get; set; }
-            public string Name { get; set; }
         }
 
         public class LessonBlock
         {
             public string Name { get; set; }
-            public SortedDictionary<int, LessonInfoLightweight> Lessons { get; set; }
+            public SortedDictionary<int, LessonLightweightDTO> Lessons { get; set; }
         }
 
         public class LessonUnit
@@ -80,7 +67,7 @@ namespace Bible_Blazer_PWA.DataSources
                     _blocks.Add(lessonUnit.Name, new LessonBlock
                     {
                         Name = lessonUnit.Name,
-                        Lessons = await this.GetLessonInfoLightweightForBlock(lessonUnit.Id)
+                        Lessons = await this.GetLessonLightweightDTOForBlock(lessonUnit.Id)
                     });
                 }
             }
@@ -88,21 +75,21 @@ namespace Bible_Blazer_PWA.DataSources
             return _blocks;
         }
 
-        private async Task<IEnumerable<LessonInfo>> GetLessonsForBlock(string unitId)
+        private async Task<IEnumerable<LessonDTO>> GetLessonsForBlock(string unitId)
         {
-            TaskCompletionSource<IEnumerable<LessonInfo>> tcs = new TaskCompletionSource<IEnumerable<LessonInfo>>();
+            TaskCompletionSource<IEnumerable<LessonDTO>> tcs = new TaskCompletionSource<IEnumerable<LessonDTO>>();
 
-            var lessonsResult = await db.GetRangeFromObjectStoreByKey<LessonInfo>("lessons", unitId, "0", "999999");
+            var lessonsResult = await db.GetRangeFromObjectStoreByKey<LessonDTO>("lessons", unitId, "0", "999999");
             lessonsResult.OnDbResultOK += () => { tcs.SetResult(lessonsResult.Result); };
             return await tcs.Task;
         }
 
-        public async Task<SortedDictionary<int, LessonInfoLightweight>> GetLessonInfoLightweightForBlock(string unitId)
+        public async Task<SortedDictionary<int, LessonLightweightDTO>> GetLessonLightweightDTOForBlock(string unitId)
         {
-            SortedDictionary<int, LessonInfoLightweight> ret = new SortedDictionary<int, LessonInfoLightweight>();
-            TaskCompletionSource<IEnumerable<LessonInfoLightweight>> tcs = new TaskCompletionSource<IEnumerable<LessonInfoLightweight>>();
+            SortedDictionary<int, LessonLightweightDTO> ret = new SortedDictionary<int, LessonLightweightDTO>();
+            TaskCompletionSource<IEnumerable<LessonLightweightDTO>> tcs = new TaskCompletionSource<IEnumerable<LessonLightweightDTO>>();
 
-            var lessonsResult = await db.GetRangeFromObjectStoreByKey<LessonInfoLightweight>("lessons", unitId, "0", "999999");
+            var lessonsResult = await db.GetRangeFromObjectStoreByKey<LessonLightweightDTO>("lessons", unitId, "0", "999999");
             lessonsResult.OnDbResultOK += () => { tcs.SetResult(lessonsResult.Result); };
             var lessons = await tcs.Task;
             foreach (var lesson in lessons)

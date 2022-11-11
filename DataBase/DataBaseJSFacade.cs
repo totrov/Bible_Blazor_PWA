@@ -33,11 +33,6 @@ namespace Bible_Blazer_PWA.DataBase
             JS.InvokeVoidAsync("database.jsAlert", str);
         }
 
-        public async Task<string> Test()
-        {
-            return await JS.InvokeAsync<string>("database.showPrompt");
-        }
-
         public void SetJS(IJSRuntime js)
         {
             JS = js;
