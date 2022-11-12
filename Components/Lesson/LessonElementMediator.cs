@@ -157,11 +157,16 @@ namespace BibleComponents
 
         private bool GetShouldDrawBody()
         {
-            return
-                IsOpen && (
-                    ElementData.Children != null
-                    || (HasBibleReferences && Parameters.HideBibleRefTabs != "True" && RefsAreOpen));
-
+            if (!IsOpen)
+                return false;
+            if (ElementData.Children != null)
+            {
+                return ElementData.Level < int.Parse(Parameters.CollapseLevel);
+            }
+            else
+            {
+                return HasBibleReferences && Parameters.HideBibleRefTabs != "True" && RefsAreOpen;
+            }
         }
     }
 }
