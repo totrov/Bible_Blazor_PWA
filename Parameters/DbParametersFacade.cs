@@ -24,6 +24,8 @@ namespace Bible_Blazer_PWA.Parameters
             await ParametersModel.InitFromDb();
         }
 
+        public event Action<Parameters, string> OnChange;
+
         class ParameterPOCO
         {
             public string Key { get; set; }
@@ -71,7 +73,9 @@ namespace Bible_Blazer_PWA.Parameters
         }
         public async Task<bool> SetParameterAsync(Parameters parameter, string value)
         {
-            return await SetParameterAsync(parameter.ToString(), value);
+            var ret = await SetParameterAsync(parameter.ToString(), value);
+            OnChange?.Invoke(parameter, value);
+            return ret;
         }
 
         public async Task<Stream> ExportToJson()

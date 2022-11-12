@@ -19,7 +19,7 @@
 {
     <MudContainer>
         <MudText Typo="Typo.h4" Style="overflow:hidden">@(Regex.Replace(Composite.Value, ",(?=[а-яА-Яa-zA-Z])", ", "))</MudText>
-        @foreach (LessonElementData data in CompositeChildren)
+            @foreach (LessonElementData data in CompositeChildren)
         {
             <LessonElement ElementData="data"></LessonElement>
         }
@@ -89,9 +89,12 @@
         }
     }
 
+
+    //HashSet<Parameters> RefreshTriggers = new() {Parameters.BlocksPaddingLeft }
     protected async override Task OnInitializedAsync()
     {
         parameters = DbParameters.ParametersModel;
+        DbParameters.OnChange += (param, value) => { StateHasChanged(); };
     }
     protected void NavigatePrev()
     {

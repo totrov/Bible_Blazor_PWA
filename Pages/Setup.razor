@@ -53,21 +53,21 @@
                         </tr>
                         <tr>
                             <td>
-                                <MudSlider @bind-Value="BlocksPadding" Min="0" Max="200" Step="5" Color="Color.Info">Внутренний отступ блоков: @ParametersFormData.BlocksPadding.ToString()</MudSlider>
+                                
                             </td>
                             <td>
                             </td>
                         </tr>
                         <tr>
                             <td>
-                                <MudSlider @bind-Value="BlocksPaddingLeft" Min="0" Max="200" Step="5" Color="Color.Info">Внутренний отступ блоков слева: @ParametersFormData.BlocksPaddingLeft.ToString()</MudSlider>
+                                
                             </td>
                             <td>
                             </td>
                         </tr>
                         <tr>
                             <td>
-                                <MudSlider @bind-Value="BlocksPaddingRight" Min="0" Max="200" Step="5" Color="Color.Info">Внутренний отступ блоков справа: @ParametersFormData.BlocksPaddingRight.ToString()</MudSlider>
+                                
                             </td>
                             <td>
                             </td>
@@ -281,24 +281,6 @@
     {
         get { return bool.Parse(ParametersFormData.HideTools); }
         set { ParametersFormData.HideTools = value.ToString(); }
-    }
-
-    private double BlocksPadding
-    {
-        get { return int.Parse(ParametersFormData.BlocksPadding); }
-        set { ParametersFormData.BlocksPadding = value.ToString(); ParametersFormData.BlocksPaddingLeft = value.ToString(); }
-    }
-
-    private double BlocksPaddingLeft
-    {
-        get { return double.Parse(ParametersFormData.BlocksPaddingLeft); }
-        set { ParametersFormData.BlocksPaddingLeft = value.ToString(); ParametersFormData.BlocksPaddingRight = value.ToString(); }
-    }
-
-    private double BlocksPaddingRight
-    {
-        get { return double.Parse(ParametersFormData.BlocksPaddingRight); }
-        set { ParametersFormData.BlocksPaddingRight = value.ToString(); }
     }
 
     private int FirstLevelMarginTop
