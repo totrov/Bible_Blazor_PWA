@@ -66,7 +66,7 @@
 @code
 {
     private ParametersModel parametersModel;
-    string ToolsAreHiddenCss { get { return navigation.Uri.Contains("lesson") ? "" : "display:none;"; } }
+    string ToolsAreHiddenCss { get { return navigation.Uri.Contains("lesson/") ? "" : "display:none;"; } }
     string Header
     {
         get
@@ -74,14 +74,14 @@
             var header = "О программе";
             if (navigation.Uri.Contains("lessons")) header = "Планы уроков";
             if (navigation.Uri.Contains("setup")) header = "Параметры";
-            if (navigation.Uri.Contains("lesson")) header = "";
+            if (navigation.Uri.Contains("lesson/")) header = "";
             return header;
         }
     }
     protected async override Task OnInitializedAsync()
     {
         parametersModel = dbParamteres.ParametersModel;
-        if (!navigation.Uri.Contains("lesson"))
+        if (!navigation.Uri.Contains("lesson/"))
         {
             _drawerOpen = false;
         }
@@ -90,13 +90,13 @@
         {
             await Task.Delay(500);
             var currentUri = navigation.Uri;
-            navigation.NavigateTo("/");
+            navigation.NavigateTo("/emptyPage");
             navigation.NavigateTo(currentUri);
         };
     }
 
     bool _drawerOpen = false;
-    bool DrawerOpen { get { return navigation.Uri.Contains("lesson") ? _drawerOpen : false; } set { _drawerOpen = value; } }
+    bool DrawerOpen { get { return navigation.Uri.Contains("lesson/") ? _drawerOpen : false; } set { _drawerOpen = value; } }
     bool addedNavigationChangedHandler = false;
     void DrawerToggle()
     {
@@ -104,13 +104,13 @@
         {
             navigation.LocationChanged += (s, e) =>
             {
-                if (!e.Location.Contains("lesson"))
+                if (!e.Location.Contains("lesson/"))
                 { _drawerOpen = false; }
             };
             addedNavigationChangedHandler = true;
         }
 
-        if (!navigation.Uri.Contains("lesson"))
+        if (!navigation.Uri.Contains("lesson/"))
         {
             _drawerOpen = false;
         }

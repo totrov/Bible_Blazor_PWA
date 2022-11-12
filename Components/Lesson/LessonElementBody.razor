@@ -26,7 +26,8 @@
     [Parameter]
     public LessonElementMediator Mediator { get; set; }
 
-    string ContentPaddingStyle {
+    string ContentPaddingStyle
+    {
         get => $"padding:{(double.Parse(Mediator.Parameters.BlocksPadding) / 100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem" +
                                     $" {(double.Parse(Mediator.Parameters.BlocksPaddingRight) / 100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem" +
                                     $" {(double.Parse(Mediator.Parameters.BlocksPadding) / 100).ToString(System.Globalization.CultureInfo.InvariantCulture)}rem" +
@@ -41,6 +42,7 @@
 
     protected override void OnInitialized()
     {
+        Mediator.StateHasChanged += type => { if (type == this.GetType()) StateHasChanged(); };
         Mediator.Parameters.OnReferenceToggle += (sender, args) => { Mediator.RefsAreOpen = bool.Parse(Mediator.Parameters.AreReferencesOpened); };
     }
 

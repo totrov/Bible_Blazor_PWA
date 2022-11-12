@@ -22,7 +22,7 @@ namespace BibleComponents
         internal LessonElementData ElementData { get; set; }
         internal Parser Parser { get; set; }
         internal DbParametersFacade DbParamFacade { get; set; }
-        internal bool IsOpen { get; set; } = true;
+        public bool IsOpen { get; set; } = true;
         internal bool RefsAreOpen { get; set; } = true;
         internal int CurrentPopoverIndex { get; set; } = -1;
         internal MudTabs Tabs { get; set; }
@@ -65,10 +65,12 @@ namespace BibleComponents
         public void Toggle()
         {
             IsOpen = !IsOpen;
+            StateHasChanged?.Invoke(typeof(LessonElementBody));
         }
         public void ToggleReferences()
         {
             RefsAreOpen = !RefsAreOpen;
+            StateHasChanged?.Invoke(typeof(LessonElementBody));
         }
         public async Task LoadVerses()
         {
@@ -156,8 +158,9 @@ namespace BibleComponents
         private bool GetShouldDrawBody()
         {
             return
-                ElementData.Children != null
-                || (HasBibleReferences && Parameters.HideBibleRefTabs != "True" && RefsAreOpen);
+                IsOpen && (
+                    ElementData.Children != null
+                    || (HasBibleReferences && Parameters.HideBibleRefTabs != "True" && RefsAreOpen));
 
         }
     }

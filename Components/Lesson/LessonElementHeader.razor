@@ -10,36 +10,48 @@
     @{
         int referenceIndex = 0;
     }
-    @foreach (var token in Tokens)
-    {
-        switch (token.Type)
+    <span>
+        @foreach (var token in Tokens)
         {
-            case TokenType.PlainText:
-                @((MarkupString)token.Text)
-                break;
-            case TokenType.BibleReference:
-                var avoidClosure = referenceIndex;
-                var onclick = () => { Mediator.Activate(avoidClosure); };
-                @if (Mediator.Parameters.HideBibleRefTabs != "True")
-                {
-                    <a href="" @onclick="onclick" @onclick:preventDefault>@token.Text</a>
-                }
-                else
-                {
-                    <a href="" @onmouseenter="onclick" @onmouseout="()=>Mediator.Activate(-1)" @onclick:preventDefault>@token.Text</a>
-                }
-                referenceIndex++;
-                break;
+            switch (token.Type)
+            {
+                case TokenType.PlainText:
+                    @((MarkupString)token.Text)
+                    break;
+                case TokenType.BibleReference:
+                    var avoidClosure = referenceIndex;
+                    var onclick = () => { Mediator.Activate(avoidClosure); };
+                    @if (Mediator.Parameters.HideBibleRefTabs != "True")
+                    {
+                        <a href="" @onclick="onclick" @onclick:preventDefault>@token.Text</a>
+                    }
+                    else
+                    {
+                        <a href="" @onmouseenter="onclick" @onmouseout="()=>Mediator.Activate(-1)" @onclick:preventDefault>@token.Text</a>
+                    }
+                    referenceIndex++;
+                    break;
+            }
         }
-    }
-    @if (Mediator.ElementData.Children != null)
-    {
-        <button type="button" class="btn @(Mediator.IsOpen ? "btn-outline-primary" : "btn-outline-secondary") btn-outline-primary btn-sm" style="display: inline;" @onclick="Mediator.Toggle">...</button>
+    </span>
+    @{
+        bool spacerExists = false;
     }
     @if (Mediator.HasBibleReferences && Mediator.Parameters.HideBibleRefTabs != "True")
     {
-        <button type="button" class="btn btn-outline-primary btn-sm" style="display: inline;" @onclick="Mediator.ToggleReferences">..</button>
+        <MudSpacer />
+        <MudIconButton Icon="@(Mediator.RefsAreOpen ? Icons.Outlined.ArrowDropUp : Icons.Outlined.ArrowDropDown)" OnClick="Mediator.ToggleReferences"></MudIconButton>
+        spacerExists = true;
     }
+    @if (Mediator.ElementData.Children != null)
+    {
+        if (!spacerExists)
+        {
+            <MudSpacer />
+        }
+        <MudIconButton Icon="@(Mediator.IsOpen ? Icons.Outlined.ExpandLess : Icons.Outlined.ExpandMore)" OnClick="Mediator.Toggle"></MudIconButton>
+    }
+
 </MudCardHeader>
 
 @code {
@@ -48,7 +60,7 @@
 
     private string Style
     {
-        get => $"display:block; background-color:{@Mediator.BackgroundColor}; font-size:{Mediator.Parameters.FontSize}px;{Mediator.Border}";
+        get => $"display:flex; background-color:{@Mediator.BackgroundColor}; font-size:{Mediator.Parameters.FontSize}px;{Mediator.Border}";
     }
 
     private LinkedList<LessonElementToken> _tokens;
@@ -62,9 +74,5 @@
             }
             return _tokens;
         }
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
     }
 }

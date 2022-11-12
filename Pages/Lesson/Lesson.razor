@@ -62,7 +62,7 @@
         menu.Title = "";
         menu.ClearMenuButtons();
         menu.AddMenuButton(new LessonLevelHandler(iconReolver, StateHasChanged, parameters)).Visible = true;
-        menu.AddMenuButton(new BibleRefToggleHandler(iconReolver, StateHasChanged, parameters)).Visible = true;
+        menu.AddMenuButton(new BibleRefToggleHandler(iconReolver, StateHasChanged, parameters)).Visible = parameters.HideBibleRefTabs != "True";
         menu.AddMenuButton(new FontSizeIncreaseHandler(iconReolver, StateHasChanged, parameters)).Visible = true;
         menu.AddMenuButton(new FontSizeDecreaseHandler(iconReolver, StateHasChanged, parameters)).Visible = true;
         menu.Update(this);
@@ -95,13 +95,13 @@
     }
     protected void NavigatePrev()
     {
-        NavigationManager.NavigateTo($"/");
-        NavigationManager.NavigateTo($"/lessonNew/{PrevLesson.Id}/{UnitNumber}");
+        NavigationManager.NavigateTo($"/emptyPage");
+        NavigationManager.NavigateTo($"/lesson/{PrevLesson.Id}/{UnitNumber}");
     }
 
     protected void NavigateNext()
     {
-        NavigationManager.NavigateTo($"/");
-        NavigationManager.NavigateTo($"/lessonNew/{NextLesson.Id}/{UnitNumber}");
+        NavigationManager.NavigateTo($"/emptyPage");
+        NavigationManager.NavigateTo($"/lesson/{NextLesson.Id}/{UnitNumber}");
     }
 }
