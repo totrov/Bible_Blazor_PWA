@@ -98,55 +98,23 @@ namespace BibleComponents
         #endregion
 
         #region ParametersForLevel
-        internal async Task InitParametersForLevel()
+
+        public string FontWeight
         {
-            Parameters[] parametersForLevel;
-            switch (ElementData.Level)
-            {
-                case 1:
-                    parametersForLevel = new Parameters[]
-                    {
-                        Bible_Blazer_PWA.Parameters.Parameters.FirstLevelBg,
-                        Bible_Blazer_PWA.Parameters.Parameters.FirstLevelBodyBg,
-                        Bible_Blazer_PWA.Parameters.Parameters.FirstLevelFontWeight,
-                        Bible_Blazer_PWA.Parameters.Parameters.FirstLevelMarginTop
-                    };
-                    break;
-                case 2:
-                    parametersForLevel = new Parameters[]
-                    {
-                        Bible_Blazer_PWA.Parameters.Parameters.SecondLevelBg,
-                        Bible_Blazer_PWA.Parameters.Parameters.SecondLevelBodyBg,
-                        Bible_Blazer_PWA.Parameters.Parameters.SecondLevelFontWeight,
-                        Bible_Blazer_PWA.Parameters.Parameters.SecondLevelMarginTop
-                    };
-                    break;
-                default:
-                    parametersForLevel = new Parameters[]
-                    {
-                        Bible_Blazer_PWA.Parameters.Parameters.ThirdLevelBg,
-                        Bible_Blazer_PWA.Parameters.Parameters.ThirdLevelBodyBg,
-                        Bible_Blazer_PWA.Parameters.Parameters.ThirdLevelFontWeight,
-                        Bible_Blazer_PWA.Parameters.Parameters.ThirdLevelMarginTop
-                    };
-                    break;
-            }
-            var BackgroundColorString = await DbParamFacade.GetParameterAsync(parametersForLevel[0]);
-            BackgroundColor = (BackgroundColorString != null && BackgroundColorString != "") ? BackgroundColorString : "white";
-            var FontWeightString = await DbParamFacade.GetParameterAsync(parametersForLevel[2]);
-            FontWeight = (FontWeightString != null && FontWeightString != "") ? FontWeightString : "300";
-            var MarginTopString = await DbParamFacade.GetParameterAsync(parametersForLevel[3]);
-            int MarginTopInt = int.TryParse(MarginTopString, out int marginTopParsed) ? marginTopParsed : 0;
-            MarginTop = MarginTopInt == 0 ? "0" : MarginTopInt.ToString() + "px";
-
-
-            var BodyBackgroundColorString = await DbParamFacade.GetParameterAsync(parametersForLevel[1]);
-            BodyBackgroundColor = (BodyBackgroundColorString != null && BodyBackgroundColorString != "") ? BodyBackgroundColorString : "white";
+            get => Parameters.GetParameterForLevel(ElementData.Level, LevelSpecificParametersGroup.FontWeight);
         }
-        public string FontWeight { get; set; } = "300";
-        public string BackgroundColor { get; set; } = "white";
-        public string MarginTop { get; set; } = "0";
-        public string BodyBackgroundColor { get; set; } = "white";
+        public string BackgroundColor
+        {
+            get => Parameters.GetParameterForLevel(ElementData.Level, LevelSpecificParametersGroup.BackgroundColor);
+        }
+        public string MarginTop
+        {
+            get => Parameters.GetParameterForLevel(ElementData.Level, LevelSpecificParametersGroup.MarginTop);
+        }
+        public string BodyBackgroundColor
+        {
+            get => Parameters.GetParameterForLevel(ElementData.Level, LevelSpecificParametersGroup.BodyBackgroundColor);
+        }
         #endregion
 
 

@@ -22,6 +22,7 @@ namespace Bible_Blazer_PWA.Parameters
         {
             ParametersModel = new ParametersModel(this);
             await ParametersModel.InitFromDb();
+            OnChange += ParametersModel.HandleParameterChange;
         }
 
         public event Action<Parameters, string> OnChange;

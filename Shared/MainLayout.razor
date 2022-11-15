@@ -61,6 +61,15 @@
                     <MudListItem>
                         <MudSlider @bind-Value="BlocksPaddingRight" Min="0" Max="200" Step="5" Color="Color.Info">Внутренний отступ блоков справа: @dbParamteres.ParametersModel.BlocksPaddingRight.ToString()</MudSlider>
                     </MudListItem>
+                    <MudListItem>
+                        <MudSlider @bind-Value="FirstLevelMarginTop" Min="0" Max="100" Step="5" Color="Color.Info">Отступ первых уровней сверху: @dbParamteres.ParametersModel.FirstLevelMarginTop.ToString()</MudSlider>
+                    </MudListItem>
+                    <MudListItem>
+                        <MudSlider @bind-Value="SecondLevelMarginTop" Min="0" Max="100" Step="5" Color="Color.Info">Отступ вторых уровней сверху: @dbParamteres.ParametersModel.SecondLevelMarginTop.ToString()</MudSlider>
+                    </MudListItem>
+                    <MudListItem>
+                        <MudSlider @bind-Value="ThirdLevelMarginTop" Min="0" Max="100" Step="5" Color="Color.Info">Отступ третьих уровней сверху: @dbParamteres.ParametersModel.ThirdLevelMarginTop.ToString()</MudSlider>
+                    </MudListItem>
                 </NestedList>
             </MudListItem>
         </MudList>
@@ -79,6 +88,7 @@
 @code
 {
     #region parameters
+    #region Paddings
     private double BlocksPadding
     {
         get { return int.Parse(dbParamteres.ParametersModel.BlocksPadding); }
@@ -96,6 +106,24 @@
         get { return double.Parse(dbParamteres.ParametersModel.BlocksPaddingRight); }
         set { dbParamteres.ParametersModel.BlocksPaddingRight = value.ToString(); }
     }
+
+    private int FirstLevelMarginTop
+    {
+        get { return int.Parse(dbParamteres.ParametersModel.FirstLevelMarginTop); }
+        set { dbParamteres.ParametersModel.FirstLevelMarginTop = value.ToString(); }
+    }
+
+    private int SecondLevelMarginTop
+    {
+        get { return int.Parse(dbParamteres.ParametersModel.SecondLevelMarginTop); }
+        set { dbParamteres.ParametersModel.SecondLevelMarginTop = value.ToString(); }
+    }
+    private int ThirdLevelMarginTop
+    {
+        get { return int.Parse(dbParamteres.ParametersModel.ThirdLevelMarginTop); }
+        set { dbParamteres.ParametersModel.ThirdLevelMarginTop = value.ToString(); }
+    }
+    #endregion
 
     #endregion
 

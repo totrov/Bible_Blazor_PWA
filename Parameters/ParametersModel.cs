@@ -12,6 +12,7 @@ namespace Bible_Blazer_PWA.Parameters
     {
         Dictionary<string, PropertyInfo> parameterProps;
         private readonly Dictionary<Parameters, IConcreteParameterInitializer> parameterInitializers;
+        private readonly LevelSpecificParameters levelSpecificParameters;
         public ParametersModel(DbParametersFacade dbParams)
         {
             _dbParams = dbParams;
@@ -22,6 +23,7 @@ namespace Bible_Blazer_PWA.Parameters
                 .GetTypes().Where<Type>(t => initializerType.IsAssignableFrom(t) && t.IsClass)
                 .Select(t => Activator.CreateInstance(t)).Cast<IConcreteParameterInitializer>()
                 .ToDictionary(i => i.Parameter);
+            levelSpecificParameters = new LevelSpecificParameters(dbParams);
         }
 
         internal async Task SetPropertyByName(string key, string value, bool updateDb = false)
@@ -61,6 +63,12 @@ namespace Bible_Blazer_PWA.Parameters
                 tasks.AddLast(initTask);
             }
             await Task.WhenAll(tasks);
+            await levelSpecificParameters.UpdateAllValues();
+        }
+
+        public string GetParameterForLevel(int level, LevelSpecificParametersGroup parameter)
+        {
+            return levelSpecificParameters.GetValue(level, parameter);
         }
 
         internal string GetParamPropByName(string paramName)
@@ -124,6 +132,12 @@ namespace Bible_Blazer_PWA.Parameters
                 handler(this, EventArgs.Empty);
             }
         }
+
+        internal void HandleParameterChange(Parameters parameter, string parameterValue)
+        {
+            levelSpecificParameters.UpdateValue(parameter, parameterValue);
+        }
+
         [Parameter]
         public string AreReferencesOpened
         {

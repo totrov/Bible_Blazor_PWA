@@ -169,7 +169,7 @@
                         </tr>
                         <tr>
                             <td>
-                                <MudSlider @bind-Value="FirstLevelMarginTop" Min="0" Max="100" Step="5" Color="Color.Info">Отступ сверху: @ParametersFormData.FirstLevelMarginTop.ToString()</MudSlider>
+                                
                             </td>
                             <td>
                             </td>
@@ -200,7 +200,7 @@
                         </tr>
                         <tr>
                             <td>
-                                <MudSlider @bind-Value="SecondLevelMarginTop" Min="0" Max="100" Step="5" Color="Color.Info">Отступ сверху: @ParametersFormData.SecondLevelMarginTop.ToString()</MudSlider>
+                                
                             </td>
                             <td>
                             </td>
@@ -234,7 +234,7 @@
                         </tr>
                         <tr>
                             <td>
-                                <MudSlider @bind-Value="ThirdLevelMarginTop" Min="0" Max="100" Step="5" Color="Color.Info">Отступ сверху: @ParametersFormData.ThirdLevelMarginTop.ToString()</MudSlider>
+                                
                             </td>
                             <td>
                             </td>
@@ -283,23 +283,11 @@
         set { ParametersFormData.HideTools = value.ToString(); }
     }
 
-    private int FirstLevelMarginTop
-    {
-        get { return int.Parse(ParametersFormData.FirstLevelMarginTop); }
-        set { ParametersFormData.FirstLevelMarginTop = value.ToString(); }
-    }
 
-    private int SecondLevelMarginTop
-    {
-        get { return int.Parse(ParametersFormData.SecondLevelMarginTop); }
-        set { ParametersFormData.SecondLevelMarginTop = value.ToString(); }
-    }
 
-    private int ThirdLevelMarginTop
-    {
-        get { return int.Parse(ParametersFormData.ThirdLevelMarginTop); }
-        set { ParametersFormData.ThirdLevelMarginTop = value.ToString(); }
-    }
+
+
+
 
     IBrowserFile parametrsFile = null;
 
