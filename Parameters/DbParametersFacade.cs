@@ -26,6 +26,7 @@ namespace Bible_Blazer_PWA.Parameters
         }
 
         public event Action<Parameters, string> OnChange;
+        public event Func<Parameters, string, Task> OnChangeAsync;
 
         class ParameterPOCO
         {
@@ -76,6 +77,10 @@ namespace Bible_Blazer_PWA.Parameters
         {
             var ret = await SetParameterAsync(parameter.ToString(), value);
             OnChange?.Invoke(parameter, value);
+            if (OnChangeAsync != null)
+            {
+                await OnChangeAsync(parameter, value);
+            }
             return ret;
         }
 

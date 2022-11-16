@@ -41,15 +41,6 @@
             <MudText Typo="Typo.h6">Параметры</MudText>
         </MudDrawerHeader>
         <MudList>
-            <MudListItem Text="Места Писания">
-                <NestedList>
-                    <MudListItem>
-                        <MudSwitch @bind-Checked="@parametersModel.HideBibleRefTabs" Color="Color.Primary" Converter="@(new RegularStringToBoolConverter())">
-                            @(parametersModel.HideBibleRefTabs == "True" ? "Режим для телефона" : "Режим для большого экрана")
-                        </MudSwitch>
-                    </MudListItem>
-                </NestedList>
-            </MudListItem>
             <MudListItem Text="Отступы">
                 <NestedList>
                     <MudListItem>
@@ -72,6 +63,127 @@
                     </MudListItem>
                 </NestedList>
             </MudListItem>
+            <MudListItem Text="Шрифты">
+                <NestedList>
+                    <MudListItem>
+                        <MudSwitch @bind-Checked="dbParamteres.ParametersModel.FirstLevelFontWeight" Color="Color.Error" Converter="@(new BoldFontStringToBoolConverter())">Жирный шрифт в первых уровнях</MudSwitch>
+                    </MudListItem>
+                    <MudListItem>
+                        <MudSwitch @bind-Checked="dbParamteres.ParametersModel.SecondLevelFontWeight" Color="Color.Error" Converter="@(new BoldFontStringToBoolConverter())">Жирный шрифт во вторых уровнях</MudSwitch>
+                    </MudListItem>
+                    <MudListItem>
+                        <MudSwitch @bind-Checked="dbParamteres.ParametersModel.ThirdLevelFontWeight"
+                                   Color="Color.Error" Converter="@(new BoldFontStringToBoolConverter())">Жирный шрифт в третьих уровнях</MudSwitch>
+                    </MudListItem>
+                </NestedList>
+            </MudListItem>
+            <MudListItem Text="Цвета">
+                <NestedList>
+                    <MudListItem Text="Общие">
+                        <NestedList>
+                            <MudListItem>
+                                <MudColorPicker Label="Цвет Фона"
+                                                @bind-Text="@dbParamteres.ParametersModel.MainBackground"
+                                                Style="@($"background-color: {dbParamteres.ParametersModel.MainBackground};")" Placeholder="Выберите цвет" />
+                            </MudListItem>
+                            <MudListItem>
+                                <MudColorPicker Label="Цвет фона панели инструментов"
+                                                @bind-Text="@dbParamteres.ParametersModel.ToolsBg"
+                                                Style="@($"background-color: {dbParamteres.ParametersModel.ToolsBg};")" Placeholder="Выберите цвет" />
+                            </MudListItem>
+                        </NestedList>
+                    </MudListItem>
+                    <MudListItem Text="Места Писания">
+                        <NestedList>
+                            <MudListItem>
+                                <MudColorPicker Label="Цвет фона в местах Писания"
+                                                @bind-Text="@dbParamteres.ParametersModel.BibleRefBgColor"
+                                                Style="@($"background-color: {dbParamteres.ParametersModel.BibleRefBgColor};")" Placeholder="Выберите цвет" />
+                            </MudListItem>
+                            <MudListItem>
+                                <MudColorPicker Label="Цвет текста в местах Писания"
+                                                @bind-Text="@dbParamteres.ParametersModel.BibleRefFontColor"
+                                                Style="@($"background-color: {dbParamteres.ParametersModel.BibleRefFontColor};")" Placeholder="Выберите цвет" />
+                            </MudListItem>
+                            <MudListItem>
+                                <MudColorPicker Label="Цвет номеров стихов"
+                                                @bind-Text="@dbParamteres.ParametersModel.BibleRefVersesNumbersColor"
+                                                Style="@($"background-color: {dbParamteres.ParametersModel.BibleRefVersesNumbersColor};")" Placeholder="Выберите цвет" />
+                            </MudListItem>
+                            <MudListItem>
+                                <MudColorPicker Label="Цвет фона выделенных стихов"
+                                                @bind-Text="@dbParamteres.ParametersModel.BibleRefHighlightColor"
+                                                Style="@($"background-color: {dbParamteres.ParametersModel.BibleRefHighlightColor};")" Placeholder="Выберите цвет" />
+                            </MudListItem>
+                            <MudListItem>
+                                <MudColorPicker Label="Цвет текста выделенных стихов"
+                                                @bind-Text="@dbParamteres.ParametersModel.BibleRefVersesIntervalsColor"
+                                                Style="@($"background-color: {dbParamteres.ParametersModel.BibleRefVersesIntervalsColor};")" Placeholder="Выберите цвет" />
+                            </MudListItem>
+                        </NestedList>
+                    </MudListItem>
+                    <MudListItem Text="По уровням">
+                        <NestedList>
+
+                            <MudListItem>
+                                <MudColorPicker Label="1й: Цвет фона в заголовке"
+                                                @bind-Text="@dbParamteres.ParametersModel.FirstLevelBg"
+                                                Style="@($"background-color: {dbParamteres.ParametersModel.FirstLevelBg};")" Placeholder="Выберите цвет" />
+                            </MudListItem>
+                            <MudListItem>
+                                <MudColorPicker Label="1й: Цвет фона в теле"
+                                                @bind-Text="@dbParamteres.ParametersModel.FirstLevelBodyBg"
+                                                Style="@($"background-color: {dbParamteres.ParametersModel.FirstLevelBodyBg};")" Placeholder="Выберите цвет" />
+                            </MudListItem>
+                            <MudListItem>
+                                <MudColorPicker Label="2й: Цвет фона в заголовке"
+                                                @bind-Text="@dbParamteres.ParametersModel.SecondLevelBg"
+                                                Style="@($"background-color: {dbParamteres.ParametersModel.SecondLevelBg};")" Placeholder="Выберите цвет" />
+                            </MudListItem>
+                            <MudListItem>
+                                <MudColorPicker Label="2й: Цвет фона в теле"
+                                                @bind-Text="@dbParamteres.ParametersModel.SecondLevelBodyBg"
+                                                Style="@($"background-color: {dbParamteres.ParametersModel.SecondLevelBodyBg};")" Placeholder="Выберите цвет" />
+                            </MudListItem>
+                            <MudListItem>
+                                <MudColorPicker Label="3й: Цвет фона в заголовке"
+                                                @bind-Text="@dbParamteres.ParametersModel.ThirdLevelBg"
+                                                Style="@($"background-color: {dbParamteres.ParametersModel.ThirdLevelBg};")" Placeholder="Выберите цвет" />
+                            </MudListItem>
+                            <MudListItem>
+                                <MudColorPicker Label="3й: Цвет фона в теле"
+                                                @bind-Text="@dbParamteres.ParametersModel.ThirdLevelBodyBg"
+                                                Style="@($"background-color: {dbParamteres.ParametersModel.ThirdLevelBodyBg};")" Placeholder="Выберите цвет" />
+                            </MudListItem>
+                        </NestedList>
+                    </MudListItem>
+                </NestedList>
+            </MudListItem>
+            <MudListItem Text="Другое">
+                <NestedList>
+                    <MudListItem>
+                        <MudSwitch @bind-Checked="dbParamteres.ParametersModel.StartVersesOnANewLine"
+                                   Converter="@(new RegularStringToBoolConverter())"
+                                   Color="Color.Primary">Стихи с новой строки</MudSwitch>
+                    </MudListItem>
+                    <MudListItem>
+                        <MudSwitch @bind-Checked="HideTools" Color="Color.Primary">Скрывать инструменты</MudSwitch>
+                    </MudListItem>
+                    <MudListItem>
+                        <MudSwitch @bind-Checked="dbParamteres.ParametersModel.HideBlocksBorders" Color="Color.Primary" Converter="@(new RegularStringToBoolConverter())">Скрывать границы блоков</MudSwitch>
+                    </MudListItem>
+                </NestedList>
+            </MudListItem>
+            <MudListItem Text="Режим">
+                <NestedList>
+                    <MudListItem>
+                        <MudSwitch @bind-Checked="@parametersModel.HideBibleRefTabs" Color="Color.Primary" Converter="@(new RegularStringToBoolConverter())">
+                            @(parametersModel.HideBibleRefTabs == "True" ? "Режим для телефона" : "Режим для большого экрана")
+                        </MudSwitch>
+                    </MudListItem>
+                </NestedList>
+            </MudListItem>
+
         </MudList>
     </MudDrawer>
 
@@ -122,6 +234,11 @@
     {
         get { return int.Parse(dbParamteres.ParametersModel.ThirdLevelMarginTop); }
         set { dbParamteres.ParametersModel.ThirdLevelMarginTop = value.ToString(); }
+    }
+    private bool HideTools
+    {
+        get { return bool.Parse(dbParamteres.ParametersModel.HideTools); }
+        set { dbParamteres.ParametersModel.HideTools = value.ToString(); }
     }
     #endregion
 

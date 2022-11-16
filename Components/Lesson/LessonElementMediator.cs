@@ -21,7 +21,24 @@ namespace BibleComponents
         internal ParametersModel Parameters { get; set; }
         internal LessonElementData ElementData { get; set; }
         internal Parser Parser { get; set; }
-        internal DbParametersFacade DbParamFacade { get; set; }
+        private DbParametersFacade dbParametersFacade;
+        internal DbParametersFacade DbParamFacade
+        {
+            get => dbParametersFacade;
+            set
+            {
+                dbParametersFacade = value;
+                value.OnChangeAsync += async (parameter, _) =>
+                {
+                    if (parameter == Bible_Blazer_PWA.Parameters.Parameters.StartVersesOnANewLine)
+                    {
+                        _versesLoaded = false;
+                        await LoadVerses();
+                        StateHasChanged?.Invoke(typeof(LessonElementReferences));
+                    }
+                };
+            }
+        }
         public bool IsOpen { get; set; } = true;
         internal bool RefsAreOpen { get; set; } = true;
         internal int CurrentPopoverIndex { get; set; } = -1;
