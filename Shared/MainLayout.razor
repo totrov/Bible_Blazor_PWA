@@ -38,8 +38,11 @@
     </MudAppBar>
     <MudDrawer @bind-Open="@DrawerOpen">
         <MudDrawerHeader>
-            <MudText Typo="Typo.h6">Параметры</MudText>
+            <MudText Typo="Typo.h6">
+                Параметры
+            </MudText>
         </MudDrawerHeader>
+
         <MudList>
             <MudListItem Text="Отступы">
                 <NestedList>
@@ -183,8 +186,16 @@
                     </MudListItem>
                 </NestedList>
             </MudListItem>
-
+            <MudDivider></MudDivider>
+            <MudListItem>
+                <MudIconButton DisableRipple="true" Icon="@Icons.Filled.FileDownload" Style="@ButtonStyle"></MudIconButton>
+                <MudIconButton DisableRipple="true" Icon="@Icons.Filled.UploadFile" Style="@ButtonStyle"></MudIconButton>
+            </MudListItem>
         </MudList>
+
+        <div style="display:flex; flex-direction:row; justify-content:center;">
+        </div>
+        <MudDivider></MudDivider>
     </MudDrawer>
 
 
@@ -243,6 +254,8 @@
     #endregion
 
     #endregion
+
+    string ButtonStyle { get => $"color:{dbParamteres.ParametersModel.ToolsBg};"; }
 
     private ParametersModel parametersModel;
     string ToolsAreHiddenCss { get { return navigation.Uri.Contains("lesson/") ? "" : "display:none;"; } }
