@@ -23,7 +23,10 @@
         try
         {
             var resultHandler = await db.ClearObjectStore("lessons");
+            await resultHandler.GetTaskCompletionSourceWrapper();
+            resultHandler = await db.ClearObjectStore("lessonElementData");
             resultHandler.OnDbResultOK += () => { Snackbar.Add("Удаление уроков завершено", Severity.Info); };
+            await resultHandler.GetTaskCompletionSourceWrapper();
         }
         catch (ReaderException ex)
         {
