@@ -26,31 +26,37 @@
                 {
                     <LessonElement ElementData="data"></LessonElement>
                 }
-                @if (PrevLesson != null)
-                {
-                    <MudButton OnClick="NavigatePrev" StartIcon="@Icons.Filled.ArrowBack">@PrevLesson.Name</MudButton>
-                }
-                @if (NextLesson != null)
-                {
-                    <MudButton OnClick="NavigateNext" EndIcon="@Icons.Filled.ArrowForward">@NextLesson.Name</MudButton>
-                }
+                <MudContainer Class="d-flex">
+                    @if (PrevLesson != null)
+                    {
+                        <MudButton OnClick="NavigatePrev" StartIcon="@Icons.Filled.ArrowBack">@PrevLesson.Name</MudButton>
+                    }
+                    <MudSpacer />
+                    @if (NextLesson != null)
+                    {
+                        <MudButton OnClick="NavigateNext" EndIcon="@Icons.Filled.ArrowForward">@NextLesson.Name</MudButton>
+                    }
+                </MudContainer>
             </MudContainer>
-            <CenteredFixedContainer>
-                <MudDropZone T="NoteDTO" Identifier="Notes" Class="rounded mud-background-gray pa-6 flex-grow-1">
-                    <MudText Typo="Typo.h6" Class="mb-4">Заметки</MudText>
-                    @if (NewNoteOpen)
-                    {
-                        <MudPaper Elevation="25" Class="pa-2 rounded-lg">
-                            <MudTextField @bind-Value="NewNoteName" Placeholder="Новая заметка" DisableUnderLine="true" Lines="5" Margin="Margin.Dense" Class="mx-2 mt-n2"></MudTextField>
-                            <MudButton OnClick="@(() => AddTask())" Size="Size.Small" Color="Color.Primary" FullWidth="true">Добавить заметку</MudButton>
-                        </MudPaper>
-                    }
-                    else
-                    {
-                        <MudButton OnClick="@(() => NewNoteOpen = !NewNoteOpen)" StartIcon="@Icons.Filled.Add" FullWidth="true" Class="rounded-lg py-2">Добавить заметку</MudButton>
-                    }
-                </MudDropZone>
-            </CenteredFixedContainer>
+            @if (parameters.NotesEditMode)
+            {
+                <CenteredFixedContainer>
+                    <MudDropZone T="NoteDTO" Identifier="Notes" Class="rounded mud-background-gray pa-6 flex-grow-1">
+                        <MudText Typo="Typo.h6" Class="mb-4">Заметки</MudText>
+                        @if (NewNoteOpen)
+                        {
+                            <MudPaper Elevation="25" Class="pa-2 rounded-lg">
+                                <MudTextField @bind-Value="NewNoteName" Placeholder="Новая заметка" DisableUnderLine="true" Lines="5" Margin="Margin.Dense" Class="mx-2 mt-n2"></MudTextField>
+                                <MudButton OnClick="@(() => AddTask())" Size="Size.Small" Color="Color.Primary" FullWidth="true">Добавить заметку</MudButton>
+                            </MudPaper>
+                        }
+                        else
+                        {
+                            <MudButton OnClick="@(() => NewNoteOpen = !NewNoteOpen)" StartIcon="@Icons.Filled.Add" FullWidth="true" Class="rounded-lg py-2">Добавить заметку</MudButton>
+                        }
+                    </MudDropZone>
+                </CenteredFixedContainer>
+            }
         </ChildContent>
         <ItemRenderer>
             <MudPaper Elevation="25" Class="pa-4 my-4">@context.Name</MudPaper>
@@ -113,6 +119,7 @@
         menu.AddMenuButton(new BibleRefToggleHandler(iconReolver, StateHasChanged, parameters)).Visible = parameters.HideBibleRefTabs != "True";
         menu.AddMenuButton(new FontSizeIncreaseHandler(iconReolver, StateHasChanged, parameters)).Visible = true;
         menu.AddMenuButton(new FontSizeDecreaseHandler(iconReolver, StateHasChanged, parameters)).Visible = true;
+        menu.AddMenuButton(new NotesEditModeToggleHandler(iconReolver, StateHasChanged, parameters)).Visible = true;
         menu.Update(this);
         if (refreshNeeded)
         {

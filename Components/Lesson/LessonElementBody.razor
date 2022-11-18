@@ -2,8 +2,11 @@
 @using Bible_Blazer_PWA.DataBase.DTO;
 
 <MudCardContent Style="@CardContentStyle">
-    <MudDropZone T="NoteDTO" Identifier="@Mediator.ElementData.Key" Class="rounded mud-background-gray pa-6 ma-8 flex-grow-1">
-    </MudDropZone>
+    @if (Mediator.Parameters.NotesEditMode)
+    {
+        <MudDropZone T="NoteDTO" Identifier="@Mediator.ElementData.Key" Class="rounded mud-background-gray pa-6 ma-8 flex-grow-1">
+        </MudDropZone>
+    }
     @if (Mediator.HasBibleReferences)
     {
         <LessonElementReferences Mediator="Mediator"></LessonElementReferences>

@@ -76,6 +76,10 @@ namespace Bible_Blazer_PWA.Parameters
             return (string)parameterProps[paramName].GetValue(this);
         }
 
+        #region NotPersistedInDbParameters
+        public bool NotesEditMode { get; set; }
+        #endregion
+
         #region MainBackground
         private string _mainBackground;
 

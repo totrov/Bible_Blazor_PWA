@@ -24,6 +24,9 @@ namespace Bible_Blazer_PWA
         private Func<LessonElementData, int, string, string, LessonElementData> addChildMethod;
         private int[] identifier = new int[] { 0, 0, 0 };
 
+        private LessonElementData prevLessonElementData = null;
+        private int[] prevIdentifier;
+
         public ParseLines_LessonElementDataInitializationStrategy(
             string[] lines,
             string unitId,
@@ -50,9 +53,19 @@ namespace Bible_Blazer_PWA
             currentLevel = level;
             identifier[level - 1]++;
 
-            var lessonElementData = addChildMethod(parent, level, value, identifier.ConcatWithDotDelemiter());
-            await StartPutLessonElementData(identifier, lessonId, unitId, lessonElementData.Value, versionDate);
+            var lessonElementData = addChildMethod(parent, level, identifier.ConcatWithDotDelemiter(), value);
+            await StartPutPreviousElement();
+            prevLessonElementData = lessonElementData;
+            prevIdentifier = identifier.ToArray();
             return lessonElementData;
+        }
+
+        private async Task StartPutPreviousElement()
+        {
+            if (prevLessonElementData is null || prevLessonElementData is null)
+                return;
+
+            await StartPutLessonElementData(prevIdentifier, lessonId, unitId, prevLessonElementData.Value, versionDate);
         }
 
         private async Task StartPutLessonElementData(int[] identifier, string lessonId, string unitId, string value, DateTime versionDate)
@@ -120,6 +133,7 @@ namespace Bible_Blazer_PWA
                     await StartPutLessonElementData(new[] { 0, 0, 0 }, lessonId, unitId, lessonElementData.Value, versionDate);
                 }
             }
+            await StartPutPreviousElement();
         }
 
         public void SetAddChildMethod(Func<LessonElementData, int, string, string, LessonElementData> addChildMethod)
