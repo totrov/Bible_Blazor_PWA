@@ -35,10 +35,10 @@ namespace Bible_Blazer_PWA
         { }
 
 
-        private LessonElementData AddChild(LessonElementData parent, int level, string value)
+        private LessonElementData AddChild(LessonElementData parent, int level, string id, string value)
         {
             parent.Children ??= new LinkedList<LessonElementData>();
-            var newChild = new LessonElementData { Level = level, Value = value };
+            var newChild = new LessonElementData { Level = level, Value = value, Key = id };
             parent.Children.AddLast(newChild);
             return newChild;
         }

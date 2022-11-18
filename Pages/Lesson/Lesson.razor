@@ -3,6 +3,7 @@
 @namespace BibleComponents
 @inject HttpClient Http
 @inject DbParametersFacade DbParameters;
+@using Bible_Blazer_PWA.Components
 @using Bible_Blazer_PWA.DataBase.DTO;
 @using Bible_Blazer_PWA.DataSources
 @using Bible_Blazer_PWA.Services.Menu
@@ -17,24 +18,71 @@
 
 @if (Composite != null)
 {
-    <MudContainer>
-        <MudText Typo="Typo.h4" Style="overflow:hidden">@(Regex.Replace(Composite.Value, ",(?=[а-яА-Яa-zA-Z])", ", "))</MudText>
-            @foreach (LessonElementData data in CompositeChildren)
-        {
-            <LessonElement ElementData="data"></LessonElement>
-        }
-        @if (PrevLesson != null)
-        {
-            <MudButton OnClick="NavigatePrev" StartIcon="@Icons.Filled.ArrowBack">@PrevLesson.Name</MudButton>
-        }
-        @if (NextLesson != null)
-        {
-            <MudButton OnClick="NavigateNext" EndIcon="@Icons.Filled.ArrowForward">@NextLesson.Name</MudButton>
-        }
-    </MudContainer>
+    <MudDropContainer @ref="_dropContainer" T="NoteDTO" Items="_items" ItemsSelector="@((item,dropzone) => item.Identifier == dropzone)" ItemDropped="ItemUpdated" Class="d-flex flex-wrap flex-grow-1">
+        <ChildContent>
+            <MudContainer>
+                <MudText Typo="Typo.h4" Style="overflow:hidden">@(Regex.Replace(Composite.Value, ",(?=[а-яА-Яa-zA-Z])", ", "))</MudText>
+                    @foreach (LessonElementData data in CompositeChildren)
+                {
+                    <LessonElement ElementData="data"></LessonElement>
+                }
+                @if (PrevLesson != null)
+                {
+                    <MudButton OnClick="NavigatePrev" StartIcon="@Icons.Filled.ArrowBack">@PrevLesson.Name</MudButton>
+                }
+                @if (NextLesson != null)
+                {
+                    <MudButton OnClick="NavigateNext" EndIcon="@Icons.Filled.ArrowForward">@NextLesson.Name</MudButton>
+                }
+            </MudContainer>
+            <CenteredFixedContainer>
+                <MudDropZone T="NoteDTO" Identifier="Notes" Class="rounded mud-background-gray pa-6 flex-grow-1">
+                    <MudText Typo="Typo.h6" Class="mb-4">Заметки</MudText>
+                    @if (NewNoteOpen)
+                    {
+                        <MudPaper Elevation="25" Class="pa-2 rounded-lg">
+                            <MudTextField @bind-Value="NewNoteName" Placeholder="Новая заметка" DisableUnderLine="true" Lines="5" Margin="Margin.Dense" Class="mx-2 mt-n2"></MudTextField>
+                            <MudButton OnClick="@(() => AddTask())" Size="Size.Small" Color="Color.Primary" FullWidth="true">Добавить заметку</MudButton>
+                        </MudPaper>
+                    }
+                    else
+                    {
+                        <MudButton OnClick="@(() => NewNoteOpen = !NewNoteOpen)" StartIcon="@Icons.Filled.Add" FullWidth="true" Class="rounded-lg py-2">Добавить заметку</MudButton>
+                    }
+                </MudDropZone>
+            </CenteredFixedContainer>
+        </ChildContent>
+        <ItemRenderer>
+            <MudPaper Elevation="25" Class="pa-4 my-4">@context.Name</MudPaper>
+        </ItemRenderer>
+    </MudDropContainer>
 }
 
 @code {
+    private MudDropContainer<NoteDTO> _dropContainer;
+    bool NewNoteOpen { get; set; }
+    string NewNoteName { get; set; }
+
+    private void AddTask()
+    {
+        _items.Add(new NoteDTO { Name = NewNoteName, Identifier = "Notes" });
+        NewNoteName = string.Empty;
+        NewNoteOpen = false;
+        _dropContainer.Refresh();
+    }
+
+    private void ItemUpdated(MudItemDropInfo<NoteDTO> dropItem)
+    {
+        dropItem.Item.Identifier = dropItem.DropzoneIdentifier;
+    }
+
+    private List<NoteDTO> _items = new()
+    {
+        new NoteDTO(){ Name = "Пример 1", Identifier = "Notes" },
+        new NoteDTO(){ Name = "Пример 2", Identifier = "Notes" },
+        new NoteDTO(){ Name = "Пример 3", Identifier = "Notes" },
+    };
+
     [Param]
     public int Id { get; set; } = 0;
 

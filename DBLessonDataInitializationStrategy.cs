@@ -1,4 +1,5 @@
 ﻿using Bible_Blazer_PWA.DataBase;
+using Bible_Blazer_PWA.Extensions;
 using Bible_Blazer_PWA.Services.Parse;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using System;
@@ -14,7 +15,7 @@ namespace Bible_Blazer_PWA
         private readonly string unitId;
         private readonly string lessonId;
         private readonly DateTime minimumVersionDate;
-        private Func<LessonElementData, int, string, LessonElementData> addChildMethod;
+        private Func<LessonElementData, int, string, string, LessonElementData> addChildMethod;
 
         public DBLessonDataInitializationStrategy(DatabaseJSFacade dbFacade, string unitId, string lessonId, DateTime minimumVersionDate)
         {
@@ -53,12 +54,20 @@ namespace Bible_Blazer_PWA
                 if (stackOffset == 1)
                 {
                     stack.Push(lastAddedElement);
-                    lastAddedElement = addChildMethod(lastAddedElement, stack.Count - 1, element.Content);
+                    lastAddedElement = addChildMethod(
+                        lastAddedElement,
+                        stack.Count - 1,
+                        element.Id.ConcatWithDotDelemiter(),
+                        element.Content);
                 }
                 else
                 {
                     UpdateStack(stack, stackOffset);
-                    lastAddedElement = addChildMethod(stack.Peek(), stack.Count - 1, element.Content);
+                    lastAddedElement = addChildMethod(
+                        stack.Peek(),
+                        stack.Count - 1,
+                        element.Id.ConcatWithDotDelemiter(),
+                        element.Content);
                 }
             }
         }
@@ -93,7 +102,7 @@ namespace Bible_Blazer_PWA
             return isChildOfPrev ? 1 : stackOffset;
         }
 
-        public void SetAddChildMethod(Func<LessonElementData, int, string, LessonElementData> addChildMethod)
+        public void SetAddChildMethod(Func<LessonElementData, int, string, string, LessonElementData> addChildMethod)
         {
             this.addChildMethod = addChildMethod;
         }

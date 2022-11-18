@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Net.Http;
 using Bible_Blazer_PWA.Config;
 using System.Text.Json;
+using Bible_Blazer_PWA.Extensions;
 
 namespace Bible_Blazer_PWA
 {
@@ -20,7 +21,7 @@ namespace Bible_Blazer_PWA
         private readonly HttpClient http;
         private int currentIndex = 0; // wierd issues with ?compilation? when it is local
         private int currentLevel = 0;
-        private Func<LessonElementData, int, string, LessonElementData> addChildMethod;
+        private Func<LessonElementData, int, string, string, LessonElementData> addChildMethod;
         private int[] identifier = new int[] { 0, 0, 0 };
 
         public ParseLines_LessonElementDataInitializationStrategy(
@@ -49,7 +50,7 @@ namespace Bible_Blazer_PWA
             currentLevel = level;
             identifier[level - 1]++;
 
-            var lessonElementData = addChildMethod(parent, level, value);
+            var lessonElementData = addChildMethod(parent, level, value, identifier.ConcatWithDotDelemiter());
             await StartPutLessonElementData(identifier, lessonId, unitId, lessonElementData.Value, versionDate);
             return lessonElementData;
         }
@@ -121,7 +122,7 @@ namespace Bible_Blazer_PWA
             }
         }
 
-        public void SetAddChildMethod(Func<LessonElementData, int, string, LessonElementData> addChildMethod)
+        public void SetAddChildMethod(Func<LessonElementData, int, string, string, LessonElementData> addChildMethod)
         {
             this.addChildMethod = addChildMethod;
         }

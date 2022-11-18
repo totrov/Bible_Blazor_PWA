@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Bible_Blazer_PWA.Extensions
 {
@@ -14,6 +15,11 @@ namespace Bible_Blazer_PWA.Extensions
             {
                 dict.Add(key, value);
             }
+        }
+
+        public static string ConcatWithDotDelemiter(this int[] array)
+        {
+            return string.Join('.', array.Select(x => x.ToString()));
         }
     }
 }

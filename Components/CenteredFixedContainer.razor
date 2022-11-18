@@ -1,0 +1,12 @@
+﻿@inherits MudPaper;
+
+@{
+    base.BuildRenderTree(__builder);
+}
+
+@code {
+    protected override void OnInitialized()
+    {
+        base.Style = "position: fixed;top: 50%;left: 50%;transform: translate(-50%, -50%);background:none;";
+    }
+}
