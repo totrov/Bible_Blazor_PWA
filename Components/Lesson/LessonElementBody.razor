@@ -2,10 +2,12 @@
 @using Bible_Blazer_PWA.DataBase.DTO;
 
 <MudCardContent Style="@CardContentStyle">
-    @if (Mediator.Parameters.NotesEditMode)
+    @if (Mediator.ElementData.Notes != null)
     {
-        <MudDropZone T="NoteDTO" Identifier="@Mediator.ElementData.Key" Class="rounded mud-background-gray pa-6 ma-8 flex-grow-1">
-        </MudDropZone>
+        foreach (NoteDTO note in Mediator.ElementData.Notes)
+        {
+            <Bible_Blazer_PWA.Components.Draggable NoteDTO="note"></Bible_Blazer_PWA.Components.Draggable>
+        }
     }
     @if (Mediator.HasBibleReferences)
     {

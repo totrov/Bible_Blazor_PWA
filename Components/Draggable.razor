@@ -1,0 +1,110 @@
+﻿@using Bible_Blazer_PWA.DataBase.DTO;
+
+@if (model != null)
+{
+    <MudCard Style="@Style"
+         @onmousedown="@((MouseEventArgs args) => HandleDragStart(args))"
+         @onmousemove="@((MouseEventArgs args) => HandleMouseMove(args))"
+         @onmouseup="@(async (MouseEventArgs args) => {await HandleDrop(args);})"
+         @ontouchstart="@((TouchEventArgs args) => HandleDragStart(args))"
+         @ontouchmove="@((TouchEventArgs args) => HandleTouchMove(args))"
+         @ontouchend="@(async (TouchEventArgs args) => {await HandleDrop(args);})">
+        <MudCardHeader>
+            <MudIconButton Icon="@Icons.Filled.TextIncrease"></MudIconButton>
+            <MudIconButton Icon="@Icons.Filled.TextDecrease"></MudIconButton>
+            @*                <MudColorPicker Label="Grid" ColorPickerView="ColorPickerView.Grid" />
+        <MudColorPicker Label="Grid" ColorPickerView="ColorPickerView.Grid" />*@
+            <MudIconButton Icon="@Icons.Filled.RemoveCircle" Color="Color.Error"></MudIconButton>
+            <MudIconButton Icon="@Icons.Filled.ExpandLess"></MudIconButton>
+        </MudCardHeader>
+        <MudCardContent>@model.Value</MudCardContent>
+    </MudCard>
+}
+
+@code {
+    double _mouseRelativeToDraggedElementX = 0;
+    double _mouseRelativeToDraggedElementY = 0;
+    double _newPositionX = 0;
+    double _newPositionY = 0;
+
+    string Style
+    {
+        get => $"background-color:{model.MainColor};touch-action: none;z-index:1; max-width:400px; resize: both; position: absolute; overflow:auto;border:blue 1px solid; top: {model.Y}px; left: {model.X}px;";
+    }
+    bool MouseDown { get; set; } = false;
+
+    [Parameter]
+    public NoteDTO NoteDTO { get; set; }
+    private NoteModel model;
+
+    public class NoteModel : NoteDTO
+    {
+        public NoteModel(NoteDTO dto) : base(dto) { }
+        public bool IsEditOn { get; set; }
+        public bool IsCollapsed { get; set; }
+    }
+
+    protected override void OnParametersSet()
+    {
+        model = new NoteModel(NoteDTO);
+    }
+
+    private void HandleDragStart(dynamic args)
+    {
+        if (args.GetType() == typeof(MouseEventArgs))
+        {
+            _newPositionX = args.ClientX;
+            _newPositionY = args.ClientY;
+            _mouseRelativeToDraggedElementX = _newPositionX - model.X;
+            _mouseRelativeToDraggedElementY = _newPositionY - model.Y;
+            MouseDown = true;
+        }
+        else if (args.GetType() == typeof(TouchEventArgs))
+        {
+            _newPositionX = args.TargetTouches[0].PageX;
+            _newPositionY = args.TargetTouches[0].PageY;
+            _mouseRelativeToDraggedElementX = args.TargetTouches[0].PageX - model.X;
+            _mouseRelativeToDraggedElementY = args.TargetTouches[0].PageY - model.Y;
+        }
+    }
+
+    private void HandleTouchMove(TouchEventArgs args)
+    {
+        _newPositionX = args.TargetTouches[0].PageX;
+        _newPositionY = args.TargetTouches[0].PageY;
+        model.X = Convert.ToInt32((_newPositionX - _mouseRelativeToDraggedElementX));
+        model.Y = Convert.ToInt32((_newPositionY - _mouseRelativeToDraggedElementY));
+    }
+
+    private void HandleMouseMove(MouseEventArgs args)
+    {
+        if (MouseDown)
+        {
+            _newPositionX = args.ClientX;
+            _newPositionY = args.ClientY;
+            model.X = Convert.ToInt32((_newPositionX - _mouseRelativeToDraggedElementX));
+            model.Y = Convert.ToInt32((_newPositionY - _mouseRelativeToDraggedElementY));
+        }
+    }
+
+    private async Task HandleDrop(dynamic args)
+    {
+        int X = 0;
+        int Y = 0;
+
+        if (args.GetType() == typeof(MouseEventArgs))
+        {
+            MouseDown = false;
+            X = Convert.ToInt32((_newPositionX - _mouseRelativeToDraggedElementX));
+            Y = Convert.ToInt32((_newPositionY - _mouseRelativeToDraggedElementY));
+        }
+        else if (args.GetType() == typeof(TouchEventArgs))
+        {
+            X = Convert.ToInt32((_newPositionX - _mouseRelativeToDraggedElementX));
+            Y = Convert.ToInt32((_newPositionY - _mouseRelativeToDraggedElementY));
+        }
+
+        model.X = X;
+        model.Y = Y;
+    }
+}

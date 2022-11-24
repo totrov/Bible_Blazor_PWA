@@ -1,4 +1,5 @@
 ﻿using Bible_Blazer_PWA.DataBase;
+using Bible_Blazer_PWA.DataBase.DTO;
 using Bible_Blazer_PWA.Extensions;
 using Bible_Blazer_PWA.Services.Parse;
 using DocumentFormat.OpenXml.Office2010.Excel;
@@ -26,7 +27,7 @@ namespace Bible_Blazer_PWA
         }
         public async Task Initialize(LessonElementData lessonElementData)
         {
-            var resultHandler = await db.GetRangeFromObjectStoreByKey<LessonElementDataDb>(
+            var resultHandler = await db.GetRangeFromObjectStoreByKey<LessonElementDataDTO>(
                 "lessonElementData",
                 unitId,
                 lessonId,
@@ -40,7 +41,7 @@ namespace Bible_Blazer_PWA
             }
         }
 
-        private void PutLessonElementDatasIntoHierarchy(IEnumerable<LessonElementDataDb> elements, LessonElementData rootElement)
+        private void PutLessonElementDatasIntoHierarchy(IEnumerable<LessonElementDataDTO> elements, LessonElementData rootElement)
         {
             rootElement.Value = elements.First().Content;
             LessonElementData lastAddedElement = rootElement;

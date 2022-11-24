@@ -4,8 +4,8 @@ using Bible_Blazer_PWA.DataBase.DTO;
 using Bible_Blazer_PWA.DomainObjects;
 using Bible_Blazer_PWA.Facades;
 using Bible_Blazer_PWA.Services.Parse;
-using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -21,10 +21,12 @@ namespace Bible_Blazer_PWA
             return input;
         }
     }
-    public class LessonElementData:IAsyncInitializable
+    public class LessonElementData : IAsyncInitializable
     {
         public string Value { get; set; }
         public LinkedList<LessonElementData> Children { get; set; }
+        public ReadOnlyCollection<NoteDTO> Notes { get; private set; }
+        private List<NoteDTO> NotesInternal { get; set; }
         public int Level { get; set; }
         public string Key { get; set; }
 
@@ -49,6 +51,14 @@ namespace Bible_Blazer_PWA
             initializationTask = initialization.Initialize(this);
         }
 
+        public void AddNote(string value)
+        {
+            NoteDTO note = new NoteDTO(value);
+            NotesInternal ??= new();
+            NotesInternal.Add(note);
+            Notes ??= new(NotesInternal);
+        }
+
         public static async Task<LessonElementData> GetLessonCompositeAsync(int unitNumber, int id, DatabaseJSFacade db, HttpClient http)
         {
             var unitId = Unit.GetShortNameByUnitNumber(unitNumber);
@@ -68,14 +78,5 @@ namespace Bible_Blazer_PWA
             await ret.InitTask;
             return ret;
         }
-    }
-
-    public class LessonElementDataDb
-    {
-        public int[] Id { get; set; }
-        public string UnitId { get; set; }
-        public string LessonId { get; set; }
-        public string Content { get; set; }
-        public DateTime VersionDate { get; set; }
     }
 }

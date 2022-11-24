@@ -8,6 +8,7 @@ using System.Net.Http;
 using Bible_Blazer_PWA.Config;
 using System.Text.Json;
 using Bible_Blazer_PWA.Extensions;
+using Bible_Blazer_PWA.DataBase.DTO;
 
 namespace Bible_Blazer_PWA
 {
@@ -70,7 +71,7 @@ namespace Bible_Blazer_PWA
 
         private async Task StartPutLessonElementData(int[] identifier, string lessonId, string unitId, string value, DateTime versionDate)
         {
-            LessonElementDataDb lessonElementDataDb = new()
+            LessonElementDataDTO lessonElementDataDb = new()
             {
                 Id = identifier,
                 LessonId = lessonId,

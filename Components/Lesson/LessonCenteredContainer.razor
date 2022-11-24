@@ -1,0 +1,31 @@
+﻿@namespace BibleComponents
+@using Bible_Blazer_PWA.Components
+@using Bible_Blazer_PWA.Parameters;
+@inject DbParametersFacade DbParameters;
+
+@if (parameters.ElelementForNoteAdding != null)
+{
+    <CenteredFixedContainer>
+        <MudPaper Elevation="25" Class="pa-2 rounded-lg">
+            <MudTextField @bind-Value="NewNoteValue" Placeholder="Новая заметка" DisableUnderLine="true" Lines="5" Margin="Margin.Dense" Class="mx-2 mt-n2"></MudTextField>
+            <MudButton OnClick="@(() => AddTask())" Size="Size.Small" Color="Color.Primary" FullWidth="true">Добавить заметку</MudButton>
+        </MudPaper>
+    </CenteredFixedContainer>
+}
+@code {
+    private ParametersModel parameters;
+    string NewNoteValue { get; set; }
+    protected async override Task OnInitializedAsync()
+    {
+        parameters = DbParameters.ParametersModel;
+    }
+    private void AddTask()
+    {
+        parameters.ElelementForNoteAdding.AddNote(NewNoteValue);
+    }
+
+    public void Refresh()
+    {
+        StateHasChanged();
+    }
+}

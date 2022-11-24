@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System;
 using Bible_Blazer_PWA.Parameters.ParameterInitializers;
 using Microsoft.AspNetCore.Components;
+using BibleComponents;
 
 namespace Bible_Blazer_PWA.Parameters
 {
@@ -77,7 +78,7 @@ namespace Bible_Blazer_PWA.Parameters
         }
 
         #region NotPersistedInDbParameters
-        public bool NotesEditMode { get; set; }
+        public LessonElementMediator ElelementForNoteAdding { get; set; }
         #endregion
 
         #region MainBackground

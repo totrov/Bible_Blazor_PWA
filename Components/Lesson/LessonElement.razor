@@ -33,10 +33,13 @@
 
     [Param]
     public LessonElementData ElementData { get; set; }
+    [Param]
+    public LessonCenteredContainer LessonCenteredContainer { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         mediator = new();
+        mediator.StateHasChanged += (type) => { if (type == typeof(LessonCenteredContainer)) LessonCenteredContainer.Refresh(); };
         mediator.Parameters = dbParamFacade.ParametersModel;
         mediator.ElementData = ElementData;
         mediator.Parser = new Parser(Corrector);

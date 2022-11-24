@@ -1,8 +1,10 @@
 ﻿using Bible_Blazer_PWA;
 using Bible_Blazer_PWA.BibleReferenceParse;
+using Bible_Blazer_PWA.DataBase.DTO;
 using Bible_Blazer_PWA.DomainObjects;
 using Bible_Blazer_PWA.Parameters;
 using DocumentFormat.OpenXml.Bibliography;
+using DocumentFormat.OpenXml.Spreadsheet;
 using MudBlazor;
 using Serialize.Linq.Factories;
 using System;
@@ -110,6 +112,19 @@ namespace BibleComponents
             {
                 Tabs?.ActivatePanel(number);
             }
+        }
+
+        public void AddNote(string _value)
+        {
+            ElementData.AddNote(_value);
+            StateHasChanged?.Invoke(typeof(LessonElementBody));
+            Parameters.ElelementForNoteAdding = null;
+            StateHasChanged?.Invoke(typeof(LessonCenteredContainer));
+        }
+        public void OpenAddNote()
+        {
+            Parameters.ElelementForNoteAdding = this;
+            StateHasChanged?.Invoke(typeof(LessonCenteredContainer));
         }
 
         #endregion

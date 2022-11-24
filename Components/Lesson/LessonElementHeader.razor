@@ -43,12 +43,15 @@
         <MudIconButton Icon="@(Mediator.RefsAreOpen ? Icons.Outlined.ArrowDropUp : Icons.Outlined.ArrowDropDown)" OnClick="Mediator.ToggleReferences"></MudIconButton>
         spacerExists = true;
     }
+
+    @if (!spacerExists)
+    {
+        <MudSpacer />
+    }
+    <MudIconButton Icon="@Icons.Outlined.NoteAlt" OnClick="AddNote"></MudIconButton>
+
     @if (Mediator.ElementData.Children != null)
     {
-        if (!spacerExists)
-        {
-            <MudSpacer />
-        }
         <MudIconButton Icon="@(Mediator.IsOpen ? Icons.Outlined.ExpandLess : Icons.Outlined.ExpandMore)" OnClick="Mediator.Toggle"></MudIconButton>
     }
 
@@ -74,5 +77,10 @@
             }
             return _tokens;
         }
+    }
+
+    private void AddNote()
+    {
+        Mediator.OpenAddNote();
     }
 }
