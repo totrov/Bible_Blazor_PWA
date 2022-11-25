@@ -6,7 +6,7 @@
     {
         foreach (NoteDTO note in Mediator.ElementData.Notes)
         {
-            <Bible_Blazer_PWA.Components.Draggable NoteDTO="note"></Bible_Blazer_PWA.Components.Draggable>
+            <Bible_Blazer_PWA.Components.Draggable NoteDTO="note" Mediator="Mediator"></Bible_Blazer_PWA.Components.Draggable>
         }
     }
     @if (Mediator.HasBibleReferences)
@@ -24,7 +24,7 @@
         <div style="@subelementStyle">
             @foreach (LessonElementData data in Mediator.ElementData.Children)
             {
-                <LessonElement ElementData="data"></LessonElement>
+                <LessonElement ElementData="data" LessonCenteredContainer="Mediator.LessonCenteredContainer"></LessonElement>
             }
         </div>
     }

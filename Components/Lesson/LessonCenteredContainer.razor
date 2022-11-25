@@ -1,19 +1,96 @@
 ﻿@namespace BibleComponents
 @using Bible_Blazer_PWA.Components
 @using Bible_Blazer_PWA.Parameters;
+@using Bible_Blazer_PWA.ViewModels;
+@using MudBlazor.Utilities;
 @inject DbParametersFacade DbParameters;
 
-@if (parameters.ElelementForNoteAdding != null)
+@switch (parameters)
 {
-    <CenteredFixedContainer>
-        <MudPaper Elevation="25" Class="pa-2 rounded-lg">
-            <MudTextField @bind-Value="NewNoteValue" Placeholder="Новая заметка" DisableUnderLine="true" Lines="5" Margin="Margin.Dense" Class="mx-2 mt-n2"></MudTextField>
-            <MudButton OnClick="@(() => AddTask())" Size="Size.Small" Color="Color.Primary" FullWidth="true">Добавить заметку</MudButton>
-        </MudPaper>
-    </CenteredFixedContainer>
+    case { ElelementForNoteAdding: not null }:
+
+        <CenteredFixedContainer>
+            <MudPaper Elevation="25" Class="pa-2 rounded-lg">
+                <MudTextField @bind-Value="NewNoteValue" Placeholder="Новая заметка" DisableUnderLine="true" Lines="5" Margin="Margin.Dense" Class="mx-2 mt-n2"></MudTextField>
+                <MudButton OnClick="@(() => AddTask())" Size="Size.Small" Color="Color.Primary" FullWidth="true">Добавить заметку</MudButton>
+            </MudPaper>
+        </CenteredFixedContainer>
+        break;
+    case { NoteForRemoval: not null }:
+        <CenteredFixedContainer>
+            <MudPaper Elevation="25" Class="pa-2 rounded-lg">
+                <MudElement HtmlTag="h2">Точно удалить заметку?</MudElement>
+                <MudContainer Class="d-flex">
+                    <MudButton OnClick="RemoveConfirmed" Size="Size.Small" Color="Color.Error">Удалить заметку</MudButton>
+                    <MudSpacer></MudSpacer>
+                    <MudButton OnClick="RemoveCanceled" Size="Size.Small" Color="Color.Primary">Не удалять</MudButton>
+                </MudContainer>
+            </MudPaper>
+        </CenteredFixedContainer>
+        break;
+    case { NoteForEdit: not null }:
+        <CenteredFixedContainer>
+            <MudPaper Elevation="25" Class="pa-2 rounded-lg">
+
+                <MudIconButton Icon="@Icons.Filled.TextIncrease" OnClick="()=>{note.SetValue(note=>note.TextSize, note.TextSize+1);}"></MudIconButton>
+                <MudIconButton Icon="@Icons.Filled.TextDecrease" OnClick="()=>{note.SetValue(note=>note.TextSize, note.TextSize-1);}"></MudIconButton>
+                <MudColorPicker Label="Основной цвет" Value="_mainColor" ValueChanged="UpdateMainColor" DisableAlpha="true" ColorPickerView="ColorPickerView.Grid" />
+                <MudColorPicker Label="Цвет текста" Value="_textColor" ValueChanged="UpdateTextColor" DisableAlpha="true" ColorPickerView="ColorPickerView.Grid" />
+                <MudSlider @bind-Value="@NoteWidth" Min="30" Max="500" Step="10" Color="Color.Primary">Ширина: @parameters.NoteForEdit.Width.ToString()</MudSlider>
+                <MudSlider @bind-Value="@NoteHeight" Min="30" Max="500" Step="10" Color="Color.Primary">Высота: @parameters.NoteForEdit.Height.ToString()</MudSlider>
+                <MudSlider @bind-Value="@NoteOpacity" Min="0" Max="10" Step="1" Color="Color.Primary">Прозрачность: @parameters.NoteForEdit.Opacity.ToString()</MudSlider>
+                <MudRadioGroup T="NoteModel.NoteType" @bind-SelectedOption="@NoteType">
+                    <MudRadio Option="NoteModel.NoteType.Regular" Color="Color.Primary" UnCheckedColor="Color.Default">Заметка</MudRadio>
+                    <MudRadio Option="NoteModel.NoteType.Question" Color="Color.Success" UnCheckedColor="Color.Default">Вопрос</MudRadio>
+                    <MudRadio Option="NoteModel.NoteType.Attention" Color="Color.Secondary" UnCheckedColor="Color.Default">Важно!</MudRadio>
+                </MudRadioGroup>
+                <MudContainer Class="d-flex">
+                    <MudButton Icon="@Icons.Filled.RemoveCircle" OnClick="RemovePrompt" Color="Color.Error">Удалить заметку</MudButton>
+                    <MudSpacer></MudSpacer>
+                    <MudButton Icon="@Icons.Filled.RemoveCircle" OnClick="CloseEdit" Color="Color.Primary">Закрыть</MudButton>
+                </MudContainer>
+
+            </MudPaper>
+        </CenteredFixedContainer>
+        break;
 }
 @code {
+    string Mode
+    {
+        get => parameters switch
+        {
+            { ElelementForNoteAdding: not null } => "AddNote"
+        };
+    }
+    private void RemovePrompt()
+    {
+        parameters.NoteForRemoval = parameters.NoteForEdit;
+    }
+    private void RemoveCanceled()
+    {
+        parameters.NoteForRemoval = null;
+    }
+
+    private void RemoveConfirmed()
+    {
+        parameters.NoteForRemoval.Remove();
+        parameters.NoteForRemoval = null;
+        parameters.NoteForEdit = null;
+    }
+
+    private void CloseEdit()
+    {
+        parameters.NoteForEdit = null;
+    }
+    private NoteModel note { get => DbParameters.ParametersModel.NoteForEdit; }
+    private int NoteWidth { get => note.Width; set => note.SetValue(note => note.Width, value); }
+    private int NoteHeight { get => note.Height; set => note.SetValue(note => note.Height, value); }
+    private int NoteOpacity { get => note.Opacity; set => note.SetValue(note => note.Opacity, value); }
+    private NoteModel.NoteType NoteType { get => note.Type; set => note.SetValue(note => note.Type, value); }
+
     private ParametersModel parameters;
+    public MudColor _mainColor = "#ffd700";
+    public MudColor _textColor = "#111111";
     string NewNoteValue { get; set; }
     protected async override Task OnInitializedAsync()
     {
@@ -22,6 +99,18 @@
     private void AddTask()
     {
         parameters.ElelementForNoteAdding.AddNote(NewNoteValue);
+    }
+
+    public void UpdateMainColor(MudColor value)
+    {
+        _mainColor = value;
+        note.SetValue(note => note.MainColor, value.ToString());
+    }
+
+    public void UpdateTextColor(MudColor value)
+    {
+        _textColor = value;
+        note.SetValue(note => note.TextColor, value.ToString());
     }
 
     public void Refresh()

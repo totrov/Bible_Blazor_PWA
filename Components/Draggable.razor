@@ -1,24 +1,59 @@
-﻿@using Bible_Blazer_PWA.DataBase.DTO;
+﻿@using BibleComponents;
+@using Bible_Blazer_PWA.DataBase.DTO;
+@using Bible_Blazer_PWA.ViewModels;
 
 @if (model != null)
 {
-    <MudCard Style="@Style"
+    @if (model.IsCollapsed)
+    {
+        <MudCard Style="@StyleCollapsed"
          @onmousedown="@((MouseEventArgs args) => HandleDragStart(args))"
          @onmousemove="@((MouseEventArgs args) => HandleMouseMove(args))"
          @onmouseup="@(async (MouseEventArgs args) => {await HandleDrop(args);})"
          @ontouchstart="@((TouchEventArgs args) => HandleDragStart(args))"
          @ontouchmove="@((TouchEventArgs args) => HandleTouchMove(args))"
          @ontouchend="@(async (TouchEventArgs args) => {await HandleDrop(args);})">
-        <MudCardHeader>
-            <MudIconButton Icon="@Icons.Filled.TextIncrease"></MudIconButton>
-            <MudIconButton Icon="@Icons.Filled.TextDecrease"></MudIconButton>
-            @*                <MudColorPicker Label="Grid" ColorPickerView="ColorPickerView.Grid" />
-        <MudColorPicker Label="Grid" ColorPickerView="ColorPickerView.Grid" />*@
-            <MudIconButton Icon="@Icons.Filled.RemoveCircle" Color="Color.Error"></MudIconButton>
-            <MudIconButton Icon="@Icons.Filled.ExpandLess"></MudIconButton>
-        </MudCardHeader>
-        <MudCardContent>@model.Value</MudCardContent>
-    </MudCard>
+            <MudCardHeader Style="padding: 0;">
+                <MudIconButton Style="padding: 3px;" Icon="@Icon" OnClick="()=>{model.IsCollapsed = false; ShowNoteToolbar=false;}"></MudIconButton>
+            </MudCardHeader>
+        </MudCard>
+    }
+    else
+    {
+        <MudCard Style="@Style"
+         @onmousedown="@((MouseEventArgs args) => HandleDragStart(args))"
+         @onmousemove="@((MouseEventArgs args) => HandleMouseMove(args))"
+         @onmouseup="@(async (MouseEventArgs args) => {await HandleDrop(args);})"
+         @ontouchstart="@((TouchEventArgs args) => HandleDragStart(args))"
+         @ontouchmove="@((TouchEventArgs args) => HandleTouchMove(args))"
+         @ontouchend="@(async (TouchEventArgs args) => {await HandleDrop(args);})"
+         @onmouseover="()=>{ShowNoteToolbar=true;}"
+         @onmouseleave="()=>{ShowNoteToolbar=false;}">
+            @if (ShowNoteToolbar)
+            {
+                <MudCardHeader Class="d-flex" Style="padding: 0;">
+                    <MudIconButton Style="padding: 2px;" OnClick="() => {model.IsCollapsed = true;}" Icon="@Icons.Filled.ExpandLess"></MudIconButton>
+                    <MudToggleIconButton Style="padding: 2px;" @bind-Toggled="@EditMode" Icon="@Icons.Filled.EditOff" ToggledIcon="@Icons.Filled.ModeEdit" />
+                    <MudIconButton Style="padding: 2px;" Icon="@Icons.Outlined.SettingsApplications" OnClick="EditNote"></MudIconButton>
+
+                    <MudSpacer></MudSpacer>
+
+                    <MudIconButton Style="padding: 2px;" OnClick="() => {IsPinned = !IsPinned;}" Icon="@PinIcon"></MudIconButton>
+                </MudCardHeader>
+            }
+            <MudCardContent Style="padding: 3px 15px;">
+                @if (EditMode)
+                {
+                    <MudTextField @bind-Value="@NoteValue" DisableUnderLine="true" Lines="5" Margin="Margin.Dense" Class="mx-2 mt-n2"></MudTextField>
+                }
+                else
+                {
+                    @((MarkupString)model.Value.Replace("\n", "<br>"))
+                }
+            </MudCardContent>
+
+        </MudCard>
+    }
 }
 
 @code {
@@ -26,31 +61,80 @@
     double _mouseRelativeToDraggedElementY = 0;
     double _newPositionX = 0;
     double _newPositionY = 0;
+    bool ShowNoteToolbar = false;
+    bool IsPinned { get; set; } = false;
+    bool EditMode { get; set; } = false;
+    string NoteValue
+    {
+        get => model.Value;
+        set => model.SetValue(model => model.Value, value);
+    }
+    string PinIcon
+    {
+        get
+        {
+            return IsPinned ? @Icons.Filled.PushPin : @Icons.Outlined.PushPin;
+        }
+    }
+
+    string Icon
+    {
+        get
+        {
+            return model.Type switch
+            {
+                NoteDTO.NoteType.Attention => Icons.Filled.PriorityHigh,
+                NoteDTO.NoteType.Question => Icons.Filled.QuestionMark,
+                _ => @Icons.Filled.EditNote
+            };
+        }
+    }
+
+    string TouchAction { get => IsPinned ? "" : "touch-action: none;"; }
 
     string Style
     {
-        get => $"background-color:{model.MainColor};touch-action: none;z-index:1; max-width:400px; resize: both; position: absolute; overflow:auto;border:blue 1px solid; top: {model.Y}px; left: {model.X}px;";
+        get => $"{TouchAction}background-color:{model.MainColor};color:{model.TextColor};font-size:{model.TextSize}px;z-index:1; width:{model.Width}px; height:{model.Height}px; position: absolute; overflow:auto; top: {model.Y}px; left: {model.X}px;opacity:{Opacity};";
     }
+
+    string StyleCollapsed
+    {
+        get => $"background-color:{model.MainColor};color:{model.TextColor};touch-action: none;z-index:1; position: absolute; overflow:auto; top: {model.Y}px; left: {model.X}px;opacity:{Opacity};";
+    }
+    string Opacity
+    {
+        get
+        {
+            if (model.Opacity is < 0 or >= 10)
+            {
+                return "1.0";
+            }
+            return "0." + model.Opacity.ToString();
+        }
+    }
+
     bool MouseDown { get; set; } = false;
 
     [Parameter]
     public NoteDTO NoteDTO { get; set; }
+    [Parameter]
+    public LessonElementMediator Mediator { get; set; }
+
     private NoteModel model;
 
-    public class NoteModel : NoteDTO
-    {
-        public NoteModel(NoteDTO dto) : base(dto) { }
-        public bool IsEditOn { get; set; }
-        public bool IsCollapsed { get; set; }
-    }
+    protected void EditNote() => Mediator.SetEditNote(model);
 
     protected override void OnParametersSet()
     {
         model = new NoteModel(NoteDTO);
+        model.OnPropertyChange += StateHasChanged;
     }
 
     private void HandleDragStart(dynamic args)
     {
+        if (IsPinned)
+            return;
+
         if (args.GetType() == typeof(MouseEventArgs))
         {
             _newPositionX = args.ClientX;
@@ -70,25 +154,34 @@
 
     private void HandleTouchMove(TouchEventArgs args)
     {
+        if (IsPinned)
+            return;
+
         _newPositionX = args.TargetTouches[0].PageX;
         _newPositionY = args.TargetTouches[0].PageY;
-        model.X = Convert.ToInt32((_newPositionX - _mouseRelativeToDraggedElementX));
-        model.Y = Convert.ToInt32((_newPositionY - _mouseRelativeToDraggedElementY));
+        model.SetValue(model => model.X, Convert.ToInt32((_newPositionX - _mouseRelativeToDraggedElementX)));
+        model.SetValue(model => model.Y, Convert.ToInt32((_newPositionY - _mouseRelativeToDraggedElementY)));
     }
 
     private void HandleMouseMove(MouseEventArgs args)
     {
+        if (IsPinned)
+            return;
+
         if (MouseDown)
         {
             _newPositionX = args.ClientX;
             _newPositionY = args.ClientY;
-            model.X = Convert.ToInt32((_newPositionX - _mouseRelativeToDraggedElementX));
-            model.Y = Convert.ToInt32((_newPositionY - _mouseRelativeToDraggedElementY));
+            model.SetValue(model => model.X, Convert.ToInt32((_newPositionX - _mouseRelativeToDraggedElementX)));
+            model.SetValue(model => model.Y, Convert.ToInt32((_newPositionY - _mouseRelativeToDraggedElementY)));
         }
     }
 
     private async Task HandleDrop(dynamic args)
     {
+        if (IsPinned)
+            return;
+
         int X = 0;
         int Y = 0;
 
@@ -104,7 +197,7 @@
             Y = Convert.ToInt32((_newPositionY - _mouseRelativeToDraggedElementY));
         }
 
-        model.X = X;
-        model.Y = Y;
+        model.SetValue(model => model.X, X);
+        model.SetValue(model => model.Y, Y);
     }
 }

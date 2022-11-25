@@ -51,12 +51,14 @@ namespace Bible_Blazer_PWA
             initializationTask = initialization.Initialize(this);
         }
 
-        public void AddNote(string value)
+        public NoteDTO AddNote(string value)
         {
             NoteDTO note = new NoteDTO(value);
             NotesInternal ??= new();
             NotesInternal.Add(note);
+            note.OnAfterRemoval += () => NotesInternal.Remove(note);
             Notes ??= new(NotesInternal);
+            return note;
         }
 
         public static async Task<LessonElementData> GetLessonCompositeAsync(int unitNumber, int id, DatabaseJSFacade db, HttpClient http)

@@ -10,10 +10,7 @@
 @inject DbParametersFacade dbParamFacade;
 @inject Corrector Corrector;
 
-@{
 
-
-}
 <MudCard class="card" style="@CardStyle" Elevation="0">
     <LessonElementHeader Mediator="@mediator"></LessonElementHeader>
     <LessonElementBody Mediator="@mediator"></LessonElementBody>
@@ -39,6 +36,7 @@
     protected override async Task OnInitializedAsync()
     {
         mediator = new();
+        mediator.LessonCenteredContainer = LessonCenteredContainer;
         mediator.StateHasChanged += (type) => { if (type == typeof(LessonCenteredContainer)) LessonCenteredContainer.Refresh(); };
         mediator.Parameters = dbParamFacade.ParametersModel;
         mediator.ElementData = ElementData;

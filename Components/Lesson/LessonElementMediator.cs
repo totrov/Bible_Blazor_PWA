@@ -3,7 +3,9 @@ using Bible_Blazer_PWA.BibleReferenceParse;
 using Bible_Blazer_PWA.DataBase.DTO;
 using Bible_Blazer_PWA.DomainObjects;
 using Bible_Blazer_PWA.Parameters;
+using Bible_Blazer_PWA.ViewModels;
 using DocumentFormat.OpenXml.Bibliography;
+using DocumentFormat.OpenXml.EMMA;
 using DocumentFormat.OpenXml.Spreadsheet;
 using MudBlazor;
 using Serialize.Linq.Factories;
@@ -20,6 +22,7 @@ namespace BibleComponents
         #region Shared
         internal LessonElementHeader Header { get; set; }
         internal LessonElementBody Body { get; set; }
+        internal LessonCenteredContainer LessonCenteredContainer { get; set; }
         internal ParametersModel Parameters { get; set; }
         internal LessonElementData ElementData { get; set; }
         internal Parser Parser { get; set; }
@@ -116,7 +119,7 @@ namespace BibleComponents
 
         public void AddNote(string _value)
         {
-            ElementData.AddNote(_value);
+            ElementData.AddNote(_value).OnAfterRemoval += () => { StateHasChanged?.Invoke(typeof(LessonElementBody)); };
             StateHasChanged?.Invoke(typeof(LessonElementBody));
             Parameters.ElelementForNoteAdding = null;
             StateHasChanged?.Invoke(typeof(LessonCenteredContainer));
@@ -124,6 +127,12 @@ namespace BibleComponents
         public void OpenAddNote()
         {
             Parameters.ElelementForNoteAdding = this;
+            StateHasChanged?.Invoke(typeof(LessonCenteredContainer));
+        }
+
+        public void SetEditNote(NoteModel model)
+        {
+            Parameters.NoteForEdit = model;
             StateHasChanged?.Invoke(typeof(LessonCenteredContainer));
         }
 

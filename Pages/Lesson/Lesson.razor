@@ -41,10 +41,6 @@
 
 @code {
     private LessonCenteredContainer lessonCenteredContainer;
-    private void ItemUpdated(MudItemDropInfo<NoteDTO> dropItem)
-    {
-        dropItem.Item.Identifier = dropItem.DropzoneIdentifier;
-    }
 
     [Param]
     public int Id { get; set; } = 0;
