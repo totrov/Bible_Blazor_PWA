@@ -16,8 +16,9 @@ namespace Bible_Blazer_PWA.Services.Menu
                 "ExpandBibleRef" => @Icons.Filled.ExpandMore,
                 "IncreaseFontSize" => @Icons.Filled.TextIncrease,
                 "DecreaseFontSize" => @Icons.Filled.TextDecrease,
-                "TurnOnNotesEditMode" => @Icons.Filled.Edit,
-                "TurnOffNotesEditMode" => @Icons.Filled.EditOff,
+                "TurnOnNotesEditMode" => @Icons.Filled.SpeakerNotes,
+                "TurnOffNotesEditMode" => @Icons.Outlined.SpeakerNotes,
+                "DisableNotes" => @Icons.Filled.SpeakerNotesOff,
                 _ => "",
             };
         }

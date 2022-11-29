@@ -82,7 +82,7 @@ namespace Bible_Blazer_PWA.Parameters
         public LessonElementMediator ElelementForNoteAdding { get; set; }
         public NoteModel NoteForEdit { get; set; }
         public NoteModel NoteForRemoval { get; set; }
-        public bool NotesEnabled { get; set; }
+        public bool? NotesEnabled { get; set; }
         #endregion
 
         #region MainBackground

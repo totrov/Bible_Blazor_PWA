@@ -7,7 +7,7 @@ namespace Bible_Blazer_PWA.Pages.Lesson
     public class NotesEditModeToggleHandler : GeneralHandler
     {
         public NotesEditModeToggleHandler(IconResolver iconResolver, Action postHandleAction, ParametersModel parameters) : base(iconResolver, postHandleAction, parameters) { }
-        public override int StatesCount => 2;
+        public override int StatesCount => 3;
 
         public override string Key => "NotesEditModeToggle";
 
@@ -17,6 +17,7 @@ namespace Bible_Blazer_PWA.Pages.Lesson
             {
                 0 => iconResolver.GetIcon("TurnOnNotesEditMode"),
                 1 => iconResolver.GetIcon("TurnOffNotesEditMode"),
+                2 => iconResolver.GetIcon("DisableNotes"),
                 _ => ""
             };
         }
@@ -25,12 +26,15 @@ namespace Bible_Blazer_PWA.Pages.Lesson
             switch (state)
             {
                 case 0:
+                    parameters.NotesEnabled = true;
+                    break;
+                case 1:
                     parameters.NotesEnabled = false;
                     parameters.NoteForEdit = null;
                     parameters.NoteForRemoval = null;
                     break;
-                case 1:
-                    parameters.NotesEnabled = true;
+                case 2:
+                    parameters.NotesEnabled = null;
                     break;
                 default:
                     throw new Exception($"State {state} has not implemented handler in {this.GetType().Name}");

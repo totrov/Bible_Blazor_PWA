@@ -37,7 +37,7 @@
         </MudContainer>
     </MudContainer>
 }
-<LessonCenteredContainer Visible="@parameters.NotesEnabled" @ref="lessonCenteredContainer"></LessonCenteredContainer>
+<LessonCenteredContainer Visible="@(parameters.NotesEnabled.HasValue && parameters.NotesEnabled.Value)" @ref="lessonCenteredContainer"></LessonCenteredContainer>
 
 @code {
     private LessonCenteredContainer lessonCenteredContainer;
@@ -103,6 +103,7 @@
     {
         parameters = DbParameters.ParametersModel;
         DbParameters.OnChange += (param, value) => { StateHasChanged(); };
+        parameters.NotesEnabled = true;
     }
     protected void NavigatePrev()
     {

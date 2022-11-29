@@ -48,7 +48,7 @@
     {
         <MudSpacer />
     }
-    @if (Mediator.Parameters.NotesEnabled)
+    @if (Mediator.Parameters.NotesEnabled.HasValue && Mediator.Parameters.NotesEnabled.Value)
     {
         <MudIconButton Icon="@Icons.Outlined.NoteAlt" OnClick="AddNote"></MudIconButton>
     }

@@ -3,7 +3,7 @@
 @using Bible_Blazer_PWA.DataBase.DTO;
 
 <MudCardContent Style="@CardContentStyle">
-    @if (Mediator.ElementData.Notes != null && Mediator.Parameters.NotesEnabled)
+    @if (Mediator.ElementData.Notes != null && Mediator.Parameters.NotesEnabled.HasValue)
     {
         foreach (NoteDTO note in Mediator.ElementData.Notes)
         {
