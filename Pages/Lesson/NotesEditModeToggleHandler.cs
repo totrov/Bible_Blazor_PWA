@@ -25,10 +25,12 @@ namespace Bible_Blazer_PWA.Pages.Lesson
             switch (state)
             {
                 case 0:
-                    //parameters.NotesEditMode = false;
+                    parameters.NotesEnabled = false;
+                    parameters.NoteForEdit = null;
+                    parameters.NoteForRemoval = null;
                     break;
                 case 1:
-                    //parameters.NotesEditMode = true;
+                    parameters.NotesEnabled = true;
                     break;
                 default:
                     throw new Exception($"State {state} has not implemented handler in {this.GetType().Name}");

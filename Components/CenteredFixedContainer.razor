@@ -5,8 +5,25 @@
 }
 
 @code {
+    private bool _bottom;
+    [Parameter]
+    public bool Bottom
+    {
+        get => _bottom;
+        set
+        {
+            base.Style = value ? BottomStyle : VerticalCenteredStyle;
+            _bottom = value;
+        }
+    }
+    const string VerticalCenteredStyle = "position: fixed;top: 50%;left: 50%;transform: translate(-50%, -50%);background:none;z-index:2";
+    const string BottomStyle = "position: fixed;bottom:0;width:100%;background:none;z-index:2";
+
     protected override void OnInitialized()
     {
-        base.Style = "position: fixed;top: 50%;left: 50%;transform: translate(-50%, -50%);background:none;";
+        if (!_bottom)
+        {
+            base.Style = VerticalCenteredStyle;
+        }
     }
 }

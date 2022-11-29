@@ -1,12 +1,13 @@
 ﻿@namespace BibleComponents
+@using Bible_Blazer_PWA.Components
 @using Bible_Blazer_PWA.DataBase.DTO;
 
 <MudCardContent Style="@CardContentStyle">
-    @if (Mediator.ElementData.Notes != null)
+    @if (Mediator.ElementData.Notes != null && Mediator.Parameters.NotesEnabled)
     {
         foreach (NoteDTO note in Mediator.ElementData.Notes)
         {
-            <Bible_Blazer_PWA.Components.Draggable NoteDTO="note" Mediator="Mediator"></Bible_Blazer_PWA.Components.Draggable>
+            <Note NoteDTO="note" Mediator="Mediator"></Note>
         }
     }
     @if (Mediator.HasBibleReferences)

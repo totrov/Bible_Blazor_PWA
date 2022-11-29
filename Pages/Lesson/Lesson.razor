@@ -37,7 +37,7 @@
         </MudContainer>
     </MudContainer>
 }
-<LessonCenteredContainer @ref="lessonCenteredContainer"></LessonCenteredContainer>
+<LessonCenteredContainer Visible="@parameters.NotesEnabled" @ref="lessonCenteredContainer"></LessonCenteredContainer>
 
 @code {
     private LessonCenteredContainer lessonCenteredContainer;

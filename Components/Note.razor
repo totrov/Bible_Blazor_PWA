@@ -28,13 +28,13 @@
          @ontouchmove="@((TouchEventArgs args) => HandleTouchMove(args))"
          @ontouchend="@(async (TouchEventArgs args) => {await HandleDrop(args);})"
          @onmouseover="()=>{ShowNoteToolbar=true;}"
-         @onmouseleave="()=>{ShowNoteToolbar=false;}">
+         @onmouseleave="()=>{ShowNoteToolbar=false; EditMode = false;}">
             @if (ShowNoteToolbar)
             {
                 <MudCardHeader Class="d-flex" Style="padding: 0;">
                     <MudIconButton Style="padding: 2px;" OnClick="() => {model.IsCollapsed = true;}" Icon="@Icons.Filled.ExpandLess"></MudIconButton>
-                    <MudToggleIconButton Style="padding: 2px;" @bind-Toggled="@EditMode" Icon="@Icons.Filled.EditOff" ToggledIcon="@Icons.Filled.ModeEdit" />
-                    <MudIconButton Style="padding: 2px;" Icon="@Icons.Outlined.SettingsApplications" OnClick="EditNote"></MudIconButton>
+                    <MudToggleIconButton Style="padding: 2px;" @bind-Toggled="@EditMode" Icon="@Icons.Filled.ModeEdit" ToggledIcon="@Icons.Filled.EditOff" />
+                    <MudIconButton Style="padding: 2px;" Icon="@Icons.Outlined.Settings" OnClick="EditNote"></MudIconButton>
 
                     <MudSpacer></MudSpacer>
 
@@ -44,7 +44,7 @@
             <MudCardContent Style="padding: 3px 15px;">
                 @if (EditMode)
                 {
-                    <MudTextField @bind-Value="@NoteValue" DisableUnderLine="true" Lines="5" Margin="Margin.Dense" Class="mx-2 mt-n2"></MudTextField>
+                    <MudTextField @bind-Value="@NoteValue" Style="@ColorStyle" DisableUnderLine="true" Lines="5" Margin="Margin.Dense" Class="mx-2 mt-n2"></MudTextField>
                 }
                 else
                 {
@@ -92,9 +92,14 @@
 
     string TouchAction { get => IsPinned ? "" : "touch-action: none;"; }
 
+    string ColorStyle
+    {
+        get => $"background-color:{model.MainColor};color:{model.TextColor};";
+    }
+
     string Style
     {
-        get => $"{TouchAction}background-color:{model.MainColor};color:{model.TextColor};font-size:{model.TextSize}px;z-index:1; width:{model.Width}px; height:{model.Height}px; position: absolute; overflow:auto; top: {model.Y}px; left: {model.X}px;opacity:{Opacity};";
+        get => $"{TouchAction}{ColorStyle}font-size:{model.TextSize}px;z-index:1; width:{model.Width}px; height:{model.Height}px; position: absolute; overflow:auto; top: {model.Y}px; left: {model.X}px;opacity:{Opacity};";
     }
 
     string StyleCollapsed
