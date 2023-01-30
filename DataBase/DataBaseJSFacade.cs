@@ -91,7 +91,11 @@ namespace Bible_Blazer_PWA.DataBase
             return await this.CallDbAsync<T>(
                         null, "getRecordFromObjectStoreByKey", objectStoreName, parameters);
         }
-
+        public async Task<IndexedDBResultHandler> DeleteRecordFromObjectStoreByKey(string objectStoreName, params object[] parameters)
+        {
+            return await CallDbAsync<bool>(
+                        null, "deleteRecordFromObjectStoreByKey", objectStoreName, parameters);
+        }
         public async Task<IndexedDBResultHandler<IEnumerable<T>>> GetAllFromObjectStore<T>(string objectStoreName)
         {
             return await this.CallDbAsync<IEnumerable<T>>(
@@ -102,6 +106,11 @@ namespace Bible_Blazer_PWA.DataBase
         {
             return await this.CallDbAsync<IEnumerable<T>>(
                 null, "getRangeFromObjectStoreByKey", objectStoreName, parameters);
+        }
+        public async Task<IndexedDBResultHandler<IEnumerable<T>>> GetRangeFromObjectStoreByIndex<T>(string objectStoreName, string indexName, params object[] parameters)
+        {
+            return await this.CallDbAsync<IEnumerable<T>>(
+                null, "getRangeFromObjectStoreByIndex", objectStoreName, indexName, parameters);
         }
         public async Task<IndexedDBResultHandler<int>> GetCountFromObjectStoreByKey(string objectStoreName, params object[] parameters)
         {
@@ -121,6 +130,12 @@ namespace Bible_Blazer_PWA.DataBase
                     null, "putIntoObjectStore", objectStoreName, obj);
 
         }
+        public async Task<IndexedDBResultHandler<T>> StartPutIntoAutoincrementedObjectStore<T>(string objectStoreName, T key, object obj)
+        {
+            return await this.CallDbAsync<T>(
+                    null, "putIntoAutoincrementedObjectStore", objectStoreName, key, obj);
+
+        }        
     }
 
     public class IndexedDBResultHandler

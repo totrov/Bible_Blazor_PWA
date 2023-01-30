@@ -1,9 +1,11 @@
 ﻿@namespace BibleComponents
 @using Bible_Blazer_PWA.Components
+@using Bible_Blazer_PWA.DataBase;
 @using Bible_Blazer_PWA.Parameters;
 @using Bible_Blazer_PWA.ViewModels;
 @using MudBlazor.Utilities;
 @inject DbParametersFacade DbParameters;
+@inject DatabaseJSFacade db;
 
 @if (Visible)
 {
@@ -83,9 +85,9 @@
         parameters.NoteForRemoval = null;
     }
 
-    private void RemoveConfirmed()
+    private async Task RemoveConfirmed()
     {
-        parameters.NoteForRemoval.Remove();
+        await parameters.NoteForRemoval.Remove(db);
         parameters.NoteForRemoval = null;
         parameters.NoteForEdit = null;
     }

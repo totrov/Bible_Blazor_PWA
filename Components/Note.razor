@@ -1,6 +1,8 @@
 ﻿@using BibleComponents;
 @using Bible_Blazer_PWA.DataBase.DTO;
+@using Bible_Blazer_PWA.DataBase;
 @using Bible_Blazer_PWA.ViewModels;
+@inject DatabaseJSFacade db;
 
 @if (model != null)
 {
@@ -48,7 +50,7 @@
                 }
                 else
                 {
-                    @((MarkupString)model.Value.Replace("\n", "<br>"))
+                    @((MarkupString)model?.Value?.Replace("\n", "<br>"))
                 }
             </MudCardContent>
 
@@ -133,6 +135,7 @@
     {
         model = new NoteModel(NoteDTO);
         model.OnPropertyChange += StateHasChanged;
+        model.OnPropertyChange += async () => { await model.SaveToDbAsync(db); };
     }
 
     private void HandleDragStart(dynamic args)

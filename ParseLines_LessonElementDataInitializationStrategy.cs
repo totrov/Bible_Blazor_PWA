@@ -5,10 +5,7 @@ using System;
 using Bible_Blazer_PWA.DataBase;
 using System.Threading.Tasks;
 using System.Net.Http;
-using Bible_Blazer_PWA.Config;
-using System.Text.Json;
 using Bible_Blazer_PWA.Extensions;
-using Bible_Blazer_PWA.DataBase.DTO;
 
 namespace Bible_Blazer_PWA
 {
@@ -17,29 +14,23 @@ namespace Bible_Blazer_PWA
         private string[] lines;
         private readonly string unitId;
         private readonly string lessonId;
-        private readonly DatabaseJSFacade dbFacade;
-        private readonly DateTime versionDate;
         private readonly HttpClient http;
         private int currentIndex = 0; // wierd issues with ?compilation? when it is local
         private int currentLevel = 0;
-        private Func<LessonElementData, int, string, string, LessonElementData> addChildMethod;
+        private Func<LessonElementData, int, int[], string, LessonElementData> addChildMethod;
         private int[] identifier = new int[] { 0, 0, 0 };
 
         private LessonElementData prevLessonElementData = null;
         private int[] prevIdentifier;
 
+        private ILessonElementDataStagingImplemeter staging;
+
         public ParseLines_LessonElementDataInitializationStrategy(
             string[] lines,
-            string unitId,
-            string lessonId,
-            DatabaseJSFacade dbFacade,
-            DateTime versionDate)
+            ILessonElementDataStagingImplemeter staging)
         {
             this.lines = lines;
-            this.unitId = unitId;
-            this.lessonId = lessonId;
-            this.dbFacade = dbFacade;
-            this.versionDate = versionDate;
+            this.staging = staging;
         }
 
         private async Task<LessonElementData> AddChild(LessonElementData parent, int level, string value)
@@ -54,7 +45,7 @@ namespace Bible_Blazer_PWA
             currentLevel = level;
             identifier[level - 1]++;
 
-            var lessonElementData = addChildMethod(parent, level, identifier.ConcatWithDotDelemiter(), value);
+            var lessonElementData = addChildMethod(parent, level, identifier, value);
             await StartPutPreviousElement();
             prevLessonElementData = lessonElementData;
             prevIdentifier = identifier.ToArray();
@@ -66,20 +57,7 @@ namespace Bible_Blazer_PWA
             if (prevLessonElementData is null || prevLessonElementData is null)
                 return;
 
-            await StartPutLessonElementData(prevIdentifier, lessonId, unitId, prevLessonElementData.Value, versionDate);
-        }
-
-        private async Task StartPutLessonElementData(int[] identifier, string lessonId, string unitId, string value, DateTime versionDate)
-        {
-            LessonElementDataDTO lessonElementDataDb = new()
-            {
-                Id = identifier,
-                LessonId = lessonId,
-                UnitId = unitId,
-                Content = value,
-                VersionDate = versionDate
-            };
-            await dbFacade.StartPutIntoObjectStore("lessonElementData", lessonElementDataDb);
+            await staging.StartPutLessonElementData(prevIdentifier, lessonId, unitId, prevLessonElementData.Value);
         }
 
         public async Task Initialize(LessonElementData lessonElementData)
@@ -131,13 +109,13 @@ namespace Bible_Blazer_PWA
                 else
                 {
                     lessonElementData.Value += " " + lines[currentIndex++];
-                    await StartPutLessonElementData(new[] { 0, 0, 0 }, lessonId, unitId, lessonElementData.Value, versionDate);
+                    await staging.StartPutLessonElementData(new[] { 0, 0, 0 }, lessonId, unitId, lessonElementData.Value);
                 }
             }
             await StartPutPreviousElement();
         }
 
-        public void SetAddChildMethod(Func<LessonElementData, int, string, string, LessonElementData> addChildMethod)
+        public void SetAddChildMethod(Func<LessonElementData, int, int[], string, LessonElementData> addChildMethod)
         {
             this.addChildMethod = addChildMethod;
         }

@@ -72,7 +72,7 @@ namespace Bible_Blazer_PWA.Services
                 {
                     await db.ImportLessonsJson(await ConvertLessonToJSON(lesson));
                     LessonDbImportAwaiter = new TaskCompletionSource();
-                    await LessonDbImportAwaiter.Task;
+                    //await LessonDbImportAwaiter.Task;
                 }
             }
             handler.HandleImportCompleted(lessonName);

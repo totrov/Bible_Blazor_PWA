@@ -91,8 +91,8 @@ namespace Bible_Blazer_PWA.Services.Parse
             return $"(?<={lookbehind}).*?(?=(?:{lookahead}|$))";
         }
 
-        Dictionary<string, Dictionary<string, string>> replacements = null;
-        List<string> negativeLookaheadsForLessonHeaders = null;
+        protected Dictionary<string, Dictionary<string, string>> replacements = null;
+        protected List<string> negativeLookaheadsForLessonHeaders = null;
         HttpFacade HttpFacade;
 
         public BibleRegexHelper(HttpClient Http)
@@ -105,7 +105,7 @@ namespace Bible_Blazer_PWA.Services.Parse
             return negativeLookaheadsForLessonHeaders;
         }
 
-        public async Task Init()
+        public virtual async Task Init()
         {
             await Task.WhenAll(InitReplacements(), InitOther());
         }

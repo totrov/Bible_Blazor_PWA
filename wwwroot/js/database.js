@@ -2,7 +2,7 @@
 window.context = {
     db: null,
     justUpgraded: false,
-    currentVersion: 5,
+    currentVersion: 6,
     previousVersion: 0,
     dbName: 'db',
     debugMode: true,
@@ -50,19 +50,28 @@ function SchemaUpgrade() {
             database.schemaUpgradeFunctions[1]();
             database.schemaUpgradeFunctions[2]();
             database.schemaUpgradeFunctions[3]();
+            database.schemaUpgradeFunctions[4]();
             break;
         case 1:
         case 2:
             database.schemaUpgradeFunctions[1]();
             database.schemaUpgradeFunctions[2]();
             database.schemaUpgradeFunctions[3]();
+            database.schemaUpgradeFunctions[4]();
             break;
         case 3:
             database.schemaUpgradeFunctions[2]();
             database.schemaUpgradeFunctions[3]();
+            database.schemaUpgradeFunctions[4]();
             break;
         case 4:
             database.schemaUpgradeFunctions[3]();
+            database.schemaUpgradeFunctions[4]();
+            break;
+        case 5:
+            database.schemaUpgradeFunctions[4]();
+            break;
+        case 6:
             break;
         default:
             upgradeWasNotSuccess = true;
@@ -149,12 +158,49 @@ window.database = {
             objectStoreRequest.onsuccess = function (event) {
                 result = objectStoreRequest.result;
                 context.logVerbose('getRecordFromObjectStoreByKey: Transaction returned for key ' + key + ':' + JSON.stringify(result));
-                dotnetHelper.invokeMethod('SetStatusAndResult', true, result);                
+                dotnetHelper.invokeMethod('SetStatusAndResult', true, result);
             };
         });
 
         openRequest.onerror = function (event) {
             context.log('getRecordFromObjectStoreByKey: Database not opened due to error: ' + openRequest.error);
+            dotnetHelper.invokeMethod('SetStatusAndResult', false, null);
+        }
+    },
+    deleteRecordFromObjectStoreByKey: function (dotnetHelper, params) {
+        context.log('deleteRecordFromObjectStoreByKey was called');
+        var openRequest = database.getOpenRequest();
+
+        openRequest.onSuccessHandlers.push(function (event) {
+            context.log('db opened');
+            context.db = openRequest.result;
+            let objectStoreName = params.shift();
+            var transaction = context.db.transaction(objectStoreName, "readwrite");
+
+            transaction.oncomplete = function (event) {
+                context.log('deleteRecordFromObjectStoreByKey: Transaction completed.');
+            };
+
+            transaction.onerror = function (event) {
+                context.log('deleteRecordFromObjectStoreByKey: Transaction not opened due to error: ' + transaction.error);
+            };
+
+            var objectStore = transaction.objectStore(objectStoreName);
+            var key = params.length > 1 ? params : params.shift();
+            if (key.length == 1)
+            {
+                key = key.pop();
+            }
+            var objectStoreRequest = objectStore.delete(key);
+            objectStoreRequest.onsuccess = function (event) {
+                result = objectStoreRequest.result;
+                context.logVerbose('deleteRecordFromObjectStoreByKey: Transaction returned for key ' + key + ':' + JSON.stringify(result));
+                dotnetHelper.invokeMethod('SetStatusAndResult', true, true);
+            };
+        });
+
+        openRequest.onerror = function (event) {
+            context.log('deleteRecordFromObjectStoreByKey: Database not opened due to error: ' + openRequest.error);
             dotnetHelper.invokeMethod('SetStatusAndResult', false, null);
         }
     },
@@ -254,6 +300,48 @@ window.database = {
             };
         });
     },
+    getRangeFromObjectStoreByIndex: function (dotnetHelper, params) {
+        context.log('getRangeFromObjectStoreByIndex was called');
+        var openRequest = database.getOpenRequest();
+
+        openRequest.onSuccessHandlers.push(function (event) {
+            context.log('db opened');
+            context.db = openRequest.result;
+            let objectStoreName = params.shift();
+            let indexName = params.shift();
+            var transaction = context.db.transaction(objectStoreName, "readonly");
+
+            transaction.oncomplete = function (event) {
+                context.log('getRangeFromObjectStoreByIndex: Transaction completed.');
+            };
+
+            transaction.onerror = function (event) {
+                context.log('getRangeFromObjectStoreByIndex: Transaction not opened due to error: ' + transaction.error);
+            };
+
+            var objectStore = transaction.objectStore(objectStoreName);
+            var parameters = params[0];
+            var upperBoundLastSubKey = parameters.pop();
+            var lowerBound, upperBound;
+            if (parameters.length > 1) {
+                lowerBound = parameters;
+                upperBound = parameters.slice(0, -1);
+                upperBound.push(upperBoundLastSubKey);
+            }
+            else {
+                lowerBound = parameters.shift();
+                upperBound = upperBoundLastSubKey;
+            }
+
+            var index = objectStore.index(indexName);
+            var objectStoreRequest = index.getAll(IDBKeyRange.bound(lowerBound, upperBound));
+            objectStoreRequest.onsuccess = function (event) {
+                result = objectStoreRequest.result;
+                context.logVerbose('getRecordFromObjectStoreByKey: Transaction returned: ' + result);
+                dotnetHelper.invokeMethod('SetStatusAndResult', true, result);
+            };
+        });
+    },
     putKeyValueIntoObjectStore: function (dotnetHelper, params) {
         context.log('putKeyValueIntoObjectStore was called with params:' + params.join());
         var openRequest = database.getOpenRequest();
@@ -323,6 +411,41 @@ window.database = {
             };
         });
     },
+    putIntoAutoincrementedObjectStore: function (dotnetHelper, params) {
+        context.log('putIntoAutoincrementedObjectStore was called with params:' + params.join());
+        var openRequest = database.getOpenRequest();
+
+        openRequest.onSuccessHandlers.push(function (event) {
+            context.log('db opened');
+            context.db = openRequest.result;
+            let objectStoreName = params.shift();
+            var transaction = context.db.transaction(objectStoreName, "readwrite");
+
+            transaction.oncomplete = function (event) {
+                context.log('putIntoAutoincrementedObjectStore: Transaction completed.');
+            };
+
+            transaction.onerror = function (event) {
+                context.log('putIntoAutoincrementedObjectStore: Transaction not opened due to error: ' + transaction.error);
+            };
+
+            var objectStore = transaction.objectStore(objectStoreName);
+            var key = params.shift();
+            var obj = params.shift();
+            var objectStoreRequest = objectStore.put(obj, key);
+            objectStoreRequest.onsuccess = function (event) {
+                result = objectStoreRequest.result;
+                context.logVerbose('putIntoAutoincrementedObjectStore: Transaction returned: ' + result);
+                dotnetHelper.invokeMethod('SetStatusAndResult', true, result);
+            };
+
+            objectStoreRequest.onerror = function (event) {
+                result = false;
+                context.logVerbose('putIntoAutoincrementedObjectStore: Transaction returned: ' + result);
+                dotnetHelper.invokeMethod('SetStatusAndResult', false, result);
+            };
+        });
+    },
     getCountFromObjectStoreByKey: function (dotnetHelper, params) {
         context.log('getCountFromObjectStoreByKey was called');
         var openRequest = database.getOpenRequest();
@@ -374,6 +497,10 @@ window.database = {
         },
         function /*3*/() {
             context.db.createObjectStore('lessonElementData', { keyPath: ['unitId', 'lessonId', 'id'] });
+        },
+        function /*4*/() {
+            var os = context.db.createObjectStore('notes', { keyPath: "Id", autoIncrement: true });
+            os.createIndex('lessonElement', ['unitId', 'lessonId', 'elementId'], { unique: false });
         }
     ],
     fetchJson: async (path, dbStore) => {
@@ -459,17 +586,16 @@ window.database = {
             dotnetHelper.invokeMethod('SetStatusAndResult', false, null);
         }
     },
-    clearObjectStore: function (dotnetHelper, dbStore)
-    {
+    clearObjectStore: function (dotnetHelper, dbStore) {
         var transaction = context.db.transaction(dbStore, "readwrite");
         var os = transaction.objectStore(dbStore);
         os.clear();
         transaction.oncomplete = function () {
             console.log(dbStore + ' ' + 'was trancated successfully');
             dotnetHelper.invokeMethod('SetStatus', true);
-            };
+        };
         transaction.onerror = function (e) {
-            console.log(dbStore + ' ' + 'trancation fialed:'+ transaction.error);
+            console.log(dbStore + ' ' + 'trancation fialed:' + transaction.error);
             dotnetHelper.invokeMethod('SetStatus', false);
             e.stopPropagation();
         };

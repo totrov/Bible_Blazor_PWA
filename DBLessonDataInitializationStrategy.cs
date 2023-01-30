@@ -1,8 +1,6 @@
 ﻿using Bible_Blazer_PWA.DataBase;
 using Bible_Blazer_PWA.DataBase.DTO;
-using Bible_Blazer_PWA.Extensions;
 using Bible_Blazer_PWA.Services.Parse;
-using DocumentFormat.OpenXml.Office2010.Excel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,21 +14,19 @@ namespace Bible_Blazer_PWA
         private readonly string unitId;
         private readonly string lessonId;
         private readonly DateTime minimumVersionDate;
-        private Func<LessonElementData, int, string, string, LessonElementData> addChildMethod;
+        private Func<LessonElementData, int, int[], string, LessonElementData> addChildMethod;
 
-        public DBLessonDataInitializationStrategy(DatabaseJSFacade dbFacade, string unitId, string lessonId, DateTime minimumVersionDate)
+        public DBLessonDataInitializationStrategy(DatabaseJSFacade dbFacade, DateTime minimumVersionDate)
         {
-            this.db = dbFacade;
-            this.unitId = unitId;
-            this.lessonId = lessonId;
+            db = dbFacade;
             this.minimumVersionDate = minimumVersionDate;
         }
         public async Task Initialize(LessonElementData lessonElementData)
         {
             var resultHandler = await db.GetRangeFromObjectStoreByKey<LessonElementDataDTO>(
                 "lessonElementData",
-                unitId,
-                lessonId,
+                lessonElementData.UnitId,
+                lessonElementData.LessonId,
                 new[] { 0, 0, 0 }, new[] { 99, 99, 99 }
                 );
             var result = await resultHandler.GetTaskCompletionSourceWrapper();
@@ -58,7 +54,7 @@ namespace Bible_Blazer_PWA
                     lastAddedElement = addChildMethod(
                         lastAddedElement,
                         stack.Count - 1,
-                        element.Id.ConcatWithDotDelemiter(),
+                        element.Id,
                         element.Content);
                 }
                 else
@@ -67,7 +63,7 @@ namespace Bible_Blazer_PWA
                     lastAddedElement = addChildMethod(
                         stack.Peek(),
                         stack.Count - 1,
-                        element.Id.ConcatWithDotDelemiter(),
+                        element.Id,
                         element.Content);
                 }
             }
@@ -103,7 +99,7 @@ namespace Bible_Blazer_PWA
             return isChildOfPrev ? 1 : stackOffset;
         }
 
-        public void SetAddChildMethod(Func<LessonElementData, int, string, string, LessonElementData> addChildMethod)
+        public void SetAddChildMethod(Func<LessonElementData, int, int[], string, LessonElementData> addChildMethod)
         {
             this.addChildMethod = addChildMethod;
         }

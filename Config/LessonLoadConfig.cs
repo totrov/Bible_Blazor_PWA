@@ -17,12 +17,12 @@ namespace Bible_Blazer_PWA.Config
 
         private static Dictionary<string, string> lessonNameUrlOnline = new()
         {
-            {"Бытие", "https://covenant-of-christ.onrender.com/Assets/online/lessons/Byt.docx" },
-            {"Исход - Соломон", "https://covenant-of-christ.onrender.com/Assets/online/lessons/IshodSolomon.docx" },
-            {"Пророки", "https://covenant-of-christ.onrender.com/Assets/online/lessons/Pror.docx" },
-            {"Евангелия", "https://covenant-of-christ.onrender.com/Assets/online/lessons/Evn.docx" },
-            {"Деяния - Откровение", "https://covenant-of-christ.onrender.com/Assets/online/lessons/DeyanOtkr.docx" },
-            {"Основы веры", "https://covenant-of-christ.onrender.com/Assets/online/lessons/OsnVer.docx" }
+            {"Бытие", "https://covenantofchrist.onrender.com/Assets/online/lessons/Byt.docx" },
+            {"Исход - Соломон", "https://covenantofchrist.onrender.com/Assets/online/lessons/IshodSolomon.docx" },
+            {"Пророки", "https://covenantofchrist.onrender.com/Assets/online/lessons/Pror.docx" },
+            {"Евангелия", "https://covenantofchrist.onrender.com/Assets/online/lessons/Evn.docx" },
+            {"Деяния - Откровение", "https://covenantofchrist.onrender.com/Assets/online/lessons/DeyanOtkr.docx" },
+            {"Основы веры", "https://covenantofchrist.onrender.com/Assets/online/lessons/OsnVer.docx" }
         };
 
         public static IEnumerable<string> GetLessonNames()
@@ -40,19 +40,19 @@ namespace Bible_Blazer_PWA.Config
         public static string GetReplacementsUrl(bool online)
         {
             return online
-                ? "https://covenant-of-christ.onrender.com/Assets/online/lessons/replacements.json"
+                ? "https://covenantofchrist.onrender.com/Assets/online/lessons/replacements.json"
                 : "/Assets/lessons/replacements.json";
         }
         public static string GetNegativeLookaheadsUrl(bool online)
         {
             return online
-                ? "https://covenant-of-christ.onrender.com/Assets/online/lessons/negativeLookaheads.json"
+                ? "https://covenantofchrist.onrender.com/Assets/online/lessons/negativeLookaheads.json"
                 : "/Assets/lessons/negativeLookaheads.json";
         }
 
         public static string GetManifestUrl()
         {
-            return "https://covenant-of-christ.onrender.com/Assets/online/lessons/manifest.json";
+            return "https://covenantofchrist.onrender.com/Assets/online/lessons/manifest.json";
         }
         public static DateTime GetOfflineVersionDate()
         {

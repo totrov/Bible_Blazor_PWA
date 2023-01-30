@@ -2,10 +2,11 @@
 using DocumentFormat.OpenXml.Spreadsheet;
 using System;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace Bible_Blazer_PWA.DataBase.DTO
 {
-    public class NoteDTO
+    public class NoteDTO : DTOBase<NoteDTO>
     {
         public enum NoteType
         {
@@ -13,24 +14,30 @@ namespace Bible_Blazer_PWA.DataBase.DTO
             Attention,
             Question
         }
-
+        public string UnitId { get; set; }
+        public string LessonId { get; set; }
+        public int[] ElementId { get; set; }
         public int Opacity { get; set; }
-        public string Value { get; protected set; }
-        public string Identifier { get; protected set; }
-        public NoteType Type { get; protected set; }
-        public int X { get; protected set; }
-        public int Y { get; protected set; }
-        public int Width { get; protected set; }
-        public int Height { get; protected set; }
-        public int TextSize { get; protected set; }
-        public string MainColor { get; protected set; }
-        public string TextColor { get; protected set; }
+        public string Value { get; set; }
+        [PK(autoIncremented: true)]
+        public int Id { get;  set; }
+        public NoteType Type { get; set; }
+        public int X { get; set; }
+        public int Y { get; set; }
+        public int Width { get; set; }
+        public int Height { get; set; }
+        public int TextSize { get; set; }
+        public string MainColor { get; set; }
+        public string TextColor { get; set; }
 
         public event Action OnAfterRemoval;
         public NoteDTO GetNoteDTO() => new()
         {
             Value = Value,
-            Identifier = Identifier,
+            Id = Id,
+            UnitId = UnitId,
+            LessonId = LessonId,
+            ElementId = ElementId,
             Type = Type,
             X = X,
             Y = Y,
@@ -41,12 +48,15 @@ namespace Bible_Blazer_PWA.DataBase.DTO
             Height = Height,
         };
 
-        protected NoteDTO() { }
+        public NoteDTO() { }
         public NoteDTO(NoteDTO dto)
         {
             Y = dto.Y;
             X = dto.X;
-            Identifier = dto.Identifier;
+            Id = dto.Id;
+            UnitId = dto.UnitId;
+            LessonId = dto.LessonId;
+            ElementId = dto.ElementId;
             Value = dto.Value;
             Type = dto.Type;
             TextSize = dto.TextSize;
@@ -58,7 +68,7 @@ namespace Bible_Blazer_PWA.DataBase.DTO
             OnAfterRemoval += dto.OnAfterRemoval;
         }
 
-        public NoteDTO(string value)
+        public NoteDTO(string value, string unitId, string lessonId, int[] elementId)
         {
             Value = value;
             Type = NoteType.Regular;
@@ -70,11 +80,20 @@ namespace Bible_Blazer_PWA.DataBase.DTO
             Width = 230;
             Height = 150;
             Opacity = 10;
+            UnitId = unitId;
+            LessonId = lessonId;
+            ElementId = elementId;
         }
-        public void Remove()
+        public async Task Remove(DatabaseJSFacade db)
         {
+            await RemoveFromDbAsync(db);
             OnAfterRemoval?.Invoke();
             OnAfterRemoval = null;
+        }
+
+        protected override string GetObjectStoreName()
+        {
+            return "notes";
         }
     }
 

@@ -43,6 +43,7 @@
         mediator.Parser = new Parser(Corrector);
         mediator.Bible = Bible;
         mediator.DbParamFacade = dbParamFacade;
+        mediator.DbFacade = db;
         await mediator.LoadVerses();
     }
 

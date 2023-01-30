@@ -1,5 +1,6 @@
 ﻿using Bible_Blazer_PWA;
 using Bible_Blazer_PWA.BibleReferenceParse;
+using Bible_Blazer_PWA.DataBase;
 using Bible_Blazer_PWA.DataBase.DTO;
 using Bible_Blazer_PWA.DomainObjects;
 using Bible_Blazer_PWA.Parameters;
@@ -44,6 +45,7 @@ namespace BibleComponents
                 };
             }
         }
+        internal DatabaseJSFacade DbFacade { get; set; }
         public bool IsOpen { get; set; } = true;
         internal bool RefsAreOpen { get; set; } = true;
         internal int CurrentPopoverIndex { get; set; } = -1;
@@ -117,12 +119,28 @@ namespace BibleComponents
             }
         }
 
-        public void AddNote(string _value)
+        public async Task AddNote(string _value)
         {
-            ElementData.AddNote(_value).OnAfterRemoval += () => { StateHasChanged?.Invoke(typeof(LessonElementBody)); };
+            (await ElementData.AddNoteByValue(_value, DbFacade)).OnAfterRemoval += () => { StateHasChanged?.Invoke(typeof(LessonElementBody)); };
             StateHasChanged?.Invoke(typeof(LessonElementBody));
             Parameters.ElelementForNoteAdding = null;
             StateHasChanged?.Invoke(typeof(LessonCenteredContainer));
+        }
+        public async Task InitNotes()
+        {
+            var notes = await (await DbFacade.GetRangeFromObjectStoreByIndex<NoteDTO>(
+                "notes",
+                "lessonElement",
+                ElementData.UnitId,
+                ElementData.LessonId,
+                ElementData.Key,
+                ElementData.Key
+                )).GetTaskCompletionSourceWrapper();
+            foreach (var note in notes)
+            {
+                note.OnAfterRemoval += () => { StateHasChanged?.Invoke(typeof(LessonElementBody)); };
+                ElementData.AddNote(note);
+            }
         }
         public void OpenAddNote()
         {

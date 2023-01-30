@@ -21,6 +21,7 @@
 @inject NavigationManager navigation
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
+@inject IJSRuntime JS
 @inject IWorkerBackgroundService<LessonImportService> lessonImportService
 
 @if (_blocks != null)
@@ -76,13 +77,17 @@
         {
             var minimalVersion = await new HttpFacade(Http).GetVersionDateAsync();
             var lessonsToLoad = _blocks
-                            .Where(b => b.Value.Lessons.Any(l => l.Value.VersionDate < minimalVersion))
+                            .Where(b => !b.Value.Name.StartsWith("Д") && b.Value.Lessons.Any(l => l.Value.VersionDate < minimalVersion))
                             .Select(block => block.Value.Name).ToList();
+
+            var debug = _blocks.SelectMany(b => b.Value.Lessons).Where(l => l.Value.VersionDate < minimalVersion).ToArray();
             IsDisabled = lessonsToLoad.Any();
             updateLessonsWasCalled = true;
             foreach (var lessonName in lessonsToLoad)
             {
-                await lessonImportService.RunAsync(s => s.LoadPredefinedLesson(lessonName));
+                //await lessonImportService.RunAsync(s => s.LoadPredefinedLesson(lessonName));
+                var lis = new LessonImportService(new WorkerMessageStub(), Http, new Corrector(new BibleRegexHelper(Http)), JS);
+                await lis.LoadPredefinedLesson(lessonName);
             }
             IsDisabled = false;
         }
@@ -152,7 +157,9 @@
         IsDisabled = true;
         try
         {
-            await lessonImportService.RunAsync(s => s.LoadPredefinedLesson(lessonToLoad));
+            var lis = new LessonImportService(new WorkerMessageStub(), Http, new Corrector(new BibleRegexHelper(Http)), JS);
+            await lis.LoadPredefinedLesson(lessonToLoad);
+            //await lessonImportService.RunAsync(s => s.LoadPredefinedLesson(lessonToLoad));
         }
         catch (Exception e)
         {

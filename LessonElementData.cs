@@ -1,9 +1,13 @@
-﻿using Bible_Blazer_PWA.Config;
+﻿using b2xtranslator.OfficeGraph;
+using Bible_Blazer_PWA.Config;
 using Bible_Blazer_PWA.DataBase;
 using Bible_Blazer_PWA.DataBase.DTO;
 using Bible_Blazer_PWA.DomainObjects;
 using Bible_Blazer_PWA.Facades;
 using Bible_Blazer_PWA.Services.Parse;
+using DocumentFormat.OpenXml.Office2010.Excel;
+using Microsoft.Extensions.Azure;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Net.Http;
@@ -23,39 +27,57 @@ namespace Bible_Blazer_PWA
     }
     public class LessonElementData : IAsyncInitializable
     {
+        public string UnitId { get; set; }
+        public string LessonId { get; set; }
         public string Value { get; set; }
         public LinkedList<LessonElementData> Children { get; set; }
         public ReadOnlyCollection<NoteDTO> Notes { get; private set; }
         private List<NoteDTO> NotesInternal { get; set; }
         public int Level { get; set; }
-        public string Key { get; set; }
+        public int[] Key { get; set; }
 
         public Task InitTask => initializationTask;
 
         private Task initializationTask;
-        private LessonElementData()
-        { }
+        protected LessonElementData(int level, string value, int[] id, string unitId, string lessonId)
+        {
+            Level = level;
+            Value = value;
+            Key = id;
+            UnitId = unitId;
+            LessonId = lessonId;
+        }
 
 
-        private LessonElementData AddChild(LessonElementData parent, int level, string id, string value)
+        private LessonElementData AddChild(LessonElementData parent, int level, int[] id, string value)
         {
             parent.Children ??= new LinkedList<LessonElementData>();
-            var newChild = new LessonElementData { Level = level, Value = value, Key = id };
+            var newChild = new LessonElementData(level, value, id, parent.UnitId, parent.LessonId);
             parent.Children.AddLast(newChild);
             return newChild;
         }
 
-        public LessonElementData(ILessonDataInitializationStrategy initialization)
+        public LessonElementData(string unitId, string lessonId, ILessonDataInitializationStrategy initialization)
         {
+            UnitId = unitId;
+            LessonId = lessonId;
             initialization.SetAddChildMethod(AddChild);
             initializationTask = initialization.Initialize(this);
         }
 
-        public NoteDTO AddNote(string value)
+        public async Task<NoteDTO> AddNoteByValue(string value, DatabaseJSFacade db)
         {
-            NoteDTO note = new NoteDTO(value);
+            NoteDTO note = new NoteDTO(value, UnitId, LessonId, Key);
+            await note.SaveToDbAsync(db);
+
+            return AddNote(note);
+        }
+
+        public NoteDTO AddNote(NoteDTO note)
+        {
             NotesInternal ??= new();
             NotesInternal.Add(note);
+            
             note.OnAfterRemoval += () => NotesInternal.Remove(note);
             Notes ??= new(NotesInternal);
             return note;
@@ -67,7 +89,7 @@ namespace Bible_Blazer_PWA
             var idStringified = id.ToString();
             var versionDate = await new HttpFacade(http).GetVersionDateAsync();
 
-            LessonElementData lessonElement = new(new DBLessonDataInitializationStrategy(db, unitId, idStringified, versionDate));
+            LessonElementData lessonElement = new(unitId, idStringified, new DBLessonDataInitializationStrategy(db, versionDate));
             await lessonElement.InitTask;
             if (!string.IsNullOrEmpty(lessonElement.Value))
             {
@@ -76,7 +98,7 @@ namespace Bible_Blazer_PWA
 
             var resultHandler = await db.GetRecordFromObjectStoreByKey<LessonDTO>("lessons", unitId, idStringified);
             var result = await resultHandler.GetTaskCompletionSourceWrapper();
-            var ret = result.GetComposite(db, http);
+            var ret = result.GetComposite(new DatabaseLessonElementDataStagingImplementer(db));
             await ret.InitTask;
             return ret;
         }

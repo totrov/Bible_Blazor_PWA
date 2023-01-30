@@ -49,10 +49,11 @@
         : "padding:0;";
     }
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         Mediator.StateHasChanged += type => { if (type == this.GetType()) StateHasChanged(); };
         Mediator.Parameters.OnReferenceToggle += (sender, args) => { Mediator.RefsAreOpen = bool.Parse(Mediator.Parameters.AreReferencesOpened); };
+        await Mediator.InitNotes();
     }
 
 }

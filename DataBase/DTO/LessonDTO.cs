@@ -1,24 +1,26 @@
 ﻿using Bible_Blazer_PWA.DataBase;
+using Bible_Blazer_PWA.Services.Parse;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Bible_Blazer_PWA.DataBase.DTO
 {
-    public record LessonDTO: LessonLightweightDTO
+    public record LessonDTO : LessonLightweightDTO
     {
         public string Content { get; set; }
-        private string[] GetLines()
+        protected string[] GetLines()
         {
             var list = new LinkedList<string>();
             list.AddLast(Name);
             Content.Split("<br>").Aggregate(list, (l, s) => { l.AddLast(s); return l; });
             return list.ToArray();
         }
-        public LessonElementData GetComposite(DatabaseJSFacade db, System.Net.Http.HttpClient http)
+        public LessonElementData GetComposite(ILessonElementDataStagingImplemeter staging)
         {
-            return new LessonElementData(
-                new ParseLines_LessonElementDataInitializationStrategy(GetLines(), UnitId, Id, db, VersionDate));
+            staging.SetVersionDate(VersionDate);
+            return new LessonElementData(UnitId, Id,
+                new ParseLines_LessonElementDataInitializationStrategy(GetLines(), staging));
         }
     }
 
