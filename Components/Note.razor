@@ -15,8 +15,12 @@
          @ontouchstart="@((TouchEventArgs args) => HandleDragStart(args))"
          @ontouchmove="@((TouchEventArgs args) => HandleTouchMove(args))"
          @ontouchend="@(async (TouchEventArgs args) => {await HandleDrop(args);})">
+            @{
+                var style = $"padding: 3px; color:{model.TextColor}";
+            }
+
             <MudCardHeader Style="padding: 0;">
-                <MudIconButton Style="padding: 3px;" Icon="@Icon" OnClick="()=>{model.IsCollapsed = false; ShowNoteToolbar=false;}"></MudIconButton>
+                <MudIconButton Style=@style Icon="@Icon" OnClick="()=>{model.IsCollapsed = false; ShowNoteToolbar=false;}"></MudIconButton>
             </MudCardHeader>
         </MudCard>
     }
@@ -135,7 +139,7 @@
     {
         model = new NoteModel(NoteDTO);
         model.OnPropertyChange += StateHasChanged;
-        model.OnPropertyChange += async () => { await model.SaveToDbAsync(db); };
+        model.OnSave += async () => { await model.SaveToDbAsync(db); };
     }
 
     private void HandleDragStart(dynamic args)
@@ -207,5 +211,6 @@
 
         model.SetValue(model => model.X, X);
         model.SetValue(model => model.Y, Y);
+        await model.SaveToDbAsync(db);
     }
 }

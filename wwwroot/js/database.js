@@ -187,8 +187,7 @@ window.database = {
 
             var objectStore = transaction.objectStore(objectStoreName);
             var key = params.length > 1 ? params : params.shift();
-            if (key.length == 1)
-            {
+            if (key.length == 1) {
                 key = key.pop();
             }
             var objectStoreRequest = objectStore.delete(key);
@@ -431,8 +430,13 @@ window.database = {
 
             var objectStore = transaction.objectStore(objectStoreName);
             var key = params.shift();
+            key = key.charAt(0).toLowerCase() + key.slice(1);
             var obj = params.shift();
-            var objectStoreRequest = objectStore.put(obj, key);
+            if (obj[key] == null) {
+                delete obj[key];
+            }
+            var objectStoreRequest = objectStore.put(obj);
+
             objectStoreRequest.onsuccess = function (event) {
                 result = objectStoreRequest.result;
                 context.logVerbose('putIntoAutoincrementedObjectStore: Transaction returned: ' + result);
@@ -499,7 +503,7 @@ window.database = {
             context.db.createObjectStore('lessonElementData', { keyPath: ['unitId', 'lessonId', 'id'] });
         },
         function /*4*/() {
-            var os = context.db.createObjectStore('notes', { keyPath: "Id", autoIncrement: true });
+            var os = context.db.createObjectStore('notes', { keyPath: "id", autoIncrement: true });
             os.createIndex('lessonElement', ['unitId', 'lessonId', 'elementId'], { unique: false });
         }
     ],

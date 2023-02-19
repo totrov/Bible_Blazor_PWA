@@ -38,8 +38,8 @@ namespace Bible_Blazer_PWA.DataBase.DTO
                     .MakeGenericMethod(PKProperty.PropertyType);
                 Type IndexedDBResultHandler_T_unresolved = typeof(IndexedDBResultHandler<>);
                 Type IndexedDBResultHandler_T = IndexedDBResultHandler_T_unresolved.MakeGenericType(PKProperty.PropertyType);
-                Task startPutTask = (Task)m_StartPutIntoAutoincrementedObjectStore.Invoke(db, new object[]{ GetObjectStoreName(), PKProperty.GetValue(this), this});
-                
+                Task startPutTask = (Task)m_StartPutIntoAutoincrementedObjectStore.Invoke(db, new object[] { GetObjectStoreName(), PKProperty.Name, this });
+
                 await startPutTask;
                 var resultProperty = startPutTask.GetType().GetProperty("Result");
                 var handler = resultProperty.GetValue(startPutTask);

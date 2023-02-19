@@ -2,6 +2,7 @@
 using DocumentFormat.OpenXml.Spreadsheet;
 using System;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Bible_Blazer_PWA.DataBase.DTO
@@ -20,7 +21,7 @@ namespace Bible_Blazer_PWA.DataBase.DTO
         public int Opacity { get; set; }
         public string Value { get; set; }
         [PK(autoIncremented: true)]
-        public int Id { get;  set; }
+        public int? Id { get;  set; }
         public NoteType Type { get; set; }
         public int X { get; set; }
         public int Y { get; set; }
@@ -104,14 +105,16 @@ namespace Bible_Blazer_PWA.DataBase.DTO
         {
             this.noteDTO = noteDTO;
         }
-        public virtual void SetValue<T>(Expression<Func<This, T>> propertyExpression, T value)
+        public virtual PropertyInfo SetValue<T>(Expression<Func<This, T>> propertyExpression, T value)
         {
             if (propertyExpression.Body is not MemberExpression memberexpression)
             {
                 throw new Exception("lambda for parsing must be presented as member expression");
             }
             GetType().GetProperty(memberexpression.Member.Name)?.SetValue(this, value);
-            typeof(NoteDTO).GetProperty(memberexpression.Member.Name)?.SetValue(noteDTO, value);
+            var prop = typeof(NoteDTO).GetProperty(memberexpression.Member.Name);
+            prop?.SetValue(noteDTO, value);
+            return prop;
         }
     }
 

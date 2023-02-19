@@ -130,7 +130,7 @@ namespace Bible_Blazer_PWA.DataBase
                     null, "putIntoObjectStore", objectStoreName, obj);
 
         }
-        public async Task<IndexedDBResultHandler<T>> StartPutIntoAutoincrementedObjectStore<T>(string objectStoreName, T key, object obj)
+        public async Task<IndexedDBResultHandler<T>> StartPutIntoAutoincrementedObjectStore<T>(string objectStoreName, string key, object obj)
         {
             return await this.CallDbAsync<T>(
                     null, "putIntoAutoincrementedObjectStore", objectStoreName, key, obj);

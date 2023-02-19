@@ -1,6 +1,7 @@
 ﻿using Bible_Blazer_PWA.DataBase.DTO;
 using System;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Bible_Blazer_PWA.ViewModels
 {
@@ -14,11 +15,19 @@ namespace Bible_Blazer_PWA.ViewModels
         public bool IsEditOn { get; set; }
         public bool IsCollapsed { get; set; }
         public event Action OnPropertyChange;
+        public event Action OnSave;
+        delegate void TypedPropertyChangeHandler<T>();
 
-        public override void SetValue<T>(Expression<Func<NoteModel, T>> propertyExpression, T value)
+        public override PropertyInfo SetValue<T>(Expression<Func<NoteModel, T>> propertyExpression, T value)
         {
-            base.SetValue(propertyExpression, value);
+            var prop = base.SetValue(propertyExpression, value);
             OnPropertyChange?.Invoke();
+            if (prop != null && prop.Name != nameof(X) && prop.Name != nameof(Y))
+            {
+                OnSave?.Invoke();
+            }
+
+            return prop;
         }
     }
 }

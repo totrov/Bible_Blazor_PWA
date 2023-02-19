@@ -45,7 +45,7 @@ namespace Bible_Blazer_PWA
             currentLevel = level;
             identifier[level - 1]++;
 
-            var lessonElementData = addChildMethod(parent, level, identifier, value);
+            var lessonElementData = addChildMethod(parent, level, identifier.ToArray(), value);
             await StartPutPreviousElement();
             prevLessonElementData = lessonElementData;
             prevIdentifier = identifier.ToArray();
