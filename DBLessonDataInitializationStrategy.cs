@@ -11,8 +11,6 @@ namespace Bible_Blazer_PWA
     public class DBLessonDataInitializationStrategy : ILessonDataInitializationStrategy
     {
         private readonly DatabaseJSFacade db;
-        private readonly string unitId;
-        private readonly string lessonId;
         private readonly DateTime minimumVersionDate;
         private Func<LessonElementData, int, int[], string, LessonElementData> addChildMethod;
 

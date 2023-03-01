@@ -590,6 +590,34 @@ window.database = {
             dotnetHelper.invokeMethod('SetStatusAndResult', false, null);
         }
     },
+    importJsonByURL: async (dotnetHelper, params) => {
+        var openRequest = database.getOpenRequest();
+
+        openRequest.onSuccessHandlers.push(async function (event) {
+            context.db = openRequest.result;
+            let url = params.shift();
+            const response = await fetch(url);
+            var json = await response.json();
+            let objectStoreName = params.shift();
+            var transaction = context.db.transaction(objectStoreName, "readwrite");
+            var os = transaction.objectStore(objectStoreName);
+            json.forEach(function (data) { os.add(data); });
+            transaction.oncomplete = function (event) {
+                context.log('importJsonByURL: Transaction completed.');
+                dotnetHelper.invokeMethod('SetStatusAndResult', true, true);
+            };
+
+            transaction.onerror = function (event) {
+                context.log('importJsonByURL: Transaction not opened due to error: ' + transaction.error);
+                dotnetHelper.invokeMethod('SetStatusAndResult', false, false);
+            };
+        });
+
+        openRequest.onerror = function (event) {
+            context.log('importJsonByURL: Database not opened due to error: ' + openRequest.error);
+            dotnetHelper.invokeMethod('SetStatusAndResult', false, false);
+        }
+    },
     clearObjectStore: function (dotnetHelper, dbStore) {
         var transaction = context.db.transaction(dbStore, "readwrite");
         var os = transaction.objectStore(dbStore);

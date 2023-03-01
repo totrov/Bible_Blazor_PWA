@@ -64,9 +64,9 @@ namespace Bible_Blazer_PWA.DataBase
             return await this.CallVoidDbAsync(callback, "clearObjectStore", objectSotre, "lessons");
         }
 
-        protected async Task<IndexedDBResultHandler> ImportJson(string json, string objectStore, Action callback = null, bool clearFirst = false)
+        public async Task ImportJsonByURL(string url, string objectStore, Action callback = null)
         {
-            return await this.CallVoidDbAsync(callback, "importJson", json, objectStore, clearFirst);
+            await (await this.CallDbAsync<bool>(null, "importJsonByURL", url, objectStore)).GetTaskCompletionSourceWrapper();
         }
 
         public async Task<IndexedDBResultHandler<T>> CallDbAsync<T>(Action callback, string methodName, params object[] parameters)
@@ -162,6 +162,7 @@ namespace Bible_Blazer_PWA.DataBase
         {
             TaskCompletionSource taskCompletionSource = new TaskCompletionSource();
             OnDbResultOK += () => { taskCompletionSource.SetResult(); };
+            OnFail += () => { taskCompletionSource.SetException(new Exception("Failed")); };
             return taskCompletionSource.Task;
         }
     }

@@ -12,8 +12,8 @@ namespace Bible_Blazer_PWA
     internal class ParseLines_LessonElementDataInitializationStrategy : ILessonDataInitializationStrategy
     {
         private string[] lines;
-        private readonly string unitId;
-        private readonly string lessonId;
+        private string unitId;
+        private string lessonId;
         private readonly HttpClient http;
         private int currentIndex = 0; // wierd issues with ?compilation? when it is local
         private int currentLevel = 0;
@@ -67,6 +67,8 @@ namespace Bible_Blazer_PWA
             string current = enumerator.Current;
             lessonElementData.Value = "";
             lessonElementData.Level = 0;
+            lessonId = lessonElementData.LessonId;
+            unitId = lessonElementData.UnitId;
 
             static bool CheckMatchForFirstLevel(string input, out string match)
             {
