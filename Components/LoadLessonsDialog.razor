@@ -2,7 +2,6 @@
 @using System.Text.Json
 @using Bible_Blazer_PWA.Services
 @using Bible_Blazer_PWA.Services.Parse
-@using BlazorWorker.WorkerBackgroundService
 @inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
 @inject HttpClient Http
 @inject Corrector Corrector;
@@ -33,7 +32,7 @@
     private IEnumerable<string> options { get; set; } = new HashSet<string>();
 
     [Parameter]
-    public IWorkerBackgroundService<LessonImportService> LessonImportService { get; set; }
+    public LessonImportService LessonImportService { get; set; }
     [Parameter]
     public Action<bool> DisableEnableAction { get; set; }
     [CascadingParameter]
@@ -63,7 +62,7 @@
         MudDialog.Close(DialogResult.Ok(true));
         foreach (var lessonName in lessonsToLoad)
         {
-            await LessonImportService.RunAsync(s => s.LoadPredefinedLesson(lessonName));
+            await LessonImportService.LoadPredefinedLesson(lessonName);
         }
         DisableEnableAction(false);
     }

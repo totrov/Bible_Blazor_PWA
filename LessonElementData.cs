@@ -6,7 +6,6 @@ using Bible_Blazer_PWA.DomainObjects;
 using Bible_Blazer_PWA.Facades;
 using Bible_Blazer_PWA.Services.Parse;
 using DocumentFormat.OpenXml.Office2010.Excel;
-using Microsoft.Extensions.Azure;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

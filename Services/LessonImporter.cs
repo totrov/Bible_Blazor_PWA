@@ -3,7 +3,6 @@ using Bible_Blazer_PWA.DataBase.DTO;
 using Bible_Blazer_PWA.Facades;
 using Bible_Blazer_PWA.Services.Parse;
 using Bible_Blazer_PWA.Services.Readers;
-using BlazorWorker.WorkerCore;
 using System;
 using System.IO;
 using System.Net.Http;

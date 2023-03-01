@@ -12,7 +12,6 @@
 @using Bible_Blazer_PWA.DomainObjects
 @using System.Text.Json
 @using System.IO
-@using BlazorWorker.WorkerBackgroundService;
 
 @inject MenuService menu
 @inject HttpClient Http
@@ -22,7 +21,6 @@
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 @inject IJSRuntime JS
-@inject IWorkerBackgroundService<LessonImportService> lessonImportService
 
 @if (_blocks != null)
 {
@@ -70,6 +68,7 @@
     private LessonDS _lessonDS { get; set; }
     private SortedDictionary<string, LessonBlock> _blocks;
     private bool updateLessonsWasCalled = false;
+    private LessonImportService lessonImportService;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -86,8 +85,7 @@
             foreach (var lessonName in lessonsToLoad)
             {
                 //await lessonImportService.RunAsync(s => s.LoadPredefinedLesson(lessonName));
-                var lis = new LessonImportService(new WorkerMessageStub(), Http, new Corrector(new BibleRegexHelper(Http)), JS);
-                await lis.LoadPredefinedLesson(lessonName);
+                await lessonImportService.LoadPredefinedLesson(lessonName);
             }
             IsDisabled = false;
         }
@@ -97,19 +95,10 @@
     {
         _lessonDS = new LessonDS(db);
         _blocks = await _lessonDS.GetBlocks();
+        lessonImportService = new LessonImportService(Snackbar, Http, new Corrector(new BibleRegexHelper(Http)), JS);
 
         menu.Title = "Планы уроков";
         menu.ClearMenuButtons();
-
-        messageParser = new();
-        messageParser.OnDBPut += HandleLessonDBPut;
-        messageParser.OnWarning += s => Snackbar.Add(s, Severity.Warning);
-        messageParser.OnMessage += s => Snackbar.Add(s, Severity.Normal);
-        messageParser.OnInfo += s => Snackbar.Add(s, Severity.Info);
-        messageParser.OnError += s => Snackbar.Add(s, Severity.Error);
-        messageParser.OnSuccess += s => Snackbar.Add(s, Severity.Success);
-
-        lessonImportService.GetWorkerMessageService().IncomingMessage += OnWorkerMessage;
 
         var parameters = new DialogParameters();
         parameters.Add("LessonImportService", lessonImportService);
@@ -157,8 +146,7 @@
         IsDisabled = true;
         try
         {
-            var lis = new LessonImportService(new WorkerMessageStub(), Http, new Corrector(new BibleRegexHelper(Http)), JS);
-            await lis.LoadPredefinedLesson(lessonToLoad);
+            await lessonImportService.LoadPredefinedLesson(lessonToLoad);
             //await lessonImportService.RunAsync(s => s.LoadPredefinedLesson(lessonToLoad));
         }
         catch (Exception e)
@@ -183,34 +171,6 @@
     {
         item.Status = newStatus;
         StateHasChanged();
-    }
-
-
-
-    ///////////////////////////////////////BlazorWorker//////////////////////////////////////////////////
-
-    WebWorkerMessageParser messageParser;
-
-    public void OnWorkerMessage(object sender, string message)
-    {
-        messageParser.ParseMessage(message);
-        StateHasChanged();
-    }
-
-    public void HandleLessonDBPut(string json)
-    {
-        var lessonInfo = System.Text.Json.JsonSerializer.Deserialize<LessonLightweightDTO>(json);
-        string blockName = lessonInfo.UnitId switch
-        {
-            "Быт" => "Бытие",
-            "ИсхСол" => "Исход - Соломон",
-            "Прор" => "Пророки",
-            "Евн" => "Евангелия",
-            "ДеянОткр" => "Деяния - Откровение",
-            "Осн" => "Основы веры"
-        };
-        _blocks[blockName].Lessons.Put(Convert.ToInt32(lessonInfo.Id), lessonInfo);
-        lessonImportService.RunAsync(s => s.NotifyImportCompleted());
     }
 }
 

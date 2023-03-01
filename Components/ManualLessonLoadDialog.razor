@@ -1,7 +1,6 @@
 ﻿@using Bible_Blazer_PWA.Services
 @using System.IO
 @using Bible_Blazer_PWA.Services.Parse
-@using BlazorWorker.WorkerBackgroundService
 @using System.Text.Json
 @inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
 @inject HttpClient Http
@@ -36,7 +35,7 @@
 </MudContainer>
 @code {
     [Parameter]
-    public IWorkerBackgroundService<LessonImportService> LessonImportService { get; set; }
+    public LessonImportService LessonImportService { get; set; }
     [Parameter]
     public Action<bool> DisableEnableAction { get; set; }
     [CascadingParameter]
@@ -60,8 +59,8 @@
 
         foreach ((var filename, var file) in files)
         {
-            await LessonImportService.RunAsync(s => s.WriteBytesToLessonFile(filename, file));
-            await LessonImportService.RunAsync(s => s.LoadLessonFromFile());
+            await LessonImportService.WriteBytesToLessonFile(filename, file);
+            await LessonImportService.LoadLessonFromFile();
         }
         DisableEnableAction(false);
     }

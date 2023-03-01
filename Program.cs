@@ -9,7 +9,6 @@ using MudBlazor.Services;
 using Microsoft.AspNetCore.Components.Web;
 using Bible_Blazer_PWA.Services.Menu;
 using Bible_Blazer_PWA.Services.Parse;
-using BlazorWorker.Core;
 using Bible_Blazer_PWA.Services;
 
 namespace Bible_Blazer_PWA
@@ -25,7 +24,7 @@ namespace Bible_Blazer_PWA
             var http = new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) };
             builder.Services.AddScoped(sp => http);
             builder.Services.AddMudServices();
-            builder.Services.AddWorkerFactory();
+            //builder.Services.AddWorkerFactory();  //Background functionality cut
 
             var bibleService = new BibleService();
             builder.Services.AddSingleton(bibleService);
@@ -42,7 +41,7 @@ namespace Bible_Blazer_PWA
             
             builder.Services.AddSingleton(new Corrector(regexHelper));
 
-            await builder.Services.AddLessonImportServiceAsync();
+            //await builder.Services.AddLessonImportServiceAsync(); //Background functionality cut
 
             var host = builder.Build();
 
