@@ -25,6 +25,8 @@
             var resultHandler = await db.ClearObjectStore("lessons");
             await resultHandler.GetTaskCompletionSourceWrapper();
             resultHandler = await db.ClearObjectStore("lessonElementData");
+            await resultHandler.GetTaskCompletionSourceWrapper();
+            resultHandler = await db.ClearObjectStore("cache");
             resultHandler.OnDbResultOK += () => { Snackbar.Add("Удаление уроков завершено", Severity.Info); };
             await resultHandler.GetTaskCompletionSourceWrapper();
         }

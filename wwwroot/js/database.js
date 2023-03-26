@@ -505,6 +505,7 @@ window.database = {
         function /*4*/() {
             var os = context.db.createObjectStore('notes', { keyPath: "id", autoIncrement: true });
             os.createIndex('lessonElement', ['unitId', 'lessonId', 'elementId'], { unique: false });
+            context.db.createObjectStore('cache', { keyPath: ['Key'] });
         }
     ],
     fetchJson: async (path, dbStore) => {

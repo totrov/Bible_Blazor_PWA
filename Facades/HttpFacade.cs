@@ -19,8 +19,13 @@ namespace Bible_Blazer_PWA.Facades
 
         public async Task<DateTime> GetVersionDateAsync()
         {
-            string manifestString = await client.GetStringAsync(
-                LessonLoadConfig.GetManifestUrl());
+            string manifestString = null;
+            try
+            {
+                manifestString = await client.GetStringAsync(LessonLoadConfig.GetManifestUrl());
+            }
+            catch { }
+
             if (!string.IsNullOrEmpty(manifestString))
             {
                 return JsonSerializer.Deserialize<LessonStorageManifestDTO>(manifestString).lastUpdateDate;

@@ -10,7 +10,6 @@
 @inject ISnackbar Snackbar
 
 <MudButton OnClick="ExportLessonsToJSON">Export lessons to JSON</MudButton>
-<MudButton OnClick="ReloadLessonsFromJSONfile">Перезагрузить уроки из файла</MudButton>
 
 @code {
     public async Task ExportLessonsToJSON()
@@ -34,16 +33,5 @@
         await System.Text.Json.JsonSerializer.SerializeAsync(jsonStream, result, options);
         jsonStream.Position = 0;
         return jsonStream;
-    }
-
-    private async Task ReloadLessonsFromJSONfile()
-    {
-        var removeResultHandler = await db.ClearObjectStore("lessons");
-        await removeResultHandler.GetTaskCompletionSourceWrapper();
-        
-        var url = "https://covenantofchrist.onrender.com/Assets/online/lessons/lessons.json";
-        await db.ImportJsonByURL(url, "lessons");
-
-        Snackbar.Add($"Загрузка уроков завершена");
     }
 }

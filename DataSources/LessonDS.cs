@@ -1,4 +1,6 @@
 ﻿using Bible_Blazer_PWA.DataBase.DTO;
+using Bible_Blazer_PWA.Diagnostics;
+using Bible_Blazer_PWA.Facades;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -51,17 +53,20 @@ namespace Bible_Blazer_PWA.DataSources
             }
         }
 
-        public async Task<SortedDictionary<string, LessonBlock>> GetBlocks()
+        public async Task<SortedDictionary<string, LessonBlock>> GetBlocks(DBCache cache)
         {
             if (_blocks is null)
             {
+                _blocks = new SortedDictionary<string, LessonBlock>(new BlockNameComparer());
+                if (await cache.TryPopulateFromCache<SortedDictionary<string, LessonBlock>, LessonBlock>(DBCache.LessonMenuBlocks, _blocks))
+                    return _blocks;
+
                 TaskCompletionSource<IEnumerable<LessonUnit>> tcs = new TaskCompletionSource<IEnumerable<LessonUnit>>();
 
                 var lessonUnitsResult = await db.GetAllFromObjectStore<LessonUnit>("lessonUnits");
                 lessonUnitsResult.OnDbResultOK += () => { tcs.SetResult(lessonUnitsResult.Result); };
                 var lessonUnits = await tcs.Task;
 
-                _blocks = new SortedDictionary<string, LessonBlock>(new BlockNameComparer());
                 foreach (var lessonUnit in lessonUnits)
                 {
                     _blocks.Add(lessonUnit.Name, new LessonBlock
@@ -70,6 +75,7 @@ namespace Bible_Blazer_PWA.DataSources
                         Lessons = await this.GetLessonLightweightDTOForBlock(lessonUnit.Id)
                     });
                 }
+                _ = cache.SetToCache(DBCache.LessonMenuBlocks, _blocks);
             }
 
             return _blocks;

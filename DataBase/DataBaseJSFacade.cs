@@ -135,7 +135,7 @@ namespace Bible_Blazer_PWA.DataBase
             return await this.CallDbAsync<T>(
                     null, "putIntoAutoincrementedObjectStore", objectStoreName, key, obj);
 
-        }        
+        }
     }
 
     public class IndexedDBResultHandler

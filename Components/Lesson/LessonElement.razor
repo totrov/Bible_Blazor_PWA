@@ -17,7 +17,7 @@
 </MudCard>
 
 @code {
-    internal string CardStyle { get => $"margin-top:{mediator.MarginTop};{mediator.Border}"; }
+    internal string CardStyle { get => $"margin-top:{mediator.MarginTop};{mediator.Border};overflow-wrap: anywhere;"; }
 
     private int activeNumber = 0;
     private bool _versesLoaded = false;
