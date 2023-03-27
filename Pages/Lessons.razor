@@ -18,9 +18,7 @@
 @inject Corrector Corrector;
 @inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
 @inject NavigationManager navigation
-@inject IDialogService DialogService
-@inject ISnackbar Snackbar
-@inject IJSRuntime JS
+@inject LessonUpdater updater;
 
 @if (_blocks != null)
 {
@@ -32,24 +30,6 @@
             : block.Name;
             <MudListItem Text="@header">
                 <NestedList>
-                    @{
-                        var loadAction = () => LoadFromAzure(@block.Name);
-                    }
-                    @if (IsDisabled)
-                    {
-                        <MudListItem>
-                            <MudImage Src="/Assets/CloudLoading.gif" Width="50" Height="50"></MudImage>
-                        </MudListItem>
-                    }
-                    else
-                    {
-                        if (!block.Lessons.Any())
-                        {
-                            <MudListItem Icon="@Icons.Filled.CloudDownload" OnClick="loadAction" Disabled="IsDisabled" IconColor="Color.Primary">
-                                Загрузить
-                            </MudListItem>
-                        }
-                    }
                     @foreach (KeyValuePair<int, LessonLightweightDTO> keyValue in block.Lessons)
                     {
                         var lesson = keyValue.Value;
@@ -68,25 +48,15 @@
     private LessonDS _lessonDS { get; set; }
     private SortedDictionary<string, LessonBlock> _blocks;
     private bool updateLessonsWasCalled = false;
-    private LessonImportService lessonImportService;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!firstRender && !updateLessonsWasCalled)
+        if (_blocks != null && await updater.CheckUpdateRequired(_blocks))
         {
-            var minimalVersion = await new HttpFacade(Http).GetVersionDateAsync();
-            var lessonsToLoad = _blocks
-                            .Where(b => !b.Value.Name.StartsWith("Д") && b.Value.Lessons.Any(l => l.Value.VersionDate < minimalVersion))
-                            .Select(block => block.Value.Name).ToList();
-
-            var debug = _blocks.SelectMany(b => b.Value.Lessons).Where(l => l.Value.VersionDate < minimalVersion).ToArray();
-            IsDisabled = lessonsToLoad.Any();
-            updateLessonsWasCalled = true;
-            foreach (var lessonName in lessonsToLoad)
-            {
-                await lessonImportService.LoadPredefinedLesson(lessonName);
-            }
+            IsDisabled = true;
+            await updater.UpdateLessons();
             IsDisabled = false;
+            ReloadPageInstant();
         }
     }
 
@@ -94,53 +64,10 @@
     {
         _lessonDS = new LessonDS(db);
         _blocks = await _lessonDS.GetBlocks(new DBCache(db));
-        lessonImportService = new LessonImportService(Snackbar, Http, new Corrector(new BibleRegexHelper(Http)), JS);
-        menu.Title = "Планы уроков";
+        menu.Title = $"Планы уроков";
         _ = Task.Run(delegate ()
         {
             menu.ClearMenuButtons();
-
-            var parameters = new DialogParameters();
-            parameters.Add("LessonImportService", lessonImportService);
-            parameters.Add("DisableEnableAction", (bool b) => { IsDisabled = b; });
-
-            var actionableMenuButtons = new[]
-            {
-                menu.AddMenuButton(new SimpleActionButtonHandler(Icons.Filled.CloudDownload, async () =>
-                {
-                    var updater = new LessonUpdater(db);
-                    IsDisabled = true;
-                    await updater.UpdateLessons();
-                    var options = new DialogOptions { CloseButton = true, CloseOnEscapeKey = true, DisableBackdropClick = true };
-                    DialogService.Show<LoadLessonsDialog>(
-                        "Автоматическая загрузка",
-                        parameters,
-                        options);
-                    IsDisabled = false;
-                    Snackbar.Add("Уроки обновлены");
-                    ReloadPageInstant();
-                })),
-                menu.AddMenuButton(new SimpleActionButtonHandler(Icons.Filled.UploadFile, () =>
-                {
-                    var options = new DialogOptions { CloseButton = true, CloseOnEscapeKey = true, DisableBackdropClick = true };
-                    DialogService.Show<ManualLessonLoadDialog>("Ручная загрузка уроков", parameters, options);
-                })),
-                menu.AddMenuButton(new SimpleActionButtonHandler(Icons.Filled.Delete, () =>
-                {
-                    var options = new DialogOptions { CloseButton = true, CloseOnEscapeKey = true, DisableBackdropClick = true };
-                    DialogService.Show<DeleteLoadedLessons>("Удалить загруженные уроки", options);
-                }))
-            };
-            var loadingImage = menu.AddMenuButton(new EmptyButtonHandler("/Assets/CloudLoading.gif"));
-
-            OnEnableDisable += boolean =>
-            {
-                actionableMenuButtons.Aggregate("", (str, button) => { button.Visible = !boolean; return ""; });
-                loadingImage.Visible = boolean;
-                menu.Update(this);
-            };
-            IsDisabled = false;
-
             menu.Update(this);
         });
     }
@@ -148,22 +75,6 @@
     private bool _isDisabled = false;
     private bool IsDisabled { get => _isDisabled; set { _isDisabled = value; OnEnableDisable?.Invoke(_isDisabled); } }
     private event Action<bool> OnEnableDisable;
-    public async Task LoadFromAzure(string lessonToLoad)
-    {
-        IsDisabled = true;
-        try
-        {
-            await lessonImportService.LoadPredefinedLesson(lessonToLoad);
-        }
-        catch (Exception e)
-        {
-            Snackbar.Add(e.Message, Severity.Error);
-        }
-        finally
-        {
-            IsDisabled = false;
-        }
-    }
 
     private async Task ReloadPage()
     {

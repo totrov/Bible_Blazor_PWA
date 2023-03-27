@@ -37,10 +37,11 @@ namespace Bible_Blazer_PWA.Services
             await LoadLesson(readerBuilder, lessonName, versionDate);
         }
 
-        public async Task LoadLessonFromFile(string fileName)
+        public async Task LoadLessonFromFile(string fileName, DateTime dateTime)
         {
+            await db.ClearObjectStore(Static.Constants.CacheObjectStoreName);
             var readerBuilder = new ReaderBuilder(fileName);
-            await LoadLesson(readerBuilder, fileName, DateTime.MaxValue);
+            await LoadLesson(readerBuilder, fileName, dateTime);
         }
 
         protected async Task LoadLesson(ReaderBuilder readerBuilder, string lessonName, DateTime versionDate)
@@ -69,7 +70,7 @@ namespace Bible_Blazer_PWA.Services
                 handler.HandleReadCompleted(lessonName);
                 foreach (LessonDTO lesson in LessonParser.ParseLessons(stringContent, corrector, versionDate))
                 {
-                    await db.ImportLessonsJson(await ConvertLessonToJSON(lesson));
+                    await db.ImportJson(await ConvertLessonToJSON(lesson), "lessons");
                     LessonDbImportAwaiter = new TaskCompletionSource();
                     //await LessonDbImportAwaiter.Task;
                 }

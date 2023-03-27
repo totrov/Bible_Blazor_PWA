@@ -28,7 +28,7 @@ namespace Bible_Blazer_PWA.Parameters
         public event Action<Parameters, string> OnChange;
         public event Func<Parameters, string, Task> OnChangeAsync;
 
-        class ParameterPOCO
+        public class ParameterPOCO
         {
             public string Key { get; set; }
             public string Value { get; set; }
@@ -82,17 +82,6 @@ namespace Bible_Blazer_PWA.Parameters
                 await OnChangeAsync(parameter, value);
             }
             return ret;
-        }
-
-        public async Task<Stream> ExportToJson()
-        {
-            var resultHandler = await _db.GetAllFromObjectStore<ParameterPOCO>("parameters");
-            IEnumerable<ParameterPOCO> result = await resultHandler.GetTaskCompletionSourceWrapper();
-
-            var jsonStream = new MemoryStream();
-            await System.Text.Json.JsonSerializer.SerializeAsync(jsonStream, result);
-            jsonStream.Position = 0;
-            return jsonStream;
         }
 
         public async Task ImportFromStream(Stream stream)

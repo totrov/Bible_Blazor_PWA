@@ -5,6 +5,8 @@
 @using System.Text.Encodings.Web;
 @using System.Text.Unicode;
 @using Bible_Blazer_PWA.Services.Parse;
+@using Bible_Blazer_PWA.Services;
+@inject ImportExportService importExportService
 @inject IJSRuntime JS
 @inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
 @inject ISnackbar Snackbar
@@ -14,24 +16,6 @@
 @code {
     public async Task ExportLessonsToJSON()
     {
-        using var stream = await CreateJsonStream<LessonDTO>("lessons");
-        using var streamRef = new DotNetStreamReference(stream);
-        await JS.InvokeVoidAsync("downloadFileFromStream", "lessons.json", streamRef);
-    }
-
-    public async Task<Stream> CreateJsonStream<T>(string objectStoreName)
-    {
-        var resultHandler = await db.GetAllFromObjectStore<T>(objectStoreName);
-        IEnumerable<T> result = await resultHandler.GetTaskCompletionSourceWrapper();
-
-        var jsonStream = new MemoryStream();
-        var options = new JsonSerializerOptions
-            {
-                Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),
-                WriteIndented = true
-            };
-        await System.Text.Json.JsonSerializer.SerializeAsync(jsonStream, result, options);
-        jsonStream.Position = 0;
-        return jsonStream;
+        importExportService.ExportToJSON<LessonDTO>("lessons");
     }
 }

@@ -53,9 +53,9 @@ namespace Bible_Blazer_PWA.Services
         {
             await lessonImporter.LoadPredefinedLesson(lessonName);
         }
-        public async Task LoadLessonFromFile()
+        public async Task LoadLessonFromFile(DateTime date)
         {
-            await lessonImporter.LoadLessonFromFile(lessonFileName);
+            await lessonImporter.LoadLessonFromFile(lessonFileName, date);
         }
         public void NotifyImportCompleted() => lessonImporter.LessonDbImportAwaiter.SetResult();
         public IJSRuntime JSRuntime { get; }

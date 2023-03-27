@@ -19,7 +19,6 @@
 @if (Composite != null)
 {
     <MudContainer>
-        <MudText Typo="Typo.h4" Style="overflow:hidden">@(Regex.Replace(Composite.Value, ",(?=[а-яА-Яa-zA-Z])", ", "))</MudText>
             @foreach (LessonElementData data in CompositeChildren)
         {
             <LessonElement ElementData="data" LessonCenteredContainer="lessonCenteredContainer"></LessonElement>
@@ -66,7 +65,7 @@
         CompositeChildren = Composite.Children;
 
         IconResolver iconReolver = new IconResolver();
-        menu.Title = "";
+        menu.Title = Regex.Replace(Composite.Value, ",(?=[а-яА-Яa-zA-Z])", ", ");
         menu.ClearMenuButtons();
         menu.AddMenuButton(new LessonLevelHandler(iconReolver, StateHasChanged, parameters)).Visible = true;
         menu.AddMenuButton(new BibleRefToggleHandler(iconReolver, StateHasChanged, parameters)).Visible = parameters.HideBibleRefTabs != "True";

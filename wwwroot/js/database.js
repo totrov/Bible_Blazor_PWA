@@ -567,20 +567,15 @@ window.database = {
             var transaction = window.context.db.transaction(dbStore, "readwrite");
             var os = transaction.objectStore(dbStore);
             var json = JSON.parse(jsonString);
-            os.put(json);
+            json.forEach(function (data) { os.put(data); });
 
             transaction.oncomplete = function () {
-                console.log(dbStore + ' ' + 'import transaction completed for ' + json.UnitId);
-                if (self.document) {
-                    dotnetHelper.invokeMethodAsync('SetStatus', true);
-                }
-                else {
-                    postMessage("DB_PUT              " + jsonString);
-                }
+                console.log(dbStore + ' ' + 'import transaction completed');
+                dotnetHelper.invokeMethodAsync('SetStatus', true);
             };
 
             transaction.onerror = function (e) {
-                console.log(dbStore + ' ' + 'import transaction failed for ' + json.UnitId + ': ' + transaction.error);
+                console.log(dbStore + ' ' + 'import transaction failed for ' + json + ': ' + transaction.error);
                 dotnetHelper.invokeMethodAsync('SetStatus', false);
                 e.stopPropagation();
             };

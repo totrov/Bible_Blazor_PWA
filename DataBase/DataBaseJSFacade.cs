@@ -1,7 +1,11 @@
 ﻿using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text.Encodings.Web;
+using System.Text.Json;
+using System.Text.Unicode;
 using System.Threading.Tasks;
 
 namespace Bible_Blazer_PWA.DataBase
@@ -55,9 +59,9 @@ namespace Bible_Blazer_PWA.DataBase
 
             return resultHandler;
         }
-        public async Task<IndexedDBResultHandler> ImportLessonsJson(string json, Action callback = null)
+        public async Task<IndexedDBResultHandler> ImportJson(string json, string objectStoreName, Action callback = null)
         {
-            return await this.CallVoidDbAsync(callback, "importJson", json, "lessons", true);
+            return await this.CallVoidDbAsync(callback, "importJson", json, objectStoreName, true);
         }
         public async Task<IndexedDBResultHandler> ClearObjectStore(string objectSotre, Action callback = null)
         {

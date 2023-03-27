@@ -18,6 +18,7 @@
                for="lessonFilesInput">
         Загрузить из word файлов (можно выбрать несколько сразу)
     </MudButton>
+    <MudDatePicker PickerVariant="PickerVariant.Dialog" @ref="_picker" Date="ManualDate" DateChanged="(newDate)=>{if (newDate.HasValue && newDate.Value != ManualDate) ManualDate = newDate.Value;}"></MudDatePicker>
     @if (LoadingItems.Any())
     {
         <MudGrid>
@@ -28,7 +29,6 @@
                         <Bible_Blazer_PWA.Components.LoadingItem Name="@item.Name" Status="@item.Status"></Bible_Blazer_PWA.Components.LoadingItem>
                     }
                 </MudList>
-
             </MudItem>
         </MudGrid>
     }
@@ -40,9 +40,21 @@
     public Action<bool> DisableEnableAction { get; set; }
     [CascadingParameter]
     MudDialogInstance MudDialog { get; set; }
+    MudDatePicker _picker;
+
+    public DateTime ManualDate { get; set; }
 
     private List<Services.LoadingItem> LoadingItems { get; set; } = new List<Services.LoadingItem>();
     private bool IsDisabled { get; set; } = false;
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            ManualDate = DateTime.Today;
+            _picker.Date = ManualDate;
+        }
+    }
     private async Task LoadFiles(InputFileChangeEventArgs e)
     {
         DisableEnableAction(true);
@@ -56,11 +68,10 @@
         }
 
         MudDialog.Close(DialogResult.Ok(true));
-
         foreach ((var filename, var file) in files)
         {
             await LessonImportService.WriteBytesToLessonFile(filename, file);
-            await LessonImportService.LoadLessonFromFile();
+            await LessonImportService.LoadLessonFromFile(ManualDate);
         }
         DisableEnableAction(false);
     }

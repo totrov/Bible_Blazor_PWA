@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Bible_Blazer_PWA.Services.Menu;
 using Bible_Blazer_PWA.Services.Parse;
 using Bible_Blazer_PWA.Services;
+using Bible_Blazer_PWA.Facades;
 
 namespace Bible_Blazer_PWA
 {
@@ -33,7 +34,10 @@ namespace Bible_Blazer_PWA
             builder.Services.AddSingleton(dbFacade);
             var dbParametersFacade = new Parameters.DbParametersFacade(dbFacade);
             builder.Services.AddSingleton(dbParametersFacade);
+            builder.Services.AddScoped<HttpFacade>();
+            builder.Services.AddScoped<LessonUpdater>();
             builder.Services.AddSingleton(new MenuService());
+            builder.Services.AddSingleton<ImportExportService>();
             
             var regexHelper = new BibleRegexHelper(http);
             builder.Services.AddSingleton(regexHelper);

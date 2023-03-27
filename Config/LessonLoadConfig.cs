@@ -56,7 +56,7 @@ namespace Bible_Blazer_PWA.Config
         }
         public static DateTime GetOfflineVersionDate()
         {
-            return new DateTime(2022, 10, 26);
+            return DateTime.MinValue;
         }
         public static string ToRussianDateFormatString(this DateTime date)
         {
