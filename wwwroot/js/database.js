@@ -567,8 +567,12 @@ window.database = {
             var transaction = window.context.db.transaction(dbStore, "readwrite");
             var os = transaction.objectStore(dbStore);
             var json = JSON.parse(jsonString);
-            json.forEach(function (data) { os.put(data); });
-
+            if (Array.isArray(json)) {
+                json.forEach(function (data) { os.put(data); });
+            }
+            else {
+                os.put(json);
+            }
             transaction.oncomplete = function () {
                 console.log(dbStore + ' ' + 'import transaction completed');
                 dotnetHelper.invokeMethodAsync('SetStatus', true);
