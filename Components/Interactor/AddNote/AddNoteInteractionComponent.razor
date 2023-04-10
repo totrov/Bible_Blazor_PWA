@@ -1,0 +1,20 @@
+﻿<MudPaper Elevation="25" Class="pa-2 rounded-lg">
+    <MudTextField @bind-Value="NewNoteValue" Placeholder="Новая заметка" DisableUnderLine="true" Lines="5" Margin="Margin.Dense" Class="mx-2 mt-n2"></MudTextField>
+    <MudButtonGroup>
+        <MudButton OnClick="@(() => AddNote())" Size="Size.Small" Color="Color.Primary">Добавить заметку</MudButton>
+        <MudButton OnClick="@(() => {InteractionModel.Close();})" Size="Size.Small" Color="Color.Secondary">Отмена</MudButton>
+    </MudButtonGroup>
+</MudPaper>
+
+@code {
+    [Parameter]
+    public AddNoteModel InteractionModel { get; set; }
+
+    string NewNoteValue { get; set; }
+    private void AddNote()
+    {
+        InteractionModel.ElelementForNoteAdding.AddNote(NewNoteValue);
+        NewNoteValue = string.Empty;
+        InteractionModel.Close();
+    }
+}

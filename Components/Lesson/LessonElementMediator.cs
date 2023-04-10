@@ -1,11 +1,13 @@
 ﻿using Bible_Blazer_PWA;
 using Bible_Blazer_PWA.BibleReferenceParse;
+using Bible_Blazer_PWA.Components.Interactor.AddNote;
 using Bible_Blazer_PWA.DataBase;
 using Bible_Blazer_PWA.DataBase.DTO;
 using Bible_Blazer_PWA.DomainObjects;
 using Bible_Blazer_PWA.Parameters;
 using Bible_Blazer_PWA.ViewModels;
 using BibleComponents;
+using DocumentFormat.OpenXml.EMMA;
 using MudBlazor;
 using System;
 using System.Collections.Generic;
@@ -120,7 +122,6 @@ namespace BibleComponents
         {
             (await ElementData.AddNoteByValue(_value, DbFacade)).OnAfterRemoval += () => { StateHasChanged?.Invoke(typeof(LessonElementBody)); };
             StateHasChanged?.Invoke(typeof(LessonElementBody));
-            Parameters.ElelementForNoteAdding = null;
             StateHasChanged?.Invoke(typeof(LessonCenteredContainer));
         }
         public async Task InitNotes()
@@ -141,7 +142,9 @@ namespace BibleComponents
         }
         public void OpenAddNote()
         {
-            Parameters.ElelementForNoteAdding = this;
+            var model = new AddNoteModel() { ElelementForNoteAdding = this };
+            LessonCenteredContainer.SetInteractionModel(model);
+            model.OnClose += () => StateHasChanged?.Invoke(typeof(LessonCenteredContainer));
             StateHasChanged?.Invoke(typeof(LessonCenteredContainer));
         }
 

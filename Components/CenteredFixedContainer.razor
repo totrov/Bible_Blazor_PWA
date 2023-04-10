@@ -19,6 +19,11 @@
     const string VerticalCenteredStyle = "position: fixed;top: 50%;left: 50%;transform: translate(-50%, -50%);background:none;z-index:2";
     const string BottomStyle = "position: fixed;bottom:0;width:100%;background:none;z-index:2";
 
+    public void SetBottom(bool isBottom)
+    {
+        Bottom = isBottom;
+    }
+
     protected override void OnInitialized()
     {
         if (!_bottom)
