@@ -79,8 +79,6 @@ namespace Bible_Blazer_PWA.Parameters
         }
 
         #region NotPersistedInDbParameters
-        public NoteModel NoteForEdit { get; set; }
-        public NoteModel NoteForRemoval { get; set; }
         public bool? NotesEnabled { get; set; }
         #endregion
 
@@ -124,6 +122,19 @@ namespace Bible_Blazer_PWA.Parameters
             {
                 _dbParams.SetParameterAsync(Parameters.HideTools, value);
                 _areToolsHidden = value;
+            }
+        }
+        #endregion
+
+        #region BibleTextAtTheBottom
+        private string _bibleTextAtTheBottom;
+        [Parameter]
+        public string BibleTextAtTheBottom
+        {
+            get => _bibleTextAtTheBottom; set
+            {
+                _dbParams.SetParameterAsync(Parameters.BibleTextAtTheBottom, value);
+                _bibleTextAtTheBottom = value;
             }
         }
         #endregion

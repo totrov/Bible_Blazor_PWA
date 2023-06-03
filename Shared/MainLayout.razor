@@ -7,6 +7,7 @@
 @inject IJSRuntime JS
 @inject IDialogService DialogService
 @inject ImportExportService importExportService
+@using BibleComponents;
 @using Bible_Blazer_PWA.Components;
 @using Bible_Blazer_PWA.DataBase.DTO;
 @using Bible_Blazer_PWA.Parameters;
@@ -209,7 +210,7 @@
                             <MudButton Variant="Variant.Text" EndIcon="@Icons.Material.Filled.SettingsApplications" @onclick="ExportParamsToFile">Скачать параметры</MudButton>
                         </MudListItem>
                         <MudListItem>
-                            <MudButton Variant="Variant.Text" EndIcon="@Icons.Filled.SpeakerNotes"  @onclick="ExportNotesToFile">Скачать заметки</MudButton>
+                            <MudButton Variant="Variant.Text" EndIcon="@Icons.Filled.SpeakerNotes" @onclick="ExportNotesToFile">Скачать заметки</MudButton>
                         </MudListItem>
                     </NestedList>
                 </MudListItem>
@@ -237,8 +238,8 @@
         var style = $"{paddingTop}background-color:{parametersModel.MainBackground}; min-height:100vh;";
     }
     <MudMainContent Style="@style">
-        <h4 style="overflow:hidden">@menu.Title</h4>
         @Body
+       <LessonCenteredContainer Visible="@true"></LessonCenteredContainer>
     </MudMainContent>
 </MudLayout>
 
@@ -291,6 +292,9 @@
 
     IBrowserFile parametrsFile = null;
 
+    public int MyProperty { get; set; }
+
+    private LessonCenteredContainer lessonCenteredContainer;
     private LessonImportService lessonImportService;
     MenuButton loadingImage;
     string ButtonStyle { get => $"color:{dbParamteres.ParametersModel.ToolsBg};"; }
@@ -305,6 +309,11 @@
         loadingImage = menu.AddMenuButton(new EmptyButtonHandler("/Assets/CloudLoading.gif"));
         parametersModel = dbParamteres.ParametersModel;
         menu.OnUpdate += (s, e) => this.StateHasChanged();
+        //menu.OnResize += (t, b) =>
+        //{
+        //    MainContentHeight = t;
+        //    ContentComponent.Refresh();
+        //};
         parametersModel.OnHideBibleRefTabs += async () =>
         {
             await Task.Delay(500);
@@ -333,7 +342,7 @@
     public async Task ExportNotesToFile()
     {
         await importExportService.ExportToJSON<NoteDTO>("notes", true);
-    }    
+    }
 
     private async Task LoadNotes(InputFileChangeEventArgs e)
     {

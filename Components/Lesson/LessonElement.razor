@@ -3,12 +3,14 @@
 @using Bible_Blazer_PWA.Components;
 @using Bible_Blazer_PWA.DomainObjects
 @using Bible_Blazer_PWA.Parameters
+@using Bible_Blazer_PWA.Services.Menu;
 @using Bible_Blazer_PWA.Services.Parse
 @using Param = Microsoft.AspNetCore.Components.ParameterAttribute
 @inject BibleService Bible
 @inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
 @inject DbParametersFacade dbParamFacade;
 @inject Corrector Corrector;
+@inject MenuService menu;
 
 
 <MudCard class="card" style="@CardStyle" Elevation="0">
@@ -27,7 +29,6 @@
     protected int CurrentPopoverIndex { get; set; } = -1;
     private LessonElementMediator mediator;
 
-
     [Param]
     public LessonElementData ElementData { get; set; }
     [Param]
@@ -36,7 +37,7 @@
     protected override async Task OnInitializedAsync()
     {
         mediator = new();
-        mediator.LessonCenteredContainer = LessonCenteredContainer;
+        mediator.MenuService = menu;
         mediator.StateHasChanged += (type) => { if (type == typeof(LessonCenteredContainer)) LessonCenteredContainer.Refresh(); };
         mediator.Parameters = dbParamFacade.ParametersModel;
         mediator.ElementData = ElementData;

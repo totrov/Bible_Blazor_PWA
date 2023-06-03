@@ -20,7 +20,15 @@ namespace Bible_Blazer_PWA.Parameters.ParameterInitializers
             return false;
         }
     }
+    public class BibleTextAtTheBottomParameterInitializer : BooleanParameterInitializer, IConcreteParameterInitializer
+    {
+        public Parameters Parameter => Parameters.BibleTextAtTheBottom;
 
+        public override bool DefaultValue()
+        {
+            return true;
+        }
+    }
     public class AreReferencesOpenedParameterInitializer : BooleanParameterInitializer, IConcreteParameterInitializer
     {
         public Parameters Parameter => Parameters.AreReferencesOpened;

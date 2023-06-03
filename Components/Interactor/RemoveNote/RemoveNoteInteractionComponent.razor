@@ -1,27 +1,27 @@
-﻿@*<MudPaper Elevation="25" Class="pa-2 rounded-lg">
+﻿@using Bible_Blazer_PWA.DataBase;
+@inject DatabaseJSFacade db;
+
+<MudPaper Elevation="25" Class="pa-2 rounded-lg">
     <MudElement HtmlTag="h2">Точно удалить заметку?</MudElement>
     <MudContainer Class="d-flex">
         <MudButton OnClick="RemoveConfirmed" Size="Size.Small" Color="Color.Error">Удалить заметку</MudButton>
         <MudSpacer></MudSpacer>
         <MudButton OnClick="RemoveCanceled" Size="Size.Small" Color="Color.Primary">Не удалять</MudButton>
     </MudContainer>
-</MudPaper>*@
+</MudPaper>
 
 @code {
-    //private void RemovePrompt()
-    //{
-    //    parameters.NoteForRemoval = parameters.NoteForEdit;
-    //}
+    [Parameter]
+    public RemoveNoteModel InteractionModel { get; set; }
 
-    //private void RemoveCanceled()
-    //{
-    //    parameters.NoteForRemoval = null;
-    //}
+    private void RemoveCanceled()
+    {
+        InteractionModel.Close();
+    }
 
-    //private async Task RemoveConfirmed()
-    //{
-    //    await parameters.NoteForRemoval.Remove(db);
-    //    parameters.NoteForRemoval = null;
-    //    parameters.NoteForEdit = null;
-    //}
+    private async Task RemoveConfirmed()
+    {
+        await InteractionModel.NoteModel.Remove(db);
+        InteractionModel.HandleRemoveCompleted();
+    }
 }

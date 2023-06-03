@@ -30,8 +30,6 @@ namespace Bible_Blazer_PWA.Pages.Lesson
                     break;
                 case 1:
                     parameters.NotesEnabled = false;
-                    parameters.NoteForEdit = null;
-                    parameters.NoteForRemoval = null;
                     break;
                 case 2:
                     parameters.NotesEnabled = null;

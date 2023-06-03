@@ -1,0 +1,14 @@
+﻿<div style="height:@(MainContentHeight)%;overflow-y:scroll;">
+    @ChildContent
+</div>
+
+@code {
+    [Parameter]
+    public int MainContentHeight { get; set; }
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+    public void Refresh()
+    {
+        StateHasChanged();
+    }
+}

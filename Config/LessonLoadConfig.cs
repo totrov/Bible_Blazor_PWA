@@ -39,7 +39,7 @@ namespace Bible_Blazer_PWA.Config
 
         public static string GetReplacementsUrl(bool online)
         {
-            return online
+            return false//online
                 ? "https://covenantofchrist.onrender.com/Assets/online/lessons/replacements.json"
                 : "/Assets/lessons/replacements.json";
         }

@@ -1,11 +1,15 @@
-﻿using System;
+﻿using BibleComponents;
+using System;
 using System.Collections.Generic;
 
 namespace Bible_Blazer_PWA.Services.Menu
 {
     public class MenuService
     {
+        public LessonCenteredContainer LessonCenteredContainer { get; set; }
         public string Title { get; set; }
+        public event Action<int, int> OnResize;
+        public void Resize(int topHeight, int bottomHeight) => OnResize?.Invoke(topHeight, bottomHeight);
         public event EventHandler OnUpdate;
         public void Update(object sender) => OnUpdate?.Invoke(sender, EventArgs.Empty);
         public Dictionary<string, MenuButton> Buttons { get; private set; }

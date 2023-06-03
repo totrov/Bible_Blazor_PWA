@@ -30,6 +30,7 @@
         BibleRefHighlightColor,
         BibleRefVersesNumbersColor,
         BibleRefVersesIntervalsColor,
-        HideBibleRefTabs
+        HideBibleRefTabs,
+        BibleTextAtTheBottom
     }
 }

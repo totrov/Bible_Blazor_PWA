@@ -10,7 +10,7 @@
             <Note NoteDTO="note" Mediator="Mediator"></Note>
         }
     }
-    @if (Mediator.HasBibleReferences)
+    @if (Mediator.Parameters.BibleTextAtTheBottom != "True" && Mediator.HasBibleReferences)
     {
         <LessonElementReferences Mediator="Mediator"></LessonElementReferences>
     }
@@ -25,7 +25,7 @@
         <div style="@subelementStyle">
             @foreach (LessonElementData data in Mediator.ElementData.Children)
             {
-                <LessonElement ElementData="data" LessonCenteredContainer="Mediator.LessonCenteredContainer"></LessonElement>
+                <LessonElement ElementData="data" LessonCenteredContainer="Mediator.MenuService.LessonCenteredContainer"></LessonElement>
             }
         </div>
     }
