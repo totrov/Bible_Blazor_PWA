@@ -1,5 +1,6 @@
 ﻿@namespace BibleComponents
 @using Bible_Blazer_PWA.Components
+@using Bible_Blazer_PWA.Components.Interactor.Menu;
 @using Bible_Blazer_PWA.DataBase;
 @using Bible_Blazer_PWA.Parameters;
 @using Bible_Blazer_PWA.Services.Menu;
@@ -28,24 +29,49 @@
         if (model == null)
         {
             InteractionRender = null;
+            Visible = false;
             return;
         }
 
-        InteractionRender = builder =>
-        {
-            builder.OpenComponent(0, typeof(MudDivider));
-            builder.CloseComponent();
-            builder.OpenComponent(1, model.ComponentType);
-            builder.AddAttribute(2, "InteractionModel", model);
-            builder.CloseComponent();
-        };
+        Visible = true;
 
-        IsBottom = model.IsBottom;
+        if (model.IsBottom)
+        {
+            InteractionRender = builder =>
+            {
+                builder.OpenComponent(0, typeof(MudDivider));
+                builder.CloseComponent();
+                builder.OpenComponent(1, typeof(InteractionPanelMenu));
+                builder.AddAttribute(2, "InteractionModel", model);
+                builder.CloseComponent();
+                builder.OpenComponent(3, typeof(MudDivider));
+                builder.CloseComponent();
+                builder.OpenComponent(4, model.ComponentType);
+                builder.AddAttribute(5, "InteractionModel", model);
+                builder.CloseComponent();
+            };
+            IsBottom = true;
+        }
+        else
+        {
+            InteractionRender = builder =>
+            {
+                builder.OpenComponent(0, typeof(MudDivider));
+                builder.CloseComponent();
+                builder.OpenComponent(1, typeof(MudDivider));
+                builder.CloseComponent();
+                builder.OpenComponent(2, model.ComponentType);
+                builder.AddAttribute(3, "InteractionModel", model);
+                builder.CloseComponent();
+            };
+            IsBottom = false;
+        }
     }
 
     protected override void OnInitialized()
     {
         menu.LessonCenteredContainer = this;
+        Visible = false;
     }
 
     public void Refresh()

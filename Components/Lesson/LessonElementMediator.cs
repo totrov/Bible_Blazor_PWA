@@ -2,6 +2,7 @@
 using Bible_Blazer_PWA.BibleReferenceParse;
 using Bible_Blazer_PWA.Components.Interactor;
 using Bible_Blazer_PWA.Components.Interactor.AddNote;
+using Bible_Blazer_PWA.Components.Interactor.BibleReferencesWriter;
 using Bible_Blazer_PWA.Components.Interactor.EditNote;
 using Bible_Blazer_PWA.Components.Interactor.RemoveNote;
 using Bible_Blazer_PWA.DataBase;
@@ -60,6 +61,7 @@ namespace BibleComponents
         public BibleService Bible { get; set; }
         Dictionary<string, IEnumerable<BibleService.VersesView>> _versesViewsDictionary;
         bool _versesLoaded = false;
+        private BibleReferencesWriterInreractionModel BibleRefsWriterModel = null;
 
         #endregion
 
@@ -111,6 +113,23 @@ namespace BibleComponents
         public event Action<Type> StateHasChanged;
         public void Activate(int number)
         {
+            if (Parameters.BibleTextAtTheBottom == "True")
+            {
+                if (number == -1)
+                {
+                    BibleRefsWriterModel?.MouseLeave();
+                    return;
+                }
+                BibleRefsWriterModel = new BibleReferencesWriterInreractionModel() { Mediator = this, ReferenceNumber = number };
+                MenuService.LessonCenteredContainer.SetInteractionModel(BibleRefsWriterModel);
+                BibleRefsWriterModel.OnClose += () =>
+                {
+                    MenuService.LessonCenteredContainer.SetInteractionModel(null);
+                    StateHasChanged?.Invoke(typeof(LessonCenteredContainer));
+                };
+                StateHasChanged?.Invoke(typeof(LessonCenteredContainer));
+                return;
+            }
             if (Parameters.HideBibleRefTabs == "True")
             {
                 CurrentPopoverIndex = number;

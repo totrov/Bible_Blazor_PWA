@@ -190,6 +190,9 @@
                         <MudListItem>
                             <MudSwitch @bind-Checked="dbParamteres.ParametersModel.HideBlocksBorders" Color="Color.Primary" Converter="@(new RegularStringToBoolConverter())">Скрывать границы блоков</MudSwitch>
                         </MudListItem>
+                        <MudListItem>
+                            <MudSwitch @bind-Checked="dbParamteres.ParametersModel.BibleTextAtTheBottom" Color="Color.Primary" Converter="@(new RegularStringToBoolConverter())">Места Писания в нижней панели</MudSwitch>
+                        </MudListItem>
                     </NestedList>
                 </MudListItem>
                 <MudListItem Text="Режим">
@@ -309,11 +312,6 @@
         loadingImage = menu.AddMenuButton(new EmptyButtonHandler("/Assets/CloudLoading.gif"));
         parametersModel = dbParamteres.ParametersModel;
         menu.OnUpdate += (s, e) => this.StateHasChanged();
-        //menu.OnResize += (t, b) =>
-        //{
-        //    MainContentHeight = t;
-        //    ContentComponent.Refresh();
-        //};
         parametersModel.OnHideBibleRefTabs += async () =>
         {
             await Task.Delay(500);

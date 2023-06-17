@@ -8,6 +8,7 @@ namespace Bible_Blazer_PWA.Components.Interactor
     {
         bool IsBottom { get; }
         public event Action OnClose;
+        public void Close();
         Type ComponentType { get; }
     }
 }

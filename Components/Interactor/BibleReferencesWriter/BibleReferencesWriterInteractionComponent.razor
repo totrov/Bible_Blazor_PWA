@@ -1,0 +1,42 @@
+﻿@inject IJSRuntime JS;
+<MudPaper Outlined="true" Class="px-3 py-3" style="@BibleRefTextStyle" id="bottomOverflowChackable">
+    <MudText Style="@FontSizeStyle">
+        @if (InteractionModel.Mediator.VersesLoaded)
+        {
+            bool isFirst = true;
+            string reference = InteractionModel.Mediator.BibleReferences.ElementAt(InteractionModel.ReferenceNumber).ToString();
+            foreach (BibleService.VersesView view in InteractionModel.Mediator.VersesViewsDictionary[reference])
+            {
+                @if (InteractionModel.Mediator.DbParamFacade.ParametersModel.StartVersesOnANewLine == "True" && !isFirst)
+                {
+                    <br />
+                }
+                <span class="badge badge-primary" style="background-color:@InteractionModel.Mediator.Parameters.BibleRefHighlightColor;color:@InteractionModel.Mediator.Parameters.BibleRefVersesIntervalsColor;">@view.Badge</span>
+                @((MarkupString)view.RawText)
+                isFirst = false;
+            }
+        }
+        else
+        {
+            <span>Загрузка...</span>
+        }
+    </MudText>
+</MudPaper>
+
+@code {
+    [Microsoft.AspNetCore.Components.Parameter]
+    public Bible_Blazer_PWA.Components.Interactor.BibleReferencesWriter.BibleReferencesWriterInreractionModel InteractionModel { get; set; }
+    public string FontSizeStyle
+    {
+        get => $"font-size:{InteractionModel.Mediator.Parameters.FontSize}px;";
+    }
+    public string BibleRefTextStyle
+    {
+        get => $"background-color:{InteractionModel.Mediator.Parameters.BibleRefBgColor};font-size:{InteractionModel.Mediator.Parameters.FontSize}px;color:{InteractionModel.Mediator.Parameters.BibleRefFontColor};height:100%;overflow-y: scroll;overflow-x:hidden;";
+    }
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        InteractionModel.Overflowed = await JS.InvokeAsync<bool>("checkOverflow", "bottomOverflowChackable");
+    }
+}

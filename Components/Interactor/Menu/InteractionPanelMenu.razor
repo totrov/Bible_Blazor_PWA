@@ -1,0 +1,20 @@
+﻿@inject Bible_Blazer_PWA.Parameters.DbParametersFacade DbParameters;
+
+@{
+    var style = $"background-color:{DbParameters.ParametersModel.ToolsBg}; color:white; height:auto!important";
+}
+<MudToolBar Style="@style" Size="Size.Small">
+        <MudIconButton Size="Size.Small" Icon="@Icons.Material.TwoTone.ArrowBack" />
+        <MudIconButton Size="Size.Small" Icon="@Icons.Material.TwoTone.ArrowForward" />
+    <MudSpacer />
+        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" />
+        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Remove" />
+        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Settings" />
+    <MudSpacer />
+        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Filled.Close" OnClick="InteractionModel.Close" />
+</MudToolBar>
+
+@code {
+    [Parameter]
+    public IInteractionModel InteractionModel { get; set; }
+}

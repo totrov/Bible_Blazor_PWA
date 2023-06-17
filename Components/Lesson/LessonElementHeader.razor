@@ -25,9 +25,13 @@
                     {
                         <a href="" @onclick="onclick" @onclick:preventDefault>@token.Text</a>
                     }
-                    else
+                    else if (Mediator.Parameters.BibleTextAtTheBottom != "True")
                     {
                         <a href="" @onmouseenter="onclick" @onmouseout="()=>Mediator.Activate(-1)" @onclick:preventDefault>@token.Text</a>
+                    }
+                    else
+                    {
+                        <a href="" @onclick="onclick" @onclick:preventDefault>@token.Text</a>
                     }
                     referenceIndex++;
                     break;
