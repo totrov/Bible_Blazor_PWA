@@ -11,7 +11,8 @@
                 {
                     <br />
                 }
-                <span class="badge badge-primary" style="background-color:@InteractionModel.Mediator.Parameters.BibleRefHighlightColor;color:@InteractionModel.Mediator.Parameters.BibleRefVersesIntervalsColor;">@view.Badge</span>
+                (string _BibleRef, int verseNumber) = view.FirstVerseRef;
+                <span @onclick="()=>InteractionModel.LinkClicked(_BibleRef, verseNumber)" class="badge badge-primary" style="cursor:pointer; background-color:@InteractionModel.Mediator.Parameters.BibleRefHighlightColor;color:@InteractionModel.Mediator.Parameters.BibleRefVersesIntervalsColor;">@view.Badge</span>
                 @((MarkupString)view.RawText)
                 isFirst = false;
             }
@@ -25,7 +26,7 @@
 
 @code {
     [Microsoft.AspNetCore.Components.Parameter]
-    public Bible_Blazer_PWA.Components.Interactor.BibleReferencesWriter.BibleReferencesWriterInreractionModel InteractionModel { get; set; }
+    public Bible_Blazer_PWA.Components.Interactor.BibleReferencesWriter.BibleReferencesWriterInteractionModel InteractionModel { get; set; }
     public string FontSizeStyle
     {
         get => $"font-size:{InteractionModel.Mediator.Parameters.FontSize}px;";

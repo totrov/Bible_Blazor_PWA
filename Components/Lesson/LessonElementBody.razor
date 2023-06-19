@@ -1,6 +1,7 @@
 ﻿@namespace BibleComponents
 @using Bible_Blazer_PWA.Components
 @using Bible_Blazer_PWA.DataBase.DTO;
+@using Bible_Blazer_PWA.Components.Interactor
 
 <MudCardContent Style="@CardContentStyle">
     @if (Mediator.ElementData.Notes != null && Mediator.Parameters.NotesEnabled.HasValue)
@@ -25,7 +26,7 @@
         <div style="@subelementStyle">
             @foreach (LessonElementData data in Mediator.ElementData.Children)
             {
-                <LessonElement ElementData="data" LessonCenteredContainer="Mediator.MenuService.LessonCenteredContainer"></LessonElement>
+                <LessonElement ElementData="data" LessonCenteredContainer="Interaction.GetLessonCenteredContainer()"></LessonElement>
             }
         </div>
     }

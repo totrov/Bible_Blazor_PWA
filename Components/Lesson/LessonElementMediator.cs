@@ -11,13 +11,12 @@ using Bible_Blazer_PWA.DomainObjects;
 using Bible_Blazer_PWA.Parameters;
 using Bible_Blazer_PWA.Services.Menu;
 using Bible_Blazer_PWA.ViewModels;
-using BibleComponents;
-using DocumentFormat.OpenXml.EMMA;
 using MudBlazor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BibleRefModel = Bible_Blazer_PWA.Components.Interactor.BibleReferencesWriter.BibleReferencesWriterInteractionModel;
 using Parameters = Bible_Blazer_PWA.Parameters.Parameters;
 
 namespace BibleComponents
@@ -61,7 +60,7 @@ namespace BibleComponents
         public BibleService Bible { get; set; }
         Dictionary<string, IEnumerable<BibleService.VersesView>> _versesViewsDictionary;
         bool _versesLoaded = false;
-        private BibleReferencesWriterInreractionModel BibleRefsWriterModel = null;
+        private BibleReferencesWriterInteractionModel BibleRefsWriterModel = null;
 
         #endregion
 
@@ -91,15 +90,19 @@ namespace BibleComponents
         #endregion
 
         #region PublicMethods
+        public void RefreshBody()
+        {
+            StateHasChanged?.Invoke(typeof(LessonElementBody));
+        }
         public void Toggle()
         {
             IsOpen = !IsOpen;
-            StateHasChanged?.Invoke(typeof(LessonElementBody));
+            RefreshBody();
         }
         public void ToggleReferences()
         {
             RefsAreOpen = !RefsAreOpen;
-            StateHasChanged?.Invoke(typeof(LessonElementBody));
+            RefreshBody();
         }
         public async Task LoadVerses()
         {
@@ -120,14 +123,11 @@ namespace BibleComponents
                     BibleRefsWriterModel?.MouseLeave();
                     return;
                 }
-                BibleRefsWriterModel = new BibleReferencesWriterInreractionModel() { Mediator = this, ReferenceNumber = number };
-                MenuService.LessonCenteredContainer.SetInteractionModel(BibleRefsWriterModel);
-                BibleRefsWriterModel.OnClose += () =>
-                {
-                    MenuService.LessonCenteredContainer.SetInteractionModel(null);
-                    StateHasChanged?.Invoke(typeof(LessonCenteredContainer));
-                };
-                StateHasChanged?.Invoke(typeof(LessonCenteredContainer));
+
+                Interaction.ModelOfType<BibleRefModel>.WithParameters<BibleRefModel.Parameters>
+                    .Apply(new (this, number));
+
+                BibleRefsWriterModel.OnLinkClicked += (string _Book, int verse) => { };
                 return;
             }
             if (Parameters.HideBibleRefTabs == "True")
@@ -165,31 +165,12 @@ namespace BibleComponents
         }
         public void OpenAddNote()
         {
-            var model = new AddNoteModel() { ElelementForNoteAdding = this };
-            MenuService.LessonCenteredContainer.SetInteractionModel(model);
-            model.OnClose += () =>
-            {
-                MenuService.LessonCenteredContainer.SetInteractionModel(null);
-                StateHasChanged?.Invoke(typeof(LessonCenteredContainer));
-            };
-            StateHasChanged?.Invoke(typeof(LessonCenteredContainer));
+            Interaction.ModelOfType<AddNoteModel>.WithParameters<AddNoteModel.Parameters>.Apply(new(this));
         }
 
         public void SetEditNote(NoteModel model)
         {
-            var interactionModel = new EditNoteModel();
-            interactionModel.NoteModel = model;
-            MenuService.LessonCenteredContainer.SetInteractionModel(interactionModel);
-            interactionModel.OnClose += () => {
-                MenuService.LessonCenteredContainer.SetInteractionModel(null);
-                StateHasChanged?.Invoke(typeof(LessonCenteredContainer));
-            };
-            interactionModel.OnRemoveNote += () =>
-            {
-                MenuService.LessonCenteredContainer.SetInteractionModel(CreateNoteRemovalModelFromNoteEditModel(interactionModel, MenuService.LessonCenteredContainer));
-                StateHasChanged?.Invoke(typeof(LessonCenteredContainer));
-            };
-            StateHasChanged?.Invoke(typeof(LessonCenteredContainer));
+            var interactionModel = Interaction.ModelOfType<EditNoteModel>.WithParameters<EditNoteModel.Parameters>.Apply(new(this, model));
         }
 
         #endregion
@@ -213,22 +194,6 @@ namespace BibleComponents
             get => Parameters.GetParameterForLevel(ElementData.Level, LevelSpecificParametersGroup.BodyBackgroundColor);
         }
         #endregion
-
-        private RemoveNoteModel CreateNoteRemovalModelFromNoteEditModel(EditNoteModel editNoteModel, LessonCenteredContainer lessonCenteredContainer)
-        {
-            var removeNoteModel = new RemoveNoteModel() {NoteModel = editNoteModel.NoteModel };
-            
-            removeNoteModel.OnClose += () => lessonCenteredContainer.SetInteractionModel(editNoteModel);
-            removeNoteModel.OnClose += () => StateHasChanged?.Invoke(typeof(LessonCenteredContainer));
-
-            removeNoteModel.OnRemoveCompleted += () => lessonCenteredContainer.SetInteractionModel(null);
-            removeNoteModel.OnRemoveCompleted += () =>
-            {
-                StateHasChanged?.Invoke(typeof(LessonCenteredContainer));
-                StateHasChanged?.Invoke(typeof(LessonElementBody));
-            };
-            return removeNoteModel;
-        }
 
         internal LessonElementMediator()
         {

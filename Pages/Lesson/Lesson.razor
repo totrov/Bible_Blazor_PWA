@@ -15,6 +15,7 @@
 @using Bible_Blazer_PWA.Pages.Lesson
 @using System.Text.RegularExpressions
 @using static Bible_Blazer_PWA.DataSources.LessonDS
+@using Bible_Blazer_PWA.Components.Interactor
 
 <h4 style="overflow:hidden">@menu.Title</h4>
 
@@ -23,7 +24,7 @@
     <MudContainer>
             @foreach (LessonElementData data in CompositeChildren)
         {
-            <LessonElement ElementData="data" LessonCenteredContainer="menu.LessonCenteredContainer"></LessonElement>
+            <LessonElement ElementData="data" LessonCenteredContainer="Interaction.GetLessonCenteredContainer()"></LessonElement>
         }
         <MudContainer Class="d-flex">
             @if (PrevLesson != null)

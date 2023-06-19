@@ -21,6 +21,7 @@ namespace Bible_Blazer_PWA
         {
             public string Badge { get; set; }
             public string RawText { get; set; }
+            public (string BookShortName, int Verse) FirstVerseRef { get; set; }
         }
 
         public class Book
@@ -46,6 +47,7 @@ namespace Bible_Blazer_PWA
                     string toVerse = fromTo.ToVerse == null ? "" : $"-{fromTo.ToVerse}";
                     versesView.Badge = $"{badge}{fromTo.FromVerse}{toVerse}";
                     versesView.RawText = _versesHandler.GetHtmlFromVerses(await verseTask, fromTo.ToVerse == null, _parametersModel.StartVersesOnANewLine == "True");
+                    versesView.FirstVerseRef = (reference.BookShortName, fromTo.FromVerse);
                     result.AddLast(versesView);
                 }
             }

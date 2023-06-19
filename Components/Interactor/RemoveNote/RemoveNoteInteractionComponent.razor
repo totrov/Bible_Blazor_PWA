@@ -16,12 +16,12 @@
 
     private void RemoveCanceled()
     {
-        InteractionModel.Close();
+        InteractionModel.Cancel();
     }
 
     private async Task RemoveConfirmed()
     {
         await InteractionModel.NoteModel.Remove(db);
-        InteractionModel.HandleRemoveCompleted();
+        InteractionModel.HandleSuccess();
     }
 }

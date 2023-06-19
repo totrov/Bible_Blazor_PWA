@@ -1,18 +1,32 @@
-﻿using Bible_Blazer_PWA.Components.Interactor.AddNote;
-using Bible_Blazer_PWA.ViewModels;
+﻿using Bible_Blazer_PWA.ViewModels;
 using BibleComponents;
 using System;
 
 namespace Bible_Blazer_PWA.Components.Interactor.RemoveNote
 {
-    public class RemoveNoteModel : IInteractionModel
+    public class RemoveNoteModel : Command
     {
         public NoteModel NoteModel { get; set; }
-        public event Action OnClose;
-        public void Close() => OnClose?.Invoke();
-        public event Action OnRemoveCompleted;
-        public void HandleRemoveCompleted() => OnRemoveCompleted?.Invoke();
-        public bool IsBottom => false;
-        public Type ComponentType => typeof(RemoveNoteInteractionComponent);
+        public LessonElementMediator Mediator { get; set; }
+        public override event Action OnClose;
+        public override void Close() => OnClose?.Invoke();
+        public override bool IsBottom => false;
+        public override Type ComponentType => typeof(RemoveNoteInteractionComponent);
+
+        public class Parameters:IInteractionModelParameters<RemoveNoteModel>
+        {
+            public NoteModel NoteModel { get; }
+            public LessonElementMediator Mediator { get; set; }
+            public Parameters(NoteModel noteModel, LessonElementMediator mediator)
+            {
+                NoteModel = noteModel;
+            }
+
+            public void ApplyParametersToModel(RemoveNoteModel model)
+            {
+                model.Mediator = Mediator;
+                model.NoteModel = NoteModel;
+            }
+        }
     }
 }
