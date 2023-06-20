@@ -21,19 +21,14 @@ namespace Bible_Blazer_PWA.Components.Interactor
             Container = container;
             Instance = this;
             transitions = new();
-            IEnumerable<Type> types = AppDomain.CurrentDomain.GetAssemblies()
+            IEnumerable<Type> transitionTypes = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(assembly => assembly.GetTypes()).Where(
                     x => x.IsClass
-                    && x.BaseType?.IsGenericType == true);
-            var dbg = types.Count();
-            if (dbg < 0)
+                    && x.BaseType?.IsGenericType == true
+                    && x.BaseType.GetGenericTypeDefinition() == typeof(Transition<>));
+            foreach (var transitionType in transitionTypes)
             {
-                throw new Exception();
-            }
-            foreach (var transitionType in 
-                types.Where(x=>x.BaseType.GetGenericTypeDefinition() == typeof(Transition<>)))
-            {
-                Type modelType = transitionType.GetGenericArguments().First();
+                Type modelType = transitionType.BaseType.GetGenericArguments().First();
                 if (!transitions.ContainsKey(modelType))
                 {
                     transitions.Add(modelType, new List<Type>(1));

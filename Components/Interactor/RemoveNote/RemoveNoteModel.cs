@@ -20,6 +20,7 @@ namespace Bible_Blazer_PWA.Components.Interactor.RemoveNote
             public Parameters(NoteModel noteModel, LessonElementMediator mediator)
             {
                 NoteModel = noteModel;
+                Mediator = mediator;
             }
 
             public void ApplyParametersToModel(RemoveNoteModel model)

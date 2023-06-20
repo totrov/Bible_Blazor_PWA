@@ -124,7 +124,7 @@ namespace BibleComponents
                     return;
                 }
 
-                Interaction.ModelOfType<BibleRefModel>.WithParameters<BibleRefModel.Parameters>
+                BibleRefsWriterModel = Interaction.ModelOfType<BibleRefModel>.WithParameters<BibleRefModel.Parameters>
                     .Apply(new (this, number));
 
                 BibleRefsWriterModel.OnLinkClicked += (string _Book, int verse) => { };
