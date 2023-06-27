@@ -12,14 +12,26 @@
 @if (Visible)
 {
     <MudDivider />
-    <CenteredFixedContainer ref="child" Elevation="0" Bottom="IsBottom">
+    <CenteredFixedContainer @ref="child" Elevation="0" Bottom="IsBottom">
         @InteractionRender
     </CenteredFixedContainer>
 }
 
 @code {
+    #region Parameters
+
     [Microsoft.AspNetCore.Components.Parameter]
     public bool Visible { get; set; }
+    public int Size
+    {
+        get => child.Size;
+        set
+        {
+            child.Size = value;
+        }
+    }
+    #endregion
+
     public bool IsBottom { get; set; }
     private RenderFragment? InteractionRender { get; set; }
     private CenteredFixedContainer child;

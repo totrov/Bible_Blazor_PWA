@@ -127,7 +127,6 @@ namespace BibleComponents
                 BibleRefsWriterModel = Interaction.ModelOfType<BibleRefModel>.WithParameters<BibleRefModel.Parameters>
                     .Apply(new (this, number));
 
-                BibleRefsWriterModel.OnLinkClicked += (string _Book, int verse) => { };
                 return;
             }
             if (Parameters.HideBibleRefTabs == "True")

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Bible_Blazer_PWA.DataBase;
 using Bible_Blazer_PWA.DomainObjects;
 using Bible_Blazer_PWA.Parameters;
 using Bible_Blazer_PWA.Services.TextHandlers;
@@ -21,7 +22,7 @@ namespace Bible_Blazer_PWA
         {
             public string Badge { get; set; }
             public string RawText { get; set; }
-            public (string BookShortName, int Verse) FirstVerseRef { get; set; }
+            public (string BookShortName, int Chapter, int Verse) FirstVerseRef { get; set; }
         }
 
         public class Book
@@ -32,6 +33,7 @@ namespace Bible_Blazer_PWA
             public string ShortName { get; set; }
         }
 
+        #region Public methods
         public async Task<IEnumerable<VersesView>> GetVersesFromReference(BibleReference reference)
         {
             Task<int> bookIdTask = _dataProvider.GetBookIdByShortNameAsync(reference.BookShortName);
@@ -47,13 +49,18 @@ namespace Bible_Blazer_PWA
                     string toVerse = fromTo.ToVerse == null ? "" : $"-{fromTo.ToVerse}";
                     versesView.Badge = $"{badge}{fromTo.FromVerse}{toVerse}";
                     versesView.RawText = _versesHandler.GetHtmlFromVerses(await verseTask, fromTo.ToVerse == null, _parametersModel.StartVersesOnANewLine == "True");
-                    versesView.FirstVerseRef = (reference.BookShortName, fromTo.FromVerse);
+                    versesView.FirstVerseRef = (reference.BookShortName, versesReference.Chapter, fromTo.FromVerse);
                     result.AddLast(versesView);
                 }
             }
 
             return result;
         }
+        public async Task<int> GetBookIdByShortNameAsync(string bookShortName)
+        {
+            return await _dataProvider.GetBookIdByShortNameAsync(bookShortName);
+        }
+        #endregion
 
         private bool _isLoaded = false;
         private VersesTextHandler _versesHandler;

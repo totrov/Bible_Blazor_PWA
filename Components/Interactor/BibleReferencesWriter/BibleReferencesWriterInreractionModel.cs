@@ -10,8 +10,9 @@ namespace Bible_Blazer_PWA.Components.Interactor.BibleReferencesWriter
         public override event Action OnClose;
         public override void Close() => OnClose?.Invoke();
 
-        public event Action<string, int> OnLinkClicked;
-        public void LinkClicked(string BookShortName, int Verse) => OnLinkClicked?.Invoke(BookShortName, Verse);
+        public event Action<string, int, int > OnLinkClicked;
+        public void LinkClicked(string BookShortName, int ChapterNumber, int Verse)
+            => OnLinkClicked?.Invoke(BookShortName, ChapterNumber, Verse);
         public void MouseLeave() { if (!Overflowed) OnClose?.Invoke(); }
         public LessonElementMediator Mediator { get; set; }
         public int ReferenceNumber { get; set; }

@@ -10,12 +10,33 @@ using System.Reflection;
 
 namespace Bible_Blazer_PWA.Components.Interactor
 {
-    public class Interaction: IInteractionCoordinator
+    public class Interaction : IInteractionCoordinator
     {
-        private LessonCenteredContainer Container;
-        private static Interaction Instance;
-        private IInteractionModel currentModel;
-        private Dictionary<Type, List<Type>> transitions;
+        #region Events
+        public static event Action OnModelChanged;
+        private void ModelChanged() => OnModelChanged?.Invoke();
+        #endregion
+
+        #region Public State
+        public static bool HasPrevious { get => Instance.CurrentModel.Previous is not null; }
+        public static bool HasNext { get => Instance.CurrentModel.Next is not null; }
+        public static LessonCenteredContainer GetLessonCenteredContainer() => Instance.Container;
+        #endregion
+
+        #region Public Methods
+        public static void Enlarge()
+        {
+            Instance.Container.Size = Instance.Container.Size + 1;
+        }
+
+        public static void Shrink()
+        {
+            Instance.Container.Size = Instance.Container.Size - 1;
+        }
+
+        #endregion
+
+        #region Ctor
         public Interaction(LessonCenteredContainer container)
         {
             Container = container;
@@ -36,46 +57,40 @@ namespace Bible_Blazer_PWA.Components.Interactor
                 transitions[modelType].Add(transitionType);
             }
         }
-        public static LessonCenteredContainer GetLessonCenteredContainer() => Instance.Container;
-        protected TInteractionModel SetInteractionModel<TInteractionModel, TParameters>(TParameters parameters)
-            where TInteractionModel : IInteractionModel, new()
-            where TParameters: IInteractionModelParameters<TInteractionModel>
-        {
-            var model = new TInteractionModel();
-            parameters.ApplyParametersToModel(model);
-            ApplyTransitions(model);
-            model.Previous = currentModel;
-            Container.SetInteractionModel(model);
-            model.OnClose += () =>
-            {
-                Container.SetInteractionModel(null);
-                Container.Refresh();
-            };
-            Container.Refresh();
-            currentModel = model;
-            return model;
-        }
+        #endregion
 
-        private void ApplyTransitions<TInteractionModel>(TInteractionModel model) where TInteractionModel : IInteractionModel, new()
+        #region Private State
+
+        private LessonCenteredContainer Container;
+        private static Interaction Instance;
+        private IInteractionModel CurrentModel
         {
-            if (transitions.ContainsKey(model.GetType()))
+            get => currentModel;
+            set
             {
-                foreach(Type transitionType in transitions[model.GetType()])
+                bool changed = !Object.ReferenceEquals(currentModel, value);                
+                currentModel = value;
+                if (changed)
                 {
-                    var transition = (Transition<TInteractionModel>)Activator.CreateInstance(transitionType);
-                    transition.ApplyTransition(model);
+                    ModelChanged();
                 }
             }
         }
+        private Dictionary<Type, List<Type>> transitions;
+        private IInteractionModel currentModel;
+
+        #endregion
+
+        #region Navigation
 
         private void GoToPreviousImpl()
         {
-            if (currentModel is not Command)
+            if (CurrentModel is not Command)
             {
-                currentModel.Previous.Next = currentModel;
+                CurrentModel.Previous.Next = CurrentModel;
             }
-            currentModel = currentModel.Previous;
-            Container.SetInteractionModel(currentModel);
+            CurrentModel = CurrentModel.Previous;
+            Container.SetInteractionModel(CurrentModel);
             Container.Refresh();
         }
 
@@ -83,6 +98,36 @@ namespace Bible_Blazer_PWA.Components.Interactor
         {
             Instance.GoToPreviousImpl();
         }
+        private void GoToNextImpl()
+        {
+            if (CurrentModel is not Command)
+            {
+                CurrentModel.Next.Previous = CurrentModel;
+            }
+            CurrentModel = CurrentModel.Next;
+            Container.SetInteractionModel(CurrentModel);
+            Container.Refresh();
+        }
+
+        public static void GoToNext()
+        {
+            Instance.GoToNextImpl();
+        }
+
+        #endregion
+
+        #region Nested Classes
+        public static class ModelOfType<TInteractionModel> where TInteractionModel : IInteractionModel, new()
+        {
+            public static class WithParameters<TParameters> where TParameters : IInteractionModelParameters<TInteractionModel>
+            {
+                public static TInteractionModel Apply(TParameters parameters)
+                {
+                    return Instance.SetInteractionModel<TInteractionModel, TParameters>(parameters);
+                }
+            }
+        }
+        #endregion
 
         internal static void RemoveCurrent()
         {
@@ -90,22 +135,40 @@ namespace Bible_Blazer_PWA.Components.Interactor
         }
         internal void RemoveCurrentImpl()
         {
-            if (currentModel.Previous?.Next != null)
-                currentModel.Previous.Next = currentModel.Previous.Next.Next;
-            if (currentModel.Previous?.Next != null)
-                currentModel.Previous.Next.Previous = currentModel.Previous.Next;
-            currentModel = currentModel.Previous;
-            Container.SetInteractionModel(currentModel);
+            if (CurrentModel.Previous?.Next != null)
+                CurrentModel.Previous.Next = CurrentModel.Previous.Next.Next;
+            if (CurrentModel.Previous?.Next != null)
+                CurrentModel.Previous.Next.Previous = CurrentModel.Previous.Next;
+            CurrentModel = CurrentModel.Previous;
+            Container.SetInteractionModel(CurrentModel);
             Container.Refresh();
         }
-
-        public static class ModelOfType<TInteractionModel> where TInteractionModel: IInteractionModel, new()
+        protected TInteractionModel SetInteractionModel<TInteractionModel, TParameters>(TParameters parameters)
+            where TInteractionModel : IInteractionModel, new()
+            where TParameters : IInteractionModelParameters<TInteractionModel>
         {
-            public static class WithParameters<TParameters> where TParameters: IInteractionModelParameters<TInteractionModel>
+            var model = new TInteractionModel();
+            parameters.ApplyParametersToModel(model);
+            ApplyTransitions(model);
+            model.Previous = CurrentModel;
+            Container.SetInteractionModel(model);
+            model.OnClose += () =>
             {
-                public static TInteractionModel Apply(TParameters parameters)
+                Container.SetInteractionModel(null);
+                Container.Refresh();
+            };
+            Container.Refresh();
+            CurrentModel = model;
+            return model;
+        }
+        private void ApplyTransitions<TInteractionModel>(TInteractionModel model) where TInteractionModel : IInteractionModel, new()
+        {
+            if (transitions.ContainsKey(model.GetType()))
+            {
+                foreach (Type transitionType in transitions[model.GetType()])
                 {
-                    return Instance.SetInteractionModel<TInteractionModel, TParameters>(parameters);
+                    var transition = (Transition<TInteractionModel>)Activator.CreateInstance(transitionType);
+                    transition.ApplyTransition(model);
                 }
             }
         }

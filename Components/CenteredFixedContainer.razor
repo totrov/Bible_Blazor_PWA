@@ -5,25 +5,69 @@
 }
 
 @code {
-    private bool _bottom;
+
+    #region Constants
+
+    private const int MinSize = 2;
+    private const int MaxSize = 8;
+
+    #endregion
+
+    #region Parameters
+    public int Size
+    {
+        get => _size;
+        set
+        {
+            if (value >= MinSize && value <= MaxSize)
+            {
+                _size = value;
+                SetStyle(_bottom);
+            }
+        }
+    }
+    private int _size = 5;
+
+
     [Parameter]
     public bool Bottom
     {
         get => _bottom;
         set
         {
-            base.Style = value ? BottomStyle : VerticalCenteredStyle;
+            SetStyle(value);
             _bottom = value;
         }
     }
+    private bool _bottom;
+
+    #endregion
+
+    #region Style
 
     const string VerticalCenteredStyle = "position: fixed;top: 50%;left: 50%;transform: translate(-50%, -50%);background:none;z-index:2";
-    const string BottomStyle = "position: fixed;height:50%;bottom:0;width:100%;background:none;z-index:2";
+    private string CalcBottomStyle(int size) => $"position: fixed;height:{size}0%;transition:height 0.3s;bottom:0;width:100%;background:none;z-index:2";
+    private void SetStyle(bool isBottom)
+    {
+        base.Style = isBottom ? CalcBottomStyle(Size) : VerticalCenteredStyle;
+        Refresh();
+    }
+
+    #endregion
+
+    #region Public Methods
 
     public void SetBottom(bool isBottom)
     {
         Bottom = isBottom;
     }
+
+    public void Refresh()
+    {
+        StateHasChanged();
+    }
+
+    #endregion
 
     protected override void OnInitialized()
     {
@@ -37,8 +81,5 @@
         }
 
     }
-    public void Refresh()
-    {
-        StateHasChanged();
-    }
+
 }

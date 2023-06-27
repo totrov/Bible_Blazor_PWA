@@ -1,0 +1,77 @@
+﻿@using Bible_Blazer_PWA.DataBase;
+@using Bible_Blazer_PWA.Parameters;
+@using Bible_Blazer_PWA.Services.TextHandlers;
+@inject DataBase.DatabaseJSFacade db;
+@inject BibleService Bible;
+@inject DbParametersFacade DbParamFacade;
+
+
+<MudPaper Outlined="true" Class="px-3 py-3" style="@BibleRefTextStyle">
+    <MudElement HtmlTag="h3">@($"{InteractionModel.BookShortName}.{InteractionModel.ChapterNumber}")</MudElement>
+    <MudText Style="@FontSizeStyle">
+        @if (RawHtml != null)
+        {
+            @*bool isFirst = true;*@
+       @*     foreach (BibleService.Verse verse in Verses)
+            {
+                @if (parameters.StartVersesOnANewLine == "True" && !isFirst)
+                {
+                    <br />
+                }
+                <span @onclick="()=>{}" class="badge badge-primary" style="cursor:pointer; background-color:@parameters.BibleRefHighlightColor;color:@parameters.BibleRefVersesIntervalsColor;">@verse.Value</span>*@
+
+            @((MarkupString)RawHtml)
+             
+                @*   isFirst = false;
+            }*@
+        }
+        else
+        {
+            <span>Загрузка...</span>
+        }
+    </MudText>
+</MudPaper>
+
+@code {
+
+    #region Component Parameters
+
+    [Microsoft.AspNetCore.Components.Parameter]
+    public Bible_Blazer_PWA.Components.Interactor.BibleViewer.BibleViewerInteractionModel InteractionModel { get; set; }
+
+    #endregion
+    #region Styles
+
+    public string FontSizeStyle
+    {
+        get => $"font-size:{parameters.FontSize}px;";
+    }
+    public string BibleRefTextStyle
+    {
+        get => $"background-color:{parameters.BibleRefBgColor};font-size:{parameters.FontSize}px;color:{parameters.BibleRefFontColor};height:100%;overflow-y: scroll;overflow-x:hidden; padding-bottom: 45px!important;";
+    }
+
+    #endregion
+    #region Props
+
+    string RawHtml { get; set; } = null;
+
+    #endregion
+    #region Processors
+    private VersesTextHandler versesHandler;
+    #endregion
+
+    #region Shortkeys
+    ParametersModel parameters => DbParamFacade.ParametersModel;
+    #endregion
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        versesHandler = new VersesTextHandler(parameters.BibleRefVersesNumbersColor);
+        var bookId = await Bible.GetBookIdByShortNameAsync(InteractionModel.BookShortName);
+        IEnumerable<BibleService.Verse> verses = await (await db.GetRangeFromObjectStoreByKey<BibleService.Verse>(
+                    "verses", bookId, InteractionModel.ChapterNumber, 0, 999)).GetTaskCompletionSourceWrapper();
+
+        RawHtml = versesHandler.GetHtmlFromVerses(verses, false, true);
+    }
+}
