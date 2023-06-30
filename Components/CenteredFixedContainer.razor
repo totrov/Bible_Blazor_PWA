@@ -22,7 +22,7 @@
             if (value >= MinSize && value <= MaxSize)
             {
                 _size = value;
-                SetStyle(_bottom);
+                SetStyle(_bottom, _side);
             }
         }
     }
@@ -35,21 +35,55 @@
         get => _bottom;
         set
         {
-            SetStyle(value);
+            SetStyle(value, _side);
             _bottom = value;
         }
     }
     private bool _bottom;
+
+    [Parameter]
+    public bool Side
+    {
+        get => _side;
+        set
+        {
+            SetStyle(_bottom, value);
+            _side = value;
+        }
+    }
+    private bool _side;
+
+    [Parameter]
+    public bool Collapsed
+    {
+        get => _collapsed;
+        set
+        {
+            SetStyle(_bottom, _side, value);
+            _collapsed = value;
+        }
+    }
+    private bool _collapsed;
 
     #endregion
 
     #region Style
 
     const string VerticalCenteredStyle = "position: fixed;top: 50%;left: 50%;transform: translate(-50%, -50%);background:none;z-index:2";
-    private string CalcBottomStyle(int size) => $"position: fixed;height:{size}0%;transition:height 0.3s;bottom:0;width:100%;background:none;z-index:2";
-    private void SetStyle(bool isBottom)
+    private string CalcSideStyle(int size, bool isBottom, bool isCollapsed)
     {
-        base.Style = isBottom ? CalcBottomStyle(Size) : VerticalCenteredStyle;
+        //TODO
+        //int size = 
+        if (isBottom)
+        {
+            return $"position: fixed;height:{size}0%;transition:height 0.3s;bottom:0;width:100%;background:none;z-index:2";
+        }
+        return $"position: fixed;height:{size}0%;transition:height 0.3s;top:0;width:100%;background:none;z-index:2";
+    }
+
+    private void SetStyle(bool isBottom, bool isSide, bool isCollapsed)
+    {
+        base.Style = isSide ? CalcSideStyle(Size, isBottom, isCollapsed) : VerticalCenteredStyle;
         Refresh();
     }
 

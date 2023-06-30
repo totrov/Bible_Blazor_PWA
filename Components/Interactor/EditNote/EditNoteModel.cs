@@ -13,7 +13,7 @@ namespace Bible_Blazer_PWA.Components.Interactor.EditNote
         public override void Close() => OnClose?.Invoke();
         public event Action<NoteModel> OnRemoveNote;
         public void RemoveNote(NoteModel noteModel) => OnRemoveNote?.Invoke(noteModel);
-        public override bool IsBottom => true;
+        public override bool IsSide => true;
         public override Type ComponentType => typeof(EditNoteInteractionComponent);
 
         public class Parameters:IInteractionModelParameters<EditNoteModel>

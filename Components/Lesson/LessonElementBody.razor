@@ -26,7 +26,7 @@
         <div style="@subelementStyle">
             @foreach (LessonElementData data in Mediator.ElementData.Children)
             {
-                <LessonElement ElementData="data" LessonCenteredContainer="Interaction.GetLessonCenteredContainer()"></LessonElement>
+                <LessonElement ElementData="data" InteractionPanel="Interaction.GetInteractionPanel()"></LessonElement>
             }
         </div>
     }

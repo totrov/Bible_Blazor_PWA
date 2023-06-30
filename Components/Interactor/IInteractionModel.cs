@@ -6,7 +6,7 @@ namespace Bible_Blazer_PWA.Components.Interactor
 {
     public interface IInteractionModel
     {
-        bool IsBottom { get; }
+        bool IsSide { get; }
         public event Action OnClose;
         public void Close();
         Type ComponentType { get; }
@@ -20,7 +20,7 @@ namespace Bible_Blazer_PWA.Components.Interactor
 
     public abstract class InteractionModelBase : IInteractionModel
     {
-        public abstract bool IsBottom { get; }
+        public abstract bool IsSide { get; }
         public abstract Type ComponentType { get; }
         public IInteractionModel Next { get; set; }
         public IInteractionModel Previous { get; set; }

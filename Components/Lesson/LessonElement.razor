@@ -32,13 +32,13 @@
     [Param]
     public LessonElementData ElementData { get; set; }
     [Param]
-    public LessonCenteredContainer LessonCenteredContainer { get; set; }
+    public InteractionPanel InteractionPanel { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         mediator = new();
         mediator.MenuService = menu;
-        mediator.StateHasChanged += (type) => { if (type == typeof(LessonCenteredContainer)) LessonCenteredContainer.Refresh(); };
+        mediator.StateHasChanged += (type) => { if (type == typeof(InteractionPanel)) InteractionPanel.Refresh(); };
         mediator.Parameters = dbParamFacade.ParametersModel;
         mediator.ElementData = ElementData;
         mediator.Parser = new Parser(Corrector);

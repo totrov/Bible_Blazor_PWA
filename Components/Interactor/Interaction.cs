@@ -1,12 +1,8 @@
-﻿using Bible_Blazer_PWA.Components.Interactor.BibleReferencesWriter;
-using Bible_Blazer_PWA.Components.Interactor.Transitions;
+﻿using Bible_Blazer_PWA.Components.Interactor.Transitions;
 using BibleComponents;
-using DocumentFormat.OpenXml.EMMA;
-using DocumentFormat.OpenXml.Wordprocessing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
 namespace Bible_Blazer_PWA.Components.Interactor
 {
@@ -20,7 +16,7 @@ namespace Bible_Blazer_PWA.Components.Interactor
         #region Public State
         public static bool HasPrevious { get => Instance.CurrentModel.Previous is not null; }
         public static bool HasNext { get => Instance.CurrentModel.Next is not null; }
-        public static LessonCenteredContainer GetLessonCenteredContainer() => Instance.Container;
+        public static InteractionPanel GetInteractionPanel() => Instance.Container;
         #endregion
 
         #region Public Methods
@@ -37,7 +33,7 @@ namespace Bible_Blazer_PWA.Components.Interactor
         #endregion
 
         #region Ctor
-        public Interaction(LessonCenteredContainer container)
+        public Interaction(InteractionPanel container)
         {
             Container = container;
             Instance = this;
@@ -61,7 +57,7 @@ namespace Bible_Blazer_PWA.Components.Interactor
 
         #region Private State
 
-        private LessonCenteredContainer Container;
+        private InteractionPanel Container;
         private static Interaction Instance;
         private IInteractionModel CurrentModel
         {

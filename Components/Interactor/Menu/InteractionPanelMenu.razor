@@ -1,17 +1,25 @@
 ﻿@inject Bible_Blazer_PWA.Parameters.DbParametersFacade DbParameters;
 
 @{
-    var style = $"background-color:{DbParameters.ParametersModel.ToolsBg}; color:white; height:35px!important";
+    var style = $"background-color:{DbParameters.ParametersModel.ToolsBg}; color:white; height:7%!important";
 }
-<MudToolBar Style="@style" Size="Size.Small">
-    <MudIconButton DisableRipple="true" Icon="@Icons.Material.TwoTone.ArrowBack" Disabled="!HasPrevious" OnClick="Interaction.GoToPrevious" />
-    <MudIconButton DisableRipple="true" Icon="@Icons.Material.TwoTone.ArrowForward" Disabled="!HasNext" OnClick="Interaction.GoToNext" />
-    <MudSpacer />
-    <MudIconButton DisableRipple="true" Icon="UnfoldLessDouble" OnClick="Interaction.Shrink" />
-    <MudIconButton DisableRipple="true" Icon="UnfoldMoreDouble" OnClick="Interaction.Enlarge" />
-    <MudIconButton DisableRipple="true" Icon="@Icons.Material.Filled.UnfoldLess" OnClick="Interaction.Shrink" />
-    <MudIconButton DisableRipple="true" Icon="@Icons.Material.Filled.UnfoldMore" OnClick="Interaction.Enlarge" />
-    <MudIconButton DisableRipple="true" Icon="@Icons.Material.Filled.Close" OnClick="InteractionModel.Close" />
+<MudToolBar Style="@style">
+    @if (InteractionModel != null)
+    {
+        <MudIconButton DisableRipple="true" Icon="@Icons.Material.TwoTone.ArrowBack" Disabled="!HasPrevious" OnClick="Interaction.GoToPrevious" />
+        <MudIconButton DisableRipple="true" Icon="@Icons.Material.TwoTone.ArrowForward" Disabled="!HasNext" OnClick="Interaction.GoToNext" />
+        <MudSpacer />
+        <MudIconButton DisableRipple="true" Icon="UnfoldLessDouble" OnClick="Interaction.Shrink" />
+        <MudIconButton DisableRipple="true" Icon="UnfoldMoreDouble" OnClick="Interaction.Enlarge" />
+        <MudIconButton DisableRipple="true" Icon="@Icons.Material.Filled.UnfoldLess" OnClick="Interaction.Shrink" />
+        <MudIconButton DisableRipple="true" Icon="@Icons.Material.Filled.UnfoldMore" OnClick="Interaction.Enlarge" />
+        <MudIconButton DisableRipple="true" Icon="@Icons.Material.Filled.Close" OnClick="InteractionModel.Close" />
+    }
+    else
+    {
+        <GlobalMenu></GlobalMenu>
+    }
+
 </MudToolBar>
 
 @code {

@@ -144,7 +144,7 @@ namespace BibleComponents
         {
             (await ElementData.AddNoteByValue(_value, DbFacade)).OnAfterRemoval += () => { StateHasChanged?.Invoke(typeof(LessonElementBody)); };
             StateHasChanged?.Invoke(typeof(LessonElementBody));
-            StateHasChanged?.Invoke(typeof(LessonCenteredContainer));
+            StateHasChanged?.Invoke(typeof(InteractionPanel));
         }
         public async Task InitNotes()
         {

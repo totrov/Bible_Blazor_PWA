@@ -1,0 +1,147 @@
+﻿@namespace BibleComponents
+@using Bible_Blazer_PWA.Components
+@using Bible_Blazer_PWA.Components.Interactor.Menu;
+@using Bible_Blazer_PWA.DataBase;
+@using Bible_Blazer_PWA.Parameters;
+@using Bible_Blazer_PWA.Services.Menu;
+@using Bible_Blazer_PWA.ViewModels;
+@using MudBlazor.Utilities;
+@using Bible_Blazer_PWA.Components.Interactor
+
+@inject MenuService menu;
+
+<CenteredFixedContainer @ref="child" Elevation="0" Bottom="IsBottom" Side="IsSide">
+    @InteractionRender
+</CenteredFixedContainer>
+
+@code {
+    #region Parameters
+
+    [Microsoft.AspNetCore.Components.Parameter]
+    public bool IsBottom { get; set; }
+
+    public int Size
+    {
+        get => child.Size;
+        set
+        {
+            child.Size = value;
+        }
+    }
+    #endregion
+
+    #region enums
+    private enum Position
+    {
+        Top,
+        Centered,
+        Bottom
+    }
+    #endregion
+
+    public bool IsSide { get; set; }
+    private RenderFragment? InteractionRender { get; set; }
+    private CenteredFixedContainer child;
+
+    public void SetInteractionModel(IInteractionModel model)
+    {
+        if (model != null)
+        {
+            IsSide = model.IsSide;
+            Position pos =
+                model.IsSide
+                ? (IsBottom ? Position.Bottom : Position.Top)
+                : Position.Centered;
+            switch (pos)
+            {
+                case Position.Bottom:
+                    InteractionRender = builder =>
+                    {
+                        builder.OpenComponent(0, typeof(MudDivider));
+                        builder.CloseComponent();
+                        builder.OpenComponent(1, typeof(InteractionPanelMenu));
+                        builder.AddAttribute(2, "InteractionModel", model);
+                        builder.CloseComponent();
+                        builder.OpenComponent(3, typeof(MudDivider));
+                        builder.CloseComponent();
+                        builder.OpenComponent(4, model.ComponentType);
+                        builder.AddAttribute(5, "InteractionModel", model);
+                        builder.CloseComponent();
+                    };
+                    IsBottom = true;
+                    break;
+
+                case Position.Centered:
+                    InteractionRender = builder =>
+                    {
+                        builder.OpenComponent(0, typeof(MudDivider));
+                        builder.CloseComponent();
+                        builder.OpenComponent(1, typeof(MudDivider));
+                        builder.CloseComponent();
+                        builder.OpenComponent(2, model.ComponentType);
+                        builder.AddAttribute(3, "InteractionModel", model);
+                        builder.CloseComponent();
+                    };
+                    IsBottom = false;
+                    break;
+
+                case Position.Top:
+                    InteractionRender = builder =>
+                    {
+                        builder.OpenComponent(0, model.ComponentType);
+                        builder.AddAttribute(1, "InteractionModel", model);
+                        builder.CloseComponent();
+
+                        builder.OpenComponent(2, typeof(MudDivider));
+                        builder.CloseComponent();
+
+                        builder.OpenComponent(3, typeof(InteractionPanelMenu));
+                        builder.AddAttribute(4, "InteractionModel", model);
+                        builder.CloseComponent();
+
+                        builder.OpenComponent(5, typeof(MudDivider));
+                        builder.CloseComponent();
+                    };
+                    IsBottom = true;
+                    break;
+            }
+        }
+        else
+        {
+            if (IsBottom)
+            {
+                InteractionRender = builder =>
+                {
+                    builder.OpenComponent(0, typeof(MudDivider));
+                    builder.CloseComponent();
+                    builder.OpenComponent(1, typeof(InteractionPanelMenu));
+                    builder.AddAttribute(2, "InteractionModel", model);
+                    builder.CloseComponent();
+                };
+            }
+            else
+            {
+                InteractionRender = builder =>
+                {
+                    builder.OpenComponent(0, typeof(InteractionPanelMenu));
+                    builder.AddAttribute(1, "InteractionModel", model);
+                    builder.CloseComponent();
+
+                    builder.OpenComponent(2, typeof(MudDivider));
+                    builder.CloseComponent();
+                };
+            }
+            IsSide = true;
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        menu.SetInteractionPanel(this);
+    }
+
+    public void Refresh()
+    {
+        StateHasChanged();
+    }
+}

@@ -18,7 +18,7 @@ namespace Bible_Blazer_PWA.Services.Menu
         private Dictionary<string, MenuButton> _buttonCache;
 
         #region public interface
-        public void SetLessonCenteredContainer(LessonCenteredContainer container)
+        public void SetInteractionPanel(InteractionPanel container)
             => _interactionCoordinator = new Interaction(container);
         #endregion
 

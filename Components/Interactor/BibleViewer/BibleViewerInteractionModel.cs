@@ -5,7 +5,7 @@ namespace Bible_Blazer_PWA.Components.Interactor.BibleViewer
 {
     public class BibleViewerInteractionModel : InteractionModelBase
     {
-        public override bool IsBottom => true;
+        public override bool IsSide => true;
         public override Type ComponentType => typeof(BibleViewerInteractionComponent);
         public override event Action OnClose;
         public override void Close() => OnClose?.Invoke();

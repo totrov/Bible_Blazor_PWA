@@ -24,7 +24,7 @@
     <MudContainer>
             @foreach (LessonElementData data in CompositeChildren)
         {
-            <LessonElement ElementData="data" LessonCenteredContainer="Interaction.GetLessonCenteredContainer()"></LessonElement>
+            <LessonElement ElementData="data" InteractionPanel="Interaction.GetInteractionPanel()"></LessonElement>
         }
         <MudContainer Class="d-flex">
             @if (PrevLesson != null)
