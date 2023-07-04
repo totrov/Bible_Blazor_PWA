@@ -1,8 +1,10 @@
-﻿using Bible_Blazer_PWA.Components.Interactor.Transitions;
+﻿using Bible_Blazer_PWA.Components.Interactor.Menu;
+using Bible_Blazer_PWA.Components.Interactor.Transitions;
 using BibleComponents;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Bible_Blazer_PWA.Components.Interactor
 {
@@ -20,23 +22,31 @@ namespace Bible_Blazer_PWA.Components.Interactor
         #endregion
 
         #region Public Methods
-        public static void Enlarge()
+        public static void Enlarge(InteractionPanelMenu menu, int sizePoints)
         {
-            Instance.Container.Size = Instance.Container.Size + 1;
+            _ = Instance.Container.SetSizeAsync(Instance.Container.Size + sizePoints);
+            menu.PctSize = Instance.Config.SizeMap[Instance.Container.Size][0];
+            Instance.CurrentModel.Resize(Instance.Container.Size);
         }
 
-        public static void Shrink()
+        public static void Shrink(InteractionPanelMenu menu, int sizePoints)
         {
-            Instance.Container.Size = Instance.Container.Size - 1;
+            Instance.Container.Size = Instance.Container.Size - sizePoints;
+            menu.PctSize = Instance.Config.SizeMap[Instance.Container.Size][0];
+            Instance.CurrentModel.Resize(Instance.Container.Size);
         }
+
+        public static InteractionConfig GetConfig() => Instance.Config;
 
         #endregion
 
         #region Ctor
         public Interaction(InteractionPanel container)
         {
+
             Container = container;
             Instance = this;
+            Config = new();
             transitions = new();
             IEnumerable<Type> transitionTypes = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(assembly => assembly.GetTypes()).Where(
@@ -59,16 +69,21 @@ namespace Bible_Blazer_PWA.Components.Interactor
 
         private InteractionPanel Container;
         private static Interaction Instance;
+        private InteractionConfig Config;
         private IInteractionModel CurrentModel
         {
             get => currentModel;
             set
             {
-                bool changed = !Object.ReferenceEquals(currentModel, value);                
+                bool changed = !Object.ReferenceEquals(currentModel, value);
                 currentModel = value;
                 if (changed)
                 {
                     ModelChanged();
+                }
+                if (currentModel != null)
+                {
+                    currentModel.OnComponentInitialized += () => currentModel.Resize(Container.Size);
                 }
             }
         }

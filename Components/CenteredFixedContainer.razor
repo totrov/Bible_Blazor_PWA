@@ -10,6 +10,7 @@
 
     private const int MinSize = 2;
     private const int MaxSize = 8;
+    private const int CollapsedSiazePx = 35;
 
     #endregion
 
@@ -22,12 +23,20 @@
             if (value >= MinSize && value <= MaxSize)
             {
                 _size = value;
-                SetStyle(_bottom, _side);
+                SetStyle(_bottom, _side, _collapsed);
             }
         }
     }
     private int _size = 5;
 
+    public async Task SetSizeAsync(int size)
+    {
+        if (size >= MinSize && size <= MaxSize)
+        {
+            _size = size;
+            await SetStyleAsync(_bottom, _side, _collapsed);
+        }
+    }
 
     [Parameter]
     public bool Bottom
@@ -35,7 +44,7 @@
         get => _bottom;
         set
         {
-            SetStyle(value, _side);
+            SetStyle(value, _side, _collapsed);
             _bottom = value;
         }
     }
@@ -47,7 +56,7 @@
         get => _side;
         set
         {
-            SetStyle(_bottom, value);
+            SetStyle(_bottom, value, _collapsed);
             _side = value;
         }
     }
@@ -72,13 +81,18 @@
     const string VerticalCenteredStyle = "position: fixed;top: 50%;left: 50%;transform: translate(-50%, -50%);background:none;z-index:2";
     private string CalcSideStyle(int size, bool isBottom, bool isCollapsed)
     {
-        //TODO
-        //int size = 
+        string sizeStr = isCollapsed ? $"{CollapsedSiazePx}px" : $"{size}0%";
         if (isBottom)
         {
-            return $"position: fixed;height:{size}0%;transition:height 0.3s;bottom:0;width:100%;background:none;z-index:2";
+            return $"position: fixed;height:{sizeStr};transition:height 0.3s;bottom:0;width:100%;background:none;z-index:2";
         }
-        return $"position: fixed;height:{size}0%;transition:height 0.3s;top:0;width:100%;background:none;z-index:2";
+        return $"position: fixed;height:{sizeStr};transition:height 0.3s;top:0;width:100%;background:none;z-index:2";
+    }
+
+    private async Task SetStyleAsync(bool isBottom, bool isSide, bool isCollapsed)
+    {
+        base.Style = isSide ? CalcSideStyle(Size, isBottom, isCollapsed) : VerticalCenteredStyle;
+        await RefreshAsync();
     }
 
     private void SetStyle(bool isBottom, bool isSide, bool isCollapsed)
@@ -99,6 +113,11 @@
     public void Refresh()
     {
         StateHasChanged();
+    }
+
+    public async Task RefreshAsync()
+    {
+        await Task.Run(Refresh);
     }
 
     #endregion

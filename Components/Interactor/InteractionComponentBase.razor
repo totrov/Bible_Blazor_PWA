@@ -1,0 +1,37 @@
+﻿@typeparam TInteractionModel
+@inject Bible_Blazer_PWA.Parameters.DbParametersFacade DbParamFacade;
+
+@code {
+    [Parameter]
+    public TInteractionModel InteractionModel { get; set; }
+
+    #region Shortkeys
+    protected Parameters.ParametersModel parameters => DbParamFacade.ParametersModel;
+    #endregion
+
+    public string SizePct { get; set; }
+
+    #region Style
+
+    public virtual string GetStyle
+    {
+        get => GetFontSizeStyle + GetFontColorStyle
+             + GetBackgroundColorStyle
+             + GetPanelRelatedStyle;
+    }
+
+    public virtual string GetFontSizeStyle        { get => $"font-size:{parameters.FontSize}px;"; }
+    public virtual string GetBackgroundColorStyle { get => $"background-color:{parameters.BibleRefBgColor};"; }
+    public virtual string GetPanelRelatedStyle    { get => $"height:{SizePct};overflow-y:scroll;overflow-x:hidden;"; }
+    public virtual string GetFontColorStyle       { get => $"color:{parameters.BibleRefFontColor};"; }
+
+    #endregion
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        var model = (IInteractionModel)InteractionModel;
+        model.OnResize += size => SizePct = Interaction.GetConfig().SizeMap[size][1];
+        model.ComponentInitialized();
+    }
+}

@@ -1,9 +1,10 @@
-﻿@using Bible_Blazer_PWA.Parameters;
+﻿@inherits InteractionComponentBase<EditNoteModel>
+@using Bible_Blazer_PWA.Parameters;
 @using Bible_Blazer_PWA.ViewModels;
 @using MudBlazor.Utilities;
 @inject DbParametersFacade DbParameters;
 
-<MudPaper Elevation="25" Class="pa-2" Style="height:100%;overflow-y: scroll;overflow-x:hidden;" Square=true>
+<MudPaper Elevation="25" Class="pa-2" Style="@GetStyle" Square=true>
     <MudIconButton Icon="@Icons.Filled.TextIncrease" OnClick="()=>{note.SetValue(note=>note.TextSize, note.TextSize+1);}"></MudIconButton>
     <MudIconButton Icon="@Icons.Filled.TextDecrease" OnClick="()=>{note.SetValue(note=>note.TextSize, note.TextSize-1);}"></MudIconButton>
     <MudColorPicker Label="Основной цвет" Value="_mainColor" ValueChanged="UpdateMainColor" DisableAlpha="true" ColorPickerView="ColorPickerView.Grid" />
@@ -23,9 +24,6 @@
     </MudContainer>
 </MudPaper>
 @code {
-    [Microsoft.AspNetCore.Components.Parameter]
-    public EditNoteModel InteractionModel { get; set; }
-
     private int NoteWidth { get => note.Width; set => note.SetValue(note => note.Width, value); }
     private int NoteHeight { get => note.Height; set => note.SetValue(note => note.Height, value); }
     private int NoteOpacity { get => note.Opacity; set => note.SetValue(note => note.Opacity, value); }

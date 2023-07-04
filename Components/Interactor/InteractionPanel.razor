@@ -1,5 +1,4 @@
-﻿@namespace BibleComponents
-@using Bible_Blazer_PWA.Components
+﻿@using Bible_Blazer_PWA.Components
 @using Bible_Blazer_PWA.Components.Interactor.Menu;
 @using Bible_Blazer_PWA.DataBase;
 @using Bible_Blazer_PWA.Parameters;
@@ -10,7 +9,7 @@
 
 @inject MenuService menu;
 
-<CenteredFixedContainer @ref="child" Elevation="0" Bottom="IsBottom" Side="IsSide">
+<CenteredFixedContainer @ref="child" Elevation="0" Bottom="IsBottom" Side="IsSide" Collapsed="IsCollapsed">
     @InteractionRender
 </CenteredFixedContainer>
 
@@ -28,6 +27,14 @@
             child.Size = value;
         }
     }
+
+    public async Task SetSizeAsync(int size)
+    {
+        await child.SetSizeAsync(size);
+    }
+
+    public bool IsCollapsed { get; set; }
+    public bool IsSide { get; set; }
     #endregion
 
     #region enums
@@ -39,7 +46,6 @@
     }
     #endregion
 
-    public bool IsSide { get; set; }
     private RenderFragment? InteractionRender { get; set; }
     private CenteredFixedContainer child;
 
@@ -47,6 +53,7 @@
     {
         if (model != null)
         {
+            IsCollapsed = false;
             IsSide = model.IsSide;
             Position pos =
                 model.IsSide
@@ -108,6 +115,7 @@
         }
         else
         {
+            IsCollapsed = true;
             if (IsBottom)
             {
                 InteractionRender = builder =>

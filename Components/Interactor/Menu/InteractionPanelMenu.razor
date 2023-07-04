@@ -1,7 +1,9 @@
 ﻿@inject Bible_Blazer_PWA.Parameters.DbParametersFacade DbParameters;
 
 @{
-    var style = $"background-color:{DbParameters.ParametersModel.ToolsBg}; color:white; height:7%!important";
+    var style = InteractionModel != null
+        ? $"background-color:{DbParameters.ParametersModel.ToolsBg}; color:white; height:{PctSize}!important; transition:height 0.3s;"
+        : $"background-color:{DbParameters.ParametersModel.ToolsBg}; color:white; height:35px!important";
 }
 <MudToolBar Style="@style">
     @if (InteractionModel != null)
@@ -9,10 +11,10 @@
         <MudIconButton DisableRipple="true" Icon="@Icons.Material.TwoTone.ArrowBack" Disabled="!HasPrevious" OnClick="Interaction.GoToPrevious" />
         <MudIconButton DisableRipple="true" Icon="@Icons.Material.TwoTone.ArrowForward" Disabled="!HasNext" OnClick="Interaction.GoToNext" />
         <MudSpacer />
-        <MudIconButton DisableRipple="true" Icon="UnfoldLessDouble" OnClick="Interaction.Shrink" />
-        <MudIconButton DisableRipple="true" Icon="UnfoldMoreDouble" OnClick="Interaction.Enlarge" />
-        <MudIconButton DisableRipple="true" Icon="@Icons.Material.Filled.UnfoldLess" OnClick="Interaction.Shrink" />
-        <MudIconButton DisableRipple="true" Icon="@Icons.Material.Filled.UnfoldMore" OnClick="Interaction.Enlarge" />
+        <MudIconButton DisableRipple="true" Icon="UnfoldLessDouble" OnClick="() => Interaction.Shrink(this, 2)" />
+        <MudIconButton DisableRipple="true" Icon="UnfoldMoreDouble" OnClick="() => Interaction.Enlarge(this, 2)" />
+        <MudIconButton DisableRipple="true" Icon="@Icons.Material.Filled.UnfoldLess" OnClick="() => Interaction.Shrink(this, 1)" />
+        <MudIconButton DisableRipple="true" Icon="@Icons.Material.Filled.UnfoldMore" OnClick="() => Interaction.Enlarge(this, 1)" />
         <MudIconButton DisableRipple="true" Icon="@Icons.Material.Filled.Close" OnClick="InteractionModel.Close" />
     }
     else
@@ -23,11 +25,12 @@
 </MudToolBar>
 
 @code {
-
     #region Parameters
 
     [Parameter]
     public IInteractionModel InteractionModel { get; set; }
+    
+    public string PctSize { get; set; }
 
     #endregion
     #region Props

@@ -1,6 +1,7 @@
-﻿@inject IJSRuntime JS;
-<MudPaper Outlined="true" Class="px-3 py-3" style="@BibleRefTextStyle" id="bottomOverflowChackable">
-    <MudText Style="@FontSizeStyle">
+﻿@inherits InteractionComponentBase<Bible_Blazer_PWA.Components.Interactor.BibleReferencesWriter.BibleReferencesWriterInteractionModel>
+@inject IJSRuntime JS;
+<MudPaper Outlined="true" Class="px-3 py-3" style="@GetStyle" id="bottomOverflowChackable">
+    <MudText Style="@GetFontSizeStyle">
         @if (InteractionModel.Mediator.VersesLoaded)
         {
             bool isFirst = true;
@@ -25,16 +26,7 @@
 </MudPaper>
 
 @code {
-    [Microsoft.AspNetCore.Components.Parameter]
-    public Bible_Blazer_PWA.Components.Interactor.BibleReferencesWriter.BibleReferencesWriterInteractionModel InteractionModel { get; set; }
-    public string FontSizeStyle
-    {
-        get => $"font-size:{InteractionModel.Mediator.Parameters.FontSize}px;";
-    }
-    public string BibleRefTextStyle
-    {
-        get => $"background-color:{InteractionModel.Mediator.Parameters.BibleRefBgColor};font-size:{InteractionModel.Mediator.Parameters.FontSize}px;color:{InteractionModel.Mediator.Parameters.BibleRefFontColor};height:100%;overflow-y: scroll;overflow-x:hidden;";
-    }
+
     protected async override Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);

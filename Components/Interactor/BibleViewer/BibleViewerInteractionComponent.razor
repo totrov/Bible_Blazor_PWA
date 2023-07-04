@@ -1,4 +1,5 @@
-﻿@using Bible_Blazer_PWA.DataBase;
+﻿@inherits InteractionComponentBase<Bible_Blazer_PWA.Components.Interactor.BibleViewer.BibleViewerInteractionModel>
+@using Bible_Blazer_PWA.DataBase;
 @using Bible_Blazer_PWA.Parameters;
 @using Bible_Blazer_PWA.Services.TextHandlers;
 @inject DataBase.DatabaseJSFacade db;
@@ -6,24 +7,12 @@
 @inject DbParametersFacade DbParamFacade;
 
 
-<MudPaper Outlined="true" Class="px-3 py-3" style="@BibleRefTextStyle">
+<MudPaper Outlined="true" Class="px-3 py-3" style="@GetStyle">
     <MudElement HtmlTag="h3">@($"{InteractionModel.BookShortName}.{InteractionModel.ChapterNumber}")</MudElement>
-    <MudText Style="@FontSizeStyle">
+    <MudText Style="@GetFontSizeStyle">
         @if (RawHtml != null)
         {
-            @*bool isFirst = true;*@
-       @*     foreach (BibleService.Verse verse in Verses)
-            {
-                @if (parameters.StartVersesOnANewLine == "True" && !isFirst)
-                {
-                    <br />
-                }
-                <span @onclick="()=>{}" class="badge badge-primary" style="cursor:pointer; background-color:@parameters.BibleRefHighlightColor;color:@parameters.BibleRefVersesIntervalsColor;">@verse.Value</span>*@
-
             @((MarkupString)RawHtml)
-             
-                @*   isFirst = false;
-            }*@
         }
         else
         {
@@ -33,25 +22,6 @@
 </MudPaper>
 
 @code {
-
-    #region Component Parameters
-
-    [Microsoft.AspNetCore.Components.Parameter]
-    public Bible_Blazer_PWA.Components.Interactor.BibleViewer.BibleViewerInteractionModel InteractionModel { get; set; }
-
-    #endregion
-    #region Styles
-
-    public string FontSizeStyle
-    {
-        get => $"font-size:{parameters.FontSize}px;";
-    }
-    public string BibleRefTextStyle
-    {
-        get => $"background-color:{parameters.BibleRefBgColor};font-size:{parameters.FontSize}px;color:{parameters.BibleRefFontColor};height:100%;overflow-y: scroll;overflow-x:hidden; padding-bottom: 45px!important;";
-    }
-
-    #endregion
     #region Props
 
     string RawHtml { get; set; } = null;
@@ -61,9 +31,6 @@
     private VersesTextHandler versesHandler;
     #endregion
 
-    #region Shortkeys
-    ParametersModel parameters => DbParamFacade.ParametersModel;
-    #endregion
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
