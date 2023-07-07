@@ -8,16 +8,29 @@
 @using Bible_Blazer_PWA.Components.Interactor
 
 @inject MenuService menu;
+@inject IJSRuntime JS;
 
-<CenteredFixedContainer @ref="child" Elevation="0" Bottom="IsBottom" Side="IsSide" Collapsed="IsCollapsed">
+<CenteredFixedContainer id="InteractionPanel" @ref="child" Elevation="0" Bottom="IsBottom" Side="IsSide" Collapsed="IsCollapsed">
     @InteractionRender
 </CenteredFixedContainer>
 
 @code {
     #region Parameters
 
+    private bool _isBottom;
     [Microsoft.AspNetCore.Components.Parameter]
-    public bool IsBottom { get; set; }
+    public bool IsBottom
+    {
+        get => _isBottom;
+        set
+        {
+            if (_isBottom != value)
+            {
+                _isBottom = value;
+                OnPositionChanged.InvokeAsync(CalcPosition(IsSide, _isBottom));
+            }
+        }
+    }
 
     public int Size
     {
@@ -32,13 +45,31 @@
     {
         await child.SetSizeAsync(size);
     }
-
     public bool IsCollapsed { get; set; }
-    public bool IsSide { get; set; }
+    private bool _isSide;
+    public bool IsSide
+    {
+        get => _isSide;
+        set
+        {
+            if (_isSide != value)
+            {
+                _isSide = value;
+                OnPositionChanged.InvokeAsync(CalcPosition(_isSide, IsBottom));
+            }
+        }
+    }
+    #endregion
+
+    #region Height via JS interop
+    public async Task<int> GetHeight()
+    {
+        return await JS.InvokeAsync<int>("getInteractionPanelHeight");
+    }
     #endregion
 
     #region enums
-    private enum Position
+    public enum Position
     {
         Top,
         Centered,
@@ -46,19 +77,28 @@
     }
     #endregion
 
+    #region Events
+    public event Action ChildInitialized;
+    public void OnChildInitialized() => ChildInitialized?.Invoke();
+    #endregion
+
     private RenderFragment? InteractionRender { get; set; }
     private CenteredFixedContainer child;
 
-    public void SetInteractionModel(IInteractionModel model)
+    [Microsoft.AspNetCore.Components.Parameter]
+    public EventCallback<Position> OnPositionChanged { get; set; }
+
+    public void SetInteractionModel(IInteractionModel model, bool fromTurnoverEvent = false)
     {
         if (model != null)
         {
+            if (!fromTurnoverEvent)
+            {
+                Interaction.OnTurnOver += () => SetInteractionModel(model, true);
+            }
             IsCollapsed = false;
             IsSide = model.IsSide;
-            Position pos =
-                model.IsSide
-                ? (IsBottom ? Position.Bottom : Position.Top)
-                : Position.Centered;
+            Position pos = CalcPosition(model.IsSide, IsBottom);
             switch (pos)
             {
                 case Position.Bottom:
@@ -68,28 +108,24 @@
                         builder.CloseComponent();
                         builder.OpenComponent(1, typeof(InteractionPanelMenu));
                         builder.AddAttribute(2, "InteractionModel", model);
+                        builder.AddAttribute(3, "InteractionPanel", this);
                         builder.CloseComponent();
-                        builder.OpenComponent(3, typeof(MudDivider));
+                        builder.OpenComponent(4, typeof(MudDivider));
                         builder.CloseComponent();
-                        builder.OpenComponent(4, model.ComponentType);
-                        builder.AddAttribute(5, "InteractionModel", model);
+                        builder.OpenComponent(5, model.ComponentType);
+                        builder.AddAttribute(6, "InteractionModel", model);
+                        builder.AddAttribute(7, "InteractionPanel", this);
                         builder.CloseComponent();
                     };
-                    IsBottom = true;
                     break;
 
                 case Position.Centered:
                     InteractionRender = builder =>
                     {
-                        builder.OpenComponent(0, typeof(MudDivider));
-                        builder.CloseComponent();
-                        builder.OpenComponent(1, typeof(MudDivider));
-                        builder.CloseComponent();
                         builder.OpenComponent(2, model.ComponentType);
                         builder.AddAttribute(3, "InteractionModel", model);
                         builder.CloseComponent();
                     };
-                    IsBottom = false;
                     break;
 
                 case Position.Top:
@@ -97,19 +133,20 @@
                     {
                         builder.OpenComponent(0, model.ComponentType);
                         builder.AddAttribute(1, "InteractionModel", model);
+                        builder.AddAttribute(2, "InteractionPanel", this);
                         builder.CloseComponent();
 
-                        builder.OpenComponent(2, typeof(MudDivider));
+                        builder.OpenComponent(3, typeof(MudDivider));
                         builder.CloseComponent();
 
-                        builder.OpenComponent(3, typeof(InteractionPanelMenu));
-                        builder.AddAttribute(4, "InteractionModel", model);
+                        builder.OpenComponent(4, typeof(InteractionPanelMenu));
+                        builder.AddAttribute(5, "InteractionModel", model);
+                        builder.AddAttribute(6, "InteractionPanel", this);
                         builder.CloseComponent();
 
-                        builder.OpenComponent(5, typeof(MudDivider));
+                        builder.OpenComponent(7, typeof(MudDivider));
                         builder.CloseComponent();
                     };
-                    IsBottom = true;
                     break;
             }
         }
@@ -131,11 +168,11 @@
             {
                 InteractionRender = builder =>
                 {
-                    builder.OpenComponent(0, typeof(InteractionPanelMenu));
-                    builder.AddAttribute(1, "InteractionModel", model);
+                    builder.OpenComponent(4, typeof(InteractionPanelMenu));
+                    builder.AddAttribute(5, "InteractionModel", model);
                     builder.CloseComponent();
 
-                    builder.OpenComponent(2, typeof(MudDivider));
+                    builder.OpenComponent(7, typeof(MudDivider));
                     builder.CloseComponent();
                 };
             }
@@ -145,7 +182,15 @@
 
     protected override void OnInitialized()
     {
-        menu.SetInteractionPanel(this);
+        new Interaction(this);
+        Interaction.OnTurnOver += () => IsBottom = !IsBottom;
+    }
+
+    private Position CalcPosition(bool isSide, bool isBottom)
+    {
+        return isSide
+            ? (isBottom ? Position.Bottom : Position.Top)
+            : Position.Centered;
     }
 
     public void Refresh()

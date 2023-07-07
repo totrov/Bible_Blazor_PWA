@@ -13,6 +13,13 @@ namespace Bible_Blazer_PWA.Components.Interactor
         #region Events
         public static event Action OnModelChanged;
         private void ModelChanged() => OnModelChanged?.Invoke();
+        
+        public static event Action<int> OnResize;
+        private static void Resize(int size) => OnResize?.Invoke(size);
+
+        public static event Action OnTurnOver;
+        public static void TurnOver() => OnTurnOver?.Invoke();
+
         #endregion
 
         #region Public State
@@ -25,15 +32,13 @@ namespace Bible_Blazer_PWA.Components.Interactor
         public static void Enlarge(InteractionPanelMenu menu, int sizePoints)
         {
             _ = Instance.Container.SetSizeAsync(Instance.Container.Size + sizePoints);
-            menu.PctSize = Instance.Config.SizeMap[Instance.Container.Size][0];
-            Instance.CurrentModel.Resize(Instance.Container.Size);
+            Resize(Instance.Container.Size);
         }
 
         public static void Shrink(InteractionPanelMenu menu, int sizePoints)
         {
             Instance.Container.Size = Instance.Container.Size - sizePoints;
-            menu.PctSize = Instance.Config.SizeMap[Instance.Container.Size][0];
-            Instance.CurrentModel.Resize(Instance.Container.Size);
+            Resize(Instance.Container.Size);
         }
 
         public static InteractionConfig GetConfig() => Instance.Config;
@@ -43,7 +48,6 @@ namespace Bible_Blazer_PWA.Components.Interactor
         #region Ctor
         public Interaction(InteractionPanel container)
         {
-
             Container = container;
             Instance = this;
             Config = new();
@@ -62,6 +66,8 @@ namespace Bible_Blazer_PWA.Components.Interactor
                 }
                 transitions[modelType].Add(transitionType);
             }
+            container.ChildInitialized += () => Resize(container.Size);
+            container.SetInteractionModel(null);
         }
         #endregion
 
@@ -80,10 +86,11 @@ namespace Bible_Blazer_PWA.Components.Interactor
                 if (changed)
                 {
                     ModelChanged();
-                }
-                if (currentModel != null)
-                {
-                    currentModel.OnComponentInitialized += () => currentModel.Resize(Container.Size);
+                    Container.GetHeight().ContinueWith((task) =>
+                    {
+                        var result = task.Result;
+                        var height = result;
+                    });
                 }
             }
         }

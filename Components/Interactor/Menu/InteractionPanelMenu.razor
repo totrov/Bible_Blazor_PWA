@@ -1,4 +1,5 @@
 ﻿@inject Bible_Blazer_PWA.Parameters.DbParametersFacade DbParameters;
+@implements IDisposable
 
 @{
     var style = InteractionModel != null
@@ -15,6 +16,7 @@
         <MudIconButton DisableRipple="true" Icon="UnfoldMoreDouble" OnClick="() => Interaction.Enlarge(this, 2)" />
         <MudIconButton DisableRipple="true" Icon="@Icons.Material.Filled.UnfoldLess" OnClick="() => Interaction.Shrink(this, 1)" />
         <MudIconButton DisableRipple="true" Icon="@Icons.Material.Filled.UnfoldMore" OnClick="() => Interaction.Enlarge(this, 1)" />
+        <MudIconButton DisableRipple="true" Icon="@Icons.Material.Filled.ImportExport" OnClick="Interaction.TurnOver" />
         <MudIconButton DisableRipple="true" Icon="@Icons.Material.Filled.Close" OnClick="InteractionModel.Close" />
     }
     else
@@ -29,7 +31,10 @@
 
     [Parameter]
     public IInteractionModel InteractionModel { get; set; }
-    
+
+    [Parameter]
+    public InteractionPanel InteractionPanel { get; set; }
+
     public string PctSize { get; set; }
 
     #endregion
@@ -45,9 +50,26 @@
     private const string UnfoldMoreDouble = "<g><rect fill=\"none\" height=\"24\" width=\"24\"></rect></g><g><g><g><path d=\"M12,7.83L15.17,11l1.41-1.41L12,5L7.41,9.59L8.83,11L12,7.83z M12,2.83L15.17,6l1.41-1.41L12,0L7.41,4.59L8.83,6L12,2.83 z M12,21.17L8.83,18l-1.41,1.41L12,24l4.59-4.59L15.17,18L12,21.17z M12,16.17L8.83,13l-1.41,1.41L12,19l4.59-4.59L15.17,13 L12,16.17z\"></path></g></g></g>";
     #endregion
 
+    protected void OnModelChangedHandler()
+    {
+        HasPrevious = Interaction.HasPrevious;
+        HasNext = Interaction.HasNext;
+    }
+
+    protected void OnResizeHandler(int size)
+    {
+        PctSize = Interaction.GetConfig().SizeMap[size][0];
+    }
     protected override void OnInitialized()
     {
-        Interaction.OnModelChanged += () => HasPrevious = Interaction.HasPrevious;
-        Interaction.OnModelChanged += () => HasNext = Interaction.HasNext;
+        Interaction.OnModelChanged += OnModelChangedHandler;
+        Interaction.OnResize += OnResizeHandler;
+        if (InteractionPanel != null) InteractionPanel.OnChildInitialized();
+    }
+
+    void IDisposable.Dispose()
+    {
+        Interaction.OnModelChanged -= OnModelChangedHandler;
+        Interaction.OnResize -= OnResizeHandler;
     }
 }

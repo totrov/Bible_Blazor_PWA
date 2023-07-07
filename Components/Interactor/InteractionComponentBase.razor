@@ -1,9 +1,12 @@
 ﻿@typeparam TInteractionModel
-@inject Bible_Blazer_PWA.Parameters.DbParametersFacade DbParamFacade;
+@inject Bible_Blazer_PWA.Parameters.DbParametersFacade DbParamFacade
+@implements IDisposable
 
 @code {
     [Parameter]
     public TInteractionModel InteractionModel { get; set; }
+    [Parameter]
+    public InteractionPanel InteractionPanel { get; set; }
 
     #region Shortkeys
     protected Parameters.ParametersModel parameters => DbParamFacade.ParametersModel;
@@ -27,11 +30,21 @@
 
     #endregion
 
+    protected void ResizeHandler(int size)
+    {
+        SizePct = Interaction.GetConfig().SizeMap[size][1];
+    }
+
     protected override void OnInitialized()
     {
         base.OnInitialized();
         var model = (IInteractionModel)InteractionModel;
-        model.OnResize += size => SizePct = Interaction.GetConfig().SizeMap[size][1];
-        model.ComponentInitialized();
+        Interaction.OnResize += ResizeHandler;
+        InteractionPanel.OnChildInitialized();
+    }
+
+    void IDisposable.Dispose()
+    {
+        Interaction.OnResize -= ResizeHandler;
     }
 }

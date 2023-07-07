@@ -16,31 +16,30 @@
 
 <MudLayout>
     @{
-        var style = $"background-color:{parametersModel.MainBackground}; min-height:100vh;";
+        var style = $"background-color:{parametersModel.MainBackground}; min-height:100vh;{PaddingOverride}";
     }
     <MudMainContent Style="@style">
         @Body
-        <InteractionPanel IsBottom="false"></InteractionPanel>
+        <InteractionPanel OnPositionChanged="(InteractionPanel.Position pos) => PaddingOverride = pos == InteractionPanel.Position.Top ? string.Empty : PaddingOverrideConst"></InteractionPanel>
     </MudMainContent>
 </MudLayout>
 
 @code
 {
-    #region parameters
-
+    #region Style
+    public string PaddingOverride { get; set; } = "";
+    private const string PaddingOverrideConst = "padding-top:0!important;";
     #endregion
 
-    
+
     private ParametersModel parametersModel;
     public int MyProperty { get; set; }
 
     private InteractionPanel interactionPanel;
-    
+
     string ButtonStyle { get => $"color:{dbParamteres.ParametersModel.ToolsBg};"; }
     protected override void OnInitialized()
     {
-        parametersModel = dbParamteres.ParametersModel;
+        parametersModel = dbParamteres.ParametersModel;        
     }
-
-
 }

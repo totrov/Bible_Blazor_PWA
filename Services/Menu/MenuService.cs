@@ -17,11 +17,6 @@ namespace Bible_Blazer_PWA.Services.Menu
         public Dictionary<string, MenuButton> Buttons { get; private set; }
         private Dictionary<string, MenuButton> _buttonCache;
 
-        #region public interface
-        public void SetInteractionPanel(InteractionPanel container)
-            => _interactionCoordinator = new Interaction(container);
-        #endregion
-
         public MenuService()
         {
             _buttonCache = new Dictionary<string, MenuButton>();
