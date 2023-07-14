@@ -1,5 +1,6 @@
 ﻿using Bible_Blazer_PWA.Components.Interactor.Menu;
 using Bible_Blazer_PWA.Components.Interactor.Transitions;
+using Bible_Blazer_PWA.Services;
 using BibleComponents;
 using System;
 using System.Collections.Generic;
@@ -46,9 +47,12 @@ namespace Bible_Blazer_PWA.Components.Interactor
         #endregion
 
         #region Ctor
-        public Interaction(InteractionPanel container)
+        public Interaction(InteractionPanel container, JSInteropService interopService)
         {
             Container = container;
+            this.interopService = interopService;
+            //interopService.OnTurnOverRequired += Interaction.TurnOver;
+
             Instance = this;
             Config = new();
             transitions = new();
@@ -74,6 +78,7 @@ namespace Bible_Blazer_PWA.Components.Interactor
         #region Private State
 
         private InteractionPanel Container;
+        private readonly JSInteropService interopService;
         private static Interaction Instance;
         private InteractionConfig Config;
         private IInteractionModel CurrentModel
@@ -86,11 +91,6 @@ namespace Bible_Blazer_PWA.Components.Interactor
                 if (changed)
                 {
                     ModelChanged();
-                    Container.GetHeight().ContinueWith((task) =>
-                    {
-                        var result = task.Result;
-                        var height = result;
-                    });
                 }
             }
         }

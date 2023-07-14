@@ -30,8 +30,8 @@ function checkOverflow(id) {
     return isOverflowing;
 }
 
-function getInteractionPanelHeight() {
-    return document.getElementById('InteractionPanel').offsetHeight;
+function registerInteropObject(dotNetObjectReference) {
+    window.interopObject = dotNetObjectReference;
 }
 
 $.fn.scrollEnd = function (callback, timeout) {
@@ -45,7 +45,20 @@ $.fn.scrollEnd = function (callback, timeout) {
 };
 
 $(window).scrollEnd(function () {
-    if ($(window).scrollTop() + $(window).height() == $(document).height()) {
-        alert("bottom!");
-    };
+    var interactionPanelBottom = document.getElementById('InteractionPanelBottom');
+    if (interactionPanelBottom) {
+        if ($(window).scrollTop() + $(window).height() >= $(document).height() - interactionPanelBottom.offsetHeight) {
+            window.interopObject.invokeMethod("FireVoidEvent", "TurnOverRequired"); 
+        };
+    }
+    else {
+        var interactionPanelTop = document.getElementById('InteractionPanelTop');
+        if (interactionPanelTop) {
+            if ($(window).scrollTop() <= interactionPanelTop.offsetHeight) {
+                window.interopObject.invokeMethod("FireVoidEvent", "TurnOverRequired");
+            };
+        }
+    }
+
+
 }, 250);

@@ -25,7 +25,6 @@ namespace Bible_Blazer_PWA
             var http = new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) };
             builder.Services.AddScoped(sp => http);
             builder.Services.AddMudServices();
-            //builder.Services.AddWorkerFactory();  //Background functionality cut
 
             var bibleService = new BibleService();
             builder.Services.AddSingleton(bibleService);
@@ -38,14 +37,14 @@ namespace Bible_Blazer_PWA
             builder.Services.AddScoped<LessonUpdater>();
             builder.Services.AddSingleton(new MenuService());
             builder.Services.AddSingleton<ImportExportService>();
-            
+            //var jsInteropService = new JSInteropService();
+            //builder.Services.AddSingleton(jsInteropService);
+
             var regexHelper = new BibleRegexHelper(http);
             builder.Services.AddSingleton(regexHelper);
             await regexHelper.Init();
-            
-            builder.Services.AddSingleton(new Corrector(regexHelper));
 
-            //await builder.Services.AddLessonImportServiceAsync(); //Background functionality cut
+            builder.Services.AddSingleton(new Corrector(regexHelper));
 
             var host = builder.Build();
 
@@ -53,6 +52,8 @@ namespace Bible_Blazer_PWA
             dbFacade.SetJS(jsRuntime);
             await dbParametersFacade.Init();
             bibleService.Init(dbFacade, dbParametersFacade.ParametersModel);
+            //await jsInteropService.Init(jsRuntime);
+
             await host.RunAsync();
         }
     }

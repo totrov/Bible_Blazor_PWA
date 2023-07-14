@@ -3,14 +3,17 @@
 @using Bible_Blazer_PWA.DataBase;
 @using Bible_Blazer_PWA.Parameters;
 @using Bible_Blazer_PWA.Services.Menu;
+@using Bible_Blazer_PWA.Services;
 @using Bible_Blazer_PWA.ViewModels;
 @using MudBlazor.Utilities;
 @using Bible_Blazer_PWA.Components.Interactor
+@using System.Diagnostics.CodeAnalysis;
+@using System.Threading;
 
 @inject MenuService menu;
-@inject IJSRuntime JS;
+@inject JSInteropService JS;
 
-<CenteredFixedContainer id="InteractionPanel" @ref="child" Elevation="0" Bottom="IsBottom" Side="IsSide" Collapsed="IsCollapsed">
+<CenteredFixedContainer id="@Id" @ref="child" Elevation="0" Bottom="IsBottom" Side="IsSide" Collapsed="IsCollapsed">
     @InteractionRender
 </CenteredFixedContainer>
 
@@ -58,13 +61,6 @@
                 OnPositionChanged.InvokeAsync(CalcPosition(_isSide, IsBottom));
             }
         }
-    }
-    #endregion
-
-    #region Height via JS interop
-    public async Task<int> GetHeight()
-    {
-        return await JS.InvokeAsync<int>("getInteractionPanelHeight");
     }
     #endregion
 
@@ -182,7 +178,7 @@
 
     protected override void OnInitialized()
     {
-        new Interaction(this);
+        new Interaction(this, JS);
         Interaction.OnTurnOver += () => IsBottom = !IsBottom;
     }
 
@@ -197,4 +193,7 @@
     {
         StateHasChanged();
     }
+
+    private const string BottomSuffix = "Bottom", TopSuffix = "Top";
+    public string Id { get => $"InteractionPanel{(IsSide ? (IsBottom ? BottomSuffix : TopSuffix) : string.Empty)}"; }
 }
