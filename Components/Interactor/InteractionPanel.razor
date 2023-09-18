@@ -13,9 +13,14 @@
 @inject MenuService menu;
 @inject JSInteropService JS;
 
-<CenteredFixedContainer id="@Id" @ref="child" Elevation="0" Bottom="IsBottom" Side="IsSide" Collapsed="IsCollapsed">
+<CenteredFixedContainer @ref="hiddenCloneTop" IsActive="!IsBottom" IsHiddenClone="true" Elevation="0" Bottom="IsBottom" Side="IsSide" Collapsed="IsCollapsed"></CenteredFixedContainer>
+@ChildContent
+
+<CenteredFixedContainer id="@Id" @ref="child" IsActive="true" IsHiddenClone="false" Elevation="0" Bottom="IsBottom" Side="IsSide" Collapsed="IsCollapsed">
     @InteractionRender
 </CenteredFixedContainer>
+
+<CenteredFixedContainer @ref="hiddenCloneBottom" IsActive="IsBottom" IsHiddenClone="true" Elevation="0" Bottom="IsBottom" Side="IsSide" Collapsed="IsCollapsed"></CenteredFixedContainer>
 
 @code {
     #region Parameters
@@ -41,13 +46,11 @@
         set
         {
             child.Size = value;
+            hiddenCloneTop.Size = value;
+            hiddenCloneBottom.Size = value;
         }
     }
 
-    public async Task SetSizeAsync(int size)
-    {
-        await child.SetSizeAsync(size);
-    }
     public bool IsCollapsed { get; set; }
     private bool _isSide;
     public bool IsSide
@@ -62,6 +65,9 @@
             }
         }
     }
+
+    [Microsoft.AspNetCore.Components.Parameter]
+    public RenderFragment ChildContent { get; set; }
     #endregion
 
     #region enums
@@ -80,6 +86,8 @@
 
     private RenderFragment? InteractionRender { get; set; }
     private CenteredFixedContainer child;
+    private CenteredFixedContainer hiddenCloneTop;
+    private CenteredFixedContainer hiddenCloneBottom;
 
     [Microsoft.AspNetCore.Components.Parameter]
     public EventCallback<Position> OnPositionChanged { get; set; }
@@ -180,6 +188,7 @@
     {
         new Interaction(this, JS);
         Interaction.OnTurnOver += () => IsBottom = !IsBottom;
+        Interaction.OnTurnOver += () => this.SetInteractionModel(null, false);
     }
 
     private Position CalcPosition(bool isSide, bool isBottom)

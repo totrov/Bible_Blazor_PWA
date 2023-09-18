@@ -19,8 +19,9 @@
         var style = $"background-color:{parametersModel.MainBackground}; min-height:100vh;{PaddingOverride}";
     }
     <MudMainContent Style="@style">
-        @Body
-        <InteractionPanel OnPositionChanged="(InteractionPanel.Position pos) => PaddingOverride = pos == InteractionPanel.Position.Top ? string.Empty : PaddingOverrideConst"></InteractionPanel>
+        <InteractionPanel OnPositionChanged="(InteractionPanel.Position pos) => PaddingOverride = pos == InteractionPanel.Position.Top ? string.Empty : PaddingOverrideConst">
+            @Body
+        </InteractionPanel>
     </MudMainContent>
 </MudLayout>
 

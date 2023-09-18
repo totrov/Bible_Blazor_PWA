@@ -32,7 +32,7 @@ namespace Bible_Blazer_PWA.Components.Interactor
         #region Public Methods
         public static void Enlarge(InteractionPanelMenu menu, int sizePoints)
         {
-            _ = Instance.Container.SetSizeAsync(Instance.Container.Size + sizePoints);
+            Instance.Container.Size = Instance.Container.Size + sizePoints;
             Resize(Instance.Container.Size);
         }
 
