@@ -205,4 +205,13 @@
 
     private const string BottomSuffix = "Bottom", TopSuffix = "Top";
     public string Id { get => $"InteractionPanel{(IsSide ? (IsBottom ? BottomSuffix : TopSuffix) : string.Empty)}"; }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        if (firstRender)
+        {
+            Size = Size;
+        }
+    }
 }

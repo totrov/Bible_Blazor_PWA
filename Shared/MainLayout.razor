@@ -19,7 +19,7 @@
         var style = $"background-color:{parametersModel.MainBackground}; min-height:100vh;{PaddingOverride}";
     }
     <MudMainContent Style="@style">
-        <InteractionPanel OnPositionChanged="(InteractionPanel.Position pos) => PaddingOverride = pos == InteractionPanel.Position.Top ? string.Empty : PaddingOverrideConst">
+        <InteractionPanel OnPositionChanged="(InteractionPanel.Position pos) => { /*nothing for now*/ }">
             @Body
         </InteractionPanel>
     </MudMainContent>
@@ -28,8 +28,8 @@
 @code
 {
     #region Style
-    public string PaddingOverride { get; set; } = "";
     private const string PaddingOverrideConst = "padding-top:0!important;";
+    public string PaddingOverride { get; set; } = PaddingOverrideConst;
     #endregion
 
 
