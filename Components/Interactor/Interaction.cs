@@ -144,6 +144,10 @@ namespace Bible_Blazer_PWA.Components.Interactor
                     return Instance.SetInteractionModel<TInteractionModel, TParameters>(parameters);
                 }
             }
+            public static TInteractionModel Apply()
+            {
+                return Instance.SetInteractionModel<TInteractionModel>();
+            }
         }
         #endregion
 
@@ -160,6 +164,22 @@ namespace Bible_Blazer_PWA.Components.Interactor
             CurrentModel = CurrentModel.Previous;
             Container.SetInteractionModel(CurrentModel);
             Container.Refresh();
+        }
+        protected TInteractionModel SetInteractionModel<TInteractionModel>()
+            where TInteractionModel : IInteractionModel, new()
+        {
+            var model = new TInteractionModel();
+            ApplyTransitions(model);
+            model.Previous = CurrentModel;
+            Container.SetInteractionModel(model);
+            model.OnClose += () =>
+            {
+                Container.SetInteractionModel(null);
+                Container.Refresh();
+            };
+            Container.Refresh();
+            CurrentModel = model;
+            return model;
         }
         protected TInteractionModel SetInteractionModel<TInteractionModel, TParameters>(TParameters parameters)
             where TInteractionModel : IInteractionModel, new()
