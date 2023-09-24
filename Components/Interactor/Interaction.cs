@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static MudBlazor.CategoryTypes;
 
 namespace Bible_Blazer_PWA.Components.Interactor
 {
@@ -24,22 +25,22 @@ namespace Bible_Blazer_PWA.Components.Interactor
         #endregion
 
         #region Public State
-        public static bool HasPrevious { get => Instance.CurrentModel.Previous is not null; }
-        public static bool HasNext { get => Instance.CurrentModel.Next is not null; }
-        public static InteractionPanel GetInteractionPanel() => Instance.Container;
+        public static bool HasPrevious { get => Instance.CurrentSideModel.Previous is not null; }
+        public static bool HasNext { get => Instance.CurrentSideModel.Next is not null; }
+        public static InteractionPanel GetInteractionPanel() => Instance.SideContainer;
         #endregion
 
         #region Public Methods
         public static void Enlarge(InteractionPanelMenu menu, int sizePoints)
         {
-            Instance.Container.Size = Instance.Container.Size + sizePoints;
-            Resize(Instance.Container.Size);
+            Instance.SideContainer.Size = Instance.SideContainer.Size + sizePoints;
+            Resize(Instance.SideContainer.Size);
         }
 
         public static void Shrink(InteractionPanelMenu menu, int sizePoints)
         {
-            Instance.Container.Size = Instance.Container.Size - sizePoints;
-            Resize(Instance.Container.Size);
+            Instance.SideContainer.Size = Instance.SideContainer.Size - sizePoints;
+            Resize(Instance.SideContainer.Size);
         }
 
         public static InteractionConfig GetConfig() => Instance.Config;
@@ -49,7 +50,7 @@ namespace Bible_Blazer_PWA.Components.Interactor
         #region Ctor
         public Interaction(InteractionPanel container)
         {
-            Container = container;
+            SideContainer = container;
 
             Instance = this;
             Config = new();
@@ -75,10 +76,11 @@ namespace Bible_Blazer_PWA.Components.Interactor
 
         #region Private State
 
-        private InteractionPanel Container;
+        private InteractionPanel SideContainer;
+        private MainContentPanel MainContainer;
         private static Interaction Instance;
         private InteractionConfig Config;
-        private IInteractionModel CurrentModel
+        private IInteractionModel CurrentSideModel
         {
             get => currentModel;
             set
@@ -100,13 +102,13 @@ namespace Bible_Blazer_PWA.Components.Interactor
 
         private void GoToPreviousImpl()
         {
-            if (CurrentModel is not Command)
+            if (CurrentSideModel is not Command)
             {
-                CurrentModel.Previous.Next = CurrentModel;
+                CurrentSideModel.Previous.Next = CurrentSideModel;
             }
-            CurrentModel = CurrentModel.Previous;
-            Container.SetInteractionModel(CurrentModel);
-            Container.Refresh();
+            CurrentSideModel = CurrentSideModel.Previous;
+            SideContainer.SetInteractionModel(CurrentSideModel);
+            SideContainer.Refresh();
         }
 
         public static void GoToPrevious()
@@ -115,13 +117,13 @@ namespace Bible_Blazer_PWA.Components.Interactor
         }
         private void GoToNextImpl()
         {
-            if (CurrentModel is not Command)
+            if (CurrentSideModel is not Command)
             {
-                CurrentModel.Next.Previous = CurrentModel;
+                CurrentSideModel.Next.Previous = CurrentSideModel;
             }
-            CurrentModel = CurrentModel.Next;
-            Container.SetInteractionModel(CurrentModel);
-            Container.Refresh();
+            CurrentSideModel = CurrentSideModel.Next;
+            SideContainer.SetInteractionModel(CurrentSideModel);
+            SideContainer.Refresh();
         }
 
         public static void GoToNext()
@@ -136,14 +138,14 @@ namespace Bible_Blazer_PWA.Components.Interactor
         {
             public static class WithParameters<TParameters> where TParameters : IInteractionModelParameters<TInteractionModel>
             {
-                public static TInteractionModel Apply(TParameters parameters)
+                public static TInteractionModel Apply(TParameters parameters, bool toMainContent = false)
                 {
-                    return Instance.SetInteractionModel<TInteractionModel, TParameters>(parameters);
+                    return Instance.SetInteractionModel<TInteractionModel, TParameters>(parameters, toMainContent);
                 }
             }
-            public static TInteractionModel Apply()
+            public static TInteractionModel Apply(bool toMainContent = false)
             {
-                return Instance.SetInteractionModel<TInteractionModel>();
+                return Instance.SetInteractionModel<TInteractionModel>(toMainContent);
             }
         }
         #endregion
@@ -154,46 +156,50 @@ namespace Bible_Blazer_PWA.Components.Interactor
         }
         internal void RemoveCurrentImpl()
         {
-            if (CurrentModel.Previous?.Next != null)
-                CurrentModel.Previous.Next = CurrentModel.Previous.Next.Next;
-            if (CurrentModel.Previous?.Next != null)
-                CurrentModel.Previous.Next.Previous = CurrentModel.Previous.Next;
-            CurrentModel = CurrentModel.Previous;
-            Container.SetInteractionModel(CurrentModel);
-            Container.Refresh();
+            if (CurrentSideModel.Previous?.Next != null)
+                CurrentSideModel.Previous.Next = CurrentSideModel.Previous.Next.Next;
+            if (CurrentSideModel.Previous?.Next != null)
+                CurrentSideModel.Previous.Next.Previous = CurrentSideModel.Previous.Next;
+            CurrentSideModel = CurrentSideModel.Previous;
+            SideContainer.SetInteractionModel(CurrentSideModel);
+            SideContainer.Refresh();
         }
-        protected TInteractionModel SetInteractionModel<TInteractionModel>()
+        protected TInteractionModel SetInteractionModel<TInteractionModel>(bool toMainContent)
             where TInteractionModel : IInteractionModel, new()
         {
             var model = new TInteractionModel();
             ApplyTransitions(model);
-            model.Previous = CurrentModel;
-            Container.SetInteractionModel(model);
+            model.Previous = CurrentSideModel;
+            ExtractedBaseType container = toMainContent ? MainContainer : SideContainer;
+            container.SetInteractionModel(model);
             model.OnClose += () =>
             {
-                Container.SetInteractionModel(null);
-                Container.Refresh();
+                container.SetInteractionModel(null);
+                container.Refresh();
             };
-            Container.Refresh();
-            CurrentModel = model;
+            container.Refresh();
+            CurrentSideModel = toMainContent ? CurrentSideModel : model;
+            CurrentMainModel = toMainContent ? model : CurrentSideModel;
             return model;
         }
-        protected TInteractionModel SetInteractionModel<TInteractionModel, TParameters>(TParameters parameters)
+        protected TInteractionModel SetInteractionModel<TInteractionModel, TParameters>(TParameters parameters, bool toMainContent = false)
             where TInteractionModel : IInteractionModel, new()
             where TParameters : IInteractionModelParameters<TInteractionModel>
         {
             var model = new TInteractionModel();
             parameters.ApplyParametersToModel(model);
             ApplyTransitions(model);
-            model.Previous = CurrentModel;
-            Container.SetInteractionModel(model);
+            model.Previous = CurrentSideModel;
+            ExtractedBaseType container = toMainContent ? MainContainer : SideContainer;
+            container.SetInteractionModel(model);
             model.OnClose += () =>
             {
-                Container.SetInteractionModel(null);
-                Container.Refresh();
+                container.SetInteractionModel(null);
+                container.Refresh();
             };
-            Container.Refresh();
-            CurrentModel = model;
+            container.Refresh();
+            CurrentSideModel = toMainContent ? CurrentSideModel : model;
+            CurrentMainModel = toMainContent ? model : CurrentSideModel;
             return model;
         }
         private void ApplyTransitions<TInteractionModel>(TInteractionModel model) where TInteractionModel : IInteractionModel, new()

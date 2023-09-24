@@ -1,0 +1,69 @@
+﻿@using Bible_Blazer_PWA.Config;
+@using Bible_Blazer_PWA.DataBase.DTO;
+@using Bible_Blazer_PWA.DataSources;
+@using Bible_Blazer_PWA.DomainObjects;
+@using Bible_Blazer_PWA.Facades;
+@using Bible_Blazer_PWA.Services.Menu;
+@using Bible_Blazer_PWA.Services;
+@using static Bible_Blazer_PWA.DataSources.LessonDS;
+
+@inject MenuService menu
+@inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
+@inject LessonUpdater updater;
+
+@if (_blocks != null)
+{
+    <MudList Clickable="false">
+        @foreach (LessonBlock block in _blocks.Values)
+        {
+            var header = block.Lessons.Any()
+            ? $"{block.Name} ({block.Lessons.Last().Value.VersionDate.ToRussianDateFormatString()})"
+            : block.Name;
+            <MudListItem Text="@header">
+                <NestedList>
+                    @foreach (KeyValuePair<int, LessonLightweightDTO> keyValue in block.Lessons)
+                    {
+                        var lesson = keyValue.Value;
+
+                        <MudListItem>
+                            <NavLink class="nav-link" href="@($"lesson/{lesson.Id}/{Unit.GetUnitNumberByShortName(lesson.UnitId)}")" Match="NavLinkMatch.All">@lesson.Name</NavLink>
+                        </MudListItem>
+                    }
+                </NestedList>
+            </MudListItem>
+        }
+    </MudList>
+}
+
+
+
+@code {
+    private LessonDS _lessonDS { get; set; }
+    private SortedDictionary<string, LessonBlock> _blocks;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _lessonDS = new LessonDS(db);
+        _blocks = await _lessonDS.GetBlocks(new DBCache(db));
+        menu.Title = $"Планы уроков";
+        _ = Task.Run(delegate ()
+        {
+            menu.ClearMenuButtons();
+            menu.Update(this);
+        });
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_blocks != null && await updater.CheckUpdateRequired(_blocks))
+        {
+            await updater.UpdateLessons();
+            ReloadPage();
+        }
+    }
+
+    private void ReloadPage()
+    {
+        Interaction.ModelOfType<HomeInteractionModel>.Apply(true);
+    }
+}

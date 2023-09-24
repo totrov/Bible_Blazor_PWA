@@ -1,0 +1,15 @@
+﻿@InteractionRender
+
+@code {
+    private RenderFragment? InteractionRender { get; set; }
+
+    public void SetContentModel(IInteractionModel model)
+    {
+        InteractionRender = builder =>
+        {
+            builder.OpenComponent(1, model.ComponentType);
+            builder.AddAttribute(2, "InteractionModel", model);
+            builder.CloseComponent();
+        };
+    }
+}

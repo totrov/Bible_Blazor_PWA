@@ -40,7 +40,7 @@
         base.OnInitialized();
         var model = (IInteractionModel)InteractionModel;
         Interaction.OnResize += ResizeHandler;
-        InteractionPanel.OnChildInitialized();
+        InteractionPanel?.OnChildInitialized();
     }
 
     void IDisposable.Dispose()
