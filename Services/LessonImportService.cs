@@ -17,8 +17,8 @@ namespace Bible_Blazer_PWA.Services
     public class LessonImportService
     {
         private readonly ICorrector corrector;
-        private LessonImporter lessonImporter;
-        private string lessonFileName;
+        protected LessonImporter lessonImporter;
+        protected string lessonFileName;
         private FileStream file;
 
         public LessonImportService(
@@ -40,7 +40,7 @@ namespace Bible_Blazer_PWA.Services
             lessonImporter = new(httpClient, corrector, databaseJSFacade, new SnackbarImportHandler(null, snackbar));
         }
 
-        public async Task WriteBytesToLessonFile(string lessonFileName, string serializedBytes)
+        public virtual async Task WriteBytesToLessonFile(string lessonFileName, string serializedBytes)
         {
             this.lessonFileName = lessonFileName;
 
