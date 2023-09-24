@@ -11,7 +11,6 @@
 @using System.Threading;
 
 @inject MenuService menu;
-@inject JSInteropService JS;
 
 <CenteredFixedContainer @ref="hiddenCloneTop" IsActive="!IsBottom" IsHiddenClone="true" Elevation="0" Bottom="IsBottom" Side="IsSide" Collapsed="IsCollapsed"></CenteredFixedContainer>
 @ChildContent
@@ -186,7 +185,7 @@
 
     protected override void OnInitialized()
     {
-        new Interaction(this, JS);
+        new Interaction(this);
         Interaction.OnTurnOver += () => IsBottom = !IsBottom;
         Interaction.OnTurnOver += () => this.SetInteractionModel(null, false);
     }

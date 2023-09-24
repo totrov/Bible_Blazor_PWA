@@ -47,11 +47,9 @@ namespace Bible_Blazer_PWA.Components.Interactor
         #endregion
 
         #region Ctor
-        public Interaction(InteractionPanel container, JSInteropService interopService)
+        public Interaction(InteractionPanel container)
         {
             Container = container;
-            this.interopService = interopService;
-            //interopService.OnTurnOverRequired += Interaction.TurnOver;
 
             Instance = this;
             Config = new();
@@ -78,7 +76,6 @@ namespace Bible_Blazer_PWA.Components.Interactor
         #region Private State
 
         private InteractionPanel Container;
-        private readonly JSInteropService interopService;
         private static Interaction Instance;
         private InteractionConfig Config;
         private IInteractionModel CurrentModel

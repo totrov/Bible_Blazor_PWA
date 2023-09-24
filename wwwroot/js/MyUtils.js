@@ -34,31 +34,32 @@ function registerInteropObject(dotNetObjectReference) {
     window.interopObject = dotNetObjectReference;
 }
 
-$.fn.scrollEnd = function (callback, timeout) {
-    $(this).on('scroll', function () {
-        var $this = $(this);
-        if ($this.data('scrollTimeout')) {
-            clearTimeout($this.data('scrollTimeout'));
-        }
-        $this.data('scrollTimeout', setTimeout(callback, timeout));
-    });
-};
+//scroll tracking. Commented now as not used
+//$.fn.scrollEnd = function (callback, timeout) {
+//    $(this).on('scroll', function () {
+//        var $this = $(this);
+//        if ($this.data('scrollTimeout')) {
+//            clearTimeout($this.data('scrollTimeout'));
+//        }
+//        $this.data('scrollTimeout', setTimeout(callback, timeout));
+//    });
+//};
 
-$(window).scrollEnd(function () {
-    var interactionPanelBottom = document.getElementById('InteractionPanelBottom');
-    if (interactionPanelBottom) {
-        if ($(window).scrollTop() + $(window).height() >= $(document).height() - interactionPanelBottom.offsetHeight) {
-            window.interopObject.invokeMethod("FireVoidEvent", "TurnOverRequired"); 
-        };
-    }
-    else {
-        var interactionPanelTop = document.getElementById('InteractionPanelTop');
-        if (interactionPanelTop) {
-            if ($(window).scrollTop() <= interactionPanelTop.offsetHeight) {
-                window.interopObject.invokeMethod("FireVoidEvent", "TurnOverRequired");
-            };
-        }
-    }
+//$(window).scrollEnd(function () {
+//    var interactionPanelBottom = document.getElementById('InteractionPanelBottom');
+//    if (interactionPanelBottom) {
+//        if ($(window).scrollTop() + $(window).height() >= $(document).height() - interactionPanelBottom.offsetHeight) {
+//            window.interopObject.invokeMethod("FireVoidEvent", "TurnOverRequired"); 
+//        };
+//    }
+//    else {
+//        var interactionPanelTop = document.getElementById('InteractionPanelTop');
+//        if (interactionPanelTop) {
+//            if ($(window).scrollTop() <= interactionPanelTop.offsetHeight) {
+//                window.interopObject.invokeMethod("FireVoidEvent", "TurnOverRequired");
+//            };
+//        }
+//    }
 
 
-}, 250);
+//}, 250);
