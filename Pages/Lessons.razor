@@ -1,5 +1,7 @@
 ﻿@page "/"
 @using Bible_Blazer_PWA.Components
+@using Bible_Blazer_PWA.Components.Interactor;
+@using Bible_Blazer_PWA.Components.Interactor.Home;
 @using Bible_Blazer_PWA.DataBase.DTO;
 @using Bible_Blazer_PWA.DataSources
 @using Bible_Blazer_PWA.Extensions
@@ -20,29 +22,7 @@
 @inject NavigationManager navigation
 @inject LessonUpdater updater;
 
-@if (_blocks != null)
-{
-    <MudList Clickable="false">
-        @foreach (LessonBlock block in _blocks.Values)
-        {
-            var header = block.Lessons.Any()
-            ? $"{block.Name} ({block.Lessons.Last().Value.VersionDate.ToRussianDateFormatString()})"
-            : block.Name;
-            <MudListItem Text="@header">
-                <NestedList>
-                    @foreach (KeyValuePair<int, LessonLightweightDTO> keyValue in block.Lessons)
-                    {
-                        var lesson = keyValue.Value;
-
-                        <MudListItem>
-                            <NavLink class="nav-link" href="@($"lesson/{lesson.Id}/{Unit.GetUnitNumberByShortName(lesson.UnitId)}")" Match="NavLinkMatch.All">@lesson.Name</NavLink>
-                        </MudListItem>
-                    }
-                </NestedList>
-            </MudListItem>
-        }
-    </MudList>
-}
+Legacy
 
 @code {
     private LessonDS _lessonDS { get; set; }
@@ -51,25 +31,18 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (_blocks != null && await updater.CheckUpdateRequired(_blocks))
-        {
-            IsDisabled = true;
-            await updater.UpdateLessons();
-            IsDisabled = false;
-            ReloadPageInstant();
-        }
+
     }
 
     protected override async Task OnInitializedAsync()
     {
-        _lessonDS = new LessonDS(db);
-        _blocks = await _lessonDS.GetBlocks(new DBCache(db));
         menu.Title = $"Планы уроков";
         _ = Task.Run(delegate ()
         {
             menu.ClearMenuButtons();
             menu.Update(this);
         });
+        Interaction.ModelOfType<HomeInteractionModel>.Apply(true);
     }
 
     private bool _isDisabled = false;

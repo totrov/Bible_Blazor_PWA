@@ -62,14 +62,14 @@
     }
     protected override void OnInitialized()
     {
-        Interaction.OnModelChanged += OnModelChangedHandler;
+        Interaction.OnMainModelChanged += OnModelChangedHandler;
         Interaction.OnResize += OnResizeHandler;
         if (InteractionPanel != null) InteractionPanel.OnChildInitialized();
     }
 
     void IDisposable.Dispose()
     {
-        Interaction.OnModelChanged -= OnModelChangedHandler;
+        Interaction.OnMainModelChanged -= OnModelChangedHandler;
         Interaction.OnResize -= OnResizeHandler;
     }
 }

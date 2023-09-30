@@ -1,4 +1,6 @@
-﻿@using Bible_Blazer_PWA.Components
+﻿@inherits InteractionContainerComponent
+
+@using Bible_Blazer_PWA.Components
 @using Bible_Blazer_PWA.Components.Interactor.Menu;
 @using Bible_Blazer_PWA.DataBase;
 @using Bible_Blazer_PWA.Parameters;
@@ -13,8 +15,8 @@
 @inject MenuService menu;
 
 <CenteredFixedContainer @ref="hiddenCloneTop" IsActive="!IsBottom" IsHiddenClone="true" Elevation="0" Bottom="IsBottom" Side="IsSide" Collapsed="IsCollapsed"></CenteredFixedContainer>
-@ChildContent
 
+<MainContentPanel @ref="MainContentPanel" InteractionPanelComponent="this"></MainContentPanel>
 <CenteredFixedContainer id="@Id" @ref="child" IsActive="true" IsHiddenClone="false" Elevation="0" Bottom="IsBottom" Side="IsSide" Collapsed="IsCollapsed">
     @InteractionRender
 </CenteredFixedContainer>
@@ -87,11 +89,12 @@
     private CenteredFixedContainer child;
     private CenteredFixedContainer hiddenCloneTop;
     private CenteredFixedContainer hiddenCloneBottom;
+    private MainContentPanel MainContentPanel;
 
     [Microsoft.AspNetCore.Components.Parameter]
     public EventCallback<Position> OnPositionChanged { get; set; }
 
-    public void SetInteractionModel(IInteractionModel model, bool fromTurnoverEvent = false)
+    public override void SetInteractionModel(IInteractionModel model, bool fromTurnoverEvent = false)
     {
         if (model != null)
         {
@@ -183,13 +186,6 @@
         }
     }
 
-    protected override void OnInitialized()
-    {
-        new Interaction(this);
-        Interaction.OnTurnOver += () => IsBottom = !IsBottom;
-        Interaction.OnTurnOver += () => this.SetInteractionModel(null, false);
-    }
-
     private Position CalcPosition(bool isSide, bool isBottom)
     {
         return isSide
@@ -197,13 +193,21 @@
             : Position.Centered;
     }
 
-    public void Refresh()
+    public override void Refresh()
     {
+        MainContentPanel.DisableRenderOnes = true;
         StateHasChanged();
     }
 
     private const string BottomSuffix = "Bottom", TopSuffix = "Top";
     public string Id { get => $"InteractionPanel{(IsSide ? (IsBottom ? BottomSuffix : TopSuffix) : string.Empty)}"; }
+
+    protected override void OnInitialized()
+    {
+        new Interaction(this);
+        Interaction.OnTurnOver += () => IsBottom = !IsBottom;
+        Interaction.OnTurnOver += () => this.SetInteractionModel(null, false);
+    }
 
     protected override void OnAfterRender(bool firstRender)
     {
