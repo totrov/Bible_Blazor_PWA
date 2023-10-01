@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bible_Blazer_PWA", "Bible_B
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BBPWA_TestProject", "..\BBPWA_TestProject\BBPWA_TestProject.csproj", "{DD4B5814-7992-4DD0-8FF2-59F8B43C47AF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp1", "..\ConsoleApp1\ConsoleApp1.csproj", "{945230DD-41FC-46C3-98FB-D971E15CF4C9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{DD4B5814-7992-4DD0-8FF2-59F8B43C47AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DD4B5814-7992-4DD0-8FF2-59F8B43C47AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DD4B5814-7992-4DD0-8FF2-59F8B43C47AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{945230DD-41FC-46C3-98FB-D971E15CF4C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{945230DD-41FC-46C3-98FB-D971E15CF4C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{945230DD-41FC-46C3-98FB-D971E15CF4C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{945230DD-41FC-46C3-98FB-D971E15CF4C9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

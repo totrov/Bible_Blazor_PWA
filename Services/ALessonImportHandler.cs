@@ -33,9 +33,14 @@ namespace Bible_Blazer_PWA.Services
         }
 
         protected abstract void Inform(string message, Severity severity = Severity.Info);
-        internal void HandleStartReading(string lessonName)
+        public virtual void HandleStartReading(string lessonName)
         {
             Inform($"{lessonName}:Чтение...");
+        }
+
+        public virtual void HandleStringAfterSuccessfulReading(string stringContent)
+        {
+            //do nothing by default
         }
     }
 }

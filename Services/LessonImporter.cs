@@ -55,6 +55,8 @@ namespace Bible_Blazer_PWA.Services
                 using (var reader = readerBuilder.GetReader())
                 {
                     stringContent = reader.ReadDocumentToString(out readSucceeded);
+                    if (readSucceeded)
+                        handler.HandleStringAfterSuccessfulReading(stringContent);
                 }
             }
             catch (ReaderException ex)
