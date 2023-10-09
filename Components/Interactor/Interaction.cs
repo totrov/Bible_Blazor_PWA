@@ -1,5 +1,4 @@
-﻿using Bible_Blazer_PWA.Components.Interactor.Home;
-using Bible_Blazer_PWA.Components.Interactor.Menu;
+﻿using Bible_Blazer_PWA.Components.Interactor.Menu;
 using Bible_Blazer_PWA.Components.Interactor.Transitions;
 using DocumentFormat.OpenXml.Office2010.PowerPoint;
 using System;
@@ -27,8 +26,8 @@ namespace Bible_Blazer_PWA.Components.Interactor
         #endregion
 
         #region Public State
-        public static bool HasPrevious { get => Instance.CurrentSideModel.Previous is not null; }
-        public static bool HasNext { get => Instance.CurrentSideModel.Next is not null; }
+        public static bool HasPrevious { get => Instance.CurrentSideModel?.Previous is not null; }
+        public static bool HasNext { get => Instance.CurrentSideModel?.Next is not null; }
         public static InteractionPanel GetInteractionPanel() => Instance.SideContainer;
         #endregion
 

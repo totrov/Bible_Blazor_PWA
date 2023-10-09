@@ -1,0 +1,29 @@
+﻿@using Bible_Blazer_PWA.Components.Interactor.Lesson;
+@using Bible_Blazer_PWA.DataBase.DTO;
+@using Bible_Blazer_PWA.DataSources;
+@using Bible_Blazer_PWA.Facades;
+@using static Bible_Blazer_PWA.Components.Interactor.Lesson.LessonInteractionModel;
+@using static Bible_Blazer_PWA.Components.Interactor.LessonsInUnit.Interaction;
+
+@inherits InteractionComponentBase<LessonsInUnitInteractionModel>
+
+
+@if (Lessons != null) foreach (KeyValuePair<int, LessonLightweightDTO> keyValue in Lessons)
+    {
+        var lesson = keyValue.Value;
+        <MudButton OnClick="@(() => 
+            LessonInteractionModel.WithParameters<UnitIdLessonId>.
+                Apply(new(lesson.UnitId, lesson.Id)))">@lesson.Name</MudButton>
+    }
+
+
+@code {
+    public SortedDictionary<int, LessonLightweightDTO> Lessons { get; set; }
+    private LessonDS _lessonDS { get; set; }
+    protected async override Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        _lessonDS = new LessonDS(db);
+        Lessons = (await _lessonDS.GetBlocks(new DBCache(db)))[InteractionModel.UnitId].Lessons;
+    }
+}

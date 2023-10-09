@@ -1,9 +1,12 @@
-﻿@using static Bible_Blazer_PWA.DataSources.LessonDS;
+﻿@using static Bible_Blazer_PWA.Components.Interactor.LessonsInUnit.Interaction.LessonsInUnitInteractionModel;
+@using static Bible_Blazer_PWA.Components.Interactor.LessonsInUnit.Interaction;
+@inherits InteractionComponentBase<LessonUnitsInteractionModel>
+@using static Bible_Blazer_PWA.DataSources.LessonDS;
 @inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
 
 @if (LessonUnits != null) foreach (LessonUnit unit in LessonUnits)
     {
-        <MudButton>@unit.Name</MudButton>
+        <MudButton OnClick="@(() => LessonsInUnitInteractionModel.WithParameters<SelectedUnitId>.Apply(new(unit.Id), true))">@unit.Name</MudButton>
     }
 
 @code {

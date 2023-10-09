@@ -1,5 +1,6 @@
 ﻿@typeparam TInteractionModel
 @inject Bible_Blazer_PWA.Parameters.DbParametersFacade DbParamFacade
+@inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade DataBase;
 @implements IDisposable
 
 @code {
@@ -10,6 +11,7 @@
 
     #region Shortkeys
     protected Parameters.ParametersModel parameters => DbParamFacade.ParametersModel;
+    protected Bible_Blazer_PWA.DataBase.DatabaseJSFacade db => DataBase;
     #endregion
 
     public string SizePct { get; set; }

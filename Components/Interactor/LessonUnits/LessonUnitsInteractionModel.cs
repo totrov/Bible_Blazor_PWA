@@ -1,5 +1,4 @@
-﻿using Bible_Blazer_PWA.Components.Interactor.Home;
-using System;
+﻿using System;
 
 namespace Bible_Blazer_PWA.Components.Interactor.LessonUnits
 {
@@ -12,6 +11,5 @@ namespace Bible_Blazer_PWA.Components.Interactor.LessonUnits
 
         public override event Action OnClose;
         public override void Close() => OnClose?.Invoke();
-        //TransferTo()
     }
 }
