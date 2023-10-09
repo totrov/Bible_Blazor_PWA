@@ -1,5 +1,7 @@
 ﻿using Bible_Blazer_PWA.Components.Interactor.BibleReferencesWriter;
 using Bible_Blazer_PWA.Components.Interactor.BibleViewer;
+using static Bible_Blazer_PWA.Components.Interactor.BibleReferencesWriter.Interaction;
+using static Bible_Blazer_PWA.Components.Interactor.BibleViewer.BibleViewerInteractionModel;
 
 namespace Bible_Blazer_PWA.Components.Interactor.Transitions
 {
@@ -8,10 +10,8 @@ namespace Bible_Blazer_PWA.Components.Interactor.Transitions
         public override void ApplyTransition(BibleReferencesWriterInteractionModel source)
         {
             source.OnLinkClicked += (bookShortName, chapterNumber, verseNumber) =>
-                Interaction
-                .ModelOfType<BibleViewerInteractionModel>
-                .WithParameters<BibleViewerInteractionModel.Parameters>
-                    .Apply(new(bookShortName, chapterNumber, verseNumber));
+                BibleViewerInteractionModel.WithParameters<BookChapterVerse>
+                    .Apply(new(bookShortName, chapterNumber, verseNumber), false);
         }
     }
 }

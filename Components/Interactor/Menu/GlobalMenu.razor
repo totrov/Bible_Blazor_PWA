@@ -27,7 +27,7 @@
             <MudImage Src="@button.Value.Icon" Width="50" Height="50"></MudImage>
         }
     }
-<MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => Interaction.ModelOfType<SetupInteractionModel>.WithParameters<SetupInteractionModel.Parameters>.Apply(new()))" />
+<MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => SetupInteractionModel.Apply())" />
 @code {
 
     MenuButton loadingImage;

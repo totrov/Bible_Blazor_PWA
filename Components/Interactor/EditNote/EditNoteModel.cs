@@ -5,7 +5,7 @@ using System;
 
 namespace Bible_Blazer_PWA.Components.Interactor.EditNote
 {
-    public class EditNoteModel:InteractionModelBase
+    public class EditNoteModel:InteractionModelBase<EditNoteModel>
     {
         public LessonElementMediator ElelementForNoteAdding { get; set; }
         public NoteModel NoteModel { get; set; }
@@ -14,18 +14,19 @@ namespace Bible_Blazer_PWA.Components.Interactor.EditNote
         public event Action<NoteModel> OnRemoveNote;
         public void RemoveNote(NoteModel noteModel) => OnRemoveNote?.Invoke(noteModel);
         public override bool IsSide => true;
+        public override bool ShouldPersistInHistory => false;
         public override Type ComponentType => typeof(EditNoteInteractionComponent);
 
-        public class Parameters:IInteractionModelParameters<EditNoteModel>
+        public class MediatorNoteModel: Parameters
         {
             public LessonElementMediator ElelementForNoteAdding { get; set; }
             public NoteModel NoteModel { get; set; }
-            public Parameters(LessonElementMediator elelementForNoteAdding, NoteModel noteModel)
+            public MediatorNoteModel(LessonElementMediator elelementForNoteAdding, NoteModel noteModel)
             {
                 ElelementForNoteAdding = elelementForNoteAdding;
                 NoteModel = noteModel;
             }
-            public void ApplyParametersToModel(EditNoteModel model)
+            public override void ApplyParametersToModel(EditNoteModel model)
             {
                 model.NoteModel = NoteModel;
                 model.ElelementForNoteAdding = ElelementForNoteAdding;

@@ -21,7 +21,7 @@
 <h4 style="overflow:hidden">@menu.Title</h4>
 
 @{
-    var onclick = () => { Interaction.ModelOfType<CreedInteractionModel>.Apply(); };
+    var onclick = () => { CreedInteractionModel.Apply(); };
 }
 <a href="" @onclick="onclick" @onclick:preventDefault>Символ Веры</a>
 @if (Composite != null)

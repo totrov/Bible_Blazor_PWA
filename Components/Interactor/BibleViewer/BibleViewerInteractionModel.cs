@@ -3,9 +3,10 @@ using System;
 
 namespace Bible_Blazer_PWA.Components.Interactor.BibleViewer
 {
-    public class BibleViewerInteractionModel : InteractionModelBase
+    public class BibleViewerInteractionModel : InteractionModelBase<BibleViewerInteractionModel>
     {
         public override bool IsSide => true;
+        public override bool ShouldPersistInHistory => true;
         public override Type ComponentType => typeof(BibleViewerInteractionComponent);
         public override event Action OnClose;
         public override void Close() => OnClose?.Invoke();
@@ -13,9 +14,9 @@ namespace Bible_Blazer_PWA.Components.Interactor.BibleViewer
         public int VerseNumber { get; set; }
         public int ChapterNumber { get; set; }        
 
-        public class Parameters : IInteractionModelParameters<BibleViewerInteractionModel>
+        public class BookChapterVerse : Parameters
         {
-            public Parameters(string bookShortName, int chapterNumber, int verseNumber)
+            public BookChapterVerse(string bookShortName, int chapterNumber, int verseNumber)
             {
                 BookShortName = bookShortName;
                 ChapterNumber = chapterNumber;
@@ -26,7 +27,7 @@ namespace Bible_Blazer_PWA.Components.Interactor.BibleViewer
             public int VerseNumber { get; }
             public int ChapterNumber { get; set; }
 
-            public void ApplyParametersToModel(BibleViewerInteractionModel model)
+            public override void ApplyParametersToModel(BibleViewerInteractionModel model)
             {
                 model.BookShortName = BookShortName;
                 model.VerseNumber = VerseNumber;

@@ -2,12 +2,11 @@
 
 namespace Bible_Blazer_PWA.Components.Interactor.Creed
 {
-    public class CreedInteractionModel : InteractionModelBase
+    public class CreedInteractionModel : InteractionModelBase<CreedInteractionModel>
     {
         public override bool IsSide => true;
-
+        public override bool ShouldPersistInHistory => false;
         public override Type ComponentType => typeof(CreedInteractionComponent);
-
         public override event Action OnClose;
         public override void Close() => OnClose?.Invoke();
     }

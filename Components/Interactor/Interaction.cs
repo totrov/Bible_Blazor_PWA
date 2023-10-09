@@ -1,14 +1,16 @@
 ﻿using Bible_Blazer_PWA.Components.Interactor.Home;
 using Bible_Blazer_PWA.Components.Interactor.Menu;
 using Bible_Blazer_PWA.Components.Interactor.Transitions;
+using DocumentFormat.OpenXml.Office2010.PowerPoint;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using static Bible_Blazer_PWA.Components.Interactor.Interaction;
 
 namespace Bible_Blazer_PWA.Components.Interactor
 {
-    public class Interaction : IInteractionCoordinator
+    public partial class Interaction : IInteractionCoordinator
     {
         #region Events
         public static event Action OnMainModelChanged;
@@ -123,7 +125,7 @@ namespace Bible_Blazer_PWA.Components.Interactor
 
         private void GoToPreviousImpl()
         {
-            if (CurrentSideModel is not Command)
+            if (CurrentSideModel.ShouldPersistInHistory)
             {
                 CurrentSideModel.Previous.Next = CurrentSideModel;
             }
@@ -138,7 +140,7 @@ namespace Bible_Blazer_PWA.Components.Interactor
         }
         private void GoToNextImpl()
         {
-            if (CurrentSideModel is not Command)
+            if (CurrentSideModel.ShouldPersistInHistory)
             {
                 CurrentSideModel.Next.Previous = CurrentSideModel;
             }
@@ -155,20 +157,30 @@ namespace Bible_Blazer_PWA.Components.Interactor
         #endregion
 
         #region Nested Classes
-        public static class ModelOfType<TInteractionModel> where TInteractionModel : IInteractionModel, new()
+
+        public abstract class InteractionModel<TSelf>
+            where TSelf : InteractionModel<TSelf>, IInteractionModel
         {
-            public static class WithParameters<TParameters> where TParameters : IInteractionModelParameters<TInteractionModel>
+            public abstract class Parameters
             {
-                public static TInteractionModel Apply(TParameters parameters, bool toMainContent = false)
+                public abstract void ApplyParametersToModel(TSelf model);
+                public Type GetModelType() => typeof(TSelf);
+            }
+
+            public abstract class WithParameters<TParameters>
+                where TParameters : Parameters
+            {
+                public static TSelf Apply(TParameters parameters, bool toMainContent = false)
                 {
-                    return Instance.SetInteractionModel<TInteractionModel, TParameters>(parameters, toMainContent);
+                    return Instance.SetInteractionModel<TSelf, TParameters>(parameters, toMainContent);
                 }
             }
-            public static TInteractionModel Apply(bool toMainContent = false)
+            public static TSelf Apply(bool toMainContent = false)
             {
-                return Instance.SetInteractionModel<TInteractionModel>(toMainContent);
+                return Instance.SetInteractionModel<TSelf>(toMainContent);
             }
         }
+
         #endregion
 
         internal static void RemoveCurrent()
@@ -186,9 +198,9 @@ namespace Bible_Blazer_PWA.Components.Interactor
             SideContainer.Refresh();
         }
         protected TInteractionModel SetInteractionModel<TInteractionModel>(bool toMainContent)
-            where TInteractionModel : IInteractionModel, new()
+            where TInteractionModel : IInteractionModel
         {
-            var model = new TInteractionModel();
+            TInteractionModel model = Activator.CreateInstance<TInteractionModel>();
             ApplyTransitions(model);
             model.Previous = CurrentSideModel;
             InteractionContainerComponent container = toMainContent ? MainContainer : SideContainer;
@@ -203,11 +215,11 @@ namespace Bible_Blazer_PWA.Components.Interactor
             CurrentMainModel = toMainContent ? model : CurrentSideModel;            
             return model;
         }
-        protected TInteractionModel SetInteractionModel<TInteractionModel, TParameters>(TParameters parameters, bool toMainContent = false)
-            where TInteractionModel : IInteractionModel, new()
-            where TParameters : IInteractionModelParameters<TInteractionModel>
+        protected TInteractionModel SetInteractionModel<TInteractionModel, TParameters>(InteractionModel<TInteractionModel>.Parameters parameters, bool toMainContent = false)
+            where TInteractionModel : InteractionModel<TInteractionModel>, IInteractionModel
+            where TParameters : InteractionModel<TInteractionModel>.Parameters
         {
-            var model = new TInteractionModel();
+            TInteractionModel model = Activator.CreateInstance<TInteractionModel>();
             parameters.ApplyParametersToModel(model);
             ApplyTransitions(model);
             model.Previous = CurrentSideModel;
@@ -223,7 +235,7 @@ namespace Bible_Blazer_PWA.Components.Interactor
             CurrentMainModel = toMainContent ? model : CurrentSideModel;
             return model;
         }
-        private void ApplyTransitions<TInteractionModel>(TInteractionModel model) where TInteractionModel : IInteractionModel, new()
+        private void ApplyTransitions<TInteractionModel>(TInteractionModel model) where TInteractionModel : IInteractionModel
         {
             if (transitions.ContainsKey(model.GetType()))
             {

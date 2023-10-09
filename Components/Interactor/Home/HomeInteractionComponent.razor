@@ -1,4 +1,4 @@
-﻿@inherits InteractionComponentBase<HomeInteractionModel>
+﻿@inherits InteractionComponentBase<LessonUnitsInteractionModel>
 @using Bible_Blazer_PWA.Config;
 @using Bible_Blazer_PWA.DataBase.DTO;
 @using Bible_Blazer_PWA.DataSources;
@@ -65,6 +65,6 @@
 
     private void ReloadPage()
     {
-        Interaction.ModelOfType<HomeInteractionModel>.Apply(true);
+        LessonUnitsInteractionModel.Apply(true);
     }
 }

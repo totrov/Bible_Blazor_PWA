@@ -1,0 +1,17 @@
+﻿@using static Bible_Blazer_PWA.DataSources.LessonDS;
+@inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
+
+@if (LessonUnits != null) foreach (LessonUnit unit in LessonUnits)
+    {
+        <MudButton>@unit.Name</MudButton>
+    }
+
+@code {
+    public IEnumerable<LessonUnit> LessonUnits { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        LessonUnits = await (await db.GetAllFromObjectStore<LessonUnit>("lessonUnits")).GetTaskCompletionSourceWrapper();
+    }
+}
