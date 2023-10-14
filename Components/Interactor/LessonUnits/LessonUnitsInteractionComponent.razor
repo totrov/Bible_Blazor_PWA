@@ -1,20 +1,30 @@
-﻿@using static Bible_Blazer_PWA.Components.Interactor.LessonsInUnit.Interaction.LessonsInUnitInteractionModel;
+﻿@using Bible_Blazer_PWA.DataSources;
+@using static Bible_Blazer_PWA.Components.Interactor.LessonsInUnit.Interaction.LessonsInUnitInteractionModel;
 @using static Bible_Blazer_PWA.Components.Interactor.LessonsInUnit.Interaction;
 @inherits InteractionComponentBase<LessonUnitsInteractionModel>
 @using static Bible_Blazer_PWA.DataSources.LessonDS;
-@inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
 
-@if (LessonUnits != null) foreach (LessonUnit unit in LessonUnits)
+@if (LessonUnits != null)
+{
+    foreach (LessonUnit unit in LessonUnits)
     {
         <MudButton OnClick="@(() => LessonsInUnitInteractionModel.WithParameters<SelectedUnitId>.Apply(new(unit.Id), true))">@unit.Name</MudButton>
+        <br />
     }
-
+}
 @code {
-    public IEnumerable<LessonUnit> LessonUnits { get; set; }
+    public SortedSet<LessonUnit> LessonUnits { get; set; }
 
     protected async override Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        LessonUnits = await (await db.GetAllFromObjectStore<LessonUnit>("lessonUnits")).GetTaskCompletionSourceWrapper();
+        LessonUnits = new(
+            await (await db.GetAllFromObjectStore<LessonUnit>("lessonUnits")).GetTaskCompletionSourceWrapper(),
+            new BlockNameComparer());
+    }
+
+    class BlockNameComparer : LessonDS.BlockNameComparer, IComparer<LessonUnit>
+    {
+        public int Compare(LessonUnit x, LessonUnit y) => base.Compare(x.Name, y.Name);
     }
 }

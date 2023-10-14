@@ -35,7 +35,7 @@ namespace Bible_Blazer_PWA.DataSources
             db = _facade;
         }
 
-        private class BlockNameComparer : IComparer<string>
+        internal class BlockNameComparer : IComparer<string>
         {
             private int Order(char firstChar) => firstChar switch
             {
