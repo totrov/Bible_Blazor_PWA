@@ -14,7 +14,7 @@
     var lesson = keyValue.Value;
     <InteractionLink OnClick="@(() => 
         LessonInteractionModel.WithParameters<UnitIdLessonId>.
-            Apply(new(lesson.UnitId, lesson.Id)))">@lesson.Name</InteractionLink>
+            Apply(new(lesson.UnitId, lesson.Id), true))">@lesson.Name</InteractionLink>
     <br />
 }
 

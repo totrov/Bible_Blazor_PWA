@@ -1,6 +1,4 @@
-﻿@page "/lesson/{Id:int}/{UnitNumber:int}"
-@inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
-@namespace BibleComponents
+﻿@*@namespace BibleComponents
 @inject HttpClient Http
 @inject DbParametersFacade DbParameters;
 @using Bible_Blazer_PWA.Components
@@ -8,7 +6,7 @@
 @using Bible_Blazer_PWA.DataBase.DTO;
 @using Bible_Blazer_PWA.DataSources
 @using Bible_Blazer_PWA.Services.Menu
-@inject MenuService menu
+
 @inject NavigationManager NavigationManager
 @using Bible_Blazer_PWA.DomainObjects;
 @using Bible_Blazer_PWA.Parameters;
@@ -18,12 +16,7 @@
 @using static Bible_Blazer_PWA.DataSources.LessonDS
 @using Bible_Blazer_PWA.Components.Interactor
 
-<h4 style="overflow:hidden">@menu.Title</h4>
 
-@{
-    var onclick = () => { CreedInteractionModel.Apply(); };
-}
-<a href="" @onclick="onclick" @onclick:preventDefault>Символ Веры</a>
 @if (Composite != null)
 {
     <MudContainer>
@@ -122,3 +115,4 @@
         NavigationManager.NavigateTo($"/lesson/{NextLesson.Id}/{UnitNumber}");
     }
 }
+*@

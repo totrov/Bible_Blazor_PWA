@@ -8,7 +8,7 @@ namespace Bible_Blazer_PWA.Components.Interactor.Lesson
 
         public override bool ShouldPersistInHistory => true;
 
-        public override Type ComponentType => throw new NotImplementedException();
+        public override Type ComponentType => typeof(LessonInteractionComponent);
 
         public override event Action OnClose;
         public override void Close() => OnClose?.Invoke();

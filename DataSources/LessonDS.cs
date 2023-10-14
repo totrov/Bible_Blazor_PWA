@@ -104,6 +104,11 @@ namespace Bible_Blazer_PWA.DataSources
             }
             return ret;
         }
+        public async Task<LessonLightweightDTO> GetLessonLightweightDTOByFor(string unitId, string lessonId)
+        {
+            return await (await db.GetRecordFromObjectStoreByKey<LessonLightweightDTO>("lessons", unitId, lessonId))
+                .GetTaskCompletionSourceWrapper();
+        }
     }
 
     public class LessonRecordingLink
