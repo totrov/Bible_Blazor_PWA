@@ -11,7 +11,7 @@ namespace Bible_Blazer_PWA.Components.Interactor.Transitions
         {
             source.OnLinkClicked += (bookShortName, chapterNumber, verseNumber) =>
                 BibleViewerInteractionModel.WithParameters<BookChapterVerse>
-                    .Apply(new(bookShortName, chapterNumber, verseNumber), false);
+                    .ApplyToCurrentPanel(new(bookShortName, chapterNumber, verseNumber), source);
         }
     }
 }

@@ -11,22 +11,23 @@
 @inject MenuService menu
 @inject HttpClient Http
 
-<h4 style="overflow:hidden">@menu.Title</h4>
+<MudPaper Outlined="true" Class="px-3 py-3" style="@GetStyle">
+    <h4 style="overflow:hidden">@menu.Title</h4>
 
-<InteractionLink OnClick="()=>CreedInteractionModel.Apply()"></InteractionLink>
+    <InteractionLink OnClick="()=>CreedInteractionModel.Apply()">Символ Веры</InteractionLink>
 
-@if (Composite != null)
-{
-    <MudContainer>
-        @foreach (LessonElementData data in CompositeChildren)
-        {
-            <LessonElement ElementData="data" InteractionPanel="Interaction.GetInteractionPanel()"></LessonElement>
-        }
+    @if (Composite != null)
+    {
+        <MudContainer>
+            @foreach (LessonElementData data in CompositeChildren)
+            {
+                <LessonElement ElementData="data" InteractionPanel="Interaction.GetInteractionPanel()"></LessonElement>
+            }
 
-        <PrevNextLessonLinks @ref="PrevNextLessonLinks" LessonId="InteractionModel.LessonNumber" UnitId="InteractionModel.UnitId"></PrevNextLessonLinks>
-    </MudContainer>
-}
-
+            <PrevNextLessonLinks @ref="PrevNextLessonLinks" LessonId="InteractionModel.LessonNumber" UnitId="InteractionModel.UnitId"></PrevNextLessonLinks>
+        </MudContainer>
+    }
+</MudPaper>
 @code {
     public LessonElementData Composite { get; set; }
     public LinkedList<LessonElementData> CompositeChildren { get; set; }

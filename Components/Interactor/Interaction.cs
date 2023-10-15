@@ -173,10 +173,29 @@ namespace Bible_Blazer_PWA.Components.Interactor
                 {
                     return Instance.SetInteractionModel<TSelf, TParameters>(parameters, toMainContent);
                 }
+                public static TSelf ApplyToCurrentPanel(TParameters parameters, IInteractionModel interactionModel)
+                {
+                    return Instance.SetInteractionModel<TSelf, TParameters>(parameters, interactionModel.IsMainContent);
+                }
+                public static TSelf ApplyToOppositePanel(TParameters parameters, IInteractionModel interactionModel)
+                {
+                    return Instance.SetInteractionModel<TSelf, TParameters>(parameters, !interactionModel.IsMainContent);
+                }
             }
+
             public static TSelf Apply(bool toMainContent = false)
             {
                 return Instance.SetInteractionModel<TSelf>(toMainContent);
+            }
+
+            public static TSelf ApplyToCurrentPanel(IInteractionModel sender)
+            {
+                return Instance.SetInteractionModel<TSelf>(sender.IsMainContent);
+            }
+
+            public static TSelf ApplyToOppositePanel(IInteractionModel sender)
+            {
+                return Instance.SetInteractionModel<TSelf>(!sender.IsMainContent);
             }
         }
 
@@ -202,6 +221,7 @@ namespace Bible_Blazer_PWA.Components.Interactor
             TInteractionModel model = Activator.CreateInstance<TInteractionModel>();
             ApplyTransitions(model);
             model.Previous = CurrentSideModel;
+            model.IsMainContent = toMainContent;
             InteractionContainerComponent container = toMainContent ? MainContainer : SideContainer;
             container.SetInteractionModel(model);
             model.OnClose += () =>
@@ -222,6 +242,7 @@ namespace Bible_Blazer_PWA.Components.Interactor
             parameters.ApplyParametersToModel(model);
             ApplyTransitions(model);
             model.Previous = CurrentSideModel;
+            model.IsMainContent = toMainContent;
             InteractionContainerComponent container = toMainContent ? MainContainer : SideContainer;
             container.SetInteractionModel(model);
             model.OnClose += () =>

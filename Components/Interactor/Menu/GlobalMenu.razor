@@ -1,4 +1,5 @@
-﻿@using Bible_Blazer_PWA.Components.Interactor.Setup;
+﻿@using Bible_Blazer_PWA.Components.Interactor.Home;
+@using Bible_Blazer_PWA.Components.Interactor.Setup;
 @using Bible_Blazer_PWA.Services.Menu;
 @inject MenuService menu
 
@@ -7,14 +8,8 @@
 
 @inject NavigationManager navigation
 
-    @if (HomePage)
-    {
-        <div id="version">v2.4</div>
-    }
-    else
-    {
-        <MudButton Variant="Variant.Text" StartIcon="@Icons.Material.Filled.ArrowBackIosNew" OnClick="()=>{navigation.NavigateTo('/'.ToString());}" Color="Color.Inherit">Планы уроков</MudButton>
-    }
+    <div id="version">v2.4</div>
+
     <MudSpacer />
     @foreach (var button in menu.Buttons.Where(b => b.Value.Visible))
     {
@@ -27,20 +22,15 @@
             <MudImage Src="@button.Value.Icon" Width="50" Height="50"></MudImage>
         }
     }
-<MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => SetupInteractionModel.Apply())" />
+<MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => HomeInteractionModel.Apply())" />
 @code {
 
-    MenuButton loadingImage;
     private ParametersModel parametersModel;
-    bool HomePage
-    {
-        get => navigation.ToBaseRelativePath(navigation.Uri) == "";
-    }
+
     string appBarStyle { get; set; }
 
     protected async override Task OnInitializedAsync()
     {
-        loadingImage = menu.AddMenuButton(new EmptyButtonHandler("/Assets/CloudLoading.gif"));
         parametersModel = dbParamteres.ParametersModel;
         appBarStyle = $"background-color:{parametersModel.ToolsBg}";
         menu.OnUpdate += (s, e) => this.StateHasChanged();
@@ -52,24 +42,4 @@
             navigation.NavigateTo(currentUri);
         };
     }
-
-    #region Drawer
-
-    bool DrawerOpen { get; set; }
-    bool addedNavigationChangedHandler = false;
-    void DrawerToggle()
-    {
-        if (!addedNavigationChangedHandler)
-        {
-            navigation.LocationChanged += (s, e) =>
-            {
-                DrawerOpen = false;
-            };
-            addedNavigationChangedHandler = true;
-        }
-
-        DrawerOpen = !DrawerOpen;
-    }
-
-    #endregion
 }

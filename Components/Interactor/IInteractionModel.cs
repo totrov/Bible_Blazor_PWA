@@ -8,12 +8,13 @@ namespace Bible_Blazer_PWA.Components.Interactor
     {
         bool IsSide { get; }
         bool ShouldPersistInHistory { get; }
-
+        bool IsMainContent { get; set; }
         public event Action OnClose;
         public void Close();
         Type ComponentType { get; }
         IInteractionModel Next { get; set; }
         IInteractionModel Previous { get; set; }
+        
     }
     public abstract class InteractionModelBase<TSelf> : Interaction.InteractionModel<TSelf>, IInteractionModel
         where TSelf : InteractionModelBase<TSelf>
@@ -25,6 +26,8 @@ namespace Bible_Blazer_PWA.Components.Interactor
         
         public IInteractionModel Next { get; set; }
         public IInteractionModel Previous { get; set; }
+        public bool IsMainContent { get; set; }
+
         public event Action OnClose;
         public void Close() => OnClose?.Invoke();
     }

@@ -4,14 +4,17 @@
 @inherits InteractionComponentBase<LessonUnitsInteractionModel>
 @using static Bible_Blazer_PWA.DataSources.LessonDS;
 
-@if (LessonUnits != null)
-{
-    foreach (LessonUnit unit in LessonUnits)
+<MudPaper Outlined="true" Class="px-3 py-3" style="@GetStyle">
+    @if (LessonUnits != null)
     {
-        <MudButton OnClick="@(() => LessonsInUnitInteractionModel.WithParameters<SelectedUnitId>.Apply(new(unit.Id), true))">@unit.Name</MudButton>
-        <br />
+        foreach (LessonUnit unit in LessonUnits)
+        {
+            <MudButton OnClick="@(() => LessonsInUnitInteractionModel.WithParameters<SelectedUnitId>.ApplyToCurrentPanel(new(unit.Id), InteractionModel))">@unit.Name</MudButton>
+            <br />
+        }
     }
-}
+</MudPaper>
+
 @code {
     public SortedSet<LessonUnit> LessonUnits { get; set; }
 

@@ -4,7 +4,7 @@ namespace Bible_Blazer_PWA.Components.Interactor.Lesson
 {
     public class LessonInteractionModel : InteractionModelBase<LessonInteractionModel>
     {
-        public override bool IsSide => false;
+        public override bool IsSide => true;
 
         public override bool ShouldPersistInHistory => true;
 

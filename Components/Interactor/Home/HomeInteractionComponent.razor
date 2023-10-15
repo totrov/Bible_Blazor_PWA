@@ -1,45 +1,17 @@
-﻿@inherits InteractionComponentBase<HomeInteractionModel>
-@using Bible_Blazer_PWA.Config;
-@using Bible_Blazer_PWA.DataBase.DTO;
-@using Bible_Blazer_PWA.DataSources;
-@using Bible_Blazer_PWA.DomainObjects;
-@using Bible_Blazer_PWA.Facades;
-@using Bible_Blazer_PWA.Services.Menu;
-@using Bible_Blazer_PWA.Services;
-@using static Bible_Blazer_PWA.DataSources.LessonDS;
+﻿@using Bible_Blazer_PWA.Components.Interactor.Bible;
+@using Bible_Blazer_PWA.Components.Interactor.LessonUnits;
+@using Bible_Blazer_PWA.Components.Interactor.Youtube;
+@using Bible_Blazer_PWA.Components.Interactor.Setup;
+@using Bible_Blazer_PWA.Components.Interactor._SubComponents
+@inherits InteractionComponentBase<HomeInteractionModel>
 
-@inject MenuService menu
-@inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
-@inject LessonUpdater updater;
-
+<MudPaper Outlined="true" Class="px-3 py-3" style="@GetStyle">
+    <InteractionLink OnClick="() => LessonUnitsInteractionModel.ApplyToCurrentPanel(InteractionModel)">Планы уроков</InteractionLink>
+    <InteractionLink OnClick="() => BibleInteractionModel.ApplyToCurrentPanel(InteractionModel)">Библия</InteractionLink>
+    <InteractionLink OnClick="() => SetupInteractionModel.ApplyToCurrentPanel(InteractionModel)">Настройки</InteractionLink>
+    <InteractionLink OnClick="() => YoutubePlaylistsInteractionModel.ApplyToCurrentPanel(InteractionModel)">Youtube</InteractionLink>
+</MudPaper>
 
 @code {
-    private LessonDS _lessonDS { get; set; }
-    private SortedDictionary<string, LessonBlock> _blocks;
 
-    protected override async Task OnInitializedAsync()
-    {
-        _lessonDS = new LessonDS(db);
-        _blocks = await _lessonDS.GetBlocks(new DBCache(db));
-        menu.Title = $"Планы уроков";
-        _ = Task.Run(delegate ()
-        {
-            menu.ClearMenuButtons();
-            menu.Update(this);
-        });
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (_blocks != null && await updater.CheckUpdateRequired(_blocks))
-        {
-            await updater.UpdateLessons();
-            ReloadPage();
-        }
-    }
-
-    private void ReloadPage()
-    {
-        HomeInteractionModel.Apply(true);
-    }
 }
