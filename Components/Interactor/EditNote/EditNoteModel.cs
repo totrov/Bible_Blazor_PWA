@@ -9,8 +9,6 @@ namespace Bible_Blazer_PWA.Components.Interactor.EditNote
     {
         public LessonElementMediator ElelementForNoteAdding { get; set; }
         public NoteModel NoteModel { get; set; }
-        public override event Action OnClose;
-        public override void Close() => OnClose?.Invoke();
         public event Action<NoteModel> OnRemoveNote;
         public void RemoveNote(NoteModel noteModel) => OnRemoveNote?.Invoke(noteModel);
         public override bool IsSide => true;

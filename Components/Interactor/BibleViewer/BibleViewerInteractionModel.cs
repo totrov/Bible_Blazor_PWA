@@ -8,8 +8,6 @@ namespace Bible_Blazer_PWA.Components.Interactor.BibleViewer
         public override bool IsSide => true;
         public override bool ShouldPersistInHistory => true;
         public override Type ComponentType => typeof(BibleViewerInteractionComponent);
-        public override event Action OnClose;
-        public override void Close() => OnClose?.Invoke();
         public string BookShortName { get; set; }
         public int VerseNumber { get; set; }
         public int ChapterNumber { get; set; }        

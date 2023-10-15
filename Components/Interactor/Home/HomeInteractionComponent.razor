@@ -1,4 +1,4 @@
-﻿@inherits InteractionComponentBase<LessonUnitsInteractionModel>
+﻿@inherits InteractionComponentBase<HomeInteractionModel>
 @using Bible_Blazer_PWA.Config;
 @using Bible_Blazer_PWA.DataBase.DTO;
 @using Bible_Blazer_PWA.DataSources;
@@ -11,31 +11,6 @@
 @inject MenuService menu
 @inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
 @inject LessonUpdater updater;
-
-@if (_blocks != null)
-{
-    <MudList Clickable="false">
-        @foreach (LessonBlock block in _blocks.Values)
-        {
-            var header = block.Lessons.Any()
-            ? $"{block.Name} ({block.Lessons.Last().Value.VersionDate.ToRussianDateFormatString()})"
-            : block.Name;
-            <MudListItem Text="@header">
-                <NestedList>
-                    @foreach (KeyValuePair<int, LessonLightweightDTO> keyValue in block.Lessons)
-                    {
-                        var lesson = keyValue.Value;
-
-                        <MudListItem>
-                            <NavLink class="nav-link" href="@($"lesson/{lesson.Id}/{Unit.GetUnitNumberByShortName(lesson.UnitId)}")" Match="NavLinkMatch.All">@lesson.Name</NavLink>
-                        </MudListItem>
-                    }
-                </NestedList>
-            </MudListItem>
-        }
-    </MudList>
-}
-
 
 
 @code {
@@ -65,6 +40,6 @@
 
     private void ReloadPage()
     {
-        LessonUnitsInteractionModel.Apply(true);
+        HomeInteractionModel.Apply(true);
     }
 }

@@ -25,8 +25,8 @@ namespace Bible_Blazer_PWA.Components.Interactor
         
         public IInteractionModel Next { get; set; }
         public IInteractionModel Previous { get; set; }
-        public abstract event Action OnClose;
-        public abstract void Close();
+        public event Action OnClose;
+        public void Close() => OnClose?.Invoke();
     }
 
     public abstract class Command<TSelf> : InteractionModelBase<TSelf>

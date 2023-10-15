@@ -8,8 +8,6 @@ namespace Bible_Blazer_PWA.Components.Interactor.RemoveNote
     {
         public NoteModel NoteModel { get; set; }
         public LessonElementMediator Mediator { get; set; }
-        public override event Action OnClose;
-        public override void Close() => OnClose?.Invoke();
         public override bool IsSide => false;
         public override bool ShouldPersistInHistory => false;
         public override Type ComponentType => typeof(RemoveNoteInteractionComponent);

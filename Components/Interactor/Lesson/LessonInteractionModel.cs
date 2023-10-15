@@ -10,9 +10,6 @@ namespace Bible_Blazer_PWA.Components.Interactor.Lesson
 
         public override Type ComponentType => typeof(LessonInteractionComponent);
 
-        public override event Action OnClose;
-        public override void Close() => OnClose?.Invoke();
-
         #region Parameters
 
         public string UnitId { get; set; }
