@@ -1,0 +1,26 @@
+﻿@inject Bible_Blazer_PWA.Parameters.DbParametersFacade DbParamFacade
+
+@if (_items != null)
+{
+    <MudBreadcrumbs Items="_items" Separator=">" Style="@Style">
+        <ItemTemplate Context="item">
+            <MudIconButton OnClick="BreadcrumbsFacade.GetAction(item.Href)" Icon="@item.Icon">@item.Text</MudIconButton>
+        </ItemTemplate>
+    </MudBreadcrumbs>
+    <MudDivider />
+}
+
+@code {
+    [Parameter]
+    public BreadcrumbsFacade BreadcrumbsFacade { get; set; }
+    private List<BreadcrumbItem> _items;
+    protected Parameters.ParametersModel parameters => DbParamFacade.ParametersModel;
+    public string Style { get; set; }
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        _items = BreadcrumbsFacade.GetBreadcrumbs();
+        BreadcrumbsFacade.OnUpdateRequired += StateHasChanged;
+        Style = $"background-color:{BreadcrumbsFacade.Background};padding:0 1rem;";
+    }
+}

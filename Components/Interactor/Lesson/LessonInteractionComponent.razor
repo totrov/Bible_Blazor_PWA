@@ -7,25 +7,22 @@
 @using Bible_Blazer_PWA.DataSources;
 @using Bible_Blazer_PWA.DomainObjects;
 @using Bible_Blazer_PWA.Services.Menu;
+@using System.Text.RegularExpressions;
 
 @inject MenuService menu
 @inject HttpClient Http
 
 <MudPaper Outlined="true" Class="px-3 py-3" style="@GetStyle">
-    <h4 style="overflow:hidden">@menu.Title</h4>
-
-    <InteractionLink OnClick="()=>CreedInteractionModel.Apply()">Символ Веры</InteractionLink>
-
     @if (Composite != null)
     {
-        <MudContainer>
+            <InteractionLink OnClick="()=>CreedInteractionModel.Apply()">Символ Веры</InteractionLink>
+            <InteractionLink OnClick="()=>CreedInteractionModel.Apply()">Символ Веры</InteractionLink>
             @foreach (LessonElementData data in CompositeChildren)
             {
                 <LessonElement ElementData="data" InteractionPanel="Interaction.GetInteractionPanel()"></LessonElement>
             }
 
-            <PrevNextLessonLinks @ref="PrevNextLessonLinks" LessonId="InteractionModel.LessonNumber" UnitId="InteractionModel.UnitId"></PrevNextLessonLinks>
-        </MudContainer>
+            <PrevNextLessonLinks @ref="PrevNextLessonLinks" InteractionModel="@InteractionModel"></PrevNextLessonLinks>
     }
 </MudPaper>
 @code {
@@ -40,17 +37,25 @@
         dbParametersFacade.OnChange += (param, value) => { StateHasChanged(); };
         parameters.NotesEnabled = true;
 
+        await ResetLesson();
+    }
+
+    protected async override Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        await ResetLesson();
+        PrevNextLessonLinks.InteractionModel = InteractionModel;
+    }
+
+    protected async Task ResetLesson()
+    {
         Composite = await LessonElementData.GetLessonCompositeAsync(
             Unit.GetUnitNumberByShortName(InteractionModel.UnitId),
             Convert.ToInt32(InteractionModel.LessonNumber),
             db, Http);
         CompositeChildren = Composite.Children;
+        InteractionModel.SetLessonName(Regex.Replace(Composite.Value, ",(?=[а-яА-Яa-zA-Z])", ", "));
     }
 
-    //protected async override Task OnAfterRenderAsync(bool firstRender)
-    //{
-    //    await base.OnAfterRenderAsync(firstRender);
-    //    _ = PrevNextLessonLinks.InitPrevNextLessons().ContinueWith(RefreshPrevNextLinks);
-    //}
-    //protected Task RefreshPrevNextLinks(Task task) => Task.Run(PrevNextLessonLinks.Refresh);
+    protected Task RefreshPrevNextLinks(Task task) => Task.Run(PrevNextLessonLinks.Refresh);
 }

@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Bible_Blazer_PWA.Components.Interactor.Home;
+using MudBlazor;
+using System;
+using System.Collections.Generic;
 
 namespace Bible_Blazer_PWA.Components.Interactor.Bible
 {
@@ -9,19 +12,53 @@ namespace Bible_Blazer_PWA.Components.Interactor.Bible
         public override bool ShouldPersistInHistory => false;
 
         public override Type ComponentType => typeof(BibleChaptersInteractionComponent);
-        public int BookId { get; set; }
+        public string ShortName { get; set; }
 
-        public class BibleBookId : Parameters
+        public override IEnumerable<BreadcrumbsFacade.BreadcrumbRecord> GetBreadcrumbs()
         {
-            public BibleBookId(int bookId)
+            yield return new BreadcrumbsFacade.BreadcrumbRecord
             {
-                BookId = bookId;
+                Text = "",
+                Action = () =>
+                {
+                    HomeInteractionModel.ApplyToCurrentPanel(this);
+                },
+                Icon = Icons.Material.Filled.Home
+            };
+
+            yield return new BreadcrumbsFacade.BreadcrumbRecord
+            {
+                Text = "Библия",
+                Action = () =>
+                {
+                    BibleInteractionModel.ApplyToCurrentPanel(this);
+                },
+                Icon = Icons.Material.Filled.Book
+            };
+
+            yield return new BreadcrumbsFacade.BreadcrumbRecord
+            {
+                Text = ShortName,
+                Action = () =>
+                {
+                    BibleChaptersInteractionModel.WithParameters<BibleBookShortName>
+                        .ApplyToCurrentPanel(new(ShortName), this);
+                },
+                Icon = null
+            };
+        }
+
+        public class BibleBookShortName : Parameters
+        {
+            public BibleBookShortName(string shortName)
+            {
+                ShortName = shortName;
             }
 
-            public int BookId { get; set; }
+            public string ShortName { get; set; }
             public override void ApplyParametersToModel(BibleChaptersInteractionModel model)
             {
-                model.BookId = BookId;
+                model.ShortName = ShortName;
             }
         }
     }

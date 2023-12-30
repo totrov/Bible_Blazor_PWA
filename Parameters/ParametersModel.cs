@@ -88,7 +88,7 @@ namespace Bible_Blazer_PWA.Parameters
         [Parameter]
         public string MainBackground
         {
-            get => _mainBackground;
+            get => "white";//_mainBackground;
             set
             {
                 _dbParams.SetParameterAsync(Parameters.MainBackground, value.ToString());

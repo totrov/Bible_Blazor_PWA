@@ -1,9 +1,12 @@
 ﻿@using Bible_Blazer_PWA.Components.Interactor.LessonUnits;
+@using Bible_Blazer_PWA.Components.Interactor._SubComponents;
 @using static Bible_Blazer_PWA.Components.Interactor.Interaction;
 @inherits InteractionContainerComponent
-<MudPaper>
+
+<MudContainer>
     @InteractionRender
-</MudPaper>
+</MudContainer>
+
 @code {
 
     [Parameter]
@@ -13,10 +16,16 @@
 
     public override void SetInteractionModel(IInteractionModel model, bool fromTurnoverEvent = false)
     {
+        BreadcrumbsFacade breadcrumbsFacade = new(model.Background);
+        breadcrumbsFacade.SetBreadcrumbs(model.GetBreadcrumbs());
         InteractionRender = builder =>
         {
-            builder.OpenComponent(1, model.ComponentType);
-            builder.AddAttribute(2, "InteractionModel", model);
+            builder.OpenComponent(1, typeof(Breadcrumbs));
+            builder.AddAttribute(2, "BreadcrumbsFacade", breadcrumbsFacade);
+            builder.CloseComponent();
+
+            builder.OpenComponent(3, model.ComponentType);
+            builder.AddAttribute(4, "InteractionModel", model);
             builder.CloseComponent();
         };
     }

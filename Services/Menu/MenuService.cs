@@ -9,7 +9,6 @@ namespace Bible_Blazer_PWA.Services.Menu
     {
         private Interaction _interactionCoordinator;
         public Interaction InteractionCoordinator => _interactionCoordinator;
-        public string Title { get; set; }
         public event Action<int, int> OnResize;
         public void Resize(int topHeight, int bottomHeight) => OnResize?.Invoke(topHeight, bottomHeight);
         public event EventHandler OnUpdate;

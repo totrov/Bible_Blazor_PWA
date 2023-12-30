@@ -27,15 +27,16 @@ namespace Bible_Blazer_PWA.Services
             Inform(ex.Message, Severity.Error);
         }
 
-        internal void HandleReadFinalization()
+        public virtual void HandleReadFinalization()
         {
             finalizationAction?.Invoke();
         }
 
         protected abstract void Inform(string message, Severity severity = Severity.Info);
-        internal void HandleStartReading(string lessonName)
+        public virtual void HandleStartReading(string lessonName)
         {
             Inform($"{lessonName}:Чтение...");
         }
+        public virtual  void HandleStringAfterSuccessfulReading(string stringContent) { }
     }
 }

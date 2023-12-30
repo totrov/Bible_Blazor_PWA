@@ -1,6 +1,7 @@
 ﻿using Bible_Blazer_PWA.ViewModels;
 using BibleComponents;
 using System;
+using System.Collections.Generic;
 
 namespace Bible_Blazer_PWA.Components.Interactor.RemoveNote
 {
@@ -11,6 +12,11 @@ namespace Bible_Blazer_PWA.Components.Interactor.RemoveNote
         public override bool IsSide => false;
         public override bool ShouldPersistInHistory => false;
         public override Type ComponentType => typeof(RemoveNoteInteractionComponent);
+
+        public override IEnumerable<BreadcrumbsFacade.BreadcrumbRecord> GetBreadcrumbs()
+        {
+            return null;
+        }
 
         public class NoteModelMediator: Parameters
         {

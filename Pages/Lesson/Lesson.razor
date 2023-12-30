@@ -1,45 +1,4 @@
-﻿@*@namespace BibleComponents
-@inject HttpClient Http
-@inject DbParametersFacade DbParameters;
-@using Bible_Blazer_PWA.Components
-@using Bible_Blazer_PWA.Components.Interactor.Creed;
-@using Bible_Blazer_PWA.DataBase.DTO;
-@using Bible_Blazer_PWA.DataSources
-@using Bible_Blazer_PWA.Services.Menu
-
-@inject NavigationManager NavigationManager
-@using Bible_Blazer_PWA.DomainObjects;
-@using Bible_Blazer_PWA.Parameters;
-@using Param = Microsoft.AspNetCore.Components.ParameterAttribute
-@using Bible_Blazer_PWA.Pages.Lesson
-@using System.Text.RegularExpressions
-@using static Bible_Blazer_PWA.DataSources.LessonDS
-@using Bible_Blazer_PWA.Components.Interactor
-
-
-@if (Composite != null)
-{
-    <MudContainer>
-            @foreach (LessonElementData data in CompositeChildren)
-        {
-            <LessonElement ElementData="data" InteractionPanel="Interaction.GetInteractionPanel()"></LessonElement>
-        }
-        <MudContainer Class="d-flex">
-            @if (PrevLesson != null)
-            {
-                <MudButton OnClick="NavigatePrev" StartIcon="@Icons.Filled.ArrowBack">@PrevLesson.Name</MudButton>
-            }
-            <MudSpacer />
-            @if (NextLesson != null)
-            {
-                <MudButton OnClick="NavigateNext" EndIcon="@Icons.Filled.ArrowForward">@NextLesson.Name</MudButton>
-            }
-        </MudContainer>
-    </MudContainer>
-}
-
-@code {
-
+﻿@*
     [Param]
     public int Id { get; set; } = 0;
 

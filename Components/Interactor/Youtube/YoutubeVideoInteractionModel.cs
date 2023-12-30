@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Bible_Blazer_PWA.Components.Interactor.Youtube
 {
@@ -10,6 +11,12 @@ namespace Bible_Blazer_PWA.Components.Interactor.Youtube
 
         public override Type ComponentType => typeof(YoutubeVideoInteractionComponent);
         public string YoutubeSrc { get; set; }
+
+        public override IEnumerable<BreadcrumbsFacade.BreadcrumbRecord> GetBreadcrumbs()
+        {
+            return null;
+        }
+
         public class YoutubeSource : Parameters
         {
             public string YoutubeSrc { get; set; }

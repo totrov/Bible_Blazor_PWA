@@ -23,13 +23,15 @@
     {
         get => GetFontSizeStyle + GetFontColorStyle
              + GetBackgroundColorStyle
-             + GetPanelRelatedStyle;
+             + GetPanelRelatedStyle
+             + GetBorderStyle;
     }
 
     public virtual string GetFontSizeStyle        { get => $"font-size:{parameters.FontSize}px;"; }
-    public virtual string GetBackgroundColorStyle { get => $"background-color:white;"; }
+    public         string GetBackgroundColorStyle { get => $"background-color:{((IInteractionModel)InteractionModel).Background};"; }
     public virtual string GetPanelRelatedStyle    { get => $"height:{SizePct};overflow-y:scroll;overflow-x:hidden;"; }
     public virtual string GetFontColorStyle       { get => $"color:{parameters.BibleRefFontColor};"; }
+    public virtual string GetBorderStyle          { get => $"border:none;"; }
 
     #endregion
 

@@ -1,6 +1,9 @@
-﻿using Bible_Blazer_PWA.Components.Interactor.RemoveNote;
+﻿using Bible_Blazer_PWA.Components.Interactor.Home;
+using Bible_Blazer_PWA.Components.Interactor.RemoveNote;
 using Bible_Blazer_PWA.ViewModels;
+using MudBlazor;
 using System;
+using System.Collections.Generic;
 
 namespace Bible_Blazer_PWA.Components.Interactor
 {
@@ -12,9 +15,10 @@ namespace Bible_Blazer_PWA.Components.Interactor
         public event Action OnClose;
         public void Close();
         Type ComponentType { get; }
+        public string Background { get; }
         IInteractionModel Next { get; set; }
         IInteractionModel Previous { get; set; }
-        
+        IEnumerable<BreadcrumbsFacade.BreadcrumbRecord> GetBreadcrumbs();
     }
     public abstract class InteractionModelBase<TSelf> : Interaction.InteractionModel<TSelf>, IInteractionModel
         where TSelf : InteractionModelBase<TSelf>
@@ -28,10 +32,22 @@ namespace Bible_Blazer_PWA.Components.Interactor
         public IInteractionModel Previous { get; set; }
         public bool IsMainContent { get; set; }
 
+        public virtual string Background => "white";
+
         public event Action OnClose;
         public void Close() => OnClose?.Invoke();
-    }
 
+        public abstract IEnumerable<BreadcrumbsFacade.BreadcrumbRecord> GetBreadcrumbs();
+    }
+    public abstract class CenteredInteractionModelBase<TSelf> : InteractionModelBase<TSelf>
+        where TSelf : CenteredInteractionModelBase<TSelf>
+    {
+        public override IEnumerable<BreadcrumbsFacade.BreadcrumbRecord> GetBreadcrumbs()
+        {
+            return null;
+        }
+        public override bool IsSide { get => false; }
+    }
     public abstract class Command<TSelf> : InteractionModelBase<TSelf>
         where TSelf: Command<TSelf>
     {
