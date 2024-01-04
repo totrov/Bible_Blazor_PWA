@@ -5,22 +5,23 @@
 
 @if (Chapters != null)
 {
-    <MudPaper Outlined="true" Class="px-3 py-3" style="@GetStyle">
-        @foreach(int chapter in Chapters)
-        {
-            <Bible_Blazer_PWA.Components.Interactor._SubComponents.InteractionLink
-            OnClick="()=>BibleViewer.BibleViewerInteractionModel.WithParameters<BookChapter>.ApplyToCurrentPanel(new(InteractionModel.ShortName, chapter), InteractionModel)">
-                @chapter.ToString()
-            </Bible_Blazer_PWA.Components.Interactor._SubComponents.InteractionLink>
-        }
-    </MudPaper>
+    <div style="@GetStyle">
+        <MudContainer Class="px-3 py-3">
+            @foreach (int chapter in Chapters)
+            {
+                <Bible_Blazer_PWA.Components.Interactor._SubComponents.InteractionLink OnClick="()=>BibleViewer.BibleViewerInteractionModel.WithParameters<BookChapter>.ApplyToCurrentPanel(new(InteractionModel.ShortName, chapter), InteractionModel)">
+                    @chapter.ToString()
+                </Bible_Blazer_PWA.Components.Interactor._SubComponents.InteractionLink>
+            }
+        </MudContainer>
+    </div>
 }
 
 @code {
-    protected IEnumerable<int> Chapters {get; set;}
+    protected IEnumerable<int> Chapters { get; set; }
     protected async override Task OnInitializedAsync()
     {
-        await base.OnInitializedAsync();        
+        await base.OnInitializedAsync();
         var bookId = await Bible.GetBookIdByShortNameAsync(InteractionModel.ShortName);
         var verses = await (await db.GetRangeFromObjectStoreByKey<VerseLightweight>("verses", bookId, 0, 999999, 0, 999999)).GetTaskCompletionSourceWrapper();
         Chapters = verses.GroupBy(v => v.Chapter).Select(g => g.Key).ToList();

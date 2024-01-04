@@ -6,14 +6,16 @@
 
 @if (Books != null)
 {
-    <MudPaper Outlined="true" Class="px-3 py-3" style="@GetStyle">
-        @foreach (BibleBookDTO book in Books)
-        {
-            <InteractionLink HtmlColor="@book.Color" OnClick="()=>BibleChaptersInteractionModel.WithParameters<BibleBookShortName>.ApplyToCurrentPanel(new(book.ShortName), InteractionModel)">
-                @book.ShortName
-            </InteractionLink>
-        }
-    </MudPaper>
+    <div style="@GetStyle">
+        <MudContainer Class="px-3 py-3">
+            @foreach (BibleBookDTO book in Books)
+            {
+                <InteractionLink HtmlColor="@book.Color" OnClick="()=>BibleChaptersInteractionModel.WithParameters<BibleBookShortName>.ApplyToCurrentPanel(new(book.ShortName), InteractionModel)">
+                    @book.ShortName
+                </InteractionLink>
+            }
+        </MudContainer>
+    </div>
 }
 
 @code {
@@ -22,6 +24,6 @@
     protected async override Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        Books = await(await db.GetAllFromObjectStore<BibleBookDTO>("books")).GetTaskCompletionSourceWrapper();
+        Books = await (await db.GetAllFromObjectStore<BibleBookDTO>("books")).GetTaskCompletionSourceWrapper();
     }
 }

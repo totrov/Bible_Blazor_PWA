@@ -6,21 +6,21 @@
 @inject BibleService Bible;
 @inject DbParametersFacade DbParamFacade;
 
-
-<MudPaper Outlined="true" Class="px-3 py-3" style="@GetStyle">
-    <MudElement HtmlTag="h3">@($"{InteractionModel.BookShortName}.{InteractionModel.ChapterNumber}")</MudElement>
-    <MudText Style="@GetFontSizeStyle">
-        @if (RawHtml != null)
-        {
-            @((MarkupString)RawHtml)
-        }
-        else
-        {
-            <span>Загрузка...</span>
-        }
-    </MudText>
-</MudPaper>
-
+<div style="@GetStyle">
+    <MudContainer Class="px-3 py-3">
+        <MudElement HtmlTag="h3">@($"{InteractionModel.BookShortName}.{InteractionModel.ChapterNumber}")</MudElement>
+            <MudText Style="@GetFontSizeStyle">
+                @if (RawHtml != null)
+            {
+                @((MarkupString)RawHtml)
+            }
+            else
+            {
+                <span>Загрузка...</span>
+            }
+        </MudText>
+    </MudContainer>
+</div>
 @code {
 
     #region Props

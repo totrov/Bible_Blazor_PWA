@@ -1,4 +1,5 @@
 ﻿using Bible_Blazer_PWA.Components.Interactor.Home;
+using Bible_Blazer_PWA.Static;
 using MudBlazor;
 using System;
 using System.Collections.Generic;
@@ -33,7 +34,7 @@ namespace Bible_Blazer_PWA.Components.Interactor.Bible
                 {
                     BibleInteractionModel.ApplyToCurrentPanel(this);
                 },
-                Icon = Icons.Material.Filled.Book
+                Icon = Constants.BibleIcon
             };
 
             yield return new BreadcrumbsFacade.BreadcrumbRecord

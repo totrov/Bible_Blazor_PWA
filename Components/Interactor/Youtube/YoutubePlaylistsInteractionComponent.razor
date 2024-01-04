@@ -2,18 +2,19 @@
 @using static Bible_Blazer_PWA.Components.Interactor.Youtube.YoutubeVideoInteractionModel;
 @inherits InteractionComponentBase<YoutubePlaylistsInteractionModel>
 
-<MudPaper Style="@GetStyle">
-    <InteractionLink OnClick="()=>YoutubeVideoInteractionModel.WithParameters<YoutubeSource>.ApplyToCurrentPanel(new(BytAudio), InteractionModel)">
-        Бытие 2017 Аудио
-    </InteractionLink>
-    <InteractionLink OnClick="()=>YoutubeVideoInteractionModel.WithParameters<YoutubeSource>.ApplyToCurrentPanel(new(BytWhiteboard), InteractionModel)">
-        Бытие с доской
-    </InteractionLink>
-    <InteractionLink OnClick="()=>YoutubeVideoInteractionModel.WithParameters<YoutubeSource>.ApplyToCurrentPanel(new(IshSol2017), InteractionModel)">
-        Исход-Соломон 2017-2019 Аудио
-    </InteractionLink>
-</MudPaper>
-
+<div style="@GetStyle">
+    <MudContainer>
+        <InteractionLink OnClick="()=>YoutubeVideoInteractionModel.WithParameters<YoutubeSource>.ApplyToCurrentPanel(new(BytAudio), InteractionModel)">
+            Бытие 2017 Аудио
+        </InteractionLink>
+        <InteractionLink OnClick="()=>YoutubeVideoInteractionModel.WithParameters<YoutubeSource>.ApplyToCurrentPanel(new(BytWhiteboard), InteractionModel)">
+            Бытие с доской
+        </InteractionLink>
+        <InteractionLink OnClick="()=>YoutubeVideoInteractionModel.WithParameters<YoutubeSource>.ApplyToCurrentPanel(new(IshSol2017), InteractionModel)">
+            Исход-Соломон 2017-2019 Аудио
+        </InteractionLink>
+    </MudContainer>
+</div>
 @code {
     private string BytAudio = "https://www.youtube.com/embed/videoseries?si=HjfUdACHkYQ5K6Gj&amp;list=PLlFLis6-CZmtcl5O8hMVoSWuPxXJ4qcWV";
     private string IshSol2017 = "https://www.youtube.com/embed/videoseries?si=Nb0ycnltkGMQkSz1&amp;list=PLlFLis6-CZmvEZSmp8_CoZA0WQ2dJLNKH";

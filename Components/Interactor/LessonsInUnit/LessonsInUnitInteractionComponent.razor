@@ -8,16 +8,18 @@
 
 @inherits InteractionComponentBase<LessonsInUnitInteractionModel>
 
-<MudPaper Outlined="true" Class="px-3 py-3" style="@GetStyle">
-    @if (Lessons != null) foreach (KeyValuePair<int, LessonLightweightDTO> keyValue in Lessons)
-        {
-            var lesson = keyValue.Value;
-            <InteractionLink OnClick="@(() =>
+<div style="@GetStyle">
+    <MudContainer Outlined="true" Class="px-3 py-3">
+        @if (Lessons != null) foreach (KeyValuePair<int, LessonLightweightDTO> keyValue in Lessons)
+            {
+                var lesson = keyValue.Value;
+                <InteractionLink OnClick="@(() =>
         LessonInteractionModel.WithParameters<UnitIdLessonId>.
             ApplyToCurrentPanel(new(lesson.UnitId, lesson.Id), InteractionModel))">@lesson.Name</InteractionLink>
-            <br />
-        }
-</MudPaper>
+                <br />
+            }
+    </MudContainer>
+</div>
 
 @code {
     public SortedDictionary<int, LessonLightweightDTO> Lessons { get; set; }
