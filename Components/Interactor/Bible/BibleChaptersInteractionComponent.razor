@@ -1,5 +1,28 @@
-﻿@inherits InteractionComponentBase<BibleChaptersInteractionModel>
+﻿@using Bible_Blazer_PWA.DataBase.DTO;
+@using static Bible_Blazer_PWA.Components.Interactor.BibleViewer.BibleViewerInteractionModel;
+@inherits InteractionComponentBase<BibleChaptersInteractionModel>
+@inject BibleService Bible;
+
+@if (Chapters != null)
+{
+    <MudPaper Outlined="true" Class="px-3 py-3" style="@GetStyle">
+        @foreach(int chapter in Chapters)
+        {
+            <Bible_Blazer_PWA.Components.Interactor._SubComponents.InteractionLink
+            OnClick="()=>BibleViewer.BibleViewerInteractionModel.WithParameters<BookChapter>.ApplyToCurrentPanel(new(InteractionModel.ShortName, chapter), InteractionModel)">
+                @chapter.ToString()
+            </Bible_Blazer_PWA.Components.Interactor._SubComponents.InteractionLink>
+        }
+    </MudPaper>
+}
 
 @code {
-
+    protected IEnumerable<int> Chapters {get; set;}
+    protected async override Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();        
+        var bookId = await Bible.GetBookIdByShortNameAsync(InteractionModel.ShortName);
+        var verses = await (await db.GetRangeFromObjectStoreByKey<VerseLightweight>("verses", bookId, 0, 999999, 0, 999999)).GetTaskCompletionSourceWrapper();
+        Chapters = verses.GroupBy(v => v.Chapter).Select(g => g.Key).ToList();
+    }
 }

@@ -18,7 +18,7 @@
 <CenteredFixedContainer @ref="hiddenCloneTop" IsActive="!IsBottom" IsHiddenClone="true" Elevation="0" Bottom="IsBottom" Side="IsSide" Collapsed="IsCollapsed"></CenteredFixedContainer>
 <BreadcrumbsStub Items="@(new List<BreadcrumbItem>{new BreadcrumbItem("#","#")})" IsCollapsed="@(IsBottom || IsCollapsed)"></BreadcrumbsStub>
 
-<MainContentPanel @ref="MainContentPanel" InteractionPanelComponent="this"></MainContentPanel>
+<MainContentPanel OnModelChanged="OnModelChanged" @ref="MainContentPanel" InteractionPanelComponent="this"></MainContentPanel>
 <CenteredFixedContainer id="@Id" @ref="child" IsActive="true" IsHiddenClone="false" Elevation="0" Bottom="IsBottom" Side="IsSide" Collapsed="IsCollapsed">
         @InteractionRender
 </CenteredFixedContainer>
@@ -95,6 +95,9 @@
 
     [Microsoft.AspNetCore.Components.Parameter]
     public EventCallback<Position> OnPositionChanged { get; set; }
+
+    [Microsoft.AspNetCore.Components.Parameter]
+    public EventCallback<IInteractionModel> OnModelChanged { get; set; }
 
     public override void SetInteractionModel(IInteractionModel model, bool fromTurnoverEvent = false)
     {

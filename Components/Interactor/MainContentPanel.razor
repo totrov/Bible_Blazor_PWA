@@ -12,6 +12,9 @@
     [Parameter]
     public InteractionPanel InteractionPanelComponent { get; set; }
 
+    [Microsoft.AspNetCore.Components.Parameter]
+    public EventCallback<IInteractionModel> OnModelChanged { get; set; }
+
     private RenderFragment? InteractionRender { get; set; }
 
     public override void SetInteractionModel(IInteractionModel model, bool fromTurnoverEvent = false)
@@ -28,6 +31,10 @@
             builder.AddAttribute(4, "InteractionModel", model);
             builder.CloseComponent();
         };
+        if (model != null)
+        {
+            OnModelChanged.InvokeAsync(model);
+        }
     }
 
     public override void Refresh()

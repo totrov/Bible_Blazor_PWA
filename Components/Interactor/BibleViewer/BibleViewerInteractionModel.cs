@@ -57,32 +57,29 @@ namespace Bible_Blazer_PWA.Components.Interactor.BibleViewer
                 Text = $"{ChapterNumber} глава",
                 Action = () =>
                 {
-                    BibleViewerInteractionModel.WithParameters<BookChapterVerse>.ApplyToCurrentPanel(new BookChapterVerse(
+                    BibleViewerInteractionModel.WithParameters<BookChapter>.ApplyToCurrentPanel(new BookChapter(
                         BookShortName = BookShortName,
-                        ChapterNumber = ChapterNumber,
-                        VerseNumber = VerseNumber), this);
+                        ChapterNumber = ChapterNumber
+                        ), this);
                 },
                 Icon = null
             };
         }
 
-        public class BookChapterVerse : Parameters
+        public class BookChapter : Parameters
         {
-            public BookChapterVerse(string bookShortName, int chapterNumber, int verseNumber)
+            public BookChapter(string bookShortName, int chapterNumber)
             {
                 BookShortName = bookShortName;
                 ChapterNumber = chapterNumber;
-                VerseNumber = verseNumber;
             }
 
             public string BookShortName { get; set; }
-            public int VerseNumber { get; set; }
             public int ChapterNumber { get; set; }
 
             public override void ApplyParametersToModel(BibleViewerInteractionModel model)
             {
                 model.BookShortName = BookShortName;
-                model.VerseNumber = VerseNumber;
                 model.ChapterNumber = ChapterNumber;
             }
         }

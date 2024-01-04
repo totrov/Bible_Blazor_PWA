@@ -9,9 +9,9 @@ namespace Bible_Blazer_PWA.Components.Interactor.Transitions
     {
         public override void ApplyTransition(BibleReferencesWriterInteractionModel source)
         {
-            source.OnLinkClicked += (bookShortName, chapterNumber, verseNumber) =>
-                BibleViewerInteractionModel.WithParameters<BookChapterVerse>
-                    .ApplyToCurrentPanel(new(bookShortName, chapterNumber, verseNumber), source);
+            source.OnLinkClicked += (bookShortName, chapterNumber) =>
+                BibleViewerInteractionModel.WithParameters<BookChapter>
+                    .ApplyToCurrentPanel(new(bookShortName, chapterNumber), source);
         }
     }
 }

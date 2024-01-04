@@ -281,7 +281,14 @@ window.database = {
             var parameters = params[0];
             var upperBoundLastSubKey = parameters.pop();
             var lowerBound, upperBound;
-            if (parameters.length > 1) {
+            if (parameters.length == 4)
+            {
+                upperBound = parameters.slice(0, 1);
+                upperBound.push(parameters.splice(2, 1)[0]);//
+                upperBound.push(upperBoundLastSubKey);
+                lowerBound = parameters;
+            }
+            else if (parameters.length > 1) {
                 lowerBound = parameters;
                 upperBound = parameters.slice(0, -1);
                 upperBound.push(upperBoundLastSubKey);

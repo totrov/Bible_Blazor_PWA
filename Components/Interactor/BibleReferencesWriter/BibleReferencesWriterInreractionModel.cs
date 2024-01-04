@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using static Bible_Blazer_PWA.Components.Interactor.Bible.BibleChaptersInteractionModel;
 using static Bible_Blazer_PWA.Components.Interactor.Bible.BibleInteractionModel;
+using static Bible_Blazer_PWA.Components.Interactor.Interaction;
 
 namespace Bible_Blazer_PWA.Components.Interactor.BibleReferencesWriter
 {
@@ -18,9 +19,9 @@ namespace Bible_Blazer_PWA.Components.Interactor.BibleReferencesWriter
             public override bool ShouldPersistInHistory => true;
             public override Type ComponentType => typeof(BibleReferencesWriterInteractionComponent);
             public override string Background => "beige";
-            public event Action<string, int, int> OnLinkClicked;
-            public void LinkClicked(string BookShortName, int ChapterNumber, int Verse)
-                => OnLinkClicked?.Invoke(BookShortName, ChapterNumber, Verse);
+            public event Action<string, int> OnLinkClicked;
+            public void LinkClicked(string BookShortName, int ChapterNumber)
+                => OnLinkClicked?.Invoke(BookShortName, ChapterNumber);
             public void MouseLeave() { if (!Overflowed) Close(); }
 
             public override IEnumerable<BreadcrumbsFacade.BreadcrumbRecord> GetBreadcrumbs()
@@ -45,7 +46,7 @@ namespace Bible_Blazer_PWA.Components.Interactor.BibleReferencesWriter
                     Icon = Icons.Material.Filled.Book
                 };
 
-                string bookShortName = Mediator.VersesViewsDictionary.First().Value.First().FirstVerseRef.BookShortName;
+                string bookShortName = Mediator.BibleReferences.ElementAt(ReferenceNumber).BookShortName;
                 yield return new BreadcrumbsFacade.BreadcrumbRecord
                 {
                     Text = bookShortName,

@@ -252,7 +252,7 @@ namespace Bible_Blazer_PWA.Components.Interactor
             };
             container.Refresh();
             CurrentSideModel = toMainContent ? CurrentSideModel : model;
-            CurrentMainModel = toMainContent ? model : CurrentSideModel;
+            CurrentMainModel = toMainContent ? model : CurrentMainModel;
             return model;
         }
         private void ApplyTransitions<TInteractionModel>(TInteractionModel model) where TInteractionModel : IInteractionModel

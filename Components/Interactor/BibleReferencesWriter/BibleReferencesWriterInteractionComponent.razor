@@ -14,7 +14,7 @@
                     <br />
                 }
                 (string _BibleRef, int chapterNumber, int verseNumber) = view.FirstVerseRef;
-                <span @onclick="()=>InteractionModel.LinkClicked(_BibleRef, chapterNumber, verseNumber)" class="badge badge-primary" style="cursor:pointer; background-color:@InteractionModel.Mediator.Parameters.BibleRefHighlightColor;color:@InteractionModel.Mediator.Parameters.BibleRefVersesIntervalsColor;">@view.Badge</span>
+                <span @onclick="()=>InteractionModel.LinkClicked(_BibleRef, chapterNumber)" class="badge badge-primary" style="cursor:pointer; background-color:@InteractionModel.Mediator.Parameters.BibleRefHighlightColor;color:@InteractionModel.Mediator.Parameters.BibleRefVersesIntervalsColor;">@view.Badge</span>
                 @((MarkupString)view.RawText)
                 isFirst = false;
             }

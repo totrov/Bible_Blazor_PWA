@@ -63,6 +63,7 @@
     protected override void OnInitialized()
     {
         Interaction.OnMainModelChanged += OnModelChangedHandler;
+        Interaction.OnSideModelChanged += OnModelChangedHandler;
         Interaction.OnResize += OnResizeHandler;
         if (InteractionPanel != null) InteractionPanel.OnChildInitialized();
     }

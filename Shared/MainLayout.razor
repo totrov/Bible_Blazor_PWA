@@ -15,11 +15,8 @@
 <MudSnackbarProvider />
 
 <MudLayout>
-    @{
-        var style = $"background-color:{parametersModel.MainBackground}; min-height:100vh;{PaddingOverride}";
-    }
-    <MudMainContent Style="@style">
-        <InteractionPanel OnPositionChanged="(InteractionPanel.Position pos) => { /*nothing for now*/ }">
+    <MudMainContent Style="@Style">
+        <InteractionPanel OnModelChanged="UpdateStyle" OnPositionChanged="(InteractionPanel.Position pos) => { /*nothing for now*/ }">
             @Body
         </InteractionPanel>
     </MudMainContent>
@@ -30,6 +27,7 @@
     #region Style
     private const string PaddingOverrideConst = "padding-top:0!important;";
     public string PaddingOverride { get; set; } = PaddingOverrideConst;
+    public string Style { get; set; }
     #endregion
 
 
@@ -39,8 +37,14 @@
     private InteractionPanel interactionPanel;
 
     string ButtonStyle { get => $"color:{dbParamteres.ParametersModel.ToolsBg};"; }
+
     protected override void OnInitialized()
     {
-        parametersModel = dbParamteres.ParametersModel;        
+        parametersModel = dbParamteres.ParametersModel;
+        Style = $"background-color:{parametersModel.MainBackground}; min-height:100vh;{PaddingOverride}";
+    }
+    protected void UpdateStyle(IInteractionModel model)
+    {
+        Style = $"background-color:{model.Background}; min-height:100vh;{PaddingOverride}";
     }
 }
