@@ -20,6 +20,17 @@ namespace Bible_Blazer_PWA.Parameters.ParameterInitializers
             return false;
         }
     }
+
+    public class NotesEnabledParameterInitializer : NullableBooleanParameterInitializer, IConcreteParameterInitializer
+    {
+        public Parameters Parameter => Parameters.NotesEnabled;
+
+        public override bool? DefaultValue()
+        {
+            return true;
+        }
+    }
+
     public class BibleTextAtTheBottomParameterInitializer : BooleanParameterInitializer, IConcreteParameterInitializer
     {
         public Parameters Parameter => Parameters.BibleTextAtTheBottom;
@@ -151,6 +162,20 @@ namespace Bible_Blazer_PWA.Parameters.ParameterInitializers
                 return curValue;
 
             return DefaultValue() ? "True" : "False";
+        }
+    }
+
+    public abstract class NullableBooleanParameterInitializer : IGenericParameterInitializer
+    {
+        public abstract bool? DefaultValue();
+        public string InitParam(string previousValue)
+        {
+            if (string.IsNullOrEmpty(previousValue))
+                return "";
+            if (bool.TryParse(previousValue, out bool value))
+                return previousValue;
+
+            return DefaultValue().ToString();
         }
     }
 

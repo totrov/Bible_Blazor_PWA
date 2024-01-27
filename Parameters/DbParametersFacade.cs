@@ -73,9 +73,9 @@ namespace Bible_Blazer_PWA.Parameters
             bool result = await resultHandler.GetTaskCompletionSourceWrapper();
             return result;
         }
-        public async Task<bool> SetParameterAsync(Parameters parameter, string value)
+        public async Task<bool> SetParameterAsync(Parameters parameter, string value, bool saveToDatabase = true)
         {
-            var ret = await SetParameterAsync(parameter.ToString(), value);
+            var ret = saveToDatabase ? await SetParameterAsync(parameter.ToString(), value) : true;
             OnChange?.Invoke(parameter, value);
             if (OnChangeAsync != null)
             {

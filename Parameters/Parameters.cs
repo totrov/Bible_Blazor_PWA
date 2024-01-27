@@ -31,6 +31,7 @@
         BibleRefVersesNumbersColor,
         BibleRefVersesIntervalsColor,
         HideBibleRefTabs,
-        BibleTextAtTheBottom
+        BibleTextAtTheBottom,
+        NotesEnabled
     }
 }

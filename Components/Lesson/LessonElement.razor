@@ -11,7 +11,6 @@
 @inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
 @inject DbParametersFacade dbParamFacade;
 @inject Corrector Corrector;
-@inject MenuService menu;
 
 
 <MudCard class="card" style="@CardStyle" Elevation="0">
@@ -38,7 +37,7 @@
     protected override async Task OnInitializedAsync()
     {
         mediator = new();
-        mediator.MenuService = menu;
+        //mediator.MenuService = menu;
         mediator.StateHasChanged += (type) => { if (type == typeof(InteractionPanel)) InteractionPanel.Refresh(); };
         mediator.Parameters = dbParamFacade.ParametersModel;
         mediator.ElementData = ElementData;

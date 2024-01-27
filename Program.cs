@@ -35,7 +35,6 @@ namespace Bible_Blazer_PWA
             builder.Services.AddSingleton(dbParametersFacade);
             builder.Services.AddScoped<HttpFacade>();
             builder.Services.AddScoped<LessonUpdater>();
-            builder.Services.AddSingleton(new MenuService());
             builder.Services.AddSingleton<ImportExportService>();
             var jsInteropService = new JSInteropService();
             builder.Services.AddSingleton(jsInteropService);

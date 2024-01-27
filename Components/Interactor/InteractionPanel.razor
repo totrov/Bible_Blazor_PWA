@@ -13,7 +13,7 @@
 @using System.Diagnostics.CodeAnalysis;
 @using System.Threading;
 
-@inject MenuService menu;
+@inject DbParametersFacade DbParameters;
 
 <CenteredFixedContainer @ref="hiddenCloneTop" IsActive="!IsBottom" IsHiddenClone="true" Elevation="0" Bottom="IsBottom" Side="IsSide" Collapsed="IsCollapsed"></CenteredFixedContainer>
 <BreadcrumbsStub Items="@(new List<BreadcrumbItem>{new BreadcrumbItem("#","#")})" IsCollapsed="@(IsBottom || IsCollapsed)"></BreadcrumbsStub>
@@ -223,7 +223,7 @@
 
     protected override void OnInitialized()
     {
-        new Interaction(this);
+        new Interaction(this, DbParameters);
         Interaction.OnTurnOver += () => IsBottom = !IsBottom;
         Interaction.OnTurnOver += () => this.SetInteractionModel(null, false);
     }

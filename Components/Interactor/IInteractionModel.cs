@@ -1,5 +1,6 @@
 ﻿using Bible_Blazer_PWA.Components.Interactor.Home;
 using Bible_Blazer_PWA.Components.Interactor.RemoveNote;
+using Bible_Blazer_PWA.Services.Menu;
 using Bible_Blazer_PWA.ViewModels;
 using MudBlazor;
 using System;
@@ -19,6 +20,7 @@ namespace Bible_Blazer_PWA.Components.Interactor
         IInteractionModel Next { get; set; }
         IInteractionModel Previous { get; set; }
         IEnumerable<BreadcrumbsFacade.BreadcrumbRecord> GetBreadcrumbs();
+        IEnumerable<(IButtonStateHandler, IButtonVisibilityHandler)> GetButtons();
     }
     public abstract class InteractionModelBase<TSelf> : Interaction.InteractionModel<TSelf>, IInteractionModel
         where TSelf : InteractionModelBase<TSelf>
@@ -38,6 +40,11 @@ namespace Bible_Blazer_PWA.Components.Interactor
         public void Close() => OnClose?.Invoke();
 
         public abstract IEnumerable<BreadcrumbsFacade.BreadcrumbRecord> GetBreadcrumbs();
+
+        public virtual IEnumerable<(IButtonStateHandler, IButtonVisibilityHandler)> GetButtons()
+        {
+            return new (IButtonStateHandler, IButtonVisibilityHandler)[0];
+        }
     }
     public abstract class CenteredInteractionModelBase<TSelf> : InteractionModelBase<TSelf>
         where TSelf : CenteredInteractionModelBase<TSelf>

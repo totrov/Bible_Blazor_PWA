@@ -28,7 +28,6 @@ namespace BibleComponents
         #region Shared
         internal LessonElementHeader Header { get; set; }
         internal LessonElementBody Body { get; set; }
-        internal MenuService MenuService { get; set; }
         internal ParametersModel Parameters { get; set; }
         internal LessonElementData ElementData { get; set; }
         internal Parser Parser { get; set; }

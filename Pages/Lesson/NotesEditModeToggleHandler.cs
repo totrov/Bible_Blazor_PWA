@@ -6,7 +6,7 @@ namespace Bible_Blazer_PWA.Pages.Lesson
 {
     public class NotesEditModeToggleHandler : GeneralHandler
     {
-        public NotesEditModeToggleHandler(IconResolver iconResolver, Action postHandleAction, ParametersModel parameters) : base(iconResolver, postHandleAction, parameters) { }
+        public NotesEditModeToggleHandler(IconResolver iconResolver, Action postHandleAction) : base(iconResolver, postHandleAction) { }
         public override int StatesCount => 3;
 
         public override string Key => "NotesEditModeToggle";

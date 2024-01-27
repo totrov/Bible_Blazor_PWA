@@ -1,11 +1,13 @@
-﻿using Bible_Blazer_PWA.Components.Interactor.Menu;
+﻿using AngleSharp.Dom;
+using Bible_Blazer_PWA.Components.Interactor.Menu;
+using Bible_Blazer_PWA.Components.Interactor.Setup;
 using Bible_Blazer_PWA.Components.Interactor.Transitions;
-using DocumentFormat.OpenXml.Office2010.PowerPoint;
+using Bible_Blazer_PWA.Parameters;
+using Bible_Blazer_PWA.Services.Menu;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using static Bible_Blazer_PWA.Components.Interactor.Interaction;
+using static MudBlazor.CategoryTypes;
 
 namespace Bible_Blazer_PWA.Components.Interactor
 {
@@ -44,20 +46,26 @@ namespace Bible_Blazer_PWA.Components.Interactor
             Resize(Instance.SideContainer.Size);
         }
 
+        public static MenuService GetMenuService()
+        {
+            return Instance.Menu;
+        }
+        public static ParametersModel GetParameters()
+        {
+            return Instance.DbParameters.ParametersModel;
+        }
+
         public static InteractionConfig GetConfig() => Instance.Config;
         public static void SetMainContainer(MainContentPanel mainContainer) { Instance.MainContainer = mainContainer; }
 
         #endregion
 
-
-
-
-
         #region Ctor
-        public Interaction(InteractionPanel sideContainer)
+        public Interaction(InteractionPanel sideContainer, DbParametersFacade DbParameters)
         {
             SideContainer = sideContainer;
-
+            Menu = new MenuService();
+            this.DbParameters = DbParameters;
             Instance = this;
             Config = new();
             transitions = new();
@@ -86,6 +94,8 @@ namespace Bible_Blazer_PWA.Components.Interactor
         private MainContentPanel MainContainer;
         private static Interaction Instance;
         private InteractionConfig Config;
+        private MenuService Menu;
+        private DbParametersFacade DbParameters;
         private IInteractionModel CurrentSideModel
         {
             get => currentSideModel;
@@ -216,23 +226,10 @@ namespace Bible_Blazer_PWA.Components.Interactor
             SideContainer.Refresh();
         }
         protected TInteractionModel SetInteractionModel<TInteractionModel>(bool toMainContent)
-            where TInteractionModel : IInteractionModel
+            where TInteractionModel : InteractionModel<TInteractionModel>, IInteractionModel
         {
             TInteractionModel model = Activator.CreateInstance<TInteractionModel>();
-            ApplyTransitions(model);
-            model.Previous = CurrentSideModel;
-            model.IsMainContent = toMainContent;
-            InteractionContainerComponent container = toMainContent ? MainContainer : SideContainer;
-            container.SetInteractionModel(model);
-            model.OnClose += () =>
-            {
-                container.SetInteractionModel(null);
-                container.Refresh();
-            };
-            container.Refresh();
-            CurrentSideModel = toMainContent ? CurrentSideModel : model;
-            CurrentMainModel = toMainContent ? model : CurrentSideModel;            
-            return model;
+            return SetInteractionModelImpl(model, toMainContent);
         }
         protected TInteractionModel SetInteractionModel<TInteractionModel, TParameters>(InteractionModel<TInteractionModel>.Parameters parameters, bool toMainContent = false)
             where TInteractionModel : InteractionModel<TInteractionModel>, IInteractionModel
@@ -240,6 +237,11 @@ namespace Bible_Blazer_PWA.Components.Interactor
         {
             TInteractionModel model = Activator.CreateInstance<TInteractionModel>();
             parameters.ApplyParametersToModel(model);
+            return SetInteractionModelImpl(model, toMainContent);
+        }
+
+        private TInteractionModel SetInteractionModelImpl<TInteractionModel>(TInteractionModel model, bool toMainContent) where TInteractionModel : InteractionModel<TInteractionModel>, IInteractionModel
+        {
             ApplyTransitions(model);
             model.Previous = CurrentSideModel;
             model.IsMainContent = toMainContent;
@@ -251,10 +253,25 @@ namespace Bible_Blazer_PWA.Components.Interactor
                 container.Refresh();
             };
             container.Refresh();
-            CurrentSideModel = toMainContent ? CurrentSideModel : model;
-            CurrentMainModel = toMainContent ? model : CurrentMainModel;
+
+            if (toMainContent)
+            {
+                CurrentMainModel = model;
+                Menu.Buttons.Clear();
+                foreach (var button in model.GetButtons())
+                    if (button.Item2 is null)
+                        Menu.AddMenuButton(button.Item1);
+                    else
+                        Menu.AddMenuButton(button.Item1, button.Item2);
+                Menu.Update(this);
+            }
+            else
+            {
+                CurrentSideModel = model;
+            }
             return model;
         }
+
         private void ApplyTransitions<TInteractionModel>(TInteractionModel model) where TInteractionModel : IInteractionModel
         {
             if (transitions.ContainsKey(model.GetType()))
@@ -266,5 +283,6 @@ namespace Bible_Blazer_PWA.Components.Interactor
                 }
             }
         }
+
     }
 }

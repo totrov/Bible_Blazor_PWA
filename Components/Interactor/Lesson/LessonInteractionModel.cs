@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using static Bible_Blazer_PWA.Components.Interactor.LessonsInUnit.Interaction.LessonsInUnitInteractionModel;
 using static Bible_Blazer_PWA.Components.Interactor.LessonsInUnit.Interaction;
+using Bible_Blazer_PWA.Services.Menu;
+using Bible_Blazer_PWA.Pages.Lesson;
 
 namespace Bible_Blazer_PWA.Components.Interactor.Lesson
 {
@@ -16,8 +18,24 @@ namespace Bible_Blazer_PWA.Components.Interactor.Lesson
 
         public override Type ComponentType => typeof(LessonInteractionComponent);
 
+        public event Action OnRefreshNeeded;
+        protected void RefreshNeeded() => OnRefreshNeeded?.Invoke();   
+
+        #region Buttons
+        public override IEnumerable<(IButtonStateHandler, IButtonVisibilityHandler)> GetButtons()
+        {
+            IconResolver iconReolver = new IconResolver();
+
+            yield return (new LessonLevelHandler(iconReolver, RefreshNeeded), null);
+            yield return (new BibleRefToggleHandler(iconReolver, RefreshNeeded), new CustomVisibilityHandler(() => Interaction.GetParameters().HideBibleRefTabs != "True"));
+            yield return (new FontSizeIncreaseHandler(iconReolver, RefreshNeeded), null);
+            yield return (new FontSizeDecreaseHandler(iconReolver, RefreshNeeded), null);
+            yield return (new NotesEditModeToggleHandler(iconReolver, RefreshNeeded), null);
+        }
+        #endregion
+
         #region Breadcrumb processing
-        
+
         BreadcrumbsFacade.BreadcrumbRecord lastBreadcrumb;
 
         public override IEnumerable<BreadcrumbsFacade.BreadcrumbRecord> GetBreadcrumbs()
