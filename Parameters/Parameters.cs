@@ -5,7 +5,7 @@
         FontSize,
         MainBackground,
         ToolsBg,
-        HideTools,
+        HideTools,//obsolete
         FirstLevelBg,
         FirstLevelBodyBg,
         FirstLevelMarginTop,
