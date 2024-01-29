@@ -1,0 +1,18 @@
+﻿@inherits InteractionComponentBase<SetupIndentationInteractionModel>
+
+@using Bible_Blazer_PWA.Components.Interactor._SubComponents
+
+<div style="@GetStyle">
+    <MudContainer>
+        <InteractionLink OnClick="()=>SetupPaddingsInteractionModel.ApplyToCurrentPanel(InteractionModel)">
+            Отступы внутри блоков
+        </InteractionLink>
+        <br />
+        <InteractionLink OnClick="()=>SetupIndentationBetweenBlocksModel.ApplyToCurrentPanel(InteractionModel)">
+            Отступы между блоками
+        </InteractionLink>
+    </MudContainer>
+</div>
+
+@code {
+}

@@ -123,6 +123,7 @@ namespace Bible_Blazer_PWA.Parameters
         private string _mainBackground;
 
         [Parameter]
+        [Obsolete]
         public string MainBackground
         {
             get => "white";//_mainBackground;
@@ -153,6 +154,7 @@ namespace Bible_Blazer_PWA.Parameters
         #region AreToolsHidden
         private string _areToolsHidden;
         [Parameter]
+        [Obsolete]
         public string HideTools
         {
             get => _areToolsHidden; set
@@ -535,11 +537,11 @@ namespace Bible_Blazer_PWA.Parameters
         }
 
         private string _hideBibleRefTabs;
-
+        [Obsolete]
         [Parameter]
         public string HideBibleRefTabs
         {
-            get => _hideBibleRefTabs; set
+            get => "True"; set
             {
                 _dbParams.SetParameterAsync(Parameters.HideBibleRefTabs, value);
                 _hideBibleRefTabs = value;

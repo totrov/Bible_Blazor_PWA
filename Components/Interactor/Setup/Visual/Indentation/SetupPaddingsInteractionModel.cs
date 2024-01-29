@@ -3,15 +3,15 @@ using MudBlazor;
 using System;
 using System.Collections.Generic;
 
-namespace Bible_Blazer_PWA.Components.Interactor.Setup.Visual
+namespace Bible_Blazer_PWA.Components.Interactor.Setup.Visual.Indentation
 {
-    public class SetupColorsInteractionModel : InteractionModelBase<SetupColorsInteractionModel>
+    public class SetupPaddingsInteractionModel : InteractionModelBase<SetupPaddingsInteractionModel>
     {
         public override bool IsSide => true;
 
         public override bool ShouldPersistInHistory => true;
 
-        public override Type ComponentType => typeof(SetupColorsInteractionComponent);
+        public override Type ComponentType => typeof(SetupPaddingsInteractionComponent);
 
         public override IEnumerable<BreadcrumbsFacade.BreadcrumbRecord> GetBreadcrumbs()
         {
@@ -37,10 +37,20 @@ namespace Bible_Blazer_PWA.Components.Interactor.Setup.Visual
 
             yield return new BreadcrumbsFacade.BreadcrumbRecord
             {
-                Text = "Цвета",
+                Text = "Отступы",
                 Action = () =>
                 {
                     SetupIndentationInteractionModel.ApplyToCurrentPanel(this);
+                },
+                Icon = null
+            };
+
+            yield return new BreadcrumbsFacade.BreadcrumbRecord
+            {
+                Text = "Внутри блоков",
+                Action = () =>
+                {
+                    SetupPaddingsInteractionModel.ApplyToCurrentPanel(this);
                 },
                 Icon = null
             };

@@ -1,74 +1,34 @@
 ﻿@inherits InteractionComponentBase<SetupInteractionModel>
+@using Bible_Blazer_PWA.Components.Interactor.Setup.Visual;
+@using Bible_Blazer_PWA.Components.Interactor._SubComponents
 @using Bible_Blazer_PWA.DataBase.DTO;
 @using Bible_Blazer_PWA.Services.MudBlazorHelpers;
 
-@inject HttpClient Http
-@inject NavigationManager navigation
-@inject ISnackbar Snackbar
-@inject IDialogService DialogService
-@inject IJSRuntime JS
-
 @using Bible_Blazer_PWA.Parameters;
 @inject DbParametersFacade dbParamteres
-
-@using Bible_Blazer_PWA.Services;
-@using Bible_Blazer_PWA.Services.Parse;
-@inject ImportExportService importExportService
-
 <div style="@GetStyle">
     <MudContainer>
-        <MudListItem Text="Отступы">
-            <NestedList>
-                <MudListItem>
-                    <MudSlider @bind-Value="BlocksPadding" Min="0" Max="200" Step="5" Color="Color.Info">Внутренний отступ блоков: @dbParamteres.ParametersModel.BlocksPadding.ToString()</MudSlider>
-                </MudListItem>
-                <MudListItem>
-                    <MudSlider @bind-Value="BlocksPaddingLeft" Min="0" Max="200" Step="5" Color="Color.Info">Внутренний отступ блоков слева: @dbParamteres.ParametersModel.BlocksPaddingLeft.ToString()</MudSlider>
-                </MudListItem>
-                <MudListItem>
-                    <MudSlider @bind-Value="BlocksPaddingRight" Min="0" Max="200" Step="5" Color="Color.Info">Внутренний отступ блоков справа: @dbParamteres.ParametersModel.BlocksPaddingRight.ToString()</MudSlider>
-                </MudListItem>
-                <MudListItem>
-                    <MudSlider @bind-Value="FirstLevelMarginTop" Min="0" Max="100" Step="5" Color="Color.Info">Отступ первых уровней сверху: @dbParamteres.ParametersModel.FirstLevelMarginTop.ToString()</MudSlider>
-                </MudListItem>
-                <MudListItem>
-                    <MudSlider @bind-Value="SecondLevelMarginTop" Min="0" Max="100" Step="5" Color="Color.Info">Отступ вторых уровней сверху: @dbParamteres.ParametersModel.SecondLevelMarginTop.ToString()</MudSlider>
-                </MudListItem>
-                <MudListItem>
-                    <MudSlider @bind-Value="ThirdLevelMarginTop" Min="0" Max="100" Step="5" Color="Color.Info">Отступ третьих уровней сверху: @dbParamteres.ParametersModel.ThirdLevelMarginTop.ToString()</MudSlider>
-                </MudListItem>
-            </NestedList>
-        </MudListItem>
-        <MudListItem Text="Шрифты">
-            <NestedList>
-                <MudListItem>
-                    <MudSwitch @bind-Checked="dbParamteres.ParametersModel.FirstLevelFontWeight" Color="Color.Error" Converter="@(new BoldFontStringToBoolConverter())">Жирный шрифт в первых уровнях</MudSwitch>
-                </MudListItem>
-                <MudListItem>
-                    <MudSwitch @bind-Checked="dbParamteres.ParametersModel.SecondLevelFontWeight" Color="Color.Error" Converter="@(new BoldFontStringToBoolConverter())">Жирный шрифт во вторых уровнях</MudSwitch>
-                </MudListItem>
-                <MudListItem>
-                    <MudSwitch @bind-Checked="dbParamteres.ParametersModel.ThirdLevelFontWeight"
-                               Color="Color.Error" Converter="@(new BoldFontStringToBoolConverter())">Жирный шрифт в третьих уровнях</MudSwitch>
-                </MudListItem>
-            </NestedList>
-        </MudListItem>
+        <InteractionLink OnClick="()=>SetupIndentationInteractionModel.ApplyToCurrentPanel(InteractionModel)">
+            Отступы
+        </InteractionLink>
+        <br />
+        <InteractionLink OnClick="()=>SetupFontsInteractionModel.ApplyToCurrentPanel(InteractionModel)">
+            Шрифты
+        </InteractionLink>
+        <br />
+        <InteractionLink OnClick="()=>SetupColorsInteractionModel.ApplyToCurrentPanel(InteractionModel)">
+            Цвета
+        </InteractionLink>
+        <br />
+        <InteractionLink OnClick="()=>SetupOtherVisualInteractionModel.ApplyToCurrentPanel(InteractionModel)">
+            Другое
+        </InteractionLink>
+        <br />
+        <InteractionLink OnClick="()=>Setup_UploadDownloadInteractionModel.ApplyToCurrentPanel(InteractionModel)">
+            Скачать / Загрузить
+        </InteractionLink>
         <MudListItem Text="Цвета">
             <NestedList>
-                <MudListItem Text="Общие">
-                    <NestedList>
-                        <MudListItem>
-                            <MudColorPicker Label="Цвет Фона"
-                                            @bind-Text="@dbParamteres.ParametersModel.MainBackground"
-                                            Style="@($"background-color: {dbParamteres.ParametersModel.MainBackground};")" Placeholder="Выберите цвет" />
-                        </MudListItem>
-                        <MudListItem>
-                            <MudColorPicker Label="Цвет фона панели инструментов"
-                                            @bind-Text="@dbParamteres.ParametersModel.ToolsBg"
-                                            Style="@($"background-color: {dbParamteres.ParametersModel.ToolsBg};")" Placeholder="Выберите цвет" />
-                        </MudListItem>
-                    </NestedList>
-                </MudListItem>
                 <MudListItem Text="Места Писания">
                     <NestedList>
                         <MudListItem>
@@ -135,165 +95,9 @@
                 </MudListItem>
             </NestedList>
         </MudListItem>
-        <MudListItem Text="Другое">
-            <NestedList>
-                <MudListItem>
-                    <MudSwitch @bind-Checked="dbParamteres.ParametersModel.StartVersesOnANewLine"
-                               Converter="@(new RegularStringToBoolConverter())"
-                               Color="Color.Primary">Стихи с новой строки</MudSwitch>
-                </MudListItem>
-                <MudListItem>
-                    <MudSwitch @bind-Checked="dbParamteres.ParametersModel.HideBlocksBorders" Color="Color.Primary" Converter="@(new RegularStringToBoolConverter())">Скрывать границы блоков</MudSwitch>
-                </MudListItem>
-                <MudListItem>
-                    <MudSwitch @bind-Checked="dbParamteres.ParametersModel.BibleTextAtTheBottom" Color="Color.Primary" Converter="@(new RegularStringToBoolConverter())">Места Писания в нижней панели</MudSwitch>
-                </MudListItem>
-                <MudListItem>
-                    <MudSwitch @bind-Checked="@parametersModel.HideBibleRefTabs" Color="Color.Primary" Converter="@(new RegularStringToBoolConverter())">
-                        @(parametersModel.HideBibleRefTabs == "True" ? "Режим для телефона" : "Режим для большого экрана")
-                    </MudSwitch>
-                </MudListItem>
-            </NestedList>
-        </MudListItem>
-        <MudListItem Text="Скачать">
-            <NestedList>
-                <MudListItem>
-                    <MudButton Variant="Variant.Text" EndIcon="@Icons.Material.Filled.SettingsApplications" @onclick="ExportParamsToFile">Скачать параметры</MudButton>
-                </MudListItem>
-                <MudListItem>
-                    <MudButton Variant="Variant.Text" EndIcon="@Icons.Filled.SpeakerNotes" @onclick="ExportNotesToFile">Скачать заметки</MudButton>
-                </MudListItem>
-            </NestedList>
-        </MudListItem>
-        <MudListItem Text="Загрузить">
-            <NestedList>
-                <MudListItem>
-                    <InputFile id="parametersFileInput" OnChange="LoadParameters" hidden />
-                    <MudButton HtmlTag="label" Variant="Variant.Text" EndIcon="@Icons.Material.Filled.SettingsApplications" for="parametersFileInput">Загр-ить параметры</MudButton>
-                </MudListItem>
-                <MudListItem>
-                    <InputFile id="notesFileInput" OnChange="LoadNotes" hidden />
-                    <MudButton HtmlTag="label" Variant="Variant.Text" EndIcon="@Icons.Filled.SpeakerNotes" for="notesFileInput">Загрузить заметки</MudButton>
-                </MudListItem>
-                <MudListItem>
-                    <MudButton Variant="Variant.Text" EndIcon="@Icons.Material.Filled.UploadFile" OnClick="OpenManualLoadDialog">Загрузить уроки</MudButton>
-                </MudListItem>
-            </NestedList>
-        </MudListItem>
-
     </MudContainer>
 </div>
 
 @code {
-    #region Legacy
-
-    private ParametersModel parametersModel;
-    #region Paddings
-    private double BlocksPadding
-    {
-        get { return int.Parse(dbParamteres.ParametersModel.BlocksPadding); }
-        set { dbParamteres.ParametersModel.BlocksPadding = value.ToString(); dbParamteres.ParametersModel.BlocksPaddingLeft = value.ToString(); }
-    }
-
-    private double BlocksPaddingLeft
-    {
-        get { return double.Parse(dbParamteres.ParametersModel.BlocksPaddingLeft); }
-        set { dbParamteres.ParametersModel.BlocksPaddingLeft = value.ToString(); dbParamteres.ParametersModel.BlocksPaddingRight = value.ToString(); }
-    }
-
-    private double BlocksPaddingRight
-    {
-        get { return double.Parse(dbParamteres.ParametersModel.BlocksPaddingRight); }
-        set { dbParamteres.ParametersModel.BlocksPaddingRight = value.ToString(); }
-    }
-
-    private int FirstLevelMarginTop
-    {
-        get { return int.Parse(dbParamteres.ParametersModel.FirstLevelMarginTop); }
-        set { dbParamteres.ParametersModel.FirstLevelMarginTop = value.ToString(); }
-    }
-
-    private int SecondLevelMarginTop
-    {
-        get { return int.Parse(dbParamteres.ParametersModel.SecondLevelMarginTop); }
-        set { dbParamteres.ParametersModel.SecondLevelMarginTop = value.ToString(); }
-    }
-    private int ThirdLevelMarginTop
-    {
-        get { return int.Parse(dbParamteres.ParametersModel.ThirdLevelMarginTop); }
-        set { dbParamteres.ParametersModel.ThirdLevelMarginTop = value.ToString(); }
-    }
-    private bool HideTools
-    {
-        get { return bool.Parse(dbParamteres.ParametersModel.HideTools); }
-        set { dbParamteres.ParametersModel.HideTools = value.ToString(); }
-    }
-    bool HomePage
-    {
-        get => navigation.ToBaseRelativePath(navigation.Uri) == "";
-    }
-    #endregion
-
-    #region Import/Export
-
-    private LessonImportService lessonImportService; //is it still used?
-
-    private void OpenManualLoadDialog()
-    {
-        var parameters = new DialogParameters();
-        parameters.Add("LessonImportService", lessonImportService);
-        parameters.Add("DisableEnableAction", (bool b) =>
-        {
-            //TODO if anything needed
-        });
-        var options = new DialogOptions { CloseButton = true, CloseOnEscapeKey = true, DisableBackdropClick = true };
-        DialogService.Show<ManualLessonLoadDialog>("Ручная загрузка уроков", parameters, options);
-    }
-
-    public async Task ExportParamsToFile()
-    {
-        await importExportService.ExportToJSON<DbParametersFacade.ParameterPOCO>("parameters");
-    }
-
-    public async Task ExportNotesToFile()
-    {
-        await importExportService.ExportToJSON<NoteDTO>("notes", true);
-    }
-
-    private async Task LoadNotes(InputFileChangeEventArgs e)
-    {
-        var notesFile = e.File;
-        await importExportService.ImportFromStream(notesFile.OpenReadStream(), "notes");
-        Snackbar.Add("Заметки загружены");
-    }
-
-
-    IBrowserFile parametrsFile = null;
-    private async Task LoadParameters(InputFileChangeEventArgs e)
-    {
-        parametrsFile = e.File;
-        await dbParamteres.ImportFromStream(parametrsFile.OpenReadStream());
-        await parametersModel.InitFromDb();
-        Snackbar.Add("Параметры загружены");
-    }
-
-    #endregion
-
-    #endregion
-
-    #region Style
-
-    #endregion
-
-    protected async override Task OnInitializedAsync()
-    {
-        #region Legacy
-
-        parametersModel = dbParamteres.ParametersModel;
-        lessonImportService = new LessonImportService(Snackbar, Http, new Corrector(new BibleRegexHelper(Http)), JS);
-
-        #endregion
-    }
-
 
 }

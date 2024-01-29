@@ -1,0 +1,31 @@
+﻿@inherits InteractionComponentBase<SetupIndentationBetweenBlocksModel>
+
+@using Bible_Blazer_PWA.Parameters;
+@inject DbParametersFacade dbParamteres;
+
+<div style="@GetStyle">
+    <MudContainer>
+        <MudSlider @bind-Value="FirstLevelMarginTop" Min="0" Max="100" Step="5" Color="Color.Info">Отступ первых уровней сверху: @dbParamteres.ParametersModel.FirstLevelMarginTop.ToString()</MudSlider>
+        <MudSlider @bind-Value="SecondLevelMarginTop" Min="0" Max="100" Step="5" Color="Color.Info">Отступ вторых уровней сверху: @dbParamteres.ParametersModel.SecondLevelMarginTop.ToString()</MudSlider>
+        <MudSlider @bind-Value="ThirdLevelMarginTop" Min="0" Max="100" Step="5" Color="Color.Info">Отступ третьих уровней сверху: @dbParamteres.ParametersModel.ThirdLevelMarginTop.ToString()</MudSlider>
+    </MudContainer>
+</div>
+
+@code {
+    private int FirstLevelMarginTop
+    {
+        get { return int.Parse(dbParamteres.ParametersModel.FirstLevelMarginTop); }
+        set { dbParamteres.ParametersModel.FirstLevelMarginTop = value.ToString(); }
+    }
+
+    private int SecondLevelMarginTop
+    {
+        get { return int.Parse(dbParamteres.ParametersModel.SecondLevelMarginTop); }
+        set { dbParamteres.ParametersModel.SecondLevelMarginTop = value.ToString(); }
+    }
+    private int ThirdLevelMarginTop
+    {
+        get { return int.Parse(dbParamteres.ParametersModel.ThirdLevelMarginTop); }
+        set { dbParamteres.ParametersModel.ThirdLevelMarginTop = value.ToString(); }
+    }
+}

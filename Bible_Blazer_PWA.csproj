@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Components\Interactor\Template.txt" />
     <None Remove="Pages\YoutubeDownloader.txt" />
   </ItemGroup>
 
@@ -27,6 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Components\Interactor\Template.txt" />
     <Content Include="DataBase\DTO\LessonStorageManifest.cs" />
     <Content Include="Pages\YoutubeDownloader.txt" />
   </ItemGroup>

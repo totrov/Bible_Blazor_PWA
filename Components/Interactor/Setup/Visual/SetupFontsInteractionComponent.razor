@@ -1,4 +1,19 @@
-﻿<h3>SetupFontsInteractionComponent</h3>
+﻿@inherits InteractionComponentBase<SetupFontsInteractionModel>
+
+@using Bible_Blazer_PWA.Parameters;
+@using Bible_Blazer_PWA.Services.MudBlazorHelpers;
+@inject DbParametersFacade dbParamteres;
+
+<div style="@GetStyle">
+    <MudContainer>
+        <MudSwitch @bind-Checked="@dbParamteres.ParametersModel.FirstLevelFontWeight" Color="Color.Error" Converter="@(new BoldFontStringToBoolConverter())">Жирный шрифт в первых уровнях</MudSwitch>
+        <br />
+        <MudSwitch @bind-Checked="@dbParamteres.ParametersModel.SecondLevelFontWeight" Color="Color.Error" Converter="@(new BoldFontStringToBoolConverter())">Жирный шрифт во вторых уровнях</MudSwitch>
+        <br />
+        <MudSwitch @bind-Checked="@dbParamteres.ParametersModel.ThirdLevelFontWeight"
+                   Color="Color.Error" Converter="@(new BoldFontStringToBoolConverter())">Жирный шрифт в третьих уровнях</MudSwitch>
+    </MudContainer>
+</div>
 
 @code {
 

@@ -1,17 +1,18 @@
 ﻿using Bible_Blazer_PWA.Components.Interactor.Home;
+using Bible_Blazer_PWA.Components.Interactor.Setup.Visual;
 using MudBlazor;
 using System;
 using System.Collections.Generic;
 
-namespace Bible_Blazer_PWA.Components.Interactor.Setup.Visual
+namespace Bible_Blazer_PWA.Components.Interactor.Setup
 {
-    public class SetupColorsInteractionModel : InteractionModelBase<SetupColorsInteractionModel>
+    public class Setup_UploadDownloadInteractionModel : InteractionModelBase<Setup_UploadDownloadInteractionModel>
     {
         public override bool IsSide => true;
 
         public override bool ShouldPersistInHistory => true;
 
-        public override Type ComponentType => typeof(SetupColorsInteractionComponent);
+        public override Type ComponentType => typeof(Setup_UploadDownloadInteractionComponent);
 
         public override IEnumerable<BreadcrumbsFacade.BreadcrumbRecord> GetBreadcrumbs()
         {
@@ -37,10 +38,10 @@ namespace Bible_Blazer_PWA.Components.Interactor.Setup.Visual
 
             yield return new BreadcrumbsFacade.BreadcrumbRecord
             {
-                Text = "Цвета",
+                Text = "Скачать/загрузить",
                 Action = () =>
                 {
-                    SetupIndentationInteractionModel.ApplyToCurrentPanel(this);
+                    SetupOtherVisualInteractionModel.ApplyToCurrentPanel(this);
                 },
                 Icon = null
             };

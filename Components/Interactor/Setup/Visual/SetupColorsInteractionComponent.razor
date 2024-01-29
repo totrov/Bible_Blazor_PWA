@@ -1,5 +1,19 @@
-﻿<h3>SetupColorsInteractionComponent</h3>
+﻿@inherits InteractionComponentBase<SetupColorsInteractionModel>
+
+@using Bible_Blazer_PWA.Parameters;
+@using MudBlazor.Utilities;
+@inject DbParametersFacade dbParamteres;
+
+<div style="@GetStyle">
+    <MudContainer>
+        <MudColorPicker @bind-Text="@dbParamteres.ParametersModel.ToolsBg" PickerVariant="PickerVariant.Static" ColorPickerView="ColorPickerView.Palette" Palette="CustomPalette" />
+    </MudContainer>
+</div>
 
 @code {
-
+    public IEnumerable<MudColor> CustomPalette { get; set; } = new MudColor[]
+    {
+        "#005F73", "#0A9396", "#EE9B00", "#CA6702", "#BB3E03", "#004e89", "2f195f", "4564BA", "888077", "5D5751", "4BB456",
+        "#a2836e", "#50394c", "#618685", "#667292", "#36486b", "#4040a1", "#618685", "#50394c", "#563f46",  "#625750", "#454140", "#7a3b2e", "#e06377", "#c83349", "#e0876a", "#f4a688", "#292F33", "#66757F", "#7e3878", "#3e4444"
+    };
 }
