@@ -34,5 +34,6 @@
     {
         await base.OnAfterRenderAsync(firstRender);
         InteractionModel.Overflowed = await JS.InvokeAsync<bool>("checkOverflow", "bottomOverflowChackable");
+        dbParametersFacade.OnChange += (param, _) => { if (param == Parameters.Parameters.ToolsBg) StateHasChanged(); };
     }
 }

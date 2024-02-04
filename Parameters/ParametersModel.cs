@@ -504,7 +504,7 @@ namespace Bible_Blazer_PWA.Parameters
         [Parameter]
         public string BibleRefHighlightColor
         {
-            get => _bibleRefHighlightColor;
+            get => _toolsBackground;
             set
             {
                 _dbParams.SetParameterAsync(Parameters.BibleRefHighlightColor, value);
@@ -516,7 +516,7 @@ namespace Bible_Blazer_PWA.Parameters
         [Parameter]
         public string BibleRefVersesNumbersColor
         {
-            get => _bibleRefVersesNumbersColor;
+            get => _toolsBackground;
             set
             {
                 _dbParams.SetParameterAsync(Parameters.BibleRefVersesNumbersColor, value);

@@ -27,8 +27,8 @@
         StartVersesOnANewLine,
         BibleRefBgColor,
         BibleRefFontColor,
-        BibleRefHighlightColor,
-        BibleRefVersesNumbersColor,
+        BibleRefHighlightColor, //now returs toolsBgColor
+        BibleRefVersesNumbersColor, //now returs toolsBgColor
         BibleRefVersesIntervalsColor,
         HideBibleRefTabs,//obsolete
         BibleTextAtTheBottom,//actually in the interaction panel (it was initially at the bottom). No plans to rename

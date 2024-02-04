@@ -13,35 +13,37 @@
 
 <div style="@GetStyle">
     <MudContainer>
-        <MudListItem Text="Скачать">
-            <NestedList>
-                <MudListItem>
-                    <MudButton Variant="Variant.Text" EndIcon="@Icons.Material.Filled.SettingsApplications" @onclick="ExportParamsToFile">Параметры</MudButton>
-                </MudListItem>
-                <MudListItem>
-                    <MudButton Variant="Variant.Text" EndIcon="@Icons.Filled.SpeakerNotes" @onclick="ExportNotesToFile">Заметки</MudButton>
-                </MudListItem>
-            </NestedList>
-        </MudListItem>
-        <MudListItem Text="Загрузить">
-            <NestedList>
-                <MudListItem>
-                    <InputFile id="parametersFileInput" OnChange="LoadParameters" hidden />
-                    <MudButton HtmlTag="label" Variant="Variant.Text" EndIcon="@Icons.Material.Filled.SettingsApplications" for="parametersFileInput">Параметры</MudButton>
-                </MudListItem>
-                <MudListItem>
-                    <InputFile id="notesFileInput" OnChange="LoadNotes" hidden />
-                    <MudButton HtmlTag="label" Variant="Variant.Text" EndIcon="@Icons.Filled.SpeakerNotes" for="notesFileInput">Заметки</MudButton>
-                </MudListItem>
-                <MudListItem>
-                    <MudButton Variant="Variant.Text" EndIcon="@Icons.Material.Filled.UploadFile" OnClick="OpenManualLoadDialog">Уроки</MudButton>
-                </MudListItem>
-            </NestedList>
-        </MudListItem>
+        <MudList>
+            <MudListItem Text="Скачать">
+                <NestedList>
+                    <MudListItem>
+                        <MudButton Variant="Variant.Text" EndIcon="@Icons.Material.Filled.SettingsApplications" @onclick="ExportParamsToFile">Параметры</MudButton>
+                    </MudListItem>
+                    <MudListItem>
+                        <MudButton Variant="Variant.Text" EndIcon="@Icons.Filled.SpeakerNotes" @onclick="ExportNotesToFile">Заметки</MudButton>
+                    </MudListItem>
+                </NestedList>
+            </MudListItem>
+            <MudListItem Text="Загрузить">
+                <NestedList>
+                    <MudListItem>
+                        <InputFile id="parametersFileInput" OnChange="LoadParameters" hidden />
+                        <MudButton HtmlTag="label" Variant="Variant.Text" EndIcon="@Icons.Material.Filled.SettingsApplications" for="parametersFileInput">Параметры</MudButton>
+                    </MudListItem>
+                    <MudListItem>
+                        <InputFile id="notesFileInput" OnChange="LoadNotes" hidden />
+                        <MudButton HtmlTag="label" Variant="Variant.Text" EndIcon="@Icons.Filled.SpeakerNotes" for="notesFileInput">Заметки</MudButton>
+                    </MudListItem>
+                    <MudListItem>
+                        <MudButton Variant="Variant.Text" EndIcon="@Icons.Material.Filled.UploadFile" OnClick="OpenManualLoadDialog">Уроки</MudButton>
+                    </MudListItem>
+                </NestedList>
+            </MudListItem>
+        </MudList>
     </MudContainer>
 </div>
 
-@code{
+@code {
     private ParametersModel parametersModel;
 
     #region Import/Export
@@ -88,7 +90,7 @@
     }
 
     #endregion
-    
+
     protected async override Task OnInitializedAsync()
     {
         parametersModel = dbParamteres.ParametersModel;

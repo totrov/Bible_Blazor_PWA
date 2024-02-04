@@ -141,7 +141,7 @@ namespace BibleComponents
 
         public async Task AddNote(string _value)
         {
-            (await ElementData.AddNoteByValue(_value, DbFacade)).OnAfterRemoval += () => { StateHasChanged?.Invoke(typeof(LessonElementBody)); };
+            (await ElementData.AddNoteByValue(_value, Parameters.GetParameterForLevel(1, LevelSpecificParametersGroup.BackgroundColor), DbFacade)).OnAfterRemoval += () => { StateHasChanged?.Invoke(typeof(LessonElementBody)); };
             StateHasChanged?.Invoke(typeof(LessonElementBody));
             StateHasChanged?.Invoke(typeof(InteractionPanel));
         }

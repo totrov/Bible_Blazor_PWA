@@ -14,7 +14,7 @@
 @using System.Threading;
 
 @inject DbParametersFacade DbParameters;
-
+<MudThemeProvider Theme="Theme" />
 <CenteredFixedContainer @ref="hiddenCloneTop" IsActive="!IsBottom" IsHiddenClone="true" Elevation="0" Bottom="IsBottom" Side="IsSide" Collapsed="IsCollapsed"></CenteredFixedContainer>
 <BreadcrumbsStub Items="@(new List<BreadcrumbItem>{new BreadcrumbItem("#","#")})" IsCollapsed="@(IsBottom || IsCollapsed)"></BreadcrumbsStub>
 
@@ -95,7 +95,7 @@
 
     [Microsoft.AspNetCore.Components.Parameter]
     public EventCallback<Position> OnPositionChanged { get; set; }
-
+    MudTheme Theme = new MudTheme();
     [Microsoft.AspNetCore.Components.Parameter]
     public EventCallback<IInteractionModel> OnModelChanged { get; set; }
 
@@ -226,6 +226,11 @@
         new Interaction(this, DbParameters);
         Interaction.OnTurnOver += () => IsBottom = !IsBottom;
         Interaction.OnTurnOver += () => this.SetInteractionModel(null, false);
+        DbParameters.OnChange += (param, value) =>
+        {
+            if (param == Parameters.ToolsBg)
+                Theme.Palette.Primary = value;
+        };
     }
 
     protected override void OnAfterRender(bool firstRender)

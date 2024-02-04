@@ -1,16 +1,11 @@
-﻿using b2xtranslator.OfficeGraph;
-using Bible_Blazer_PWA.Config;
-using Bible_Blazer_PWA.DataBase;
+﻿using Bible_Blazer_PWA.DataBase;
 using Bible_Blazer_PWA.DataBase.DTO;
 using Bible_Blazer_PWA.DomainObjects;
 using Bible_Blazer_PWA.Facades;
 using Bible_Blazer_PWA.Services.Parse;
-using DocumentFormat.OpenXml.Office2010.Excel;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Net.Http;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Bible_Blazer_PWA
@@ -64,9 +59,9 @@ namespace Bible_Blazer_PWA
             initializationTask = initialization.Initialize(this);
         }
 
-        public async Task<NoteDTO> AddNoteByValue(string value, DatabaseJSFacade db)
+        public async Task<NoteDTO> AddNoteByValue(string value, string mainColor, DatabaseJSFacade db)
         {
-            NoteDTO note = new NoteDTO(value, UnitId, LessonId, Key);
+            NoteDTO note = new NoteDTO(value, UnitId, LessonId, Key, mainColor);
             await note.SaveToDbAsync(db);
 
             return AddNote(note);
