@@ -2,9 +2,11 @@
 @inherits InteractionComponentBase<YoutubeVideoInteractionModel>
 
 <MudPaper Outlined="true" Class="px-0 py-0" style="@GetStyle">
-    <iframe width="560" height="315" src="@InteractionModel.YoutubeSrc" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+    <iframe src="@InteractionModel.YoutubeSrc" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 </MudPaper>
 
 @code {
-
+    public override string GetStyle => InteractionModel.IsMainContent
+        ? base.GetStyle + "height:calc(100vh - 100px)"
+        : base.GetStyle;
 }

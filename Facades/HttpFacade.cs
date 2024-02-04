@@ -1,4 +1,5 @@
 ﻿using Bible_Blazer_PWA.Config;
+using Bible_Blazer_PWA.DataBase.DTO;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -56,6 +57,20 @@ namespace Bible_Blazer_PWA.Facades
                 async (url) => await client.GetFromJsonAsync<Dictionary<string, Dictionary<string, string>>>(url),
                 LessonLoadConfig.GetReplacementsUrl
                 );
+        }
+        internal async Task<IEnumerable<YoutubeLinkDTO>> GetYouTubeMapFromJsonAsync()
+        {
+            IEnumerable<YoutubeLinkDTO> result;
+            try
+            {
+                result = await client.GetFromJsonAsync<IEnumerable<YoutubeLinkDTO>>(
+                "https://covenantofchrist.onrender.com/Assets/online/lessons/youtubeMap.json");
+                return result;
+            }
+            catch
+            {
+                return null;
+            }            
         }
 
         delegate string UrlGetterMethod(bool online);

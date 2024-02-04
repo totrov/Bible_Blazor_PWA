@@ -1,4 +1,4 @@
-﻿@typeparam TInteractionModel
+﻿@typeparam TInteractionModel 
 @inject Bible_Blazer_PWA.Parameters.DbParametersFacade DbParamFacade
 @inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade DataBase;
 @implements IDisposable
@@ -29,7 +29,7 @@
 
     public virtual string GetFontSizeStyle        { get => $"font-size:{parameters.FontSize}px;"; }
     public         string GetBackgroundColorStyle { get => $"background-color:{((IInteractionModel)InteractionModel).Background};"; }
-    public virtual string GetPanelRelatedStyle    { get => $"height:{SizePct};overflow-y:scroll;overflow-x:hidden;"; }
+    public virtual string GetPanelRelatedStyle    { get => ((IInteractionModel)InteractionModel).IsMainContent ? "" : $"height:{SizePct};overflow-y:scroll;overflow-x:hidden;"; }
     public virtual string GetFontColorStyle       { get => $"color:{parameters.BibleRefFontColor};"; }
     public virtual string GetBorderStyle          { get => $"border:none;"; }
 
