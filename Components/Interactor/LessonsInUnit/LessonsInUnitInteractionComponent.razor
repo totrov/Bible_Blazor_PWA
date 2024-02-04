@@ -3,10 +3,13 @@
 @using Bible_Blazer_PWA.DataBase.DTO;
 @using Bible_Blazer_PWA.DataSources;
 @using Bible_Blazer_PWA.Facades;
+@using Bible_Blazer_PWA.Services;
 @using static Bible_Blazer_PWA.Components.Interactor.Lesson.LessonInteractionModel;
 @using static Bible_Blazer_PWA.Components.Interactor.LessonsInUnit.Interaction;
 
 @inherits InteractionComponentBase<LessonsInUnitInteractionModel>
+
+@inject LessonKeeper leesonKeeper;
 
 <div style="@GetStyle">
     <MudContainer Outlined="true" Class="px-3 py-3">
@@ -27,7 +30,6 @@
     protected async override Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        _lessonDS = new LessonDS(db);
-        Lessons = (await _lessonDS.GetBlocks(new DBCache(db)))[InteractionModel.UnitId].Lessons;
+        Lessons = leesonKeeper[InteractionModel.UnitId].Lessons;
     }
 }

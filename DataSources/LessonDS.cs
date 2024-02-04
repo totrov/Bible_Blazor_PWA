@@ -53,12 +53,12 @@ namespace Bible_Blazer_PWA.DataSources
             }
         }
 
-        public async Task<SortedDictionary<string, LessonBlock>> GetBlocks(DBCache cache)
+        public async Task<SortedDictionary<string, LessonBlock>> GetBlocks(DBCache cache, bool updateCache = false)
         {
-            if (_blocks is null)
+            if (_blocks is null || updateCache)
             {
                 _blocks = new SortedDictionary<string, LessonBlock>(new BlockNameComparer());
-                if (await cache.TryPopulateFromCache<SortedDictionary<string, LessonBlock>, LessonBlock>(DBCache.LessonMenuBlocks, _blocks))
+                if (!updateCache && await cache.TryPopulateFromCache<SortedDictionary<string, LessonBlock>, LessonBlock>(DBCache.LessonMenuBlocks, _blocks))
                     return _blocks;
 
                 TaskCompletionSource<IEnumerable<LessonUnit>> tcs = new TaskCompletionSource<IEnumerable<LessonUnit>>();

@@ -1,13 +1,10 @@
-﻿using AngleSharp.Dom;
-using Bible_Blazer_PWA.Components.Interactor.Menu;
-using Bible_Blazer_PWA.Components.Interactor.Setup;
+﻿using Bible_Blazer_PWA.Components.Interactor.Menu;
 using Bible_Blazer_PWA.Components.Interactor.Transitions;
 using Bible_Blazer_PWA.Parameters;
 using Bible_Blazer_PWA.Services.Menu;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static MudBlazor.CategoryTypes;
 
 namespace Bible_Blazer_PWA.Components.Interactor
 {

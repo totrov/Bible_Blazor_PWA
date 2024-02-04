@@ -226,10 +226,13 @@
         new Interaction(this, DbParameters);
         Interaction.OnTurnOver += () => IsBottom = !IsBottom;
         Interaction.OnTurnOver += () => this.SetInteractionModel(null, false);
+        Theme.Palette.Primary = Theme.Palette.Info = Theme.Palette.InfoDarken = DbParameters.ParametersModel.ToolsBg;
         DbParameters.OnChange += (param, value) =>
         {
             if (param == Parameters.ToolsBg)
-                Theme.Palette.Primary = value;
+            {
+                Theme.Palette.Primary = Theme.Palette.Info = Theme.Palette.InfoDarken = value;
+            }
         };
     }
 
