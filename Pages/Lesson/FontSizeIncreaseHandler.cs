@@ -6,7 +6,7 @@ namespace Bible_Blazer_PWA.Pages.Lesson
 {
     public class FontSizeIncreaseHandler : GeneralHandler
     {
-        public FontSizeIncreaseHandler(IconResolver iconResolver, Action postHandleAction, ParametersModel parameters) : base(iconResolver, postHandleAction, parameters) { }
+        public FontSizeIncreaseHandler(IconResolver iconResolver, Action postHandleAction) : base(iconResolver, postHandleAction) { }
 
         public override int StatesCount => 1;
 

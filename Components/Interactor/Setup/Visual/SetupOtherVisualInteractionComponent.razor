@@ -1,0 +1,23 @@
+﻿@inherits InteractionComponentBase<SetupOtherVisualInteractionModel>
+
+@using Bible_Blazer_PWA.Parameters;
+@using Bible_Blazer_PWA.Services.MudBlazorHelpers;
+@inject DbParametersFacade dbParamteres;
+
+<div style="@GetStyle">
+    <MudContainer>
+        <MudSwitch @bind-Checked="@dbParamteres.ParametersModel.StartVersesOnANewLine"
+                   Converter="@(new RegularStringToBoolConverter())"
+                   Color="Color.Primary">Стихи с новой строки</MudSwitch>
+        <br />
+
+        <MudSwitch @bind-Checked="@dbParamteres.ParametersModel.HideBlocksBorders" Color="Color.Primary" Converter="@(new RegularStringToBoolConverter())">Скрывать границы блоков</MudSwitch>
+        <br />
+
+        <MudSwitch @bind-Checked="@dbParamteres.ParametersModel.BibleTextAtTheBottom" Color="Color.Primary" Converter="@(new RegularStringToBoolConverter())">Места Писания в нижней панели</MudSwitch>
+    </MudContainer>
+</div>
+
+@code {
+
+}

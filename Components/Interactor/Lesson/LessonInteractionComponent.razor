@@ -1,0 +1,79 @@
+﻿@inherits InteractionComponentBase<LessonInteractionModel>
+
+@using BibleComponents
+@using Bible_Blazer_PWA.Components.Interactor.Creed;
+@using Bible_Blazer_PWA.Components.Interactor.Youtube;
+@using Bible_Blazer_PWA.Components.Interactor._SubComponents
+@using Bible_Blazer_PWA.DataBase.DTO;
+@using Bible_Blazer_PWA.DataSources;
+@using Bible_Blazer_PWA.DomainObjects;
+@using Bible_Blazer_PWA.Facades;
+@using Bible_Blazer_PWA.Services.Menu;
+@using System.Text.RegularExpressions;
+@using static Bible_Blazer_PWA.Components.Interactor.Youtube.YoutubeSetInteractionModel;
+
+@inject HttpClient Http
+
+<div style="@GetStyle">
+    <MudContainer Class="px-3 py-3">
+        @if (Composite != null)
+        {
+            <InteractionLink OnClick="()=>CreedInteractionModel.Apply()">Символ Веры</InteractionLink>
+            if (YouTubeLinks != null && YouTubeLinks.Any())
+            {
+                <InteractionLink OnClick="()=>YoutubeSetInteractionModel.WithParameters<NameAndLinks>
+                    .ApplyToOppositePanel(new(LessonName, YouTubeLinks), InteractionModel)">YouTube</InteractionLink>
+            }
+
+            @foreach (LessonElementData data in CompositeChildren)
+            {
+                <LessonElement ElementData="data" InteractionPanel="Interaction.GetInteractionPanel()"></LessonElement>
+            }
+
+            <PrevNextLessonLinks @ref="PrevNextLessonLinks" InteractionModel="@InteractionModel"></PrevNextLessonLinks>
+        }
+    </MudContainer>
+</div>
+
+@code {
+    public LessonElementData Composite { get; set; }
+    public LinkedList<LessonElementData> CompositeChildren { get; set; }
+    public LessonLightweightDTO PrevLesson { get; set; } = null;
+    public LessonLightweightDTO NextLesson { get; set; } = null;
+    public string LessonName { get; set; } = null;
+    public PrevNextLessonLinks PrevNextLessonLinks { get; set; }
+    public IEnumerable<YoutubeLinkDTO> YouTubeLinks { get; set; }
+    protected async override Task OnInitializedAsync()
+    {
+        dbParametersFacade.OnChange += (param, value) => { StateHasChanged(); };
+        parameters.NotesEnabled = true;
+        await ResetLesson();
+    }
+
+    protected async override Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        await ResetLesson();
+        if (PrevNextLessonLinks != null)
+            PrevNextLessonLinks.InteractionModel = InteractionModel;
+    }
+
+    protected async Task ResetLesson()
+    {
+        Composite = await LessonElementData.GetLessonCompositeAsync(
+            Unit.GetUnitNumberByShortName(InteractionModel.UnitId),
+            Convert.ToInt32(InteractionModel.LessonNumber),
+            db, Http);
+        CompositeChildren = Composite.Children;
+        LessonName = Regex.Replace(Composite.Value, ",(?=[а-яА-Яa-zA-Z])", ", ");
+        InteractionModel.SetLessonName(LessonName);
+
+        var allYouTubeLinks = await new HttpFacade(Http).GetYouTubeMapFromJsonAsync();
+        if (allYouTubeLinks != null)
+            YouTubeLinks = allYouTubeLinks
+                .Where(link => link.LessonNumber == InteractionModel.LessonNumber
+                    && link.UnitId == InteractionModel.UnitId);
+    }
+
+    protected Task RefreshPrevNextLinks(Task task) => Task.Run(PrevNextLessonLinks.Refresh);
+}

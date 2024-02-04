@@ -1,5 +1,8 @@
-﻿@using Bible_Blazer_PWA.Components
+﻿@inherits InteractionContainerComponent
+
+@using Bible_Blazer_PWA.Components
 @using Bible_Blazer_PWA.Components.Interactor.Menu;
+@using Bible_Blazer_PWA.Components.Interactor._SubComponents
 @using Bible_Blazer_PWA.DataBase;
 @using Bible_Blazer_PWA.Parameters;
 @using Bible_Blazer_PWA.Services.Menu;
@@ -10,14 +13,14 @@
 @using System.Diagnostics.CodeAnalysis;
 @using System.Threading;
 
-@inject MenuService menu;
-@inject JSInteropService JS;
-
+@inject DbParametersFacade DbParameters;
+<MudThemeProvider Theme="Theme" />
 <CenteredFixedContainer @ref="hiddenCloneTop" IsActive="!IsBottom" IsHiddenClone="true" Elevation="0" Bottom="IsBottom" Side="IsSide" Collapsed="IsCollapsed"></CenteredFixedContainer>
-@ChildContent
+<BreadcrumbsStub Items="@(new List<BreadcrumbItem>{new BreadcrumbItem("#","#")})" IsCollapsed="@(IsBottom || IsCollapsed)"></BreadcrumbsStub>
 
+<MainContentPanel OnModelChanged="OnModelChanged" @ref="MainContentPanel" InteractionPanelComponent="this"></MainContentPanel>
 <CenteredFixedContainer id="@Id" @ref="child" IsActive="true" IsHiddenClone="false" Elevation="0" Bottom="IsBottom" Side="IsSide" Collapsed="IsCollapsed">
-    @InteractionRender
+        @InteractionRender
 </CenteredFixedContainer>
 
 <CenteredFixedContainer @ref="hiddenCloneBottom" IsActive="IsBottom" IsHiddenClone="true" Elevation="0" Bottom="IsBottom" Side="IsSide" Collapsed="IsCollapsed"></CenteredFixedContainer>
@@ -88,11 +91,15 @@
     private CenteredFixedContainer child;
     private CenteredFixedContainer hiddenCloneTop;
     private CenteredFixedContainer hiddenCloneBottom;
+    private MainContentPanel MainContentPanel;
 
     [Microsoft.AspNetCore.Components.Parameter]
     public EventCallback<Position> OnPositionChanged { get; set; }
+    MudTheme Theme = new MudTheme();
+    [Microsoft.AspNetCore.Components.Parameter]
+    public EventCallback<IInteractionModel> OnModelChanged { get; set; }
 
-    public void SetInteractionModel(IInteractionModel model, bool fromTurnoverEvent = false)
+    public override void SetInteractionModel(IInteractionModel model, bool fromTurnoverEvent = false)
     {
         if (model != null)
         {
@@ -103,6 +110,9 @@
             IsCollapsed = false;
             IsSide = model.IsSide;
             Position pos = CalcPosition(model.IsSide, IsBottom);
+            BreadcrumbsFacade breadcrumbsFacade = new(model.Background);
+            breadcrumbsFacade.SetBreadcrumbs(model.GetBreadcrumbs());
+
             switch (pos)
             {
                 case Position.Bottom:
@@ -110,15 +120,22 @@
                     {
                         builder.OpenComponent(0, typeof(MudDivider));
                         builder.CloseComponent();
+
                         builder.OpenComponent(1, typeof(InteractionPanelMenu));
                         builder.AddAttribute(2, "InteractionModel", model);
                         builder.AddAttribute(3, "InteractionPanel", this);
                         builder.CloseComponent();
+
                         builder.OpenComponent(4, typeof(MudDivider));
                         builder.CloseComponent();
-                        builder.OpenComponent(5, model.ComponentType);
-                        builder.AddAttribute(6, "InteractionModel", model);
-                        builder.AddAttribute(7, "InteractionPanel", this);
+
+                        builder.OpenComponent(5, typeof(Breadcrumbs));
+                        builder.AddAttribute(6, "BreadcrumbsFacade", breadcrumbsFacade);
+                        builder.CloseComponent();
+
+                        builder.OpenComponent(7, model.ComponentType);
+                        builder.AddAttribute(8, "InteractionModel", model);
+                        builder.AddAttribute(9, "InteractionPanel", this);
                         builder.CloseComponent();
                     };
                     break;
@@ -135,20 +152,24 @@
                 case Position.Top:
                     InteractionRender = builder =>
                     {
-                        builder.OpenComponent(0, model.ComponentType);
-                        builder.AddAttribute(1, "InteractionModel", model);
-                        builder.AddAttribute(2, "InteractionPanel", this);
+                        builder.OpenComponent(0, typeof(Breadcrumbs));
+                        builder.AddAttribute(1, "BreadcrumbsFacade", breadcrumbsFacade);
                         builder.CloseComponent();
 
-                        builder.OpenComponent(3, typeof(MudDivider));
+                        builder.OpenComponent(2, model.ComponentType);
+                        builder.AddAttribute(3, "InteractionModel", model);
+                        builder.AddAttribute(4, "InteractionPanel", this);
                         builder.CloseComponent();
 
-                        builder.OpenComponent(4, typeof(InteractionPanelMenu));
-                        builder.AddAttribute(5, "InteractionModel", model);
-                        builder.AddAttribute(6, "InteractionPanel", this);
+                        builder.OpenComponent(5, typeof(MudDivider));
                         builder.CloseComponent();
 
-                        builder.OpenComponent(7, typeof(MudDivider));
+                        builder.OpenComponent(6, typeof(InteractionPanelMenu));
+                        builder.AddAttribute(7, "InteractionModel", model);
+                        builder.AddAttribute(8, "InteractionPanel", this);
+                        builder.CloseComponent();
+
+                        builder.OpenComponent(9, typeof(MudDivider));
                         builder.CloseComponent();
                     };
                     break;
@@ -184,13 +205,6 @@
         }
     }
 
-    protected override void OnInitialized()
-    {
-        new Interaction(this, JS);
-        Interaction.OnTurnOver += () => IsBottom = !IsBottom;
-        Interaction.OnTurnOver += () => this.SetInteractionModel(null, false);
-    }
-
     private Position CalcPosition(bool isSide, bool isBottom)
     {
         return isSide
@@ -198,13 +212,29 @@
             : Position.Centered;
     }
 
-    public void Refresh()
+    public override void Refresh()
     {
+        MainContentPanel.DisableRenderOnes = true;
         StateHasChanged();
     }
 
     private const string BottomSuffix = "Bottom", TopSuffix = "Top";
     public string Id { get => $"InteractionPanel{(IsSide ? (IsBottom ? BottomSuffix : TopSuffix) : string.Empty)}"; }
+
+    protected override void OnInitialized()
+    {
+        new Interaction(this, DbParameters);
+        Interaction.OnTurnOver += () => IsBottom = !IsBottom;
+        Interaction.OnTurnOver += () => this.SetInteractionModel(null, false);
+        Theme.Palette.Primary = Theme.Palette.Info = Theme.Palette.InfoDarken = DbParameters.ParametersModel.ToolsBg;
+        DbParameters.OnChange += (param, value) =>
+        {
+            if (param == Parameters.ToolsBg)
+            {
+                Theme.Palette.Primary = Theme.Palette.Info = Theme.Palette.InfoDarken = value;
+            }
+        };
+    }
 
     protected override void OnAfterRender(bool firstRender)
     {

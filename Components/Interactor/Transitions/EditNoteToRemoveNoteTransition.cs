@@ -2,6 +2,7 @@
 using Bible_Blazer_PWA.Components.Interactor.RemoveNote;
 using BibleComponents;
 using DocumentFormat.OpenXml.EMMA;
+using static Bible_Blazer_PWA.Components.Interactor.RemoveNote.RemoveNoteModel;
 
 namespace Bible_Blazer_PWA.Components.Interactor.Transitions
 {
@@ -11,8 +12,8 @@ namespace Bible_Blazer_PWA.Components.Interactor.Transitions
         {
             source.OnRemoveNote += noteModel =>
             {
-                Interaction.ModelOfType<RemoveNoteModel>.WithParameters<RemoveNoteModel.Parameters>
-                    .Apply(new(noteModel, source.ElelementForNoteAdding));
+                RemoveNoteModel.WithParameters<NoteModelMediator>
+                    .Apply(new(noteModel, source.ElelementForNoteAdding), false);
             };
         }
     }

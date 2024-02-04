@@ -1,0 +1,12 @@
+﻿@using Bible_Blazer_PWA.Components.Interactor.Youtube;
+@inherits InteractionComponentBase<YoutubeVideoInteractionModel>
+
+<MudPaper Outlined="true" Class="px-0 py-0" style="@GetStyle">
+    <iframe src="@InteractionModel.YoutubeSrc" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+</MudPaper>
+
+@code {
+    public override string GetStyle => InteractionModel.IsMainContent
+        ? base.GetStyle + "height:calc(100vh - 100px)"
+        : base.GetStyle;
+}

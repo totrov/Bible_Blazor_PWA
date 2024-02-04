@@ -9,15 +9,15 @@
 <MudToolBar Style="@style">
     @if (InteractionModel != null)
     {
-        <MudIconButton DisableRipple="true" Icon="@Icons.Material.TwoTone.ArrowBack" Disabled="!HasPrevious" OnClick="Interaction.GoToPrevious" />
-        <MudIconButton DisableRipple="true" Icon="@Icons.Material.TwoTone.ArrowForward" Disabled="!HasNext" OnClick="Interaction.GoToNext" />
+        <MudIconButton Color="Color.Inherit" DisableRipple="true" Icon="@Icons.Material.Filled.ArrowBack" Disabled="!HasPrevious" OnClick="Interaction.GoToPrevious" />
+        <MudIconButton Color="Color.Inherit" DisableRipple="true" Icon="@Icons.Material.Filled.ArrowForward" Disabled="!HasNext" OnClick="Interaction.GoToNext" />
         <MudSpacer />
-        <MudIconButton DisableRipple="true" Icon="UnfoldLessDouble" OnClick="() => Interaction.Shrink(this, 2)" />
-        <MudIconButton DisableRipple="true" Icon="UnfoldMoreDouble" OnClick="() => Interaction.Enlarge(this, 2)" />
-        <MudIconButton DisableRipple="true" Icon="@Icons.Material.Filled.UnfoldLess" OnClick="() => Interaction.Shrink(this, 1)" />
-        <MudIconButton DisableRipple="true" Icon="@Icons.Material.Filled.UnfoldMore" OnClick="() => Interaction.Enlarge(this, 1)" />
-        <MudIconButton DisableRipple="true" Icon="@Icons.Material.Filled.ImportExport" OnClick="Interaction.TurnOver" />
-        <MudIconButton DisableRipple="true" Icon="@Icons.Material.Filled.Close" OnClick="InteractionModel.Close" />
+        <MudIconButton Color="Color.Inherit" DisableRipple="true" Icon="@UnfoldLessDouble" OnClick="() => Interaction.Shrink(this, 2)" />
+        <MudIconButton Color="Color.Inherit" DisableRipple="true" Icon="@UnfoldMoreDouble" OnClick="() => Interaction.Enlarge(this, 2)" />
+        <MudIconButton Color="Color.Inherit" DisableRipple="true" Icon="@Icons.Material.Filled.UnfoldLess" OnClick="() => Interaction.Shrink(this, 1)" />
+        <MudIconButton Color="Color.Inherit" DisableRipple="true" Icon="@Icons.Material.Filled.UnfoldMore" OnClick="() => Interaction.Enlarge(this, 1)" />
+        <MudIconButton Color="Color.Inherit" DisableRipple="true" Icon="@Icons.Material.Filled.ImportExport" OnClick="Interaction.TurnOver" />
+        <MudIconButton Color="Color.Inherit" DisableRipple="true" Icon="@Icons.Material.Filled.Close" OnClick="InteractionModel.Close" />
     }
     else
     {
@@ -46,7 +46,7 @@
     #endregion
 
     #region SVG
-    private const string UnfoldLessDouble = "<g><rect fill=\"none\" height=\"24\" width=\"24\"></rect></g><g><g><g><path d=\"M12,7.83L15.17,11l1.41-1.41L12,5L7.41,9.59L8.83,11L12,7.83z M12,2.83L15.17,6l1.41-1.41L12,0L7.41,4.59L8.83,6L12,2.83 z M12,21.17L8.83,18l-1.41,1.41L12,24l4.59-4.59L15.17,18L12,21.17z M12,16.17L8.83,13l-1.41,1.41L12,19l4.59-4.59L15.17,13 L12,16.17z\"></path></g></g></g>";
+    private const string UnfoldLessDouble = "<g><rect fill=\"none\" height=\"24\" width=\"24\"/></g><g><g><polygon points=\"16.58,1.41 15.16,0 11.99,3.17 8.82,0 7.41,1.41 11.99,6\"/><polygon points=\"16.58,6.41 15.16,5 11.99,8.17 8.82,5 7.41,6.41 11.99,11\"/><polygon points=\"7.42,17.59 8.84,19 12.01,15.83 15.18,19 16.59,17.59 12.01,13\"/><polygon points=\"7.42,22.59 8.84,24 12.01,20.83 15.18,24 16.59,22.59 12.01,18\"/></g></g>";
     private const string UnfoldMoreDouble = "<g><rect fill=\"none\" height=\"24\" width=\"24\"></rect></g><g><g><g><path d=\"M12,7.83L15.17,11l1.41-1.41L12,5L7.41,9.59L8.83,11L12,7.83z M12,2.83L15.17,6l1.41-1.41L12,0L7.41,4.59L8.83,6L12,2.83 z M12,21.17L8.83,18l-1.41,1.41L12,24l4.59-4.59L15.17,18L12,21.17z M12,16.17L8.83,13l-1.41,1.41L12,19l4.59-4.59L15.17,13 L12,16.17z\"></path></g></g></g>";
     #endregion
 
@@ -62,14 +62,16 @@
     }
     protected override void OnInitialized()
     {
-        Interaction.OnModelChanged += OnModelChangedHandler;
+        DbParameters.OnChange += (a, b) => { StateHasChanged(); };
+        Interaction.OnMainModelChanged += OnModelChangedHandler;
+        Interaction.OnSideModelChanged += OnModelChangedHandler;
         Interaction.OnResize += OnResizeHandler;
         if (InteractionPanel != null) InteractionPanel.OnChildInitialized();
     }
 
     void IDisposable.Dispose()
     {
-        Interaction.OnModelChanged -= OnModelChangedHandler;
+        Interaction.OnMainModelChanged -= OnModelChangedHandler;
         Interaction.OnResize -= OnResizeHandler;
     }
 }

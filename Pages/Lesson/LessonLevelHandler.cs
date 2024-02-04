@@ -1,4 +1,5 @@
-﻿using Bible_Blazer_PWA.Parameters;
+﻿using Bible_Blazer_PWA.Components.Interactor;
+using Bible_Blazer_PWA.Parameters;
 using Bible_Blazer_PWA.Services.Menu;
 using System;
 
@@ -6,7 +7,7 @@ namespace Bible_Blazer_PWA.Pages.Lesson
 {
     public class LessonLevelHandler : GeneralHandler
     {
-        public LessonLevelHandler(IconResolver iconResolver, Action postHandleAction, ParametersModel parameters) : base(iconResolver, postHandleAction, parameters) { }
+        public LessonLevelHandler(IconResolver iconResolver, Action postHandleAction) : base(iconResolver, postHandleAction) { }
 
         public override int StatesCount => 3;
 

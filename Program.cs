@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Microsoft.JSInterop;
 using MudBlazor.Services;
 using Microsoft.AspNetCore.Components.Web;
-using Bible_Blazer_PWA.Services.Menu;
 using Bible_Blazer_PWA.Services.Parse;
 using Bible_Blazer_PWA.Services;
 using Bible_Blazer_PWA.Facades;
@@ -34,8 +33,7 @@ namespace Bible_Blazer_PWA
             var dbParametersFacade = new Parameters.DbParametersFacade(dbFacade);
             builder.Services.AddSingleton(dbParametersFacade);
             builder.Services.AddScoped<HttpFacade>();
-            builder.Services.AddScoped<LessonUpdater>();
-            builder.Services.AddSingleton(new MenuService());
+            builder.Services.AddScoped<LessonKeeper>();
             builder.Services.AddSingleton<ImportExportService>();
             var jsInteropService = new JSInteropService();
             builder.Services.AddSingleton(jsInteropService);
@@ -53,6 +51,7 @@ namespace Bible_Blazer_PWA
             await dbParametersFacade.Init();
             bibleService.Init(dbFacade, dbParametersFacade.ParametersModel);
             await jsInteropService.Init(jsRuntime);
+            await host.Services.GetService<LessonKeeper>().InitTask;
 
             await host.RunAsync();
         }

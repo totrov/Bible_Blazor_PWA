@@ -4,7 +4,7 @@
 @using MudBlazor.Utilities;
 @inject DbParametersFacade DbParameters;
 
-<MudPaper Elevation="25" Class="pa-2" Style="@GetStyle" Square=true>
+<MudContainer Elevation="25" Class="pa-2" Style="@GetStyle" Square=true>
     <MudIconButton Icon="@Icons.Filled.TextIncrease" OnClick="()=>{note.SetValue(note=>note.TextSize, note.TextSize+1);}"></MudIconButton>
     <MudIconButton Icon="@Icons.Filled.TextDecrease" OnClick="()=>{note.SetValue(note=>note.TextSize, note.TextSize-1);}"></MudIconButton>
     <MudColorPicker Label="Основной цвет" Value="_mainColor" ValueChanged="UpdateMainColor" DisableAlpha="true" ColorPickerView="ColorPickerView.Grid" />
@@ -22,7 +22,7 @@
         <MudSpacer></MudSpacer>
         <MudButton Icon="@Icons.Filled.RemoveCircle" OnClick="@(() => {InteractionModel.Close();})" Color="Color.Primary">Закрыть</MudButton>
     </MudContainer>
-</MudPaper>
+</MudContainer>
 @code {
     private int NoteWidth { get => note.Width; set => note.SetValue(note => note.Width, value); }
     private int NoteHeight { get => note.Height; set => note.SetValue(note => note.Height, value); }

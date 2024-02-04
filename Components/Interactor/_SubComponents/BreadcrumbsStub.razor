@@ -1,0 +1,16 @@
+﻿@inherits MudBreadcrumbs
+
+@{
+    base.BuildRenderTree(__builder);
+}
+
+@code {
+    [Parameter]
+    public bool IsCollapsed { get; set; }
+
+    protected async override Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        base.Style = IsCollapsed ? "display:none;" : "visibility:hidden;";
+    }
+}

@@ -1,10 +1,7 @@
-﻿using Bible_Blazer_PWA.Parameters;
-using DocumentFormat.OpenXml.Drawing;
+﻿using MudBlazor.Utilities;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using static b2xtranslator.OfficeGraph.Font;
 
 namespace Bible_Blazer_PWA.Parameters
 {
@@ -21,6 +18,8 @@ namespace Bible_Blazer_PWA.Parameters
 
         Dictionary<int, Dictionary<LevelSpecificParametersGroup, Parameters>> parametersGroupToParameterMappingPerLevel;
         Dictionary<Parameters, (int, LevelSpecificParametersGroup)> parameterToLevelAndParametersGroupMapping;
+        Dictionary<string, string[]> colorsCache;
+
         private readonly DbParametersFacade dbParametersFacade;
         private const int levelCount = 3;
 
@@ -35,7 +34,7 @@ namespace Bible_Blazer_PWA.Parameters
             {
                 var parameterStringValue = await dbParametersFacade.GetParameterAsync(param);
                 UpdateValue(param, parameterStringValue);
-            }    
+            }
         }
         internal void UpdateValue(Parameters parameter, string parameterStringValue)
         {
@@ -48,11 +47,32 @@ namespace Bible_Blazer_PWA.Parameters
         }
         internal string GetValue(int level, LevelSpecificParametersGroup parameter)
         {
+            if (parameter == LevelSpecificParametersGroup.BackgroundColor || parameter == LevelSpecificParametersGroup.BodyBackgroundColor)
+            {
+                string color = dbParametersFacade.ParametersModel.ToolsBg;
+                if (color != null)
+                {
+                    if (!colorsCache.ContainsKey(color))
+                    {
+                        var originalColor = new MudColor(color);
+                        var part = (1 - originalColor.L) / 100.0;
+
+                        colorsCache.Add(color, new[] {
+                            new MudColor(originalColor.H, originalColor.S, originalColor.L + part * 91, 1.0).Value,
+                            new MudColor(originalColor.H, originalColor.S, originalColor.L + part * 96, 1.0).Value,
+                            new MudColor(originalColor.H, originalColor.S, originalColor.L + part * 100, 1.0).Value
+                        });
+                    }
+                    return colorsCache[color][level - 1];
+                }                
+            }
             return valuesPerLevel[level][parameter];
         }
 
         private void InitDictionaries()
         {
+            colorsCache = new();
+
             valuesPerLevel = new();
             for (int level = 1; level <= levelCount; level++)
             {

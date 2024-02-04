@@ -1,0 +1,25 @@
+﻿@using Bible_Blazer_PWA.Components.Interactor._SubComponents
+@using static Bible_Blazer_PWA.Components.Interactor.Youtube.YoutubeVideoInteractionModel;
+@inherits InteractionComponentBase<YoutubePlaylistsInteractionModel>
+
+<div style="@GetStyle">
+    <MudContainer>
+        @{
+            var names = new[] { "Бытие 2017 Аудио", "Бытие с доской", "Исход-Соломон 2017-2019 Аудио" };
+        }
+        <InteractionLink OnClick="()=>YoutubeVideoInteractionModel.WithParameters<YoutubeSourceAndName>.ApplyToCurrentPanel(new(BytAudio, names[0]), InteractionModel)">
+            Бытие 2017 Аудио
+        </InteractionLink>
+        <InteractionLink OnClick="()=>YoutubeVideoInteractionModel.WithParameters<YoutubeSourceAndName>.ApplyToCurrentPanel(new(BytWhiteboard, names[1]), InteractionModel)">
+            Бытие с доской
+        </InteractionLink>
+        <InteractionLink OnClick="()=>YoutubeVideoInteractionModel.WithParameters<YoutubeSourceAndName>.ApplyToCurrentPanel(new(IshSol2017, names[2]), InteractionModel)">
+            Исход-Соломон 2017-2019 Аудио
+        </InteractionLink>
+    </MudContainer>
+</div>
+@code {
+    private string BytAudio = "https://www.youtube.com/embed/videoseries?si=HjfUdACHkYQ5K6Gj&amp;list=PLlFLis6-CZmtcl5O8hMVoSWuPxXJ4qcWV";
+    private string IshSol2017 = "https://www.youtube.com/embed/videoseries?si=Nb0ycnltkGMQkSz1&amp;list=PLlFLis6-CZmvEZSmp8_CoZA0WQ2dJLNKH";
+    private string BytWhiteboard = "https://www.youtube.com/embed/videoseries?si=nLRDYp80Six40h5O&amp;list=PLlFLis6-CZms592Hl3eA4wd0Q01R4DDLH";
+}

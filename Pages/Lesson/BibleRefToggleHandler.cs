@@ -6,7 +6,7 @@ namespace Bible_Blazer_PWA.Pages.Lesson
 {
     public class BibleRefToggleHandler : GeneralHandler
     {
-        public BibleRefToggleHandler(IconResolver iconResolver, Action postHandleAction, ParametersModel parameters) : base(iconResolver, postHandleAction, parameters) { }
+        public BibleRefToggleHandler(IconResolver iconResolver, Action postHandleAction) : base(iconResolver, postHandleAction) { }
 
         public override int StatesCount => 2;
 

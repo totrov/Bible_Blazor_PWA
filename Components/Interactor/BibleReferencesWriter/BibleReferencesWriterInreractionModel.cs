@@ -1,35 +1,84 @@
-﻿using BibleComponents;
+﻿using Bible_Blazer_PWA.Components.Interactor.Bible;
+using Bible_Blazer_PWA.Components.Interactor.Home;
+using Bible_Blazer_PWA.Static;
+using BibleComponents;
+using MudBlazor;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using static Bible_Blazer_PWA.Components.Interactor.Bible.BibleChaptersInteractionModel;
+using static Bible_Blazer_PWA.Components.Interactor.Bible.BibleInteractionModel;
+using static Bible_Blazer_PWA.Components.Interactor.Interaction;
 
 namespace Bible_Blazer_PWA.Components.Interactor.BibleReferencesWriter
 {
-    public class BibleReferencesWriterInteractionModel : InteractionModelBase
+    public partial class Interaction
     {
-        public override bool IsSide => true;
-        public override Type ComponentType => typeof(BibleReferencesWriterInteractionComponent);
-        public override event Action OnClose;
-        public override void Close() => OnClose?.Invoke();
-
-        public event Action<string, int, int > OnLinkClicked;
-        public void LinkClicked(string BookShortName, int ChapterNumber, int Verse)
-            => OnLinkClicked?.Invoke(BookShortName, ChapterNumber, Verse);
-        public void MouseLeave() { if (!Overflowed) OnClose?.Invoke(); }
-        public LessonElementMediator Mediator { get; set; }
-        public int ReferenceNumber { get; set; }
-        public bool Overflowed { get; set; } = false;
-        public class Parameters:IInteractionModelParameters<BibleReferencesWriterInteractionModel>
+        public class BibleReferencesWriterInteractionModel : InteractionModelBase<BibleReferencesWriterInteractionModel>
         {
-            public LessonElementMediator LessonElementMediator { get; set; }
-            public int ReferenceNumber { get; private set; }
-            public Parameters(LessonElementMediator lessonElementMediator, int referenceNumber)
+            public override bool IsSide => true;
+            public override bool ShouldPersistInHistory => true;
+            public override Type ComponentType => typeof(BibleReferencesWriterInteractionComponent);
+            public override string Background => "beige";
+            public event Action<string, int> OnLinkClicked;
+            public void LinkClicked(string BookShortName, int ChapterNumber)
+                => OnLinkClicked?.Invoke(BookShortName, ChapterNumber);
+            public void MouseLeave() { if (!Overflowed) Close(); }
+
+            public override IEnumerable<BreadcrumbsFacade.BreadcrumbRecord> GetBreadcrumbs()
             {
-                LessonElementMediator = lessonElementMediator;
-                ReferenceNumber = referenceNumber;
+                yield return new BreadcrumbsFacade.BreadcrumbRecord
+                {
+                    Text = "",
+                    Action = () =>
+                    {
+                        HomeInteractionModel.ApplyToCurrentPanel(this);
+                    },
+                    Icon = Icons.Material.Filled.Home
+                };
+
+                yield return new BreadcrumbsFacade.BreadcrumbRecord
+                {
+                    Text = "Библия",
+                    Action = () =>
+                    {
+                        BibleInteractionModel.ApplyToCurrentPanel(this);
+                    },
+                    Icon = Constants.BibleIcon
+                };
+
+                string bookShortName = Mediator.BibleReferences.ElementAt(ReferenceNumber).BookShortName;
+                yield return new BreadcrumbsFacade.BreadcrumbRecord
+                {
+                    Text = bookShortName,
+                    Action = () =>
+                    {
+                        BibleChaptersInteractionModel.WithParameters<BibleBookShortName>
+                            .ApplyToCurrentPanel(new (bookShortName), this);
+                    },
+                    Icon = null
+                };
             }
-            public void ApplyParametersToModel(BibleReferencesWriterInteractionModel model)
+
+            public LessonElementMediator Mediator { get; set; }
+            public int ReferenceNumber { get; set; }
+            public bool Overflowed { get; set; } = false;
+
+
+            public class MediatorReferenceNumber : Parameters
             {
-                model.Mediator = LessonElementMediator;
-                model.ReferenceNumber = ReferenceNumber;
+                public LessonElementMediator LessonElementMediator { get; set; }
+                public int ReferenceNumber { get; private set; }
+                public MediatorReferenceNumber(LessonElementMediator lessonElementMediator, int referenceNumber)
+                {
+                    LessonElementMediator = lessonElementMediator;
+                    ReferenceNumber = referenceNumber;
+                }
+                public override void ApplyParametersToModel(BibleReferencesWriterInteractionModel model)
+                {
+                    model.Mediator = LessonElementMediator;
+                    model.ReferenceNumber = ReferenceNumber;
+                }
             }
         }
     }

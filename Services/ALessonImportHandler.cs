@@ -37,10 +37,6 @@ namespace Bible_Blazer_PWA.Services
         {
             Inform($"{lessonName}:Чтение...");
         }
-
-        public virtual void HandleStringAfterSuccessfulReading(string stringContent)
-        {
-            //do nothing by default
-        }
+        public virtual  void HandleStringAfterSuccessfulReading(string stringContent) { }
     }
 }

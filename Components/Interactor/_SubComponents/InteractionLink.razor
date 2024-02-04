@@ -1,0 +1,14 @@
+﻿@inherits MudButton
+
+@{
+    base.BuildRenderTree(__builder);
+}
+
+@code {
+    [Parameter]
+    public string HtmlColor { get; set; }
+    protected override void OnInitialized()
+    {
+        base.Style = string.IsNullOrEmpty(HtmlColor) ? "text-align:left;" : $"text-align:left;color:{HtmlColor};background-color:#6F6F6F; margin:2px 0;s";
+    }
+}

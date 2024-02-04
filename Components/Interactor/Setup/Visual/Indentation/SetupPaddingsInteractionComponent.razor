@@ -1,0 +1,32 @@
+﻿@inherits InteractionComponentBase<SetupPaddingsInteractionModel>
+
+@using Bible_Blazer_PWA.Parameters;
+@inject DbParametersFacade dbParamteres;
+
+<div style="@GetStyle">
+    <MudContainer>
+        <MudSlider @bind-Value="BlocksPadding" Min="0" Max="200" Step="5" Color="Color.Info">Внутренний отступ блоков: @dbParamteres.ParametersModel.BlocksPadding.ToString()</MudSlider>
+        <MudSlider @bind-Value="BlocksPaddingLeft" Min="0" Max="200" Step="5" Color="Color.Info">Внутренний отступ блоков слева: @dbParamteres.ParametersModel.BlocksPaddingLeft.ToString()</MudSlider>
+        <MudSlider @bind-Value="BlocksPaddingRight" Min="0" Max="200" Step="5" Color="Color.Info">Внутренний отступ блоков справа: @dbParamteres.ParametersModel.BlocksPaddingRight.ToString()</MudSlider>
+    </MudContainer>
+</div>
+
+@code {
+    private double BlocksPadding
+    {
+        get { return int.Parse(dbParamteres.ParametersModel.BlocksPadding); }
+        set { dbParamteres.ParametersModel.BlocksPadding = value.ToString(); dbParamteres.ParametersModel.BlocksPaddingLeft = value.ToString(); }
+    }
+
+    private double BlocksPaddingLeft
+    {
+        get { return double.Parse(dbParamteres.ParametersModel.BlocksPaddingLeft); }
+        set { dbParamteres.ParametersModel.BlocksPaddingLeft = value.ToString(); dbParamteres.ParametersModel.BlocksPaddingRight = value.ToString(); }
+    }
+
+    private double BlocksPaddingRight
+    {
+        get { return double.Parse(dbParamteres.ParametersModel.BlocksPaddingRight); }
+        set { dbParamteres.ParametersModel.BlocksPaddingRight = value.ToString(); }
+    }
+}

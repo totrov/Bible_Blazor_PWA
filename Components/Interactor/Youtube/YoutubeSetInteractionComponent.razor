@@ -1,0 +1,19 @@
+﻿@using Bible_Blazer_PWA.Components.Interactor._SubComponents
+@using static Bible_Blazer_PWA.Components.Interactor.Youtube.YoutubeVideoInteractionModel;
+@inherits InteractionComponentBase<YoutubeSetInteractionModel>
+
+<div style="@GetStyle">
+    <MudContainer>
+        @foreach (var link in InteractionModel.Links)
+        {
+            <InteractionLink OnClick="()=>YoutubeVideoInteractionModel.WithParameters<YoutubeSourceAndName>.ApplyToCurrentPanel(new(link.Url, link.Name), InteractionModel)">
+                @link.Name
+            </InteractionLink>
+            <br />
+        }
+    </MudContainer>
+</div>
+
+@code {
+
+}

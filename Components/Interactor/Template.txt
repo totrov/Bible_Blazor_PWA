@@ -1,0 +1,45 @@
+﻿@inherits InteractionComponentBase<Model>
+
+@using Bible_Blazer_PWA.Parameters;
+@inject DbParametersFacade dbParamteres;
+
+<div style="@GetStyle">
+    <MudContainer>
+
+    </MudContainer>
+</div>
+
+@code {
+
+}
+
+_______
+using Bible_Blazer_PWA.Components.Interactor.Home;
+using MudBlazor;
+using System;
+using System.Collections.Generic;
+
+namespace Bible_Blazer_PWA.Components.Interactor.Setup.Visual.Indentation
+{
+    public class SetupPaddingsInteractionModel : InteractionModelBase<SetupIndentationInteractionModel>
+    {
+        public override bool IsSide => true;
+
+        public override bool ShouldPersistInHistory => true;
+
+        public override Type ComponentType => typeof(SetupPaddingsInteractionComponent);
+
+        public override IEnumerable<BreadcrumbsFacade.BreadcrumbRecord> GetBreadcrumbs()
+        {
+            yield return new BreadcrumbsFacade.BreadcrumbRecord
+            {
+                Text = "",
+                Action = () =>
+                {
+                    HomeInteractionModel.ApplyToCurrentPanel(this);
+                },
+                Icon = Icons.Material.Filled.Home
+            };
+        }
+    }
+}

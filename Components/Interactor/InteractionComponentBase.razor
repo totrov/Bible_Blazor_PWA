@@ -1,5 +1,6 @@
-﻿@typeparam TInteractionModel
+﻿@typeparam TInteractionModel 
 @inject Bible_Blazer_PWA.Parameters.DbParametersFacade DbParamFacade
+@inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade DataBase;
 @implements IDisposable
 
 @code {
@@ -10,6 +11,8 @@
 
     #region Shortkeys
     protected Parameters.ParametersModel parameters => DbParamFacade.ParametersModel;
+    protected Bible_Blazer_PWA.Parameters.DbParametersFacade dbParametersFacade => DbParamFacade;
+    protected Bible_Blazer_PWA.DataBase.DatabaseJSFacade db => DataBase;
     #endregion
 
     public string SizePct { get; set; }
@@ -20,13 +23,15 @@
     {
         get => GetFontSizeStyle + GetFontColorStyle
              + GetBackgroundColorStyle
-             + GetPanelRelatedStyle;
+             + GetPanelRelatedStyle
+             + GetBorderStyle;
     }
 
     public virtual string GetFontSizeStyle        { get => $"font-size:{parameters.FontSize}px;"; }
-    public virtual string GetBackgroundColorStyle { get => $"background-color:white;"; }
-    public virtual string GetPanelRelatedStyle    { get => $"height:{SizePct};overflow-y:scroll;overflow-x:hidden;"; }
+    public         string GetBackgroundColorStyle { get => $"background-color:{((IInteractionModel)InteractionModel).Background};"; }
+    public virtual string GetPanelRelatedStyle    { get => ((IInteractionModel)InteractionModel).IsMainContent ? "" : $"height:{SizePct};overflow-y:scroll;overflow-x:hidden;"; }
     public virtual string GetFontColorStyle       { get => $"color:{parameters.BibleRefFontColor};"; }
+    public virtual string GetBorderStyle          { get => $"border:none;"; }
 
     #endregion
 
@@ -40,7 +45,7 @@
         base.OnInitialized();
         var model = (IInteractionModel)InteractionModel;
         Interaction.OnResize += ResizeHandler;
-        InteractionPanel.OnChildInitialized();
+        InteractionPanel?.OnChildInitialized();
     }
 
     void IDisposable.Dispose()

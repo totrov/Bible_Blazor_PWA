@@ -1,38 +1,39 @@
-﻿@inherits InteractionComponentBase<Bible_Blazer_PWA.Components.Interactor.BibleReferencesWriter.BibleReferencesWriterInteractionModel>
+﻿@using static Bible_Blazer_PWA.Components.Interactor.BibleReferencesWriter.Interaction;
+@inherits InteractionComponentBase<Bible_Blazer_PWA.Components.Interactor.BibleReferencesWriter.Interaction.BibleReferencesWriterInteractionModel>
 @inject IJSRuntime JS;
-<MudPaper Outlined="true" Class="px-3 py-3" style="@GetStyle" id="bottomOverflowChackable">
-    <MudText Style="@GetFontSizeStyle">
-        @if (InteractionModel.Mediator.VersesLoaded)
-        {
-            bool isFirst = true;
-            string reference = InteractionModel.Mediator.BibleReferences.ElementAt(InteractionModel.ReferenceNumber).ToString();
-            foreach (BibleService.VersesView view in InteractionModel.Mediator.VersesViewsDictionary[reference])
+
+<div style="@GetStyle">
+    <MudContainer Class="px-3 py-3" id="bottomOverflowChackable">
+        <MudText Style="@GetFontSizeStyle">
+            @if (InteractionModel.Mediator.VersesLoaded)
             {
-                @if (InteractionModel.Mediator.DbParamFacade.ParametersModel.StartVersesOnANewLine == "True" && !isFirst)
+                bool isFirst = true;
+                string reference = InteractionModel.Mediator.BibleReferences.ElementAt(InteractionModel.ReferenceNumber).ToString();
+                foreach (BibleService.VersesView view in InteractionModel.Mediator.VersesViewsDictionary[reference])
                 {
-                    <br />
+                    @if (InteractionModel.Mediator.DbParamFacade.ParametersModel.StartVersesOnANewLine == "True" && !isFirst)
+                    {
+                        <br />
+                    }
+                    (string _BibleRef, int chapterNumber, int verseNumber) = view.FirstVerseRef;
+                    <span @onclick="()=>InteractionModel.LinkClicked(_BibleRef, chapterNumber)" class="badge badge-primary" style="cursor:pointer; background-color:@InteractionModel.Mediator.Parameters.BibleRefHighlightColor;color:@InteractionModel.Mediator.Parameters.BibleRefVersesIntervalsColor;">@view.Badge</span>
+                    @((MarkupString)view.RawText)
+                    isFirst = false;
                 }
-                (string _BibleRef, int chapterNumber, int verseNumber) = view.FirstVerseRef;
-                <span @onclick="()=>InteractionModel.LinkClicked(_BibleRef, chapterNumber, verseNumber)" class="badge badge-primary" style="cursor:pointer; background-color:@InteractionModel.Mediator.Parameters.BibleRefHighlightColor;color:@InteractionModel.Mediator.Parameters.BibleRefVersesIntervalsColor;">@view.Badge</span>
-                @((MarkupString)view.RawText)
-                isFirst = false;
             }
-        }
-        else
-        {
-            <span>Загрузка...</span>
-        }
-    </MudText>
-</MudPaper>
+            else
+            {
+                <span>Загрузка...</span>
+            }
+        </MudText>
+    </MudContainer>
+</div>
 
 @code {
-    #region Style
-    public override string GetBackgroundColorStyle => $"background-color:{parameters.BibleRefBgColor};";
-
-    #endregion
     protected async override Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
         InteractionModel.Overflowed = await JS.InvokeAsync<bool>("checkOverflow", "bottomOverflowChackable");
+        dbParametersFacade.OnChange += (param, _) => { if (param == Parameters.Parameters.ToolsBg) StateHasChanged(); };
     }
 }

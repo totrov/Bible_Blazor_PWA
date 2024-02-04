@@ -1,0 +1,29 @@
+﻿@using Bible_Blazer_PWA.Components.Interactor._SubComponents
+@using Bible_Blazer_PWA.DataBase.DTO;
+@using static Bible_Blazer_PWA.Components.Interactor.Bible.BibleChaptersInteractionModel;
+@inherits InteractionComponentBase<BibleInteractionModel>
+
+
+@if (Books != null)
+{
+    <div style="@GetStyle">
+        <MudContainer Class="px-3 py-3">
+            @foreach (BibleBookDTO book in Books)
+            {
+                <InteractionLink HtmlColor="@book.Color" OnClick="()=>BibleChaptersInteractionModel.WithParameters<BibleBookShortName>.ApplyToCurrentPanel(new(book.ShortName), InteractionModel)">
+                    @book.ShortName
+                </InteractionLink>
+            }
+        </MudContainer>
+    </div>
+}
+
+@code {
+
+    IEnumerable<BibleBookDTO> Books { get; set; }
+    protected async override Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        Books = await (await db.GetAllFromObjectStore<BibleBookDTO>("books")).GetTaskCompletionSourceWrapper();
+    }
+}

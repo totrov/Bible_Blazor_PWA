@@ -39,7 +39,11 @@ namespace Bible_Blazer_PWA.Parameters
                 }
                 if (proceedWithUpdate)
                 {
-                    parameterProps[key].SetValue(this, value);
+                    var prop = parameterProps[key];
+                    if (prop.PropertyType == typeof(string))
+                        prop.SetValue(this, value);
+                    else
+                        prop.SetValue(this, string.IsNullOrEmpty(value) ? null : bool.Parse(value));
                 }
             }
         }
@@ -60,8 +64,11 @@ namespace Bible_Blazer_PWA.Parameters
                 IGenericParameterInitializer initializer = new NullToEmptyParameterInitializer();
                 if (parameterInitializers.TryGetValue(param, out var concreteInitializer))
                     initializer = concreteInitializer;
-                
-                Task initTask = getValueTask.ContinueWith(value => { parameterProps[param.ToString()].SetValue(this, initializer.InitParam(value.Result)); });
+
+                Task initTask = getValueTask.ContinueWith(value => { parameterProps[param.ToString()].SetValue(this,
+                    parameterProps[param.ToString()].PropertyType == typeof(string)
+                    ? initializer.InitParam(value.Result)
+                    : (string.IsNullOrEmpty(value.Result) ? null : bool.Parse(value.Result))); });
                 tasks.AddLast(initTask);
             }
             await Task.WhenAll(tasks);
@@ -79,16 +86,47 @@ namespace Bible_Blazer_PWA.Parameters
         }
 
         #region NotPersistedInDbParameters
-        public bool? NotesEnabled { get; set; }
+
+        #region NotesEnabled
+        private bool? _notesEnabled;
+        [Parameter]
+        public bool? NotesEnabled
+        {
+            get => _notesEnabled;
+            set
+            {
+                _dbParams.SetParameterAsync(Parameters.NotesEnabled, value.ToString(), false);
+                _notesEnabled = value;
+            }
+        }
+
+        #endregion
+
+        #region CollapseLevel
+        private string _collapseLevel;
+        [Parameter]
+        public string CollapseLevel
+        {
+            get => _collapseLevel;
+            set
+            {
+                _dbParams.SetParameterAsync(Parameters.CollapseLevel, value.ToString(), false);
+                _collapseLevel = value;
+            }
+        }
+
+        #endregion
+
         #endregion
 
         #region MainBackground
         private string _mainBackground;
 
         [Parameter]
+        [Obsolete]
         public string MainBackground
         {
-            get => _mainBackground;
+            get => "white";//_mainBackground;
             set
             {
                 _dbParams.SetParameterAsync(Parameters.MainBackground, value.ToString());
@@ -116,6 +154,7 @@ namespace Bible_Blazer_PWA.Parameters
         #region AreToolsHidden
         private string _areToolsHidden;
         [Parameter]
+        [Obsolete]
         public string HideTools
         {
             get => _areToolsHidden; set
@@ -165,11 +204,20 @@ namespace Bible_Blazer_PWA.Parameters
         }
         #endregion
 
-        [Parameter]
-        public string FontSize { get; set; }
+        #region FontSize
+        private string _fontSize;
 
         [Parameter]
-        public string CollapseLevel { get; set; }
+        public string FontSize
+        {
+            get => _fontSize;
+            set
+            {
+                _dbParams.SetParameterAsync(Parameters.FontSize, value.ToString());
+                _fontSize = value;
+            }
+        }
+        #endregion
 
         #endregion
 
@@ -456,7 +504,7 @@ namespace Bible_Blazer_PWA.Parameters
         [Parameter]
         public string BibleRefHighlightColor
         {
-            get => _bibleRefHighlightColor;
+            get => _toolsBackground;
             set
             {
                 _dbParams.SetParameterAsync(Parameters.BibleRefHighlightColor, value);
@@ -468,7 +516,7 @@ namespace Bible_Blazer_PWA.Parameters
         [Parameter]
         public string BibleRefVersesNumbersColor
         {
-            get => _bibleRefVersesNumbersColor;
+            get => _toolsBackground;
             set
             {
                 _dbParams.SetParameterAsync(Parameters.BibleRefVersesNumbersColor, value);
@@ -489,10 +537,11 @@ namespace Bible_Blazer_PWA.Parameters
         }
 
         private string _hideBibleRefTabs;
+        [Obsolete]
         [Parameter]
         public string HideBibleRefTabs
         {
-            get => _hideBibleRefTabs; set
+            get => "True"; set
             {
                 _dbParams.SetParameterAsync(Parameters.HideBibleRefTabs, value);
                 _hideBibleRefTabs = value;

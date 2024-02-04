@@ -4,7 +4,6 @@ using Bible_Blazer_PWA.Components.Interactor;
 using Bible_Blazer_PWA.Components.Interactor.AddNote;
 using Bible_Blazer_PWA.Components.Interactor.BibleReferencesWriter;
 using Bible_Blazer_PWA.Components.Interactor.EditNote;
-using Bible_Blazer_PWA.Components.Interactor.RemoveNote;
 using Bible_Blazer_PWA.DataBase;
 using Bible_Blazer_PWA.DataBase.DTO;
 using Bible_Blazer_PWA.DomainObjects;
@@ -16,7 +15,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using BibleRefModel = Bible_Blazer_PWA.Components.Interactor.BibleReferencesWriter.BibleReferencesWriterInteractionModel;
+using static Bible_Blazer_PWA.Components.Interactor.BibleReferencesWriter.Interaction;
+using static Bible_Blazer_PWA.Components.Interactor.BibleReferencesWriter.Interaction.BibleReferencesWriterInteractionModel;
+using static Bible_Blazer_PWA.Components.Interactor.EditNote.EditNoteModel;
+using BibleRefModel = Bible_Blazer_PWA.Components.Interactor.BibleReferencesWriter.Interaction.BibleReferencesWriterInteractionModel;
 using Parameters = Bible_Blazer_PWA.Parameters.Parameters;
 
 namespace BibleComponents
@@ -26,7 +28,6 @@ namespace BibleComponents
         #region Shared
         internal LessonElementHeader Header { get; set; }
         internal LessonElementBody Body { get; set; }
-        internal MenuService MenuService { get; set; }
         internal ParametersModel Parameters { get; set; }
         internal LessonElementData ElementData { get; set; }
         internal Parser Parser { get; set; }
@@ -124,9 +125,7 @@ namespace BibleComponents
                     return;
                 }
 
-                BibleRefsWriterModel = Interaction.ModelOfType<BibleRefModel>.WithParameters<BibleRefModel.Parameters>
-                    .Apply(new (this, number));
-
+                BibleRefsWriterModel = BibleRefModel.WithParameters<MediatorReferenceNumber>.Apply(new (this, number));
                 return;
             }
             if (Parameters.HideBibleRefTabs == "True")
@@ -142,7 +141,7 @@ namespace BibleComponents
 
         public async Task AddNote(string _value)
         {
-            (await ElementData.AddNoteByValue(_value, DbFacade)).OnAfterRemoval += () => { StateHasChanged?.Invoke(typeof(LessonElementBody)); };
+            (await ElementData.AddNoteByValue(_value, Parameters.GetParameterForLevel(1, LevelSpecificParametersGroup.BackgroundColor), DbFacade)).OnAfterRemoval += () => { StateHasChanged?.Invoke(typeof(LessonElementBody)); };
             StateHasChanged?.Invoke(typeof(LessonElementBody));
             StateHasChanged?.Invoke(typeof(InteractionPanel));
         }
@@ -164,12 +163,12 @@ namespace BibleComponents
         }
         public void OpenAddNote()
         {
-            Interaction.ModelOfType<AddNoteModel>.WithParameters<AddNoteModel.Parameters>.Apply(new(this));
+            AddNoteModel.WithParameters<AddNoteModel.ElementMediator>.Apply(new(this));
         }
 
         public void SetEditNote(NoteModel model)
         {
-            var interactionModel = Interaction.ModelOfType<EditNoteModel>.WithParameters<EditNoteModel.Parameters>.Apply(new(this, model));
+            EditNoteModel.WithParameters<MediatorNoteModel>.Apply(new(this, model));
         }
 
         #endregion

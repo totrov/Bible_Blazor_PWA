@@ -1,0 +1,70 @@
+﻿@using Bible_Blazer_PWA.Components.Interactor.Home;
+@using Bible_Blazer_PWA.Components.Interactor._SubComponents
+@using Bible_Blazer_PWA.DataBase.DTO;
+@using Bible_Blazer_PWA.DataSources;
+@using static Bible_Blazer_PWA.Components.Interactor.Lesson.LessonInteractionModel;
+@inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
+
+<MudContainer Class="d-flex">
+    @if (PrevLesson != null)
+    {
+        <InteractionLink OnClick="@(() => LessonInteractionModel.WithParameters<UnitIdLessonId>.ApplyToCurrentPanel(new(PrevLesson.UnitId, PrevLesson.Id), InteractionModel))"
+            StartIcon="@Icons.Filled.ArrowBack">@PrevLesson.Name
+        </InteractionLink>
+    }
+    <MudSpacer />
+    @if (NextLesson != null)
+    {
+        <InteractionLink
+            OnClick="@(() =>
+            {
+                LessonInteractionModel.WithParameters<UnitIdLessonId>
+                    .ApplyToCurrentPanel(new(NextLesson.UnitId, NextLesson.Id), InteractionModel);
+            })"
+            StartIcon="@Icons.Filled.ArrowForward"
+        >
+            @NextLesson.Name
+        </InteractionLink>
+    }
+</MudContainer>
+
+
+@code {
+    #region Parameters
+    [Parameter]
+    public LessonInteractionModel InteractionModel { get; set; }
+    #endregion
+
+    public LessonLightweightDTO PrevLesson { get; set; } = null;
+    public LessonLightweightDTO NextLesson { get; set; } = null;
+    LessonDS lessonsDataSource;
+
+    protected async override Task OnInitializedAsync()
+    {
+        lessonsDataSource = new(db);
+        await Reset();
+    }
+
+    protected async Task Reset()
+    {
+        LessonLightweightDTO[] lessons =
+            (await lessonsDataSource.GetLessonLightweightDTOForBlock(InteractionModel.UnitId)).Values.ToArray();
+
+        for (int i = 0; i < lessons.Length; i++)
+        {
+            if (lessons[i].Id == InteractionModel.LessonNumber)
+            {
+                PrevLesson = i > 0 ? lessons[i - 1] : null;
+                NextLesson = (i < lessons.Length - 1) ? lessons[i + 1] : null;
+            }
+        }
+    }
+
+    protected async override Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        await Reset();
+    }
+
+    public void Refresh() => StateHasChanged();
+}

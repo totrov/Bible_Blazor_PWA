@@ -3,9 +3,9 @@
     public enum Parameters
     {
         FontSize,
-        MainBackground,
+        MainBackground,//obsolete
         ToolsBg,
-        HideTools,
+        HideTools,//obsolete
         FirstLevelBg,
         FirstLevelBodyBg,
         FirstLevelMarginTop,
@@ -27,10 +27,11 @@
         StartVersesOnANewLine,
         BibleRefBgColor,
         BibleRefFontColor,
-        BibleRefHighlightColor,
-        BibleRefVersesNumbersColor,
+        BibleRefHighlightColor, //now returs toolsBgColor
+        BibleRefVersesNumbersColor, //now returs toolsBgColor
         BibleRefVersesIntervalsColor,
-        HideBibleRefTabs,
-        BibleTextAtTheBottom
+        HideBibleRefTabs,//obsolete
+        BibleTextAtTheBottom,//actually in the interaction panel (it was initially at the bottom). No plans to rename
+        NotesEnabled
     }
 }

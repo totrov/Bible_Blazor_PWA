@@ -1,0 +1,60 @@
+﻿@using Bible_Blazer_PWA.Components.Interactor.LessonUnits;
+@using Bible_Blazer_PWA.Components.Interactor._SubComponents;
+@using static Bible_Blazer_PWA.Components.Interactor.Interaction;
+@inherits InteractionContainerComponent
+
+<MudContainer>
+    @InteractionRender
+</MudContainer>
+
+@code {
+
+    [Parameter]
+    public InteractionPanel InteractionPanelComponent { get; set; }
+
+    [Microsoft.AspNetCore.Components.Parameter]
+    public EventCallback<IInteractionModel> OnModelChanged { get; set; }
+
+    private RenderFragment? InteractionRender { get; set; }
+
+    public override void SetInteractionModel(IInteractionModel model, bool fromTurnoverEvent = false)
+    {
+        BreadcrumbsFacade breadcrumbsFacade = new(model.Background);
+        breadcrumbsFacade.SetBreadcrumbs(model.GetBreadcrumbs());
+        InteractionRender = builder =>
+        {
+            builder.OpenComponent(1, typeof(Breadcrumbs));
+            builder.AddAttribute(2, "BreadcrumbsFacade", breadcrumbsFacade);
+            builder.CloseComponent();
+
+            builder.OpenComponent(3, model.ComponentType);
+            builder.AddAttribute(4, "InteractionModel", model);
+            builder.CloseComponent();
+        };
+        if (model != null)
+        {
+            OnModelChanged.InvokeAsync(model);
+        }
+    }
+
+    public override void Refresh()
+    {
+        StateHasChanged();
+    }
+
+    public bool DisableRenderOnes { get; set; }
+
+    protected override bool ShouldRender()
+    {
+        if (DisableRenderOnes)
+            return DisableRenderOnes = false;
+
+        return true;
+    }
+
+    protected override void OnInitialized()
+    {
+        Interaction.SetMainContainer(this);
+        LessonUnitsInteractionModel.Apply(true);
+    }
+}

@@ -4,6 +4,7 @@
 @using Bible_Blazer_PWA.Parameters
 @using Bible_Blazer_PWA.Services.Parse
 @using Param = Microsoft.AspNetCore.Components.ParameterAttribute
+@inject DbParametersFacade DbParametersFacade;
 
 
 <MudCardHeader style="@Style">
@@ -21,17 +22,18 @@
                 case TokenType.BibleReference:
                     var avoidClosure = referenceIndex;
                     var onclick = () => { Mediator.Activate(avoidClosure); };
+                    var style = $"color: {DbParametersFacade.ParametersModel.ToolsBg}";
                     @if (Mediator.Parameters.HideBibleRefTabs != "True")
                     {
-                        <a href="" @onclick="onclick" @onclick:preventDefault>@token.Text</a>
+                        <a href="" style="@style" @onclick="onclick" @onclick:preventDefault>@token.Text</a>
                     }
                     else if (Mediator.Parameters.BibleTextAtTheBottom != "True")
                     {
-                        <a href="" @onmouseenter="onclick" @onmouseout="()=>Mediator.Activate(-1)" @onclick:preventDefault>@token.Text</a>
+                        <a href="" style="@style" @onmouseenter="onclick" @onmouseout="()=>Mediator.Activate(-1)" @onclick:preventDefault>@token.Text</a>
                     }
                     else
                     {
-                        <a href="" @onclick="onclick" @onclick:preventDefault>@token.Text</a>
+                        <a href="" style="@style" @onclick="onclick" @onclick:preventDefault>@token.Text</a>
                     }
                     referenceIndex++;
                     break;

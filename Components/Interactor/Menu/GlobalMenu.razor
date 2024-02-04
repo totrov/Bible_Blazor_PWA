@@ -1,22 +1,16 @@
-﻿@using Bible_Blazer_PWA.Components.Interactor.Setup;
-@using Bible_Blazer_PWA.Services.Menu;
-@inject MenuService menu
+﻿@using Bible_Blazer_PWA.Components.Interactor.Home;
+@using Bible_Blazer_PWA.Components.Interactor.Setup;
+@using Bible_Blazer_PWA.Services.Menu
 
 @using Bible_Blazer_PWA.Parameters;
 @inject DbParametersFacade dbParamteres
 
-@inject NavigationManager navigation
+<div id="version">v2.5</div>
 
-    @if (HomePage)
-    {
-        <div id="version">v2.6</div>
-    }
-    else
-    {
-        <MudButton Variant="Variant.Text" StartIcon="@Icons.Material.Filled.ArrowBackIosNew" OnClick="()=>{navigation.NavigateTo('/'.ToString());}" Color="Color.Inherit">Планы уроков</MudButton>
-    }
-    <MudSpacer />
-    @foreach (var button in menu.Buttons.Where(b => b.Value.Visible))
+<MudSpacer />
+@if (menu != null)
+{
+    foreach (var button in menu.Buttons.Where(b => b.Value.Visible))
     {
         if (button.Value.IsClickable)
         {
@@ -27,49 +21,26 @@
             <MudImage Src="@button.Value.Icon" Width="50" Height="50"></MudImage>
         }
     }
-<MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => Interaction.ModelOfType<SetupInteractionModel>.WithParameters<SetupInteractionModel.Parameters>.Apply(new()))" />
+}
+
+<MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => HomeInteractionModel.Apply())" />
 @code {
 
-    MenuButton loadingImage;
     private ParametersModel parametersModel;
-    bool HomePage
-    {
-        get => navigation.ToBaseRelativePath(navigation.Uri) == "";
-    }
+    private MenuService menu;
+
     string appBarStyle { get; set; }
 
     protected async override Task OnInitializedAsync()
     {
-        loadingImage = menu.AddMenuButton(new EmptyButtonHandler("/Assets/CloudLoading.gif"));
         parametersModel = dbParamteres.ParametersModel;
         appBarStyle = $"background-color:{parametersModel.ToolsBg}";
+
+        menu = Interaction.GetMenuService();
         menu.OnUpdate += (s, e) => this.StateHasChanged();
         parametersModel.OnHideBibleRefTabs += async () =>
         {
-            await Task.Delay(500);
-            var currentUri = navigation.Uri;
-            navigation.NavigateTo("/emptyPage");
-            navigation.NavigateTo(currentUri);
+
         };
     }
-
-    #region Drawer
-
-    bool DrawerOpen { get; set; }
-    bool addedNavigationChangedHandler = false;
-    void DrawerToggle()
-    {
-        if (!addedNavigationChangedHandler)
-        {
-            navigation.LocationChanged += (s, e) =>
-            {
-                DrawerOpen = false;
-            };
-            addedNavigationChangedHandler = true;
-        }
-
-        DrawerOpen = !DrawerOpen;
-    }
-
-    #endregion
 }

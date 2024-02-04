@@ -1,0 +1,84 @@
+﻿@using Bible_Blazer_PWA.DataSources;
+@using Bible_Blazer_PWA.Services;
+@using static Bible_Blazer_PWA.Components.Interactor.LessonsInUnit.Interaction.LessonsInUnitInteractionModel;
+@using static Bible_Blazer_PWA.Components.Interactor.LessonsInUnit.Interaction;
+@using static Bible_Blazer_PWA.DataSources.LessonDS;
+
+@inherits InteractionComponentBase<LessonUnitsInteractionModel>
+
+@inject LessonKeeper leesonKeeper;
+@implements IDisposable;
+
+<div style="@GetStyle">
+    <MudContainer Class="px-3 py-3">
+        @if (dbParametersFacade.ParametersModel.ToolsBg.ToUpper().TrimEnd('F') == "#594AE2")
+        {
+            <MudAlert Severity="Severity.Error">Программа обновилась. 
+                Пожалуйста, выберите основной цвет.
+                Чтобы сделать это, откройте меню - это кнопка, которая выглядит так: <img src="/Assets/menu.png" />. Затем НАСТРОЙКИ, затем ЦВЕТА.</MudAlert>
+        }
+
+        @if (LastUpdateDate != DateTime.MinValue)
+        {
+            <MudAlert Severity="Severity.Info">Планы уроков от @leesonKeeper.LastUpdate.ToString("dd.MM.yyyy")</MudAlert>
+        }
+
+        @if (LessonUnits != null)
+        {
+            foreach (LessonUnit unit in LessonUnits)
+            {
+                <MudButton OnClick="@(() => LessonsInUnitInteractionModel.WithParameters<SelectedUnitId>.ApplyToCurrentPanel(new(unit.Id), InteractionModel))">@unit.Name</MudButton>
+                <br />
+            }
+        }
+    </MudContainer>
+</div>
+
+@code {
+    public SortedSet<LessonUnit> LessonUnits { get; set; }
+    private bool checkForUpdates = true;
+    public DateTime LastUpdateDate { get; set; } = DateTime.MinValue;
+
+    protected async override Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        LessonUnits = new(
+            await (await db.GetAllFromObjectStore<LessonUnit>("lessonUnits")).GetTaskCompletionSourceWrapper(),
+            new BlockNameComparer());
+        LastUpdateDate = leesonKeeper.LastUpdate;
+        leesonKeeper.LastUpdateDateChanged += LastUpdateDateChangedHandler;
+        dbParametersFacade.OnChange += ParametersChangedHandler;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (checkForUpdates && !firstRender && await leesonKeeper.CheckUpdateRequired())
+        {
+            await leesonKeeper.UpdateLessons();
+            checkForUpdates = false;
+        }
+    }
+
+    protected void LastUpdateDateChangedHandler(DateTime date)
+    {
+        LastUpdateDate = date;
+        StateHasChanged();
+    }
+
+    protected void ParametersChangedHandler(Parameters.Parameters parameter, string value)
+    {
+        if (parameter == Parameters.Parameters.ToolsBg)
+            StateHasChanged();
+    }
+
+    void IDisposable.Dispose()
+    {
+        leesonKeeper.LastUpdateDateChanged -= LastUpdateDateChangedHandler;
+        dbParametersFacade.OnChange -= ParametersChangedHandler;
+    }
+
+    class BlockNameComparer : LessonDS.BlockNameComparer, IComparer<LessonUnit>
+    {
+        public int Compare(LessonUnit x, LessonUnit y) => base.Compare(x.Name, y.Name);
+    }
+}
