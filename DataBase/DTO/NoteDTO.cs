@@ -69,7 +69,7 @@ namespace Bible_Blazer_PWA.DataBase.DTO
             OnAfterRemoval += dto.OnAfterRemoval;
         }
 
-        public NoteDTO(string value, string unitId, string lessonId, int[] elementId, string mainColor)
+        public NoteDTO(string value, string unitId, string lessonId, int[] elementId)
         {
             Value = value;
             Type = NoteType.Regular;
@@ -77,10 +77,10 @@ namespace Bible_Blazer_PWA.DataBase.DTO
             Y = 0;
             TextSize = 14;
             TextColor = "black";
-            MainColor = mainColor;
-            Width = 230;
-            Height = 150;
-            Opacity = 10;
+            MainColor = "#fefbc0";
+            Width = 110;
+            Height = 90;
+            Opacity = 9;
             UnitId = unitId;
             LessonId = lessonId;
             ElementId = elementId;

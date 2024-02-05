@@ -59,9 +59,9 @@ namespace Bible_Blazer_PWA
             initializationTask = initialization.Initialize(this);
         }
 
-        public async Task<NoteDTO> AddNoteByValue(string value, string mainColor, DatabaseJSFacade db)
+        public async Task<NoteDTO> AddNoteByValue(string value, DatabaseJSFacade db)
         {
-            NoteDTO note = new NoteDTO(value, UnitId, LessonId, Key, mainColor);
+            NoteDTO note = new NoteDTO(value, UnitId, LessonId, Key);
             await note.SaveToDbAsync(db);
 
             return AddNote(note);
