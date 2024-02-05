@@ -1,5 +1,6 @@
 ﻿using Bible_Blazer_PWA.Components.Interactor.Menu;
 using Bible_Blazer_PWA.Components.Interactor.Transitions;
+using Bible_Blazer_PWA.Components.Interactor.Youtube;
 using Bible_Blazer_PWA.Parameters;
 using Bible_Blazer_PWA.Services.Menu;
 using System;
@@ -11,10 +12,10 @@ namespace Bible_Blazer_PWA.Components.Interactor
     public partial class Interaction : IInteractionCoordinator
     {
         #region Events
-        public static event Action OnMainModelChanged;
-        private void MainModelChanged() => OnMainModelChanged?.Invoke();
-        public static event Action OnSideModelChanged;
-        private void SideModelChanged() => OnSideModelChanged?.Invoke();
+        public static event Action<Type, Type> OnMainModelChanged;
+        private void MainModelChanged(Type previousType, Type newType) => OnMainModelChanged?.Invoke(previousType, newType);
+        public static event Action<Type, Type> OnSideModelChanged;
+        private void SideModelChanged(Type previousType, Type newType) => OnSideModelChanged?.Invoke(previousType, newType);
 
         public static event Action<int> OnResize;
         private static void Resize(int size) => OnResize?.Invoke(size);
@@ -28,6 +29,10 @@ namespace Bible_Blazer_PWA.Components.Interactor
         public static bool HasPrevious { get => Instance.CurrentSideModel?.Previous is not null; }
         public static bool HasNext { get => Instance.CurrentSideModel?.Next is not null; }
         public static InteractionPanel GetInteractionPanel() => Instance.SideContainer;
+
+        public static bool YoutubeModeEnabled =>
+            Instance.CurrentMainModel is YoutubeVideoInteractionModel ||
+            Instance.CurrentSideModel is YoutubeVideoInteractionModel;
         #endregion
 
         #region Public Methods
@@ -98,11 +103,13 @@ namespace Bible_Blazer_PWA.Components.Interactor
             get => currentSideModel;
             set
             {
+                Type oldType = currentSideModel?.GetType();
+                Type newType = value?.GetType();
                 bool changed = !Object.ReferenceEquals(currentSideModel, value);
                 currentSideModel = value;
                 if (changed)
                 {
-                    SideModelChanged();
+                    SideModelChanged(oldType, newType);
                 }
             }
         }
@@ -112,11 +119,13 @@ namespace Bible_Blazer_PWA.Components.Interactor
             get => currentMainModel;
             set
             {
+                Type oldType = currentMainModel?.GetType();
+                Type newType = value?.GetType();
                 bool changed = !Object.ReferenceEquals(currentMainModel, value);
                 currentMainModel = value;
                 if (changed)
                 {
-                    MainModelChanged();
+                    MainModelChanged(oldType, newType);
                 }
             }
         }

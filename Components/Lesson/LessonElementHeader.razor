@@ -1,11 +1,14 @@
 ﻿@namespace BibleComponents
 @using Bible_Blazer_PWA.BibleReferenceParse
+@using Bible_Blazer_PWA.Components.Interactor.Youtube;
 @using Bible_Blazer_PWA.DomainObjects
 @using Bible_Blazer_PWA.Parameters
 @using Bible_Blazer_PWA.Services.Parse
 @using Param = Microsoft.AspNetCore.Components.ParameterAttribute
+@using Bible_Blazer_PWA.Components.Interactor
 @inject DbParametersFacade DbParametersFacade;
 
+@implements IDisposable
 
 <MudCardHeader style="@Style">
     @{
@@ -27,7 +30,7 @@
                     {
                         <a href="" style="@style" @onclick="onclick" @onclick:preventDefault>@token.Text</a>
                     }
-                    else if (Mediator.Parameters.BibleTextAtTheBottom != "True")
+                    else if (Mediator.Parameters.BibleTextAtTheBottom != "True" || YouTubeMode)
                     {
                         <a href="" style="@style" @onmouseenter="onclick" @onmouseout="()=>Mediator.Activate(-1)" @onclick:preventDefault>@token.Text</a>
                     }
@@ -70,6 +73,8 @@
     [Microsoft.AspNetCore.Components.Parameter]
     public LessonElementMediator Mediator { get; set; }
 
+    public bool YouTubeMode { get; set; } = false;
+
     private string Style
     {
         get => $"display:flex; background-color:{@Mediator.BackgroundColor};font-weight:{Mediator.FontWeight}; font-size:{Mediator.Parameters.FontSize}px;{Mediator.Border}";
@@ -91,5 +96,32 @@
     private void AddNote()
     {
         Mediator.OpenAddNote();
+    }
+
+    private void ModelChangedHandler(Type oldType, Type newType)
+    {
+        if (oldType != typeof(YoutubeVideoInteractionModel) && newType == typeof(YoutubeVideoInteractionModel))
+        {
+            YouTubeMode = true;
+            StateHasChanged();
+        }
+        if (oldType == typeof(YoutubeVideoInteractionModel) && newType != typeof(YoutubeVideoInteractionModel))
+        {
+            YouTubeMode = false;
+            StateHasChanged();            
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        Interaction.OnMainModelChanged += ModelChangedHandler;
+        Interaction.OnSideModelChanged += ModelChangedHandler;
+    }
+
+    void IDisposable.Dispose()
+    {
+        Interaction.OnMainModelChanged -= ModelChangedHandler;
+        Interaction.OnSideModelChanged -= ModelChangedHandler;
     }
 }
