@@ -117,7 +117,7 @@ namespace BibleComponents
         public event Action<Type> StateHasChanged;
         public void Activate(int number)
         {
-            if (Parameters.BibleTextAtTheBottom == "True" && !Bible_Blazer_PWA.Components.Interactor.Interaction.YoutubeModeEnabled)
+            if (Parameters.BibleTextAtTheBottom == "True")
             {
                 if (number == -1)
                 {
