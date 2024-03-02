@@ -22,6 +22,12 @@
                     <MudListItem>
                         <MudButton Variant="Variant.Text" EndIcon="@Icons.Filled.SpeakerNotes" @onclick="ExportNotesToFile">Заметки</MudButton>
                     </MudListItem>
+                    <MudListItem>
+                        @{
+                            Action downloadLessons = () => { importExportService.ExportToJSON<LessonDTO>("lessons"); };
+                        }
+                        <MudButton Variant="Variant.Text" EndIcon="@Icons.Material.Filled.Download" OnClick="downloadLessons">Уроки</MudButton>
+                    </MudListItem>
                 </NestedList>
             </MudListItem>
             <MudListItem Text="Загрузить">
@@ -46,50 +52,50 @@
 @code {
     private ParametersModel parametersModel;
 
-    #region Import/Export
+            #region Import/Export
 
     private LessonImportService lessonImportService; //is it still used?
 
     private void OpenManualLoadDialog()
     {
-        var parameters = new DialogParameters();
-        parameters.Add("LessonImportService", lessonImportService);
-        parameters.Add("DisableEnableAction", (bool b) =>
+    var parameters = new DialogParameters();
+    parameters.Add("LessonImportService", lessonImportService);
+    parameters.Add("DisableEnableAction", (bool b) =>
         {
-            //TODO if anything needed
-        });
-        var options = new DialogOptions { CloseButton = true, CloseOnEscapeKey = true, DisableBackdropClick = true };
-        DialogService.Show<ManualLessonLoadDialog>("Ручная загрузка уроков", parameters, options);
+        //TODO if anything needed
+    });
+    var options = new DialogOptions { CloseButton = true, CloseOnEscapeKey = true, DisableBackdropClick = true };
+    DialogService.Show<ManualLessonLoadDialog>("Ручная загрузка уроков", parameters, options);
     }
 
     public async Task ExportParamsToFile()
     {
-        await importExportService.ExportToJSON<DbParametersFacade.ParameterPOCO>("parameters");
+    await importExportService.ExportToJSON<DbParametersFacade.ParameterPOCO>("parameters");
     }
 
     public async Task ExportNotesToFile()
     {
-        await importExportService.ExportToJSON<NoteDTO>("notes", true);
+    await importExportService.ExportToJSON<NoteDTO>("notes", true);
     }
 
     private async Task LoadNotes(InputFileChangeEventArgs e)
     {
-        var notesFile = e.File;
-        await importExportService.ImportFromStream(notesFile.OpenReadStream(), "notes");
-        Snackbar.Add("Заметки загружены");
+    var notesFile = e.File;
+    await importExportService.ImportFromStream(notesFile.OpenReadStream(), "notes");
+    Snackbar.Add("Заметки загружены");
     }
 
 
     IBrowserFile parametrsFile = null;
     private async Task LoadParameters(InputFileChangeEventArgs e)
     {
-        parametrsFile = e.File;
-        await dbParamteres.ImportFromStream(parametrsFile.OpenReadStream());
-        await parametersModel.InitFromDb();
-        Snackbar.Add("Параметры загружены");
-    }
+    parametrsFile = e.File;
+    await dbParamteres.ImportFromStream(parametrsFile.OpenReadStream());
+    await parametersModel.InitFromDb();
+    Snackbar.Add("Параметры загружены");
+            }
 
-    #endregion
+            #endregion
 
     protected async override Task OnInitializedAsync()
     {

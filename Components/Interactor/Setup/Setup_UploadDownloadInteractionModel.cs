@@ -41,7 +41,7 @@ namespace Bible_Blazer_PWA.Components.Interactor.Setup
                 Text = "Скачать/загрузить",
                 Action = () =>
                 {
-                    SetupOtherVisualInteractionModel.ApplyToCurrentPanel(this);
+                    Setup_UploadDownloadInteractionModel.ApplyToCurrentPanel(this);
                 },
                 Icon = null
             };

@@ -1,11 +1,14 @@
 ﻿@page "/Servicing"
+@using Bible_Blazer_PWA.Components.Interactor;
 @using Bible_Blazer_PWA.DataBase.DTO;
 @using System.IO;
 @using System.Text.Json;
 @using System.Text.Encodings.Web;
 @using System.Text.Unicode;
+@using Bible_Blazer_PWA.Services.Menu;
 @using Bible_Blazer_PWA.Services.Parse;
 @using Bible_Blazer_PWA.Services;
+@using static MudBlazor.CategoryTypes;
 @inject ImportExportService importExportService
 @inject IJSRuntime JS
 @inject Bible_Blazer_PWA.DataBase.DatabaseJSFacade db;
@@ -13,7 +16,14 @@
 
 <MudButton OnClick="ExportLessonsToJSON">Export lessons to JSON</MudButton>
 
+
 @code {
+    protected async override Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        Interaction.GetMenuService().AddMenuButton(new SimpleActionButtonHandler(Icons.Material.Filled.Download, () => { ExportLessonsToJSON(); }), new DefaultVisibilityHandler());
+        Interaction.GetMenuService().Update(this);
+    }
     public async Task ExportLessonsToJSON()
     {
         importExportService.ExportToJSON<LessonDTO>("lessons");
