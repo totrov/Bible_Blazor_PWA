@@ -37,7 +37,10 @@
 
     protected void ResizeHandler(int size)
     {
-        SizePct = Interaction.GetConfig().SizeMap[size][1];
+        SizePct =
+                (Interaction.GetConfig().SizeMap[size][1]
+                - Interaction.GetConfig().SizeMap[size][0] * 48 / 39)
+            .ToString("0.######") + "%";
     }
 
     protected override void OnInitialized()

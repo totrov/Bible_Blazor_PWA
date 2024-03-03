@@ -58,7 +58,7 @@
 
     protected void OnResizeHandler(int size)
     {
-        PctSize = Interaction.GetConfig().SizeMap[size][0];
+        PctSize = Interaction.GetConfig().SizeMap[size][0].ToString("0.######") + "%";
     }
     protected override void OnInitialized()
     {
