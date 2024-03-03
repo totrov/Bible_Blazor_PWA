@@ -40,7 +40,7 @@
         SizePct =
                 (Interaction.GetConfig().SizeMap[size][1]
                 - Interaction.GetConfig().SizeMap[size][0] * 48 / 39)
-            .ToString("0.######") + "%";
+            .ToString("0.######", System.Globalization.CultureInfo.InvariantCulture) + "%";
     }
 
     protected override void OnInitialized()
