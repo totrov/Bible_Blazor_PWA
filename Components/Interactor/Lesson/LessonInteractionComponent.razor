@@ -15,22 +15,26 @@
 @inject HttpClient Http
 
 <div style="@GetStyle">
-    <MudContainer Class="px-3 py-3">
+    <MudContainer Class="@Class">
         @if (Composite != null)
         {
-            <InteractionLink OnClick="()=>CreedInteractionModel.Apply()">Символ Веры</InteractionLink>
-            if (YouTubeLinks != null && YouTubeLinks.Any())
-            {
+            <div class = "d-flex">
+                <InteractionLink OnClick="()=>CreedInteractionModel.Apply()">Символ Веры</InteractionLink>
+                @if (YouTubeLinks != null && YouTubeLinks.Any())
+                {
                 <InteractionLink OnClick="()=>YoutubeSetInteractionModel.WithParameters<NameAndLinks>
                     .ApplyToOppositePanel(new(LessonName, YouTubeLinks), InteractionModel)">YouTube</InteractionLink>
-            }
+                }
+                <MudSpacer></MudSpacer>
+                <MudIconButton @ref="PaddingButton" Icon="@Icon" OnClick="PaddingClick"></MudIconButton>
+            </div>
 
             @foreach (LessonElementData data in CompositeChildren)
             {
                 <LessonElement ElementData="data" InteractionPanel="Interaction.GetInteractionPanel()"></LessonElement>
             }
 
-            <PrevNextLessonLinks @ref="PrevNextLessonLinks" InteractionModel="@InteractionModel"></PrevNextLessonLinks>
+            <PrevNextLessonLinks InteractionModel="@InteractionModel"></PrevNextLessonLinks>
         }
     </MudContainer>
 </div>
@@ -75,5 +79,28 @@
                     && link.UnitId == InteractionModel.UnitId);
     }
 
+    #region Padding Button
+    private int paddingAmount = 3;
+    private int direction = -1;
+    public string Class { get; set; } = "px-3 py-3";
+    public string Icon { get; set; } = Icons.Material.Filled.OpenInFull;
+
+    protected void PaddingClick()
+    {
+        paddingAmount += direction;
+        if (paddingAmount == 0)
+        {
+            direction = 1;
+            Icon = Icons.Material.Filled.CloseFullscreen;
+        }
+
+        if (paddingAmount == 3)
+        {
+            direction = -1;
+            Icon = Icons.Material.Filled.OpenInFull;
+        }
+        Class = $"px-{paddingAmount} py-3";
+    }
+    #endregion
     protected Task RefreshPrevNextLinks(Task task) => Task.Run(PrevNextLessonLinks.Refresh);
 }
