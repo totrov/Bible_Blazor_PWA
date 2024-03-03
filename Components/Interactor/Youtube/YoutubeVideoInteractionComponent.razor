@@ -9,4 +9,11 @@
     public override string GetStyle => InteractionModel.IsMainContent
         ? base.GetStyle + "height:calc(100vh - 100px)"
         : base.GetStyle;
+
+    protected override void ResizeHandler(int size)
+    {
+        SizePct = Interaction.GetConfig().SizeMap[size][1].ToString(
+            "0.######", System.Globalization.CultureInfo.InvariantCulture)
+            + "%";
+    }
 }
