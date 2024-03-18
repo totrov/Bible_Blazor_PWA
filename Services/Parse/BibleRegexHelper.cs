@@ -47,7 +47,7 @@ namespace Bible_Blazer_PWA.Services.Parse
                 chapterRegex,
                 @"(?:(?::|,)(?<fromTo>",
                     fromRegex, toRegex,
-                @"))?"
+                @"))*"
             );
 
             return refRegex;
