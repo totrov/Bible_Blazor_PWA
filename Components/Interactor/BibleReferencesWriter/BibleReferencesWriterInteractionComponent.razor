@@ -1,5 +1,10 @@
-﻿@using static Bible_Blazer_PWA.Components.Interactor.BibleReferencesWriter.Interaction;
+﻿@using Bible_Blazer_PWA.DomainObjects
+@using Bible_Blazer_PWA.Components.Interactor.BibleViewer
+@using Bible_Blazer_PWA.Components.Interactor._SubComponents
+@using static Bible_Blazer_PWA.Components.Interactor.BibleViewer.BibleViewerInteractionModel
+@using static Bible_Blazer_PWA.Components.Interactor.BibleReferencesWriter.Interaction;
 @inherits InteractionComponentBase<Bible_Blazer_PWA.Components.Interactor.BibleReferencesWriter.Interaction.BibleReferencesWriterInteractionModel>
+
 @inject IJSRuntime JS;
 
 <div style="@GetStyle">
@@ -8,8 +13,14 @@
             @if (InteractionModel.Mediator.VersesLoaded)
             {
                 bool isFirst = true;
-                string reference = InteractionModel.Mediator.BibleReferences.ElementAt(InteractionModel.ReferenceNumber).ToString();
-                foreach (BibleService.VersesView view in InteractionModel.Mediator.VersesViewsDictionary[reference])
+                string referenceKey = Reference.ToString();
+                foreach (BibleVersesReference chapterRef in ChapterReferences)
+                {
+                    <InteractionLink OnClick="()=>BibleViewerInteractionModel.WithParameters<BookChapter>.ApplyToCurrentPanel(new(Reference.BookShortName, chapterRef.Chapter), InteractionModel)">
+                        @chapterRef.ToString()
+                    </InteractionLink>
+                }
+                foreach (BibleService.VersesView view in InteractionModel.Mediator.VersesViewsDictionary[referenceKey])
                 {
                     @if (InteractionModel.Mediator.DbParamFacade.ParametersModel.StartVersesOnANewLine == "True" && !isFirst)
                     {
@@ -30,6 +41,20 @@
 </div>
 
 @code {
+    public BibleReference Reference { get; set; }
+    public List<BibleVersesReference> ChapterReferences { get; set; }
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        Reference = InteractionModel.Mediator.BibleReferences.ElementAt(InteractionModel.ReferenceNumber);
+        ChapterReferences = Reference.References.Where(r => !r.FromToVerses.Any()).ToList();
+        if (!InteractionModel.Mediator.VersesViewsDictionary[Reference.ToString()].Any() && ChapterReferences.Count == 1)
+        {
+            BibleViewerInteractionModel.WithParameters<BibleViewerInteractionModel.BookChapter>
+                .ApplyToCurrentPanel(new(Reference.BookShortName, ChapterReferences[0].Chapter), InteractionModel);
+        }
+    }
+
     protected async override Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
