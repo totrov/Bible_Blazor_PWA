@@ -42,7 +42,6 @@ namespace BibleComponents
                 {
                     if (parameter == Bible_Blazer_PWA.Parameters.Parameters.StartVersesOnANewLine)
                     {
-                        _versesLoaded = false;
                         await LoadVerses();
                         StateHasChanged?.Invoke(typeof(LessonElementReferences));
                     }
@@ -60,7 +59,7 @@ namespace BibleComponents
         private LinkedList<BibleReference> _references;
         public BibleService Bible { get; set; }
         Dictionary<string, IEnumerable<BibleService.VersesView>> _versesViewsDictionary;
-        bool _versesLoaded = false;
+        public Task VersesLoadTask { get; private set; }
         private BibleReferencesWriterInteractionModel BibleRefsWriterModel = null;
 
         #endregion
@@ -84,7 +83,7 @@ namespace BibleComponents
                 return BibleReferences.Any();
             }
         }
-        internal bool VersesLoaded { get => _versesLoaded; }
+        internal bool VersesLoaded { get => VersesLoadTask?.IsCompleted == true; }
         internal bool ShouldDrawBody { get => GetShouldDrawBody(); }
         internal Dictionary<string, IEnumerable<BibleService.VersesView>> VersesViewsDictionary { get => _versesViewsDictionary; }
         internal string Border { get => Parameters.HideBlocksBorders == "True" ? "border:none;" : ""; }
@@ -107,13 +106,19 @@ namespace BibleComponents
         }
         public async Task LoadVerses()
         {
+            VersesLoadTask = LoadVersesInteranl();
+            await VersesLoadTask;
+        }
+        private async Task LoadVersesInteranl()
+        {
             _versesViewsDictionary = new Dictionary<string, IEnumerable<BibleService.VersesView>>();
             foreach (BibleReference reference in BibleReferences)
             {
                 _versesViewsDictionary.Add(reference.ToString(), await Bible.GetVersesFromReference(reference));
             }
-            _versesLoaded = true;
         }
+
+
         public event Action<Type> StateHasChanged;
         public void Activate(int number)
         {

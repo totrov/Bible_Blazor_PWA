@@ -14,11 +14,17 @@
             {
                 bool isFirst = true;
                 string referenceKey = Reference.ToString();
+                bool hasChapterReferences = false;
                 foreach (BibleVersesReference chapterRef in ChapterReferences)
                 {
                     <InteractionLink OnClick="()=>BibleViewerInteractionModel.WithParameters<BookChapter>.ApplyToCurrentPanel(new(Reference.BookShortName, chapterRef.Chapter), InteractionModel)">
-                        @chapterRef.ToString()
+                        @($"{Reference.BookShortName}. {@chapterRef.Chapter} гл.")
                     </InteractionLink>
+                    hasChapterReferences = true;
+                }
+                @if (hasChapterReferences)
+                {
+                    <br />
                 }
                 foreach (BibleService.VersesView view in InteractionModel.Mediator.VersesViewsDictionary[referenceKey])
                 {
@@ -43,11 +49,13 @@
 @code {
     public BibleReference Reference { get; set; }
     public List<BibleVersesReference> ChapterReferences { get; set; }
-    protected override void OnInitialized()
+
+    protected override async Task OnParametersSetAsync()
     {
-        base.OnInitialized();
+        base.OnParametersSet();
         Reference = InteractionModel.Mediator.BibleReferences.ElementAt(InteractionModel.ReferenceNumber);
         ChapterReferences = Reference.References.Where(r => !r.FromToVerses.Any()).ToList();
+        await InteractionModel.Mediator.VersesLoadTask;
         if (!InteractionModel.Mediator.VersesViewsDictionary[Reference.ToString()].Any() && ChapterReferences.Count == 1)
         {
             BibleViewerInteractionModel.WithParameters<BibleViewerInteractionModel.BookChapter>
