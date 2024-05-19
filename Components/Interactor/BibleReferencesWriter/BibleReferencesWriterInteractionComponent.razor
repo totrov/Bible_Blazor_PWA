@@ -32,11 +32,13 @@
                                 {
                                     foreach (SubheadingDTO subheading in Subheadings[chapterNumber])
                                     {
-                                        if (@subheading.Verse != 1)
-                                        {
-                                            <MudBadge>@subheading.Verse</MudBadge>
-                                        }
-                                        <div style="padding-left:6px;">@((MarkupString)subheading.Subheading)</div>
+                                        <div style="padding-left:6px;">
+                                            @if (@subheading.Verse != 1)
+                                            {
+                                                <i>@(subheading.Verse + ": ")</i>
+                                            }
+                                            @((MarkupString)subheading.Subheading)
+                                        </div>
                                     }
                                 }
                             }
