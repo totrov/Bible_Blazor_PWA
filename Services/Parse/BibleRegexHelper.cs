@@ -11,7 +11,7 @@ namespace Bible_Blazer_PWA.Services.Parse
         private string spases = @"\s*";
         private string bookRegex = @"(?<book>Быт|Исх|Лев|Чис|Втор|Нав|Суд|Руфь|1Цар|2Цар|3Цар|4Цар|1Пар|2Пар|Ездр|Неем|Есф|Иов|Пс|Прит|Еккл|Песн|Ис|Иер|Плач|Иез|Дан|Ос|Иоил|Ам|Авд|Ион|Мих|Наум|Авв|Соф|Агг|Зах|Мал|Мат|Мар|Лук|Ин|Деян|Иак|1Пет|2Пет|1Ин|2Ин|3Ин|Иуд|Рим|1Кор|2Кор|Гал|Еф|Флп|Кол|1Фес|2Фес|1Тим|2Тим|Тит|Флм|Евр|Откр)\.?";
         private const string negativeLookaheadBookRegex = @"(?<book>Цар|Пар|Пет|Ин|Кор|Фес|Тим)\.?";
-        private string chapterRegex = @"(?<![, ]+)(?<chapter>\d+)\s*(?!" + negativeLookaheadBookRegex + ")";
+        private string chapterRegex = @"(?<![, ]+)(?<chapter>\d+)s*-?\s*(?<chapterTo>\d+)?\s*(?!" + negativeLookaheadBookRegex + ")";
         private string fromRegex = @"(?<from>\d+)";
         private string toRegex = @"(?:\s*-\s*(?<to>\d+))?";
 

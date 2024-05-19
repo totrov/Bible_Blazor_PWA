@@ -1,5 +1,6 @@
 ﻿using Bible_Blazer_PWA.DomainObjects;
 using Bible_Blazer_PWA.Services.Parse;
+using DocumentFormat.OpenXml.Wordprocessing;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -78,7 +79,11 @@ namespace Bible_Blazer_PWA.BibleReferenceParse
             BibleVersesReference bibleVersesReference = new BibleVersesReference();
 
             Match match = Regex.Match(stringToParse, corrector.RegexHelper.GetBibleVerseReferencesPattern());
+            
             bibleVersesReference.Chapter = int.Parse(match.Groups.Cast<Group>().Where(g => g.Name == "chapter").First().Value);
+            if (match.Groups.Cast<Group>().Where(g => g.Name == "chapterTo").FirstOrDefault()?.Value is string { Length : > 0 } chapterTo)
+                bibleVersesReference.ChapterTo = int.Parse(chapterTo);
+
             bibleVersesReference.FromToVerses = new LinkedList<FromToVerses>();
             foreach (Capture capture in match.Groups.Cast<Group>().Where(g => g.Name == "fromTo").First().Captures)
             {
