@@ -2,7 +2,7 @@
 window.context = {
     db: null,
     justUpgraded: false,
-    currentVersion: 6,
+    currentVersion: 7,
     previousVersion: 0,
     dbName: 'db',
     debugMode: true,
@@ -24,13 +24,19 @@ function DataUpgrade() {
             database.dataUpgradeFunctions[0]();
             database.dataUpgradeFunctions[1]();
             database.dataUpgradeFunctions[2]();
+            database.dataUpgradeFunctions[3]();
             break;
         case 1:
             database.dataUpgradeFunctions[1]();
             database.dataUpgradeFunctions[2]();
+            database.dataUpgradeFunctions[3]();
             break;
         case 2:
         case 3:
+        case 4:
+        case 5:
+        case 6:
+            database.dataUpgradeFunctions[3]();
             break;
         default:
             console.log("no data upgrade script for current db version");
@@ -51,6 +57,7 @@ function SchemaUpgrade() {
             database.schemaUpgradeFunctions[2]();
             database.schemaUpgradeFunctions[3]();
             database.schemaUpgradeFunctions[4]();
+            database.schemaUpgradeFunctions[5]();
             break;
         case 1:
         case 2:
@@ -58,20 +65,27 @@ function SchemaUpgrade() {
             database.schemaUpgradeFunctions[2]();
             database.schemaUpgradeFunctions[3]();
             database.schemaUpgradeFunctions[4]();
+            database.schemaUpgradeFunctions[5]();
             break;
         case 3:
             database.schemaUpgradeFunctions[2]();
             database.schemaUpgradeFunctions[3]();
             database.schemaUpgradeFunctions[4]();
+            database.schemaUpgradeFunctions[5]();
             break;
         case 4:
             database.schemaUpgradeFunctions[3]();
             database.schemaUpgradeFunctions[4]();
+            database.schemaUpgradeFunctions[5]();
             break;
         case 5:
             database.schemaUpgradeFunctions[4]();
+            database.schemaUpgradeFunctions[5]();
             break;
         case 6:
+            database.schemaUpgradeFunctions[5]();
+            break;
+        case 7:
             break;
         default:
             upgradeWasNotSuccess = true;
@@ -513,6 +527,10 @@ window.database = {
             var os = context.db.createObjectStore('notes', { keyPath: "id", autoIncrement: true });
             os.createIndex('lessonElement', ['unitId', 'lessonId', 'elementId'], { unique: false });
             context.db.createObjectStore('cache', { keyPath: ['Key'] });
+        },
+        function /*5*/() {
+            var os = context.db.createObjectStore('subheadings', { keyPath: ['book_number', 'chapter', 'verse'] });
+            os.createIndex('bookChapter', ['book_number', 'chapter'], { unique: false });
         }
     ],
     fetchJson: async (path, dbStore) => {
@@ -658,6 +676,9 @@ window.database = {
             transaction.onerror = function (event) {
                 console.log("clean of lessons sotre failed: " + transaction.error);
             };
+        },
+        function /*3*/() {
+            database.fetchJson('/Assets/subheadings.json', 'subheadings');
         }
     ],
 };

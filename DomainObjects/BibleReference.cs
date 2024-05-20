@@ -19,6 +19,7 @@ namespace Bible_Blazer_PWA.DomainObjects
     public class BibleVersesReference
     {
         public int Chapter { get; set; }
+        public int? ChapterTo { get; set; }
         public LinkedList<FromToVerses> FromToVerses { get; set; }
 
         public override string ToString()
