@@ -33,10 +33,7 @@
                                     foreach (SubheadingDTO subheading in Subheadings[chapterNumber])
                                     {
                                         <div style="padding-left:6px;">
-                                            @if (@subheading.Verse != 1)
-                                            {
-                                                <i>@(subheading.Verse + ": ")</i>
-                                            }
+                                                <i>@(subheading.Verse + ". ")</i>
                                             @((MarkupString)subheading.Subheading)
                                         </div>
                                     }

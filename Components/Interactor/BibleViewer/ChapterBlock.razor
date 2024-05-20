@@ -1,0 +1,37 @@
+﻿@inject Bible_Blazer_PWA.Parameters.DbParametersFacade DbParamFacade
+@if (ShowSubheadings)
+{
+    int subheadingsFontSize = Convert.ToInt32(Math.Floor(int.Parse(DbParamFacade.ParametersModel.FontSize) * 0.72));
+    var subheadingsStyle = $"padding-left: 20px; color:#777;font-size:{subheadingsFontSize}px;line-height:{subheadingsFontSize + 1}px;";
+
+    <div style="display:flex;align-items: center;">
+        <span style="@subheadingsStyle">@Data.Subheading.Subheading</span>
+        @if (Expanded)
+        {
+            <MudIconButton Size="Size.Small" DisableRipple="true" Icon="@Icons.Material.Filled.ExpandLess" OnClick="ClickHandler"></MudIconButton>
+        }
+        else
+        {
+            <MudIconButton Size="Size.Small" DisableRipple="true" Icon="@Icons.Material.Filled.ExpandMore" OnClick="ClickHandler"></MudIconButton>
+        }
+    </div>
+
+}
+
+<MudCollapse Expanded="Expanded">
+    @((MarkupString)Data.VersesRawHtml)
+</MudCollapse>
+
+@code {
+    [Parameter]
+    public ChapterBlockData Data { get; set; }
+    [Parameter]
+    public bool ShowSubheadings { get; set; } = false;
+    public bool Expanded { get; set; } = true;
+    public void ClickHandler() => Expanded = !Expanded;
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        Expanded = !ShowSubheadings;
+    }
+}

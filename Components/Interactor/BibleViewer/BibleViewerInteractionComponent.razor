@@ -1,5 +1,6 @@
 ﻿@inherits InteractionComponentBase<Bible_Blazer_PWA.Components.Interactor.BibleViewer.BibleViewerInteractionModel>
 @using Bible_Blazer_PWA.DataBase;
+@using Bible_Blazer_PWA.DataBase.DTO
 @using Bible_Blazer_PWA.Parameters;
 @using Bible_Blazer_PWA.Services.TextHandlers;
 @inject DataBase.DatabaseJSFacade db;
@@ -8,17 +9,61 @@
 
 <div style="@GetStyle">
     <MudContainer Class="px-3 py-3">
-        <MudElement HtmlTag="h3">@($"{InteractionModel.BookShortName}.{InteractionModel.ChapterNumber}")</MudElement>
+        <MudElement HtmlTag="h3" Style="display:flex;justify-content:space-between;">
+            <span>
+                @($"{InteractionModel.BookShortName}.{InteractionModel.ChapterNumber}")
+            </span>
+            <span>
+                <MudSwitch Color="Color.Primary" Checked="InlineSubheadings" CheckedChanged="HandleInlineToggle" T="bool"></MudSwitch>
+            </span>
+        </MudElement>
+        @if (true)
+        {
             <MudText Style="@GetFontSizeStyle">
-                @if (RawHtml != null)
+                @if (Blocks.Any())
+                {
+                    @* <MudSwitch Color="Color.Primary" Checked="SubhedingsOn" CheckedChanged="HandleSubheadinsToggle" T="bool">Краткое содержание</MudSwitch> *@
+                    @if (SubhedingsOn)
+                    {
+                        if (!InlineSubheadings)
+                        {
+                            int subheadingsFontSize = Convert.ToInt32(Math.Floor(int.Parse(parameters.FontSize) * 0.65));
+                            var subheadingsStyle = $"padding-left: 20px; color:#777;font-size:{subheadingsFontSize}px;line-height:{subheadingsFontSize}px;";
+                            <div style="@subheadingsStyle">
+                                @foreach (var block in Blocks)
+                                {
+                                    <span>@($"{block.Subheading.Verse}. {block.Subheading.Subheading}")</span>
+                                }
+                            </div>
+                        }
+                    }
+                    <div>
+                        @foreach (var block in Blocks)
+                        {
+                            <ChapterBlock Data="block" ShowSubheadings="InlineSubheadings"></ChapterBlock>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <span>Загрузка...</span>
+                }
+            </MudText>
+        }
+        else
+        {
+            if (Blocks.Any())
             {
-                @((MarkupString)RawHtml)
+                foreach (var block in Blocks)
+                {
+                    <ChapterBlock Data="block"></ChapterBlock>
+                }
             }
             else
             {
                 <span>Загрузка...</span>
             }
-        </MudText>
+        }
     </MudContainer>
 </div>
 @code {
@@ -26,20 +71,55 @@
     #region Props
 
     string RawHtml { get; set; } = null;
+    public List<ChapterBlockData> Blocks { get; set; } = new();
+    public int BookId { get; set; }
 
     #endregion
     #region Processors
     private VersesTextHandler versesHandler;
     #endregion
-
+    public bool SubhedingsOn { get; set; } = true;
+    public bool InlineSubheadings { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
+        var bookIdTask = Bible.GetBookIdByShortNameAsync(InteractionModel.BookShortName);
         versesHandler = new VersesTextHandler(parameters.BibleRefVersesNumbersColor);
-        var bookId = await Bible.GetBookIdByShortNameAsync(InteractionModel.BookShortName);
-        IEnumerable<BibleService.Verse> verses = await (await db.GetRangeFromObjectStoreByKey<BibleService.Verse>(
-                    "verses", bookId, InteractionModel.ChapterNumber, 0, 999)).GetTaskCompletionSourceWrapper();
+        BookId = await bookIdTask;
 
-        RawHtml = versesHandler.GetHtmlFromVerses(verses, false, true);
+        foreach (SubheadingDTO subheading in (await (await db.GetRangeFromObjectStoreByIndex<SubheadingDTO>(
+                "subheadings",
+                "bookChapter",
+                await Bible.GetBookIdByShortNameAsync(InteractionModel.BookShortName),
+                InteractionModel.ChapterNumber,
+                InteractionModel.ChapterNumber
+                )).GetTaskCompletionSourceWrapper()))
+        {
+            if (Blocks.Any())
+                Blocks.Last().VersesRawHtml = await GetVersesHtmlAsync(Blocks.Last().Subheading.Verse, subheading.Verse - 1);
+            Blocks.Add(new() { Subheading = subheading, VersesRawHtml = "" });
+        }
+        if (Blocks.Any())
+            Blocks.Last().VersesRawHtml = await GetVersesHtmlAsync(Blocks.Last().Subheading.Verse, 9999);
+    }
+
+    protected async Task<string> GetVersesHtmlAsync(int from, int to)
+    {
+        IEnumerable<BibleService.Verse> verses = await (await db.GetRangeFromObjectStoreByKey<BibleService.Verse>(
+                    "verses", BookId, InteractionModel.ChapterNumber, from, to)).GetTaskCompletionSourceWrapper();
+
+        return versesHandler.GetHtmlFromVerses(verses, false, true);
+    }
+    protected void HandleSubheadinsToggle(bool value)
+    {
+        if (!value)
+            InlineSubheadings = false;
+        SubhedingsOn = value;
+        StateHasChanged();
+    }
+    protected void HandleInlineToggle(bool value)
+    {
+        InlineSubheadings = value;
+        StateHasChanged();
     }
 }
