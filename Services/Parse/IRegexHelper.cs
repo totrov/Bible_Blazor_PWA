@@ -7,6 +7,7 @@ namespace Bible_Blazer_PWA.Services.Parse
     {
         string GetBibleReferencesPattern();
         string GetBibleVerseReferencesPattern();
+        string GetBibleReferencesPattern_ChapterOnly();
         string GetBracketsHandlerPattern();
         string GetFromToVersesPattern();
         string GetLessonsPattern();

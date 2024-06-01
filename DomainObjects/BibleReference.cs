@@ -24,7 +24,9 @@ namespace Bible_Blazer_PWA.DomainObjects
 
         public override string ToString()
         {
-            return $"{Chapter}:{string.Join(',', FromToVerses)}";
+            if(FromToVerses != null && FromToVerses.Any())
+                return $"{Chapter}:{string.Join(',', FromToVerses)}";
+            return $"{Chapter}-{ChapterTo ?? 'x'}";
         }
     }
 

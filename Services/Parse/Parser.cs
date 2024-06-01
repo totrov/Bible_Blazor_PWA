@@ -28,7 +28,7 @@ namespace Bible_Blazer_PWA.BibleReferenceParse
         {
             if (parseCompleted)
                 return this;
-            
+
             string stringWithReplacements = corrector.ReplaceBookNames(stringToParse);
             stringWithReplacements = corrector.HandleBrackets(stringWithReplacements);
 
@@ -66,38 +66,61 @@ namespace Bible_Blazer_PWA.BibleReferenceParse
             BibleReference bibleReference = new BibleReference();
             bibleReference.BookShortName = match.Groups.Cast<Group>().Where(g => g.Name == "book").First().Value;
             bibleReference.References = new LinkedList<BibleVersesReference>();
+
             foreach (Capture capture in match.Groups.Cast<Group>().Where(g => g.Name == "ref").First().Captures)
-            {
-                BibleVersesReference bibleVerseReference = CreateBibleVerseReferenceFromString(capture.Value);
-                bibleReference.References.AddLast(bibleVerseReference);
-            }
+                foreach(BibleVersesReference bibleVerseReference in CreateBibleVerseReferencesFromString(capture.Value))
+                    bibleReference.References.AddLast(bibleVerseReference);
+
             return bibleReference;
         }
 
-        private BibleVersesReference CreateBibleVerseReferenceFromString(string stringToParse)
+        private IEnumerable<BibleVersesReference> CreateBibleVerseReferencesFromString(string stringToParse)
         {
             BibleVersesReference bibleVersesReference = new BibleVersesReference();
-
-            Match match = Regex.Match(stringToParse, corrector.RegexHelper.GetBibleVerseReferencesPattern());
-            
-            bibleVersesReference.Chapter = int.Parse(match.Groups.Cast<Group>().Where(g => g.Name == "chapter").First().Value);
-            if (match.Groups.Cast<Group>().Where(g => g.Name == "chapterTo").FirstOrDefault()?.Value is string { Length : > 0 } chapterTo)
-                bibleVersesReference.ChapterTo = int.Parse(chapterTo);
-
-            bibleVersesReference.FromToVerses = new LinkedList<FromToVerses>();
-            foreach (Capture capture in match.Groups.Cast<Group>().Where(g => g.Name == "fromTo").First().Captures)
+            Match match;
+            if (stringToParse.Contains(':'))
             {
-                bibleVersesReference.FromToVerses.AddLast(CreateFromToVerseFromString(capture.Value));
-            }
+                match = Regex.Match(stringToParse, corrector.RegexHelper.GetBibleVerseReferencesPattern());
 
-            return bibleVersesReference;
+                bibleVersesReference.Chapter = int.Parse(match.Groups.Cast<Group>().Where(g => g.Name == "chapter").First().Value);
+                if (match.Groups.Cast<Group>().Where(g => g.Name == "chapterTo").FirstOrDefault()?.Value is string { Length: > 0 } chapterTo)
+                    bibleVersesReference.ChapterTo = int.Parse(chapterTo);
+
+                bibleVersesReference.FromToVerses = new LinkedList<FromToVerses>();
+                var group = match.Groups.Cast<Group>().Where(g => g.Name == "fromTo").FirstOrDefault();
+                if (group != null)
+                    foreach (Capture capture in group.Captures)
+                    {
+                        bibleVersesReference.FromToVerses.AddLast(CreateFromToVerseFromString(capture.Value));
+                    }
+
+                yield return bibleVersesReference;
+            }
+            else
+            {
+                string pattern = corrector.RegexHelper.GetBibleReferencesPattern_ChapterOnly();
+                match = Regex.Match(stringToParse, pattern);
+                var refsGroup = match.Groups.Cast<Group>().Where(g => g.Name == "ref").FirstOrDefault();
+                if (refsGroup != null)
+                    foreach (Capture capture in refsGroup.Captures)
+                    {
+                        bibleVersesReference = new BibleVersesReference();
+                        var uniqueRefGroups = Regex.Match(capture.Value, pattern).Groups.Cast<Group>();
+                        bibleVersesReference.Chapter = int.Parse(uniqueRefGroups.First(g => g.Name == "chapter").Captures.First().Value);
+                        string chapterTo = uniqueRefGroups.FirstOrDefault(g => g.Name == "chapterTo")?.Captures?.FirstOrDefault()?.Value;
+                        if (chapterTo != null)
+                            bibleVersesReference.ChapterTo = int.Parse(chapterTo);
+                        yield return bibleVersesReference;
+                    }
+            }
         }
 
         private FromToVerses CreateFromToVerseFromString(string stringToParse)
         {
             FromToVerses fromToVerses = new FromToVerses();
             Match match = Regex.Match(stringToParse, corrector.RegexHelper.GetFromToVersesPattern());
-            fromToVerses.FromVerse = int.Parse(match.Groups.Cast<Group>().Where(g => g.Name == "from").First().Value);
+            string from = match.Groups.Cast<Group>().Where(g => g.Name == "from").First().Value;
+            fromToVerses.FromVerse = int.Parse(from);
             var groups = match.Groups.Cast<Group>().Where(g => g.Name == "to");
             var debug = groups.FirstOrDefault();
             if (groups.Any())
