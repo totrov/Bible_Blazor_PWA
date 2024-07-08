@@ -30,13 +30,14 @@
                                 </InteractionLink>
                                 if (Subheadings != null)
                                 {
-                                    foreach (SubheadingDTO subheading in Subheadings[chapterNumber])
-                                    {
-                                        <div style="padding-left:6px;">
-                                                <i>@(subheading.Verse + ". ")</i>
-                                            @((MarkupString)subheading.Subheading)
-                                        </div>
-                                    }
+                                    if (Subheadings.ContainsKey(chapterNumber))
+                                        foreach (SubheadingDTO subheading in Subheadings[chapterNumber])
+                                        {
+                                            <div style="padding-left:6px;">
+                                                    <i>@(subheading.Verse + ". ")</i>
+                                                @((MarkupString)subheading.Subheading)
+                                            </div>
+                                        }
                                 }
                             }
                         }
@@ -99,7 +100,8 @@
     {
         base.OnParametersSet();
         Reference = InteractionModel.Mediator.BibleReferences.ElementAt(InteractionModel.ReferenceNumber);
-        ChapterReferences = Reference.References.Where(r => !r.FromToVerses.Any()).ToList();
+        ChapterReferences = Reference.References.Where(r => r.FromToVerses is null
+            || !r.FromToVerses.Any()).ToList();
         await InteractionModel.Mediator.VersesLoadTask;
         if (!InteractionModel.Mediator.VersesViewsDictionary[Reference.ToString()].Any()
             && ChapterReferences.Count == 1 && ChapterReferences[0].ChapterTo is null)

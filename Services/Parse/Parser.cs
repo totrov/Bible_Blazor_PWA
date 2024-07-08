@@ -78,40 +78,58 @@ namespace Bible_Blazer_PWA.BibleReferenceParse
         {
             BibleVersesReference bibleVersesReference = new BibleVersesReference();
             Match match;
-            if (stringToParse.Contains(':'))
+            int chapterCount = stringToParse.Count(ch => ch == ':');
+            switch (chapterCount)
             {
-                match = Regex.Match(stringToParse, corrector.RegexHelper.GetBibleVerseReferencesPattern());
+                case 0:
+                    string pattern = corrector.RegexHelper.GetBibleReferencesPattern_ChapterOnly();
+                    match = Regex.Match(stringToParse, pattern);
+                    var refsGroup = match.Groups.Cast<Group>().Where(g => g.Name == "ref").FirstOrDefault();
+                    if (refsGroup != null)
+                        foreach (Capture capture in refsGroup.Captures)
+                        {
+                            bibleVersesReference = new BibleVersesReference();
+                            var uniqueRefGroups = Regex.Match(capture.Value, pattern).Groups.Cast<Group>();
+                            bibleVersesReference.Chapter = int.Parse(uniqueRefGroups.First(g => g.Name == "chapter").Captures.First().Value);
+                            string toChapter = uniqueRefGroups.FirstOrDefault(g => g.Name == "chapterTo")?.Captures?.FirstOrDefault()?.Value;
+                            if (toChapter != null)
+                                bibleVersesReference.ChapterTo = int.Parse(toChapter);
+                            yield return bibleVersesReference;
+                        }
+                    break;
+                case 1:
+                    match = Regex.Match(stringToParse, corrector.RegexHelper.GetBibleVerseReferencesPattern());
 
-                bibleVersesReference.Chapter = int.Parse(match.Groups.Cast<Group>().Where(g => g.Name == "chapter").First().Value);
-                if (match.Groups.Cast<Group>().Where(g => g.Name == "chapterTo").FirstOrDefault()?.Value is string { Length: > 0 } chapterTo)
-                    bibleVersesReference.ChapterTo = int.Parse(chapterTo);
+                    bibleVersesReference.Chapter = int.Parse(match.Groups.Cast<Group>().Where(g => g.Name == "chapter").First().Value);
+                    if (match.Groups.Cast<Group>().Where(g => g.Name == "chapterTo").FirstOrDefault()?.Value is string { Length: > 0 } chapterTo)
+                        bibleVersesReference.ChapterTo = int.Parse(chapterTo);
 
-                bibleVersesReference.FromToVerses = new LinkedList<FromToVerses>();
-                var group = match.Groups.Cast<Group>().Where(g => g.Name == "fromTo").FirstOrDefault();
-                if (group != null)
-                    foreach (Capture capture in group.Captures)
+                    bibleVersesReference.FromToVerses = new LinkedList<FromToVerses>();
+                    var group = match.Groups.Cast<Group>().Where(g => g.Name == "fromTo").FirstOrDefault();
+                    if (group != null)
+                        foreach (Capture capture in group.Captures)
+                        {
+                            bibleVersesReference.FromToVerses.AddLast(CreateFromToVerseFromString(capture.Value));
+                        }
+
+                    yield return bibleVersesReference;
+                    break;
+                default:
+                    var commaIndexesToSplitBy = stringToParse.Select((ch, index) => ch == ':' ? index : -1)
+                        .Where(colonIndex => colonIndex > -1)
+                        .Skip(1)
+                        .Select(colonIndex => stringToParse.LastIndexOf(',', colonIndex, colonIndex - 1)).Append(999);
+
+                    int startIndex = 0;
+                    foreach (int commaIndex in commaIndexesToSplitBy)
                     {
-                        bibleVersesReference.FromToVerses.AddLast(CreateFromToVerseFromString(capture.Value));
+                        string subReference = string.Join(null, stringToParse.Where((ch, index) => index >= startIndex && index < commaIndex));
+                        foreach (BibleVersesReference reference in CreateBibleVerseReferencesFromString(subReference))
+                            yield return reference;
+                        startIndex = commaIndex + 1;
                     }
-
-                yield return bibleVersesReference;
-            }
-            else
-            {
-                string pattern = corrector.RegexHelper.GetBibleReferencesPattern_ChapterOnly();
-                match = Regex.Match(stringToParse, pattern);
-                var refsGroup = match.Groups.Cast<Group>().Where(g => g.Name == "ref").FirstOrDefault();
-                if (refsGroup != null)
-                    foreach (Capture capture in refsGroup.Captures)
-                    {
-                        bibleVersesReference = new BibleVersesReference();
-                        var uniqueRefGroups = Regex.Match(capture.Value, pattern).Groups.Cast<Group>();
-                        bibleVersesReference.Chapter = int.Parse(uniqueRefGroups.First(g => g.Name == "chapter").Captures.First().Value);
-                        string chapterTo = uniqueRefGroups.FirstOrDefault(g => g.Name == "chapterTo")?.Captures?.FirstOrDefault()?.Value;
-                        if (chapterTo != null)
-                            bibleVersesReference.ChapterTo = int.Parse(chapterTo);
-                        yield return bibleVersesReference;
-                    }
+                    
+                    break;
             }
         }
 

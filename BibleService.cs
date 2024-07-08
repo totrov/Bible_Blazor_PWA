@@ -41,6 +41,8 @@ namespace Bible_Blazer_PWA
             string badge = "";
             foreach (BibleVersesReference versesReference in reference.References)
             {
+                if (versesReference.FromToVerses is null)
+                    continue;
                 badge = $"{versesReference.Chapter}:";
                 foreach (FromToVerses fromTo in versesReference.FromToVerses)
                 {
