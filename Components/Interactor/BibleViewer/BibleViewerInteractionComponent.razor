@@ -80,6 +80,7 @@
     #endregion
     public bool SubhedingsOn { get; set; } = true;
     public bool InlineSubheadings { get; set; } = false;
+    public bool InlineSubheadingsEnabled { get; set; } = true;
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
@@ -101,6 +102,15 @@
         }
         if (Blocks.Any())
             Blocks.Last().VersesRawHtml = await GetVersesHtmlAsync(Blocks.Last().Subheading.Verse, 9999);
+        else
+        {
+            Blocks.Add(new()
+            {
+                Subheading = new() { Subheading = "Нет подзаголовков для этой главы." },
+                VersesRawHtml = await GetVersesHtmlAsync(0, 9999)
+            });
+            InlineSubheadingsEnabled = false;
+        }
     }
 
     protected async Task<string> GetVersesHtmlAsync(int from, int to)
@@ -119,7 +129,7 @@
     }
     protected void HandleInlineToggle(bool value)
     {
-        InlineSubheadings = value;
+        InlineSubheadings = value && InlineSubheadingsEnabled;
         StateHasChanged();
     }
 }
