@@ -21,6 +21,7 @@ namespace Bible_Blazer_PWA.Components.Interactor
         IInteractionModel Previous { get; set; }
         IEnumerable<BreadcrumbsFacade.BreadcrumbRecord> GetBreadcrumbs();
         IEnumerable<(IButtonStateHandler, IButtonVisibilityHandler)> GetButtons();
+        bool NeedRerenderOnModelChange(IInteractionModel prevModel);
     }
     public abstract class InteractionModelBase<TSelf> : Interaction.InteractionModel<TSelf>, IInteractionModel
         where TSelf : InteractionModelBase<TSelf>
@@ -44,6 +45,14 @@ namespace Bible_Blazer_PWA.Components.Interactor
         public virtual IEnumerable<(IButtonStateHandler, IButtonVisibilityHandler)> GetButtons()
         {
             return new (IButtonStateHandler, IButtonVisibilityHandler)[0];
+        }
+        public virtual bool NeedRerenderOnModelChangeImpl(TSelf prevModel) => true;
+
+        public bool NeedRerenderOnModelChange(IInteractionModel prevModel)
+        {
+            if (prevModel is TSelf prevModelCasted)
+                return NeedRerenderOnModelChangeImpl(prevModelCasted);
+            return false;
         }
     }
     public abstract class CenteredInteractionModelBase<TSelf> : InteractionModelBase<TSelf>

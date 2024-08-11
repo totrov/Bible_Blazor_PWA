@@ -81,14 +81,16 @@ namespace Bible_Blazer_PWA.Components.Interactor
                 transitions[modelType].Add(transitionType);
             }
             sideContainer.ChildInitialized += () => Resize(sideContainer.Size);
-            sideContainer.SetInteractionModel(null);
+            sideContainer.SetInteractionModel(null, false);
         }
         #endregion
 
         #region Private State
 
         private InteractionPanel SideContainer;
+        private bool SideContainerToggle;
         private MainContentPanel MainContainer;
+        private bool MainContainerToggle;
         private static Interaction Instance;
         private InteractionConfig Config;
         private MenuService Menu;
@@ -135,8 +137,9 @@ namespace Bible_Blazer_PWA.Components.Interactor
             {
                 CurrentSideModel.Previous.Next = CurrentSideModel;
             }
+            PerformToggle(CurrentSideModel.Previous, false);
             CurrentSideModel = CurrentSideModel.Previous;
-            SideContainer.SetInteractionModel(CurrentSideModel);
+            SideContainer.SetInteractionModel(CurrentSideModel, SideContainerToggle);
             SideContainer.Refresh();
         }
 
@@ -150,8 +153,9 @@ namespace Bible_Blazer_PWA.Components.Interactor
             {
                 CurrentSideModel.Next.Previous = CurrentSideModel;
             }
+            PerformToggle(CurrentSideModel.Next, false);
             CurrentSideModel = CurrentSideModel.Next;
-            SideContainer.SetInteractionModel(CurrentSideModel);
+            SideContainer.SetInteractionModel(CurrentSideModel, SideContainerToggle);
             SideContainer.Refresh();
         }
 
@@ -219,7 +223,7 @@ namespace Bible_Blazer_PWA.Components.Interactor
             if (CurrentSideModel.Previous?.Next != null)
                 CurrentSideModel.Previous.Next.Previous = CurrentSideModel.Previous.Next;
             CurrentSideModel = CurrentSideModel.Previous;
-            SideContainer.SetInteractionModel(CurrentSideModel);
+            SideContainer.SetInteractionModel(CurrentSideModel, PerformToggle(CurrentSideModel, SideContainerToggle));
             SideContainer.Refresh();
         }
         protected TInteractionModel SetInteractionModel<TInteractionModel>(bool toMainContent)
@@ -243,10 +247,10 @@ namespace Bible_Blazer_PWA.Components.Interactor
             model.Previous = CurrentSideModel;
             model.IsMainContent = toMainContent;
             InteractionContainerComponent container = toMainContent ? MainContainer : SideContainer;
-            container.SetInteractionModel(model);
+            container.SetInteractionModel(model, PerformToggle(model, toMainContent));
             model.OnClose += () =>
             {
-                container.SetInteractionModel(null);
+                container.SetInteractionModel(null, false);
                 container.Refresh();
             };
             container.Refresh();
@@ -267,6 +271,22 @@ namespace Bible_Blazer_PWA.Components.Interactor
                 CurrentSideModel = model;
             }
             return model;
+        }
+
+        private bool PerformToggle(IInteractionModel model, bool toMainContent)
+        {
+            if (toMainContent)
+            {
+                if (CurrentMainModel?.NeedRerenderOnModelChange(model) == true)
+                    MainContainerToggle = !MainContainerToggle;
+                return MainContainerToggle;
+            }
+            else
+            {
+                if (CurrentSideModel?.NeedRerenderOnModelChange(model) == true)
+                    SideContainerToggle = !SideContainerToggle;
+                return SideContainerToggle;
+            }
         }
 
         private void ApplyTransitions<TInteractionModel>(TInteractionModel model) where TInteractionModel : IInteractionModel

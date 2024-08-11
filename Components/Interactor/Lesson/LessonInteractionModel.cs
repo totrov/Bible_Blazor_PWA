@@ -21,6 +21,13 @@ namespace Bible_Blazer_PWA.Components.Interactor.Lesson
         public event Action OnRefreshNeeded;
         protected void RefreshNeeded() => OnRefreshNeeded?.Invoke();   
 
+        #region Overrides
+        public override bool NeedRerenderOnModelChangeImpl(LessonInteractionModel prevModel)
+        {
+            return prevModel.LessonNumber != LessonNumber || prevModel.UnitId != UnitId;
+        }
+        #endregion
+
         #region Buttons
         public override IEnumerable<(IButtonStateHandler, IButtonVisibilityHandler)> GetButtons()
         {

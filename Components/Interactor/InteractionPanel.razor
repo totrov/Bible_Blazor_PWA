@@ -99,7 +99,7 @@
     [Microsoft.AspNetCore.Components.Parameter]
     public EventCallback<IInteractionModel> OnModelChanged { get; set; }
 
-    public override void SetInteractionModel(IInteractionModel model, bool fromTurnoverEvent = false)
+    public override void SetInteractionModel(IInteractionModel model, bool toggleSequenceNumbers, bool fromTurnoverEvent = false)
     {
         if (model != null)
         {
@@ -112,7 +112,7 @@
             Position pos = CalcPosition(model.IsSide, IsBottom);
             BreadcrumbsFacade breadcrumbsFacade = new(model.Background);
             breadcrumbsFacade.SetBreadcrumbs(model.GetBreadcrumbs());
-
+            bool t = !toggleSequenceNumbers;
             switch (pos)
             {
                 case Position.Bottom:
@@ -143,8 +143,8 @@
                 case Position.Centered:
                     InteractionRender = builder =>
                     {
-                        builder.OpenComponent(2, model.ComponentType);
-                        builder.AddAttribute(3, "InteractionModel", model);
+                        builder.OpenComponent(t ? 2 : 52, model.ComponentType);
+                        builder.AddAttribute(t ? 3 : 53, "InteractionModel", model);
                         builder.CloseComponent();
                     };
                     break;
@@ -152,24 +152,24 @@
                 case Position.Top:
                     InteractionRender = builder =>
                     {
-                        builder.OpenComponent(0, typeof(Breadcrumbs));
-                        builder.AddAttribute(1, "BreadcrumbsFacade", breadcrumbsFacade);
+                        builder.OpenComponent(t ? 0 : 50, typeof(Breadcrumbs));
+                        builder.AddAttribute(t ? 1 : 51, "BreadcrumbsFacade", breadcrumbsFacade);
                         builder.CloseComponent();
 
-                        builder.OpenComponent(2, model.ComponentType);
-                        builder.AddAttribute(3, "InteractionModel", model);
-                        builder.AddAttribute(4, "InteractionPanel", this);
+                        builder.OpenComponent(t ? 2 : 52, model.ComponentType);
+                        builder.AddAttribute(t ? 3 : 53, "InteractionModel", model);
+                        builder.AddAttribute(t ? 4 : 54, "InteractionPanel", this);
                         builder.CloseComponent();
 
-                        builder.OpenComponent(5, typeof(MudDivider));
+                        builder.OpenComponent(t ? 5 : 55, typeof(MudDivider));
                         builder.CloseComponent();
 
-                        builder.OpenComponent(6, typeof(InteractionPanelMenu));
-                        builder.AddAttribute(7, "InteractionModel", model);
-                        builder.AddAttribute(8, "InteractionPanel", this);
+                        builder.OpenComponent(t ? 6 : 56, typeof(InteractionPanelMenu));
+                        builder.AddAttribute(t ? 7 : 57, "InteractionModel", model);
+                        builder.AddAttribute(t ? 8 : 58, "InteractionPanel", this);
                         builder.CloseComponent();
 
-                        builder.OpenComponent(9, typeof(MudDivider));
+                        builder.OpenComponent(t ? 9 : 59, typeof(MudDivider));
                         builder.CloseComponent();
                     };
                     break;

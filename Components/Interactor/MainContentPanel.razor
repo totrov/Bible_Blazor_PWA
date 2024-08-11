@@ -17,24 +17,27 @@
 
     private RenderFragment? InteractionRender { get; set; }
 
-    public override void SetInteractionModel(IInteractionModel model, bool fromTurnoverEvent = false)
+    public override void SetInteractionModel(IInteractionModel model, bool toggleSequenceNumbers, bool fromTurnoverEvent = false)
     {
+        if (model == null)
+        {
+            InteractionRender = null;
+            return;
+        }
         BreadcrumbsFacade breadcrumbsFacade = new(model.Background);
         breadcrumbsFacade.SetBreadcrumbs(model.GetBreadcrumbs());
+        bool t = !toggleSequenceNumbers;
         InteractionRender = builder =>
         {
-            builder.OpenComponent(1, typeof(Breadcrumbs));
-            builder.AddAttribute(2, "BreadcrumbsFacade", breadcrumbsFacade);
+            builder.OpenComponent(t ? 1 : 51, typeof(Breadcrumbs));
+            builder.AddAttribute(t ? 2 : 52, "BreadcrumbsFacade", breadcrumbsFacade);
             builder.CloseComponent();
 
-            builder.OpenComponent(3, model.ComponentType);
-            builder.AddAttribute(4, "InteractionModel", model);
+            builder.OpenComponent(t ? 3 : 53, model.ComponentType);
+            builder.AddAttribute(t ? 4 : 54, "InteractionModel", model);
             builder.CloseComponent();
         };
-        if (model != null)
-        {
-            OnModelChanged.InvokeAsync(model);
-        }
+        OnModelChanged.InvokeAsync(model);
     }
 
     public override void Refresh()
