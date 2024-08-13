@@ -1,0 +1,46 @@
+﻿@using Bible_Blazer_PWA.Components.Interactor.Lesson
+@using Bible_Blazer_PWA.Components.Interactor._SubComponents
+@using Bible_Blazer_PWA.DataBase.DTO
+@using Bible_Blazer_PWA.Parameters
+@using static Bible_Blazer_PWA.Components.Interactor.Lesson.LessonInteractionModel
+@inject DbParametersFacade DbParametersFacade;
+
+@if (NoteDTO != null && InteractionModel != null)
+{
+    Dictionary<NoteDTO.NoteType, string> colors = new() {
+        { NoteDTO.NoteType.Regular, $"{DbParametersFacade.ParametersModel.ToolsBg}22;" },
+        { NoteDTO.NoteType.Attention, "#FF408122" },
+        { NoteDTO.NoteType .Question, "#00C85322"} };
+    var style = $"background-color:{colors[NoteDTO.Type]};padding: 0 10px;";
+    <MudPaper Style="background-color:white;margin-bottom:10px;" Elevation="0">
+        <MudPaper Style="@style" Elevation="0">
+            @if (FullText || NoteDTO.Value.Length < MaxChars)
+            {
+                @NoteDTO.Value
+            }
+            else
+            {
+                @NoteDTO.Value.Substring(0, MaxChars)
+                var style = $"color: {DbParametersFacade.ParametersModel.ToolsBg}";
+                <i><a href="" style="@style" @onclick="ShowFullText" @onclick:preventDefault>далее</a></i>
+            }
+            <InteractionLink OnClick="() => LessonInteractionModel.WithParameters<UnitIdLessonIdElementId>.ApplyToOppositePanel
+            (new (NoteDTO.UnitId, NoteDTO.LessonId, NoteDTO.ElementId), InteractionModel)">Показать в уроке</InteractionLink>
+        </MudPaper>
+    </MudPaper>
+}
+
+
+@code {
+    [Microsoft.AspNetCore.Components.Parameter]
+    public NoteDTO NoteDTO { get; set; }
+    public bool FullText { get; set; } = false;
+    public const int MaxChars = 30;
+    [Microsoft.AspNetCore.Components.Parameter]
+    public NotesInteractionModel InteractionModel { get; set; }
+    public void ShowFullText()
+    {
+        FullText = true;
+        StateHasChanged();
+    }
+}

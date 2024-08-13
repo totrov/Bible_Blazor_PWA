@@ -96,5 +96,8 @@ namespace Bible_Blazer_PWA
             await ret.InitTask;
             return ret;
         }
+
+        public static string GetAnchor(int[] key) => $"le-{key[0]}-{key[1]}-{key[2]}";
+        public string GetAnchor() => GetAnchor(Key);
     }
 }

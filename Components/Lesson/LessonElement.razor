@@ -12,8 +12,7 @@
 @inject DbParametersFacade dbParamFacade;
 @inject Corrector Corrector;
 
-
-<MudCard class="card" style="@CardStyle" Elevation="0">
+<MudCard class="card" style="@CardStyle" Elevation="0" id="@ElementData.GetAnchor()">
     <LessonElementHeader Mediator="@mediator"></LessonElementHeader>
     <LessonElementBody Mediator="@mediator"></LessonElementBody>
 </MudCard>

@@ -19,7 +19,7 @@ namespace Bible_Blazer_PWA.Components.Interactor.Lesson
         public override Type ComponentType => typeof(LessonInteractionComponent);
 
         public event Action OnRefreshNeeded;
-        protected void RefreshNeeded() => OnRefreshNeeded?.Invoke();   
+        protected void RefreshNeeded() => OnRefreshNeeded?.Invoke();
 
         #region Overrides
         public override bool NeedRerenderOnModelChangeImpl(LessonInteractionModel prevModel)
@@ -100,7 +100,7 @@ namespace Bible_Blazer_PWA.Components.Interactor.Lesson
 
         public string UnitId { get; set; }
         public string LessonNumber { get; set; }
-
+        public int[] ElementId { get; set; }
 
         public class UnitIdLessonId : Parameters
         {
@@ -116,6 +116,21 @@ namespace Bible_Blazer_PWA.Components.Interactor.Lesson
             {
                 model.UnitId = UnitId;
                 model.LessonNumber = LessonNumber;
+            }
+        }
+
+        public class UnitIdLessonIdElementId : UnitIdLessonId
+        {
+            public int[] ElementId { get; set; }
+            public UnitIdLessonIdElementId(string unitId, string lessonNumber, int[] elementId)
+                :base(unitId, lessonNumber)
+            {
+                ElementId = elementId;
+            }
+            public override void ApplyParametersToModel(LessonInteractionModel model)
+            {
+                base.ApplyParametersToModel(model);
+                model.ElementId = ElementId;
             }
         }
         #endregion

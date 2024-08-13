@@ -1,5 +1,6 @@
 ﻿@using Bible_Blazer_PWA.Components.Interactor.Bible;
 @using Bible_Blazer_PWA.Components.Interactor.LessonUnits;
+@using Bible_Blazer_PWA.Components.Interactor.Notes
 @using Bible_Blazer_PWA.Components.Interactor.Youtube;
 @using Bible_Blazer_PWA.Components.Interactor.Setup;
 @using Bible_Blazer_PWA.Components.Interactor._SubComponents
@@ -14,6 +15,8 @@
         <InteractionLink OnClick="() => SetupInteractionModel.ApplyToCurrentPanel(InteractionModel)">Настройки</InteractionLink>
         <br />
         <InteractionLink OnClick="() => YoutubePlaylistsInteractionModel.ApplyToCurrentPanel(InteractionModel)">Youtube</InteractionLink>
+        <br />
+        <InteractionLink OnClick="() => NotesInteractionModel.ApplyToCurrentPanel(InteractionModel)">Заметки</InteractionLink>
     </MudContainer>
 </div>
 @code {

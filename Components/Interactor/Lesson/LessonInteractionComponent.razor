@@ -1,4 +1,5 @@
 ﻿@inherits InteractionComponentBase<LessonInteractionModel>
+@inject IJSRuntime JSRuntime
 
 @using BibleComponents
 @using Bible_Blazer_PWA.Components.Interactor.Creed;
@@ -33,7 +34,7 @@
             {
                 <LessonElement ElementData="data" InteractionPanel="Interaction.GetInteractionPanel()"></LessonElement>
             }
-
+            <a @ref="AnchorLink" style="display: none;" href="@AnchorHref"></a>
             <PrevNextLessonLinks InteractionModel="@InteractionModel"></PrevNextLessonLinks>
         }
     </MudContainer>
@@ -47,6 +48,8 @@
     public string LessonName { get; set; } = null;
     public PrevNextLessonLinks PrevNextLessonLinks { get; set; }
     public IEnumerable<YoutubeLinkDTO> YouTubeLinks { get; set; }
+    public ElementReference AnchorLink { get; set; }
+    public string AnchorHref { get; set; } = "";
     protected async override Task OnInitializedAsync()
     {
         dbParametersFacade.OnChange += (param, value) => { StateHasChanged(); };
@@ -103,4 +106,22 @@
     }
     #endregion
     protected Task RefreshPrevNextLinks(Task task) => Task.Run(PrevNextLessonLinks.Refresh);
+
+    bool pressAnchor = false;
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        if (InteractionModel.ElementId != null && !firstRender)
+        {
+            AnchorHref = "#" + LessonElementData.GetAnchor(InteractionModel.ElementId);
+            InteractionModel.ElementId = null;
+            pressAnchor = true;
+            StateHasChanged();
+        }
+        else if (pressAnchor)
+        {
+            pressAnchor = false;
+            JSRuntime.InvokeVoidAsync("window.HTMLButtonElement.prototype.click.call", AnchorLink);
+        }
+    }
 }

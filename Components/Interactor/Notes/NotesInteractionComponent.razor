@@ -1,0 +1,68 @@
+﻿@using Bible_Blazer_PWA.DataBase.DTO
+@using Bible_Blazer_PWA.Parameters
+@inherits InteractionComponentBase<NotesInteractionModel>
+@inject DbParametersFacade DbParametersFacade;
+
+<div style="@GetStyle">
+    <MudContainer Class="px-3 py-3">
+        @if (IsInitialized)
+        {
+            if (RegularNotes.Any())
+            {
+                var style = $"background-color:{DbParametersFacade.ParametersModel.ToolsBg}55; padding:10px; margin-bottom:10px;";
+                <MudPaper Style="@style">
+                    <MudElement HtmlTag="h4">Обычные заметки</MudElement>
+                    @foreach (var note in RegularNotes)
+                    {
+                        <NoteLink NoteDTO="note" InteractionModel="InteractionModel"></NoteLink>
+                    }
+                </MudPaper>
+            }
+
+            if (QuestionNotes.Any())
+            {
+                <MudPaper Style="background-color:#00C85355; padding:10px 10px 10px; margin-bottom:10px;">
+                    <MudElement HtmlTag="h4">Заметки с типом "Вопрос"</MudElement>
+                    @foreach (var note in QuestionNotes)
+                    {
+                        <NoteLink NoteDTO="note" InteractionModel="InteractionModel"></NoteLink>
+                    }
+                </MudPaper>
+            }
+
+            if (AttentionNotes.Any())
+            {
+                <MudPaper Style="background-color:#FF408155; padding:10px;">
+                    <MudElement HtmlTag="h4">Заметки с типом "Внимание"</MudElement>
+                    @foreach (var note in AttentionNotes)
+                    {
+                        <NoteLink NoteDTO="note" InteractionModel="InteractionModel"></NoteLink>
+                    }
+                </MudPaper>
+            }
+        }
+    </MudContainer>
+</div>
+
+@code {
+    List<NoteDTO> QuestionNotes { get; set; } = new();
+    List<NoteDTO> AttentionNotes { get; set; } = new();
+    List<NoteDTO> RegularNotes { get; set; } = new();
+    public bool IsInitialized { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        Dictionary<NoteDTO.NoteType, List<NoteDTO>> noteListsByType = new() {
+            { NoteDTO.NoteType.Regular, RegularNotes },
+            { NoteDTO.NoteType.Question, QuestionNotes },
+            { NoteDTO.NoteType.Attention, AttentionNotes }};
+
+        IEnumerable<NoteDTO> notes = await (await db.GetAllFromObjectStore<NoteDTO>("notes")).GetTaskCompletionSourceWrapper();
+        foreach (var note in notes)
+        {
+            noteListsByType[note.Type].Add(note);
+        }
+        IsInitialized = true;
+    }
+}
