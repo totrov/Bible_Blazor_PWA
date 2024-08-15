@@ -7,7 +7,7 @@ namespace Bible_Blazer_PWA.Components.Interactor.Notes
 {
     public class NotesInteractionModel : InteractionModelBase<NotesInteractionModel>
     {
-        public override bool IsSide => false;
+        public override bool IsSide => true;
 
         public override bool ShouldPersistInHistory => true;
 

@@ -32,8 +32,8 @@
 
 
 @code {
-    [Microsoft.AspNetCore.Components.Parameter]
-    public NoteDTO NoteDTO { get; set; }
+        [Microsoft.AspNetCore.Components.Parameter]
+        public NoteDTO NoteDTO { get; set; }
     public bool FullText { get; set; } = false;
     public const int MaxChars = 30;
     [Microsoft.AspNetCore.Components.Parameter]
@@ -42,5 +42,10 @@
     {
         FullText = true;
         StateHasChanged();
+    }
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        NoteDTO.Value ??= string.Empty;
     }
 }
