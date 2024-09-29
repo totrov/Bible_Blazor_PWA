@@ -114,7 +114,9 @@ namespace BibleComponents
             _versesViewsDictionary = new Dictionary<string, IEnumerable<BibleService.VersesView>>();
             foreach (BibleReference reference in BibleReferences)
             {
-                _versesViewsDictionary.Add(reference.ToString(), await Bible.GetVersesFromReference(reference));
+                var key = reference.ToString();
+                if (!_versesViewsDictionary.ContainsKey(key))
+                    _versesViewsDictionary.Add(key, await Bible.GetVersesFromReference(reference));
             }
         }
 
