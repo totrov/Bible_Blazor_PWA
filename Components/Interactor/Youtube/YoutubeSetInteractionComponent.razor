@@ -1,6 +1,11 @@
 ﻿@using Bible_Blazer_PWA.Components.Interactor._SubComponents
+@using Bible_Blazer_PWA.Services
+@using Bible_Blazer_PWA.Parameters;
 @using static Bible_Blazer_PWA.Components.Interactor.Youtube.YoutubeVideoInteractionModel;
 @inherits InteractionComponentBase<YoutubeSetInteractionModel>
+
+@inject YoutubeLinks YTLinks
+@inject DbParametersFacade dbParamteres
 
 <div style="@GetStyle">
     <MudContainer>
@@ -9,11 +14,47 @@
             <InteractionLink OnClick="()=>YoutubeVideoInteractionModel.WithParameters<YoutubeSourceAndName>.ApplyToCurrentPanel(new(link.Url, link.Name), InteractionModel)">
                 @link.Name
             </InteractionLink>
+            string linkName = @link.Name;
+            string lessonNumber = link.LessonNumber;
+            string unitId = link.UnitId;
+            string url = link.Url;
+            if (dbParamteres.ParametersModel.MainBackground == "#ffffff")
+            {
+                <MudButton OnClick="()=>YTLinks.DeleteWhere(l => l.Name == linkName && l.LessonNumber == lessonNumber && l.UnitId == unitId && l.Url == url)">✗</MudButton>
+            }
             <br />
+        }
+        @if (dbParamteres.ParametersModel.MainBackground == "#ffffff")
+        {
+            if (!AddMode)
+            {
+                <MudButton OnClick="()=>AddMode = true">+</MudButton>
+            }
+            else
+            {
+                <MudTextField @bind-Value="Name" Label="Заголовок" Variant="Variant.Text"></MudTextField>
+                <MudTextField @bind-Value="URL" Label="Cсылка" Variant="Variant.Text"></MudTextField>
+                <MudButton OnClick="AddLink">✔</MudButton>
+                <MudButton OnClick="AddModeOff">✘</MudButton>
+            }
         }
     </MudContainer>
 </div>
 
 @code {
+    public string Name { get; set; }
+    public string URL { get; set; }
+    public bool AddMode { get; set; }
 
+    public void AddLink()
+    {
+        YTLinks.AddLink(Name, URL, InteractionModel.LessonNumber, InteractionModel.UnitId);
+        AddModeOff();
+    }
+    public void AddModeOff()
+    {
+        AddMode = false;
+        Name = "";
+        URL = "";
+    }
 }

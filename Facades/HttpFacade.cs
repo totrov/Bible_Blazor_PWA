@@ -64,7 +64,7 @@ namespace Bible_Blazer_PWA.Facades
             try
             {
                 result = await client.GetFromJsonAsync<IEnumerable<YoutubeLinkDTO>>(
-                "https://covenantofchrist.onrender.com/Assets/online/lessons/youtubeMap.json");
+                    "https://covenantofchrist.onrender.com/Assets/online/lessons/youtubeMap.json");
                 return result;
             }
             catch

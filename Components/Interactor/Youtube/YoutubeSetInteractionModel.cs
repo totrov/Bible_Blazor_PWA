@@ -3,6 +3,7 @@ using Bible_Blazer_PWA.DataBase.DTO;
 using MudBlazor;
 using System;
 using System.Collections.Generic;
+using static Bible_Blazer_PWA.Components.Interactor.Youtube.YoutubeVideoInteractionModel;
 
 namespace Bible_Blazer_PWA.Components.Interactor.Youtube
 {
@@ -16,7 +17,8 @@ namespace Bible_Blazer_PWA.Components.Interactor.Youtube
 
         public string Name { get; set; }
         public IEnumerable<YoutubeLinkDTO> Links { get; set; }
-
+        public string LessonNumber { get; set; }
+        public string UnitId { get; set; }
         public override IEnumerable<BreadcrumbsFacade.BreadcrumbRecord> GetBreadcrumbs()
         {
             yield return new BreadcrumbsFacade.BreadcrumbRecord
@@ -44,7 +46,7 @@ namespace Bible_Blazer_PWA.Components.Interactor.Youtube
                 Text = Name,
                 Action = () =>
                 {
-                    YoutubeSetInteractionModel.WithParameters<NameAndLinks>.ApplyToCurrentPanel(new(Name, Links), this);
+                    YoutubeSetInteractionModel.WithParameters<NameLinksLessonRef>.ApplyToCurrentPanel(new(Name, Links, LessonNumber, UnitId), this);
                 },
                 Icon = null
             };
@@ -66,6 +68,23 @@ namespace Bible_Blazer_PWA.Components.Interactor.Youtube
             {
                 model.Links = Links;
                 model.Name = Name;
+            }
+        }
+
+        public class NameLinksLessonRef: NameAndLinks
+        {
+            public NameLinksLessonRef(string name, IEnumerable<YoutubeLinkDTO> links, string lessonNumber, string unitId) : base(name, links)
+            {
+                LessonNumber = lessonNumber;
+                UnitId = unitId;
+            }
+            public string LessonNumber { get; set; }
+            public string UnitId { get; set; }
+            public override void ApplyParametersToModel(YoutubeSetInteractionModel model)
+            {
+                base.ApplyParametersToModel(model);
+                model.UnitId = UnitId;
+                model.LessonNumber = LessonNumber;
             }
         }
     }

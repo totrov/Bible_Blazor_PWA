@@ -9,11 +9,13 @@
 @using Bible_Blazer_PWA.DataSources;
 @using Bible_Blazer_PWA.DomainObjects;
 @using Bible_Blazer_PWA.Facades;
+@using Bible_Blazer_PWA.Services
 @using Bible_Blazer_PWA.Services.Menu;
 @using System.Text.RegularExpressions;
 @using static Bible_Blazer_PWA.Components.Interactor.Youtube.YoutubeSetInteractionModel;
 
 @inject HttpClient Http
+@inject YoutubeLinks YTLinks
 
 <div style="@GetStyle">
     <MudContainer Class="@Class">
@@ -23,8 +25,8 @@
                 <InteractionLink OnClick="()=>CreedInteractionModel.Apply()">Символ Веры</InteractionLink>
                 @if (YouTubeLinks != null && YouTubeLinks.Any())
                 {
-                <InteractionLink OnClick="()=>YoutubeSetInteractionModel.WithParameters<NameAndLinks>
-                    .ApplyToOppositePanel(new(LessonName, YouTubeLinks), InteractionModel)">YouTube</InteractionLink>
+                    <InteractionLink OnClick="()=>YoutubeSetInteractionModel.WithParameters<NameLinksLessonRef>
+                        .ApplyToOppositePanel(new(LessonName, YouTubeLinks, InteractionModel.LessonNumber, InteractionModel.UnitId), InteractionModel)">YouTube</InteractionLink>
                 }
                 <MudSpacer></MudSpacer>
                 <MudIconButton Icon="@Icon" OnClick="PaddingClick"></MudIconButton>
@@ -77,9 +79,11 @@
 
         var allYouTubeLinks = await new HttpFacade(Http).GetYouTubeMapFromJsonAsync();
         if (allYouTubeLinks != null)
-            YouTubeLinks = allYouTubeLinks
-                .Where(link => link.LessonNumber == InteractionModel.LessonNumber
-                    && link.UnitId == InteractionModel.UnitId);
+        {
+            YouTubeLinks = YTLinks.SelectWhere(link => link.LessonNumber == InteractionModel.LessonNumber
+                && link.UnitId == InteractionModel.UnitId);
+        }
+
     }
 
     #region Padding Button

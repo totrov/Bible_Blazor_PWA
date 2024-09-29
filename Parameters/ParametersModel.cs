@@ -122,11 +122,13 @@ namespace Bible_Blazer_PWA.Parameters
         #region MainBackground
         private string _mainBackground;
 
+        /// <summary>
+        /// became adminModeKeeper if #ffffff => admin mode
+        /// </summary>
         [Parameter]
-        [Obsolete]
         public string MainBackground
         {
-            get => "white";//_mainBackground;
+            get =>_mainBackground;
             set
             {
                 _dbParams.SetParameterAsync(Parameters.MainBackground, value.ToString());

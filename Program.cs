@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Bible_Blazer_PWA.Services.Parse;
 using Bible_Blazer_PWA.Services;
 using Bible_Blazer_PWA.Facades;
+using System.Linq;
 
 namespace Bible_Blazer_PWA
 {
@@ -43,7 +44,7 @@ namespace Bible_Blazer_PWA
             await regexHelper.Init();
 
             builder.Services.AddSingleton(new Corrector(regexHelper));
-
+            builder.Services.AddScoped<YoutubeLinks>();
             var host = builder.Build();
 
             var jsRuntime = host.Services.GetRequiredService<IJSRuntime>();
@@ -52,6 +53,7 @@ namespace Bible_Blazer_PWA
             bibleService.Init(dbFacade, dbParametersFacade.ParametersModel);
             await jsInteropService.Init(jsRuntime);
             await host.Services.GetService<LessonKeeper>().InitTask;
+            await host.Services.GetService<YoutubeLinks>().InitTask;
 
             await host.RunAsync();
         }

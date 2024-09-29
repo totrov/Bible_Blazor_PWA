@@ -10,6 +10,7 @@
 @inject IDialogService DialogService
 @inject IJSRuntime JS
 @inject ImportExportService importExportService
+@inject YoutubeLinks YTLinks
 
 <div style="@GetStyle">
     <MudContainer>
@@ -28,6 +29,15 @@
                         }
                         <MudButton Variant="Variant.Text" EndIcon="@Icons.Material.Filled.Download" OnClick="downloadLessons">Уроки</MudButton>
                     </MudListItem>
+                    @if (dbParamteres.ParametersModel.MainBackground == "#ffffff")
+                    {
+                        <MudListItem>
+                            @{
+                                Action downloadYT = () => { importExportService.SerializeToJSON<YoutubeLinkDTO>(YTLinks.SelectWhere(x => true), "youtubeMap_" + DateTime.UtcNow.ToLocalTime().ToString()); };
+                            }
+                            <MudButton Variant="Variant.Text" EndIcon="@Icons.Material.Filled.YoutubeSearchedFor" OnClick="downloadYT">YT ссылки</MudButton>
+                        </MudListItem>
+                    }
                 </NestedList>
             </MudListItem>
             <MudListItem Text="Загрузить">
@@ -40,6 +50,13 @@
                         <InputFile id="notesFileInput" OnChange="LoadNotes" hidden />
                         <MudButton HtmlTag="label" Variant="Variant.Text" EndIcon="@Icons.Filled.SpeakerNotes" for="notesFileInput">Заметки</MudButton>
                     </MudListItem>
+                    @if (dbParamteres.ParametersModel.MainBackground == "#ffffff")
+                    {
+                        <MudListItem>
+                            <InputFile id="YTlinksFileInput" OnChange="LoadYTLinks" hidden />
+                            <MudButton HtmlTag="label" Variant="Variant.Text" EndIcon="@Icons.Filled.YoutubeSearchedFor" for="YTlinksFileInput">YT ссылки</MudButton>
+                        </MudListItem>
+                    }
                     <MudListItem>
                         <MudButton Variant="Variant.Text" EndIcon="@Icons.Material.Filled.UploadFile" OnClick="OpenManualLoadDialog">Уроки</MudButton>
                     </MudListItem>
@@ -52,50 +69,62 @@
 @code {
     private ParametersModel parametersModel;
 
-            #region Import/Export
+    #region Import/Export
 
     private LessonImportService lessonImportService; //is it still used?
 
     private void OpenManualLoadDialog()
     {
-    var parameters = new DialogParameters();
-    parameters.Add("LessonImportService", lessonImportService);
-    parameters.Add("DisableEnableAction", (bool b) =>
-        {
-        //TODO if anything needed
-    });
-    var options = new DialogOptions { CloseButton = true, CloseOnEscapeKey = true, DisableBackdropClick = true };
-    DialogService.Show<ManualLessonLoadDialog>("Ручная загрузка уроков", parameters, options);
+        var parameters = new DialogParameters();
+        parameters.Add("LessonImportService", lessonImportService);
+        parameters.Add("DisableEnableAction", (bool b) =>
+            {
+                //TODO if anything needed
+            });
+        var options = new DialogOptions { CloseButton = true, CloseOnEscapeKey = true, DisableBackdropClick = true };
+        DialogService.Show<ManualLessonLoadDialog>("Ручная загрузка уроков", parameters, options);
     }
 
     public async Task ExportParamsToFile()
     {
-    await importExportService.ExportToJSON<DbParametersFacade.ParameterPOCO>("parameters");
+        await importExportService.ExportToJSON<DbParametersFacade.ParameterPOCO>("parameters");
     }
 
     public async Task ExportNotesToFile()
     {
-    await importExportService.ExportToJSON<NoteDTO>("notes", true);
+        await importExportService.ExportToJSON<NoteDTO>("notes", true);
     }
 
     private async Task LoadNotes(InputFileChangeEventArgs e)
     {
-    var notesFile = e.File;
-    await importExportService.ImportFromStream(notesFile.OpenReadStream(), "notes");
-    Snackbar.Add("Заметки загружены");
+        var notesFile = e.File;
+        await importExportService.ImportFromStream(notesFile.OpenReadStream(), "notes");
+        Snackbar.Add("Заметки загружены");
+    }
+
+    private async Task LoadYTLinks(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        var links = await importExportService.DeserializeFromStream<IEnumerable<YoutubeLinkDTO>>(file.OpenReadStream());
+        YTLinks.DeleteWhere(x => true);
+        foreach (var l in links)
+        {
+            YTLinks.AddLink(l.Name, l.Url, l.LessonNumber, l.UnitId);
+        }
+        Snackbar.Add("Ссылки на Youtube заменены из файла");
     }
 
 
     IBrowserFile parametrsFile = null;
     private async Task LoadParameters(InputFileChangeEventArgs e)
     {
-    parametrsFile = e.File;
-    await dbParamteres.ImportFromStream(parametrsFile.OpenReadStream());
-    await parametersModel.InitFromDb();
-    Snackbar.Add("Параметры загружены");
-            }
+        parametrsFile = e.File;
+        await dbParamteres.ImportFromStream(parametrsFile.OpenReadStream());
+        await parametersModel.InitFromDb();
+        Snackbar.Add("Параметры загружены");
+    }
 
-            #endregion
+    #endregion
 
     protected async override Task OnInitializedAsync()
     {

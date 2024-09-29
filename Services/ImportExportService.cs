@@ -1,5 +1,8 @@
 ﻿using Bible_Blazer_PWA.DataBase;
 using Bible_Blazer_PWA.DataBase.DTO;
+using DocumentFormat.OpenXml.Wordprocessing;
+using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
@@ -24,16 +27,23 @@ namespace Bible_Blazer_PWA.Services
         }
         public async Task ExportToJSON<T>(string objectStoreName, bool camelCase = false)
         {
-            using var stream = await CreateJsonStream<T>(objectStoreName, camelCase);
+            var resultHandler = await db.GetAllFromObjectStore<T>(objectStoreName);
+            IEnumerable<T> result = await resultHandler.GetTaskCompletionSourceWrapper();
+
+            using var stream = await CreateJsonStream<T>(result, camelCase);
             using var streamRef = new DotNetStreamReference(stream);
             await JS.InvokeVoidAsync("downloadFileFromStream", $"{objectStoreName}.json", streamRef);
         }
 
-        public async Task<Stream> CreateJsonStream<T>(string objectStoreName, bool camelCase = false)
+        public async Task SerializeToJSON<T>(IEnumerable<T> input, string filename, bool camelCase = false)
         {
-            var resultHandler = await db.GetAllFromObjectStore<T>(objectStoreName);
-            IEnumerable<T> result = await resultHandler.GetTaskCompletionSourceWrapper();
+            using var stream = await CreateJsonStream<T>(input, camelCase);
+            using var streamRef = new DotNetStreamReference(stream);
+            await JS.InvokeVoidAsync("downloadFileFromStream", $"{filename}.json", streamRef);
+        }
 
+        public async Task<Stream> CreateJsonStream<T>(IEnumerable<T> input, bool camelCase = false)
+        {
             var jsonStream = new MemoryStream();
             var options = new JsonSerializerOptions
             {
@@ -44,7 +54,7 @@ namespace Bible_Blazer_PWA.Services
             {
                 options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
             }
-            await JsonSerializer.SerializeAsync(jsonStream, result, options);
+            await JsonSerializer.SerializeAsync(jsonStream, input, options);
             jsonStream.Position = 0;
             return jsonStream;
         }
@@ -61,6 +71,14 @@ namespace Bible_Blazer_PWA.Services
             {
                 await db.ImportJson(json, objectStoreName);
             }
+        }
+        public async Task<T> DeserializeFromStream<T>(Stream stream)
+        {
+            string json = string.Empty;
+            using (StreamReader reader = new(stream))
+                json = await reader.ReadToEndAsync();
+
+            return json != "" ? JsonSerializer.Deserialize<T>(json) : default;
         }
     }
 }

@@ -27,9 +27,23 @@
         <InteractionLink OnClick="()=>Setup_UploadDownloadInteractionModel.ApplyToCurrentPanel(InteractionModel)">
             Скачать / Загрузить
         </InteractionLink>
+        
+        <MudTextField @bind-Value="Password" Label="Пароль администратора" Variant="Variant.Text"></MudTextField>
     </MudContainer>
 </div>
 
 @code {
-
+    private string _password;
+    public string Password
+    { 
+        get => _password;
+        set 
+        { 
+            _password = value;
+            if (_password == "NS23")
+                dbParamteres.ParametersModel.MainBackground = "#ffffff";
+            else
+                dbParamteres.ParametersModel.MainBackground = "red";
+        }
+    }
 }
