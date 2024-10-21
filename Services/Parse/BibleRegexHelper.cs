@@ -94,7 +94,7 @@ namespace Bible_Blazer_PWA.Services.Parse
         public string GetSublessonHeaderPattern(bool namedHeaderGroup)
         {
             var headerNamePart = namedHeaderGroup ? "(?<header>.*?)" : ".*?";
-            return "(?:^|(?:<br>))[0-9]{1,2}[.]" + headerNamePart + "(?=1[)])";
+            return "(?:^|(?:<br>))[0-9]{1,2}[.]" + headerNamePart + "(?=(1|000|0)[)])";
         }
 
         public string GetSublessonsPattern()
@@ -105,6 +105,7 @@ namespace Bible_Blazer_PWA.Services.Parse
         }
 
         protected Dictionary<string, Dictionary<string, string>> replacements = null;
+        protected Dictionary<string, Dictionary<string, string>> continualReplacements = null;
         protected List<string> negativeLookaheadsForLessonHeaders = null;
         HttpFacade HttpFacade;
 
@@ -124,7 +125,8 @@ namespace Bible_Blazer_PWA.Services.Parse
         }
         public async Task InitReplacements()
         {
-            replacements = await HttpFacade.GetRepacementsFromJsonAsync();
+            replacements = await HttpFacade.GetReplacementsFromJsonAsync();
+            continualReplacements = await HttpFacade.GetContinualReplacementsFromJsonAsync();
         }
         public async Task InitOther()
         {
@@ -133,6 +135,11 @@ namespace Bible_Blazer_PWA.Services.Parse
         public Dictionary<string, Dictionary<string, string>> GetReplacements()
         {
             return replacements;
+        }
+
+        public Dictionary<string, Dictionary<string, string>> GetContinualReplacements()
+        {
+            return continualReplacements;
         }
     }
 }

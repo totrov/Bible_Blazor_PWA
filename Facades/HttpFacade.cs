@@ -51,13 +51,22 @@ namespace Bible_Blazer_PWA.Facades
                 );
         }
 
-        internal async Task<Dictionary<string, Dictionary<string, string>>> GetRepacementsFromJsonAsync()
+        internal async Task<Dictionary<string, Dictionary<string, string>>> GetReplacementsFromJsonAsync()
         {
             return await GetOnlineFirst(
                 async (url) => await client.GetFromJsonAsync<Dictionary<string, Dictionary<string, string>>>(url),
                 LessonLoadConfig.GetReplacementsUrl
                 );
         }
+
+        internal async Task<Dictionary<string, Dictionary<string, string>>> GetContinualReplacementsFromJsonAsync()
+        {
+            return await GetOnlineFirst(
+                async (url) => await client.GetFromJsonAsync<Dictionary<string, Dictionary<string, string>>>(url),
+                LessonLoadConfig.GetContinualReplacementsUrl
+                );
+        }
+
         internal async Task<IEnumerable<YoutubeLinkDTO>> GetYouTubeMapFromJsonAsync()
         {
             IEnumerable<YoutubeLinkDTO> result;

@@ -43,6 +43,14 @@ namespace Bible_Blazer_PWA.Config
                 ? "https://covenantofchrist.onrender.com/Assets/online/lessons/replacements.json"
                 : "/Assets/lessons/replacements.json";
         }
+
+        public static string GetContinualReplacementsUrl(bool online)
+        {
+            return online
+                ? "https://covenantofchrist.onrender.com/Assets/online/lessons/continualReplacements.json"
+                : "/Assets/lessons/continualReplacements.json";
+        }
+
         public static string GetNegativeLookaheadsUrl(bool online)
         {
             return online

@@ -13,6 +13,7 @@ namespace Bible_Blazer_PWA.Services.Parse
         string GetLessonsPattern();
         List<string> GetNegativeLookaheadsForLessonHeaders();
         Dictionary<string, Dictionary<string, string>> GetReplacements();
+        Dictionary<string, Dictionary<string, string>> GetContinualReplacements();
         string GetSublessonHeaderPattern(bool namedHeaderGroup);
         string GetSublessonsPattern();
         Task Init();

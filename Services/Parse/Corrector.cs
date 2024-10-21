@@ -21,11 +21,22 @@ namespace Bible_Blazer_PWA.Services.Parse
 
         public string ApplyHighLevelReplacements(string input, string unitId)
         {
+            string result = input;
+
             if (RegexHelper.GetReplacements().ContainsKey(unitId))
             {
-                return MultipleReplace(input, RegexHelper.GetReplacements()[unitId]);
+                result = MultipleReplace(result, RegexHelper.GetReplacements()[unitId]);
             }
-            return input;
+
+            if (RegexHelper.GetContinualReplacements().ContainsKey(unitId))
+            {
+                foreach (var replacement in RegexHelper.GetContinualReplacements()[unitId])
+                {
+                    result = Regex.Replace(result, replacement.Key, replacement.Value);
+                }
+            }
+
+            return result;
         }
 
         private string MultipleReplace(string text, Dictionary<string, string> replacements)
