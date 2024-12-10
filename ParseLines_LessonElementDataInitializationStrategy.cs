@@ -88,7 +88,20 @@ namespace Bible_Blazer_PWA
                             var child2 = await AddChild(child1, 2, lines[currentIndex++]);
                             while (currentIndex < lines.Length && !Regex.IsMatch(lines[currentIndex], "^([(]?[0-9][.]?[0-9]?[)])|(Заключение)|(000[)])"))
                             {
-                                if (Regex.IsMatch(lines[currentIndex], "^[(][а-я][)]"))
+                                //third level containing sublevels should represent it as list
+                                //so exit only when face \u0003 before level pattern,
+                                //that means end of nesting of elements of 4th level (that a represented as list items)
+                                if (Regex.IsMatch(lines[currentIndex], "^[(][а-я][)]\u0002"))
+                                {
+                                    var child3 = await AddChild(child2, 3, lines[currentIndex++]);
+                                    while (currentIndex < lines.Length && !Regex.IsMatch(lines[currentIndex], "\u0003"))
+                                    {
+                                        child3.Value += " " + lines[currentIndex++];
+                                    }
+                                    child3.Value += " " + lines[currentIndex++];
+                                }
+                                //regular third level with exit when face any level
+                                else if (Regex.IsMatch(lines[currentIndex], "^[(][а-я][)]"))
                                 {
                                     var child3 = await AddChild(child2, 3, lines[currentIndex++]);
                                     while (currentIndex < lines.Length && !Regex.IsMatch(lines[currentIndex], "^([(]?(([0-9][.]?[0-9]?)|[а-я])[)])|(Заключение)|(000[)])"))

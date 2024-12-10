@@ -31,6 +31,10 @@ namespace Bible_Blazer_PWA.Services.TextHandlers
 
         private string AddNumberLabelIfNeeded(BibleService.Verse verse, bool singleVerse)
         {
+            if (verse == null)
+            {
+                return "";
+            }
             return singleVerse ? verse.Value : $"<sup style=\"color:{bibleRefVersesNumbersColor};\">{verse.Id} </sup>{verse.Value}";
         }
 

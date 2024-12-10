@@ -17,6 +17,7 @@
             switch (token.Type)
             {
                 case TokenType.PlainText:
+                case TokenType.ListItem:
                     @((MarkupString)token.Text)
                     break;
                 case TokenType.BibleReference:

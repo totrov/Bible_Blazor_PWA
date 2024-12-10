@@ -1,6 +1,6 @@
 ﻿using Bible_Blazer_PWA.DomainObjects;
 using Bible_Blazer_PWA.Services.Parse;
-using DocumentFormat.OpenXml.Wordprocessing;
+
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -29,36 +29,90 @@ namespace Bible_Blazer_PWA.BibleReferenceParse
             if (parseCompleted)
                 return this;
 
-            string stringWithReplacements = corrector.ReplaceBookNames(stringToParse);
-            stringWithReplacements = corrector.HandleBrackets(stringWithReplacements);
+            string stringWithReplacements = corrector.HandleBrackets(corrector.ReplaceBookNames(stringToParse));
+            MatchCollection bibleRefMatches = Regex.Matches(stringWithReplacements, corrector.RegexHelper.GetBibleReferencesPattern());
+            (int Index, string Match)[] sublevels = GetSublevelInfos(stringWithReplacements, bibleRefMatches);
 
             var pos = 0;
-            foreach (Match match in Regex.Matches(stringWithReplacements, corrector.RegexHelper.GetBibleReferencesPattern()))
+            foreach (Match match in bibleRefMatches)
             {
-                CreateTokensAndSeekPos(stringWithReplacements, ref pos, match);
+                CreateTokensAndSeekPos(stringWithReplacements, ref pos, match, sublevels);
 
                 BibleReference bibleReference = this.CreateBibleReferenceFromMatch(match);
                 _bibleReferences.AddLast(bibleReference);
             }
-            this.AddTokenOfTextAfterLastReference(stringWithReplacements, pos);
+            this.AddTokenOfTextAfterLastReference(stringWithReplacements, pos, sublevels);
             parseCompleted = true;
             return this;
         }
 
-        private void AddTokenOfTextAfterLastReference(string inputString, int pos)
+        private void AddTokenOfTextAfterLastReference(string inputString, int pos, (int Index, string Match)[] sublevels)
         {
-            _tokens.AddLast(new LessonElementToken() { Text = inputString.Substring(pos), Type = TokenType.PlainText });
+            (int Index, string Match)[] adjustedSublevels = GetAdjustedSublevelInfos(sublevels, pos, inputString.Length - 1);
+            PlaceNonRefToken(inputString.Substring(pos), adjustedSublevels);
         }
 
-        private void CreateTokensAndSeekPos(string stringWithReplacements, ref int pos, Match match)
+        private void CreateTokensAndSeekPos(string stringWithReplacements, ref int pos, Match match, (int Index, string Match)[] sublevels)
         {
             if (match.Index > pos)
             {
                 var previousText = stringWithReplacements.Substring(pos, match.Index - pos);
-                _tokens.AddLast(new LessonElementToken() { Text = previousText, Type = TokenType.PlainText });
+
+                (int Index, string Match)[] adjustedSublevels = GetAdjustedSublevelInfos(sublevels, pos, match.Index);
+                PlaceNonRefToken(previousText, adjustedSublevels);
             }
             _tokens.AddLast(new LessonElementToken() { Text = match.Value, Type = TokenType.BibleReference });
             pos = match.Index + match.Length;
+        }
+
+        private (int Index, string Match)[] GetAdjustedSublevelInfos((int Index, string Match)[] indexesToAdjust, int pos, int end)
+        {
+            if (indexesToAdjust.Length < 2)
+                return null;
+
+            (int Index, string Match)[] adjustedSublevels = indexesToAdjust
+                .Where(index => index.Index >= pos && index.Index <= end)
+                .Select(index => (index.Index - pos, index.Match))
+                .ToArray();
+
+            return adjustedSublevels;
+        }
+
+        private (int Index, string Match)[] GetSublevelInfos(string text, MatchCollection bibleRefMatches)
+        {
+            string listItemPattern = @"([0-9][)])|([(][0-9][)])|([(][а-я][)])";
+            int indexOf4LevelStart = text.IndexOf('\u0002');
+            return Regex.Matches(text, listItemPattern).Select(m => (m.Index, m.Value))
+                .Where(subItemMatch =>
+                    subItemMatch.Index > indexOf4LevelStart
+                    && !bibleRefMatches.Any(bibleRefMatch => bibleRefMatch.Index <= subItemMatch.Index && bibleRefMatch.Index + bibleRefMatch.Length >= subItemMatch.Index)
+            ).ToArray();
+        }
+
+        private void PlaceNonRefToken(string text, (int Index, string Match)[] sublevels)
+        {
+            if (sublevels is null || sublevels.Length == 0)
+            {
+                _tokens.AddLast(new LessonElementToken() { Text = text.Replace("\u0003", ""), Type = TokenType.PlainText });
+                return;
+            }
+
+            if (sublevels[0].Index > 0)
+                _tokens.AddLast(new LessonElementToken() { Text = text.Substring(0, sublevels[0].Index).Replace("\u0002", ""), Type = TokenType.PlainText });
+
+            for (int i = 0; i < sublevels.Length; i++)
+            {
+                _tokens.AddLast(new ListItemToken());
+                _tokens.AddLast(new LessonElementToken
+                {
+                    Text = text.Substring(sublevels[i].Index,
+                        i == sublevels.Length - 1 
+                        ? text.Length - sublevels[i].Index
+                        : sublevels[i + 1].Index - sublevels[i].Index)
+                        .Replace(sublevels[i].Match, string.Empty).Replace("\u0003", ""),
+                    Type = TokenType.PlainText
+                });
+            }
         }
 
         private BibleReference CreateBibleReferenceFromMatch(Match match)
@@ -68,7 +122,7 @@ namespace Bible_Blazer_PWA.BibleReferenceParse
             bibleReference.References = new LinkedList<BibleVersesReference>();
 
             foreach (Capture capture in match.Groups.Cast<Group>().Where(g => g.Name == "ref").First().Captures)
-                foreach(BibleVersesReference bibleVerseReference in CreateBibleVerseReferencesFromString(capture.Value))
+                foreach (BibleVersesReference bibleVerseReference in CreateBibleVerseReferencesFromString(capture.Value))
                     bibleReference.References.AddLast(bibleVerseReference);
 
             return bibleReference;
@@ -128,7 +182,7 @@ namespace Bible_Blazer_PWA.BibleReferenceParse
                             yield return reference;
                         startIndex = commaIndex + 1;
                     }
-                    
+
                     break;
             }
         }

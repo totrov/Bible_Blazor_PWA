@@ -3,6 +3,7 @@
     public enum TokenType 
     {
         PlainText,
-        BibleReference
+        BibleReference,
+        ListItem
     }
 }
