@@ -83,7 +83,7 @@
         {
             if (_tokens == null)
             {
-                _tokens = Mediator.Parser.ParseTextLineWithBibleReferences(Mediator.ElementData.Value.ToString()).GetTokens();
+                _tokens = Mediator.LessonElementTokens;
             }
             return _tokens;
         }

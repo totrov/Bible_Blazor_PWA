@@ -2,13 +2,12 @@
 using Bible_Blazer_PWA.BibleReferenceParse;
 using Bible_Blazer_PWA.Components.Interactor;
 using Bible_Blazer_PWA.Components.Interactor.AddNote;
-using Bible_Blazer_PWA.Components.Interactor.BibleReferencesWriter;
 using Bible_Blazer_PWA.Components.Interactor.EditNote;
 using Bible_Blazer_PWA.DataBase;
 using Bible_Blazer_PWA.DataBase.DTO;
+using Bible_Blazer_PWA.DataSources;
 using Bible_Blazer_PWA.DomainObjects;
 using Bible_Blazer_PWA.Parameters;
-using Bible_Blazer_PWA.Services.Menu;
 using Bible_Blazer_PWA.ViewModels;
 using MudBlazor;
 using System;
@@ -30,7 +29,8 @@ namespace BibleComponents
         internal LessonElementBody Body { get; set; }
         internal ParametersModel Parameters { get; set; }
         internal LessonElementData ElementData { get; set; }
-        internal Parser Parser { get; set; }
+        internal VersesProvider VersesProvider { get; set; }
+        internal LinkedList<LessonElementToken> LessonElementTokens { get; set; }
         private DbParametersFacade dbParametersFacade;
         internal DbParametersFacade DbParamFacade
         {
@@ -42,7 +42,7 @@ namespace BibleComponents
                 {
                     if (parameter == Bible_Blazer_PWA.Parameters.Parameters.StartVersesOnANewLine)
                     {
-                        await LoadVerses();
+                        await VersesProvider.LoadVerses();
                         StateHasChanged?.Invoke(typeof(LessonElementReferences));
                     }
                 };
@@ -56,26 +56,16 @@ namespace BibleComponents
         #endregion
 
         #region Own
-        private LinkedList<BibleReference> _references;
-        public BibleService Bible { get; set; }
-        Dictionary<string, IEnumerable<BibleService.VersesView>> _versesViewsDictionary;
-        public Task VersesLoadTask { get; private set; }
         private BibleReferencesWriterInteractionModel BibleRefsWriterModel = null;
 
         #endregion
 
         #region Getters
-        internal LinkedList<BibleReference> BibleReferences
+        internal IEnumerable<BibleReference> BibleReferences
         {
-            get
-            {
-                if (_references == null)
-                {
-                    _references = Parser.ParseTextLineWithBibleReferences(ElementData.Value.ToString()).GetBibleReferences();
-                }
-                return _references;
-            }
+            get => VersesProvider.BibleReferences;
         }
+
         internal bool HasBibleReferences
         {
             get
@@ -83,9 +73,8 @@ namespace BibleComponents
                 return BibleReferences.Any();
             }
         }
-        internal bool VersesLoaded { get => VersesLoadTask?.IsCompleted == true; }
+        
         internal bool ShouldDrawBody { get => GetShouldDrawBody(); }
-        internal Dictionary<string, IEnumerable<BibleService.VersesView>> VersesViewsDictionary { get => _versesViewsDictionary; }
         internal string Border { get => Parameters.HideBlocksBorders == "True" ? "border:none;" : ""; }
         #endregion
 
@@ -104,22 +93,6 @@ namespace BibleComponents
             RefsAreOpen = !RefsAreOpen;
             RefreshBody();
         }
-        public async Task LoadVerses()
-        {
-            VersesLoadTask = LoadVersesInteranl();
-            await VersesLoadTask;
-        }
-        private async Task LoadVersesInteranl()
-        {
-            _versesViewsDictionary = new Dictionary<string, IEnumerable<BibleService.VersesView>>();
-            foreach (BibleReference reference in BibleReferences)
-            {
-                var key = reference.ToString();
-                if (!_versesViewsDictionary.ContainsKey(key))
-                    _versesViewsDictionary.Add(key, await Bible.GetVersesFromReference(reference));
-            }
-        }
-
 
         public event Action<Type> StateHasChanged;
         public void Activate(int number)
@@ -132,7 +105,7 @@ namespace BibleComponents
                     return;
                 }
 
-                BibleRefsWriterModel = BibleRefModel.WithParameters<MediatorReferenceNumber>.Apply(new (this, number));
+                BibleRefsWriterModel = BibleRefModel.WithParameters<VersesProviderReferenceNumber>.Apply(new (VersesProvider, number));
                 return;
             }
             if (Parameters.HideBibleRefTabs == "True")

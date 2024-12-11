@@ -1,20 +1,30 @@
 ﻿@using BibleComponents;
+@using Bible_Blazer_PWA.BibleReferenceParse
 @using Bible_Blazer_PWA.DataBase.DTO;
 @using Bible_Blazer_PWA.DataBase;
+@using Bible_Blazer_PWA.DataSources
+@using Bible_Blazer_PWA.Parameters
+@using Bible_Blazer_PWA.Services.Parse
 @using Bible_Blazer_PWA.ViewModels;
+@using BibleRefModel = Bible_Blazer_PWA.Components.Interactor.BibleReferencesWriter.Interaction.BibleReferencesWriterInteractionModel;
+@using static Bible_Blazer_PWA.Components.Interactor.BibleReferencesWriter.Interaction.BibleReferencesWriterInteractionModel
+
+@inject BibleService Bible;
 @inject DatabaseJSFacade db;
+@inject Corrector Corrector;
+@inject DbParametersFacade DbParametersFacade;
 
 @if (model != null)
 {
     @if (model.IsCollapsed)
     {
         <MudCard Style="@StyleCollapsed"
-         @onmousedown="@((MouseEventArgs args) => HandleDragStart(args))"
-         @onmousemove="@((MouseEventArgs args) => HandleMouseMove(args))"
-         @onmouseup="@(async (MouseEventArgs args) => {await HandleDrop(args);})"
-         @ontouchstart="@((TouchEventArgs args) => HandleDragStart(args))"
-         @ontouchmove="@((TouchEventArgs args) => HandleTouchMove(args))"
-         @ontouchend="@(async (TouchEventArgs args) => {await HandleDrop(args);})">
+                 @onmousedown="@((MouseEventArgs args) => HandleDragStart(args))"
+                 @onmousemove="@((MouseEventArgs args) => HandleMouseMove(args))"
+                 @onmouseup="@(async (MouseEventArgs args) => {await HandleDrop(args);})"
+                 @ontouchstart="@((TouchEventArgs args) => HandleDragStart(args))"
+                 @ontouchmove="@((TouchEventArgs args) => HandleTouchMove(args))"
+                 @ontouchend="@(async (TouchEventArgs args) => {await HandleDrop(args);})">
             @{
                 var style = $"padding: 3px; color:{model.TextColor}";
             }
@@ -27,14 +37,14 @@
     else
     {
         <MudCard Style="@Style"
-         @onmousedown="@((MouseEventArgs args) => HandleDragStart(args))"
-         @onmousemove="@((MouseEventArgs args) => HandleMouseMove(args))"
-         @onmouseup="@(async (MouseEventArgs args) => {await HandleDrop(args);})"
-         @ontouchstart="@((TouchEventArgs args) => HandleDragStart(args))"
-         @ontouchmove="@((TouchEventArgs args) => HandleTouchMove(args))"
-         @ontouchend="@(async (TouchEventArgs args) => {await HandleDrop(args);})"
-         @onmouseover="()=>{ShowNoteToolbar=true;}"
-         @onmouseleave="()=>{ShowNoteToolbar=false; EditMode = false;}">
+                 @onmousedown="@((MouseEventArgs args) => HandleDragStart(args))"
+                 @onmousemove="@((MouseEventArgs args) => HandleMouseMove(args))"
+                 @onmouseup="@(async (MouseEventArgs args) => {await HandleDrop(args);})"
+                 @ontouchstart="@((TouchEventArgs args) => HandleDragStart(args))"
+                 @ontouchmove="@((TouchEventArgs args) => HandleTouchMove(args))"
+                 @ontouchend="@(async (TouchEventArgs args) => {await HandleDrop(args);})"
+                 @onmouseover="()=>{ShowNoteToolbar=true;}"
+                 @onmouseleave="()=>{ShowNoteToolbar=false; EditMode = false;}">
             @if (ShowNoteToolbar)
             {
                 <MudCardHeader Class="d-flex" Style="padding: 0;">
@@ -54,7 +64,24 @@
                 }
                 else
                 {
-                    @((MarkupString)model?.Value?.Replace("\n", "<br>"))
+                    int referenceIndex = 0;
+                    @foreach (var token in Tokens)
+                    {
+                        switch (token.Type)
+                        {
+                            case TokenType.PlainText:
+                            case TokenType.ListItem:
+                                @((MarkupString)token.Text)
+                                break;
+                            case TokenType.BibleReference:
+                                var avoidClosure = referenceIndex;
+                                var onclick = () => { BibleRefModel.WithParameters<VersesProviderReferenceNumber>.Apply(new(VersesProvider, avoidClosure)); };
+                                var style = $"color: {DbParametersFacade.ParametersModel.ToolsBg}";
+                                <a href="" style="@style" @onclick="onclick" @onclick:preventDefault>@token.Text</a>
+                                referenceIndex++;
+                                break;
+                        }
+                    }
                 }
             </MudCardContent>
 
@@ -70,10 +97,22 @@
     bool ShowNoteToolbar = false;
     bool IsPinned { get; set; } = false;
     bool EditMode { get; set; } = false;
+
+    public LinkedList<LessonElementToken> Tokens { get; set; }
+    public VersesProvider VersesProvider { get; set; }
+
     string NoteValue
     {
         get => model.Value;
-        set => model.SetValue(model => model.Value, value);
+        set
+        {
+            Parser parser = new(Corrector);
+            parser.ParseTextLineWithBibleReferences(value);
+            Tokens = parser.GetTokens();
+            VersesProvider = new(parser.GetBibleReferences(), Bible);
+            VersesProvider.LoadVerses();
+            model.SetValue(model => model.Value, value);
+        }
     }
     string PinIcon
     {
@@ -126,9 +165,9 @@
 
     bool MouseDown { get; set; } = false;
 
-    [Parameter]
+    [Microsoft.AspNetCore.Components.Parameter]
     public NoteDTO NoteDTO { get; set; }
-    [Parameter]
+    [Microsoft.AspNetCore.Components.Parameter]
     public LessonElementMediator Mediator { get; set; }
 
     private NoteModel model;
@@ -140,6 +179,16 @@
         model = new NoteModel(NoteDTO);
         model.OnPropertyChange += StateHasChanged;
         model.OnSave += async () => { await model.SaveToDbAsync(db); };
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        Parser parser = new(Corrector);
+        parser.ParseTextLineWithBibleReferences(NoteDTO.Value);
+        Tokens = parser.GetTokens();
+        VersesProvider = new(parser.GetBibleReferences(), Bible);
+        await VersesProvider.LoadVerses();
     }
 
     private void HandleDragStart(dynamic args)

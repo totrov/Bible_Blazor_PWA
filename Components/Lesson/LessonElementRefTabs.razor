@@ -9,10 +9,10 @@
                 var bibleRefTextStyle = $"background-color:{Mediator.Parameters.BibleRefBgColor};font-size:{Mediator.Parameters.FontSize}px;color:{Mediator.Parameters.BibleRefFontColor};";
             }
             <MudText style="@bibleRefTextStyle">
-                @if (Mediator.VersesLoaded)
+                @if (Mediator.VersesProvider.VersesLoaded)
                 {
                     bool isFirst = true;
-                    foreach (BibleService.VersesView view in Mediator.VersesViewsDictionary[reference.ToString()])
+                    foreach (BibleService.VersesView view in Mediator.VersesProvider.VersesViewsDictionary[reference.ToString()])
                     {
                         @if (Mediator.DbParamFacade.ParametersModel.StartVersesOnANewLine == "True" && !isFirst)
                         {

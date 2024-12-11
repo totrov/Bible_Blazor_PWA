@@ -2,6 +2,7 @@
 @using Bible_Blazer_PWA.BibleReferenceParse
 @using Bible_Blazer_PWA.Components;
 @using Bible_Blazer_PWA.Components.Interactor;
+@using Bible_Blazer_PWA.DataSources
 @using Bible_Blazer_PWA.DomainObjects
 @using Bible_Blazer_PWA.Parameters
 @using Bible_Blazer_PWA.Services.Menu;
@@ -40,11 +41,16 @@
         mediator.StateHasChanged += (type) => { if (type == typeof(InteractionPanel)) InteractionPanel.Refresh(); };
         mediator.Parameters = dbParamFacade.ParametersModel;
         mediator.ElementData = ElementData;
-        mediator.Parser = new Parser(Corrector);
-        mediator.Bible = Bible;
+
+        Parser parser = new Parser(Corrector);
+        parser.ParseTextLineWithBibleReferences(ElementData.Value);
+        mediator.VersesProvider = new VersesProvider(parser.GetBibleReferences(), Bible);
+        mediator.LessonElementTokens = parser.GetTokens();
+        Task versesLoadTask = mediator.VersesProvider.LoadVerses();
+
         mediator.DbParamFacade = dbParamFacade;
         mediator.DbFacade = db;
-        await mediator.LoadVerses();
+        await versesLoadTask;
     }
 
 

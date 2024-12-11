@@ -1,14 +1,14 @@
 ﻿using Bible_Blazer_PWA.Components.Interactor.Bible;
 using Bible_Blazer_PWA.Components.Interactor.Home;
+using Bible_Blazer_PWA.DataSources;
 using Bible_Blazer_PWA.Static;
-using BibleComponents;
+
 using MudBlazor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using static Bible_Blazer_PWA.Components.Interactor.Bible.BibleChaptersInteractionModel;
-using static Bible_Blazer_PWA.Components.Interactor.Bible.BibleInteractionModel;
-using static Bible_Blazer_PWA.Components.Interactor.Interaction;
+
 
 namespace Bible_Blazer_PWA.Components.Interactor.BibleReferencesWriter
 {
@@ -47,7 +47,7 @@ namespace Bible_Blazer_PWA.Components.Interactor.BibleReferencesWriter
                     Icon = Constants.BibleIcon
                 };
 
-                string bookShortName = Mediator.BibleReferences.ElementAt(ReferenceNumber).BookShortName;
+                string bookShortName = VersesProvider.BibleReferences.ElementAt(ReferenceNumber).BookShortName;
                 yield return new BreadcrumbsFacade.BreadcrumbRecord
                 {
                     Text = bookShortName,
@@ -60,23 +60,23 @@ namespace Bible_Blazer_PWA.Components.Interactor.BibleReferencesWriter
                 };
             }
 
-            public LessonElementMediator Mediator { get; set; }
+            public VersesProvider VersesProvider { get; set; }
             public int ReferenceNumber { get; set; }
             public bool Overflowed { get; set; } = false;
 
 
-            public class MediatorReferenceNumber : Parameters
+            public class VersesProviderReferenceNumber : Parameters
             {
-                public LessonElementMediator LessonElementMediator { get; set; }
+                public VersesProvider VersesProvider { get; set; }
                 public int ReferenceNumber { get; private set; }
-                public MediatorReferenceNumber(LessonElementMediator lessonElementMediator, int referenceNumber)
+                public VersesProviderReferenceNumber(VersesProvider versesProvider, int referenceNumber)
                 {
-                    LessonElementMediator = lessonElementMediator;
+                    VersesProvider = versesProvider;
                     ReferenceNumber = referenceNumber;
                 }
                 public override void ApplyParametersToModel(BibleReferencesWriterInteractionModel model)
                 {
-                    model.Mediator = LessonElementMediator;
+                    model.VersesProvider = VersesProvider;
                     model.ReferenceNumber = ReferenceNumber;
                 }
             }
