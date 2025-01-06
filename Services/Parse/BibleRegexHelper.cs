@@ -46,7 +46,7 @@ namespace Bible_Blazer_PWA.Services.Parse
         {
             string bracketsHandleRegex = string.Join(spases,
                 bookRegex,
-                @"[\s\d:;,-]+",
+                @"(?<chapterVerse>[\s\d:;,-]+)",
                 @"[(](?<bracketsContent>[\s\d:,;-]+)[)]"
             );
 

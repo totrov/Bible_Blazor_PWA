@@ -53,9 +53,20 @@ namespace Bible_Blazer_PWA.Services.Parse
             string buf = stringToParse;
             foreach (Match match in Regex.Matches(stringToParse, RegexHelper.GetBracketsHandlerPattern()))
             {
-                var bookName = match.Groups.Cast<Group>().Where(g => g.Name == "book").First().Value;
-                var bracketsContent = match.Groups.Cast<Group>().Where(g => g.Name == "bracketsContent").First().Value;
-                buf = buf.Replace("(" + bracketsContent + ")", "(" + bookName + bracketsContent + ")");
+                string bookName = match.Groups.Cast<Group>().Where(g => g.Name == "book").First().Value;
+                string bracketsContent = match.Groups.Cast<Group>().Where(g => g.Name == "bracketsContent").First().Value;
+
+                string replacement = "(" + bookName;
+                if (!bracketsContent.Contains(':'))
+                {
+                    string chapterVerseContent = match.Groups.Cast<Group>().Where(g => g.Name == "chapterVerse").First().Value;
+                    int indexOfColon = chapterVerseContent.IndexOf(':');
+                    if (indexOfColon > 0)
+                        replacement += $"{chapterVerseContent.Substring(0, indexOfColon)}:";
+                }
+                replacement += bracketsContent + ")";
+
+                buf = buf.Replace("(" + bracketsContent + ")", replacement);
             }
             return buf;
         }
