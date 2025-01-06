@@ -221,6 +221,21 @@ namespace Bible_Blazer_PWA.Parameters
         }
         #endregion
 
+        #region InteractionButtonsFlags
+        private string _interactionButtonsFlags;
+
+        [Parameter]
+        public string InteractionButtonsFlags
+        {
+            get => _interactionButtonsFlags;
+            set
+            {
+                _dbParams.SetParameterAsync(Parameters.InteractionButtonsFlags, value.ToString());
+                _interactionButtonsFlags = value;
+            }
+        }
+        #endregion
+
         #endregion
 
         #region FirstLevel
@@ -554,5 +569,16 @@ namespace Bible_Blazer_PWA.Parameters
         #endregion
     }
 
+    public enum InteractionButtons
+    {
+        Back =                  1 << 0,
+        Forward =               1 << 1,
+        ExpandLessDouble =      1 << 2,
+        ExpandMoreDouble =      1 << 3,
+        ExpandLess =            1 << 4,
+        ExpandMore =            1 << 5,
+        TurnOver =              1 << 6,
+        Close =                 1 << 7
+    }
 }
 

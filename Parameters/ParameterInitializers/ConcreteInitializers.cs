@@ -210,6 +210,22 @@ namespace Bible_Blazer_PWA.Parameters.ParameterInitializers
 
         public override string DefaultValue => "#594ae2ff";
     }
+
+    public class InteractionButtonsFlags : IntegerParameterInitializer, IConcreteParameterInitializer
+    {
+        public Parameters Parameter => Parameters.InteractionButtonsFlags;
+
+        public override int DefaultValue()
+        {
+            return (int)(
+                InteractionButtons.Back
+                | InteractionButtons.Forward
+                | InteractionButtons.ExpandLess
+                | InteractionButtons.ExpandMore
+                | InteractionButtons.Close);
+        }
+    }
+
     public class BibleRefBgParametersInitializer : ColorIitializerBase, IConcreteParameterInitializer
     {
         public override Parameters Parameter => Parameters.BibleRefBgColor;

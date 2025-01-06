@@ -1,4 +1,5 @@
-﻿@inject Bible_Blazer_PWA.Parameters.DbParametersFacade DbParameters;
+﻿@using Bible_Blazer_PWA.Parameters
+@inject Bible_Blazer_PWA.Parameters.DbParametersFacade DbParameters;
 @implements IDisposable
 
 @{
@@ -9,14 +10,43 @@
 <MudToolBar Style="@style">
     @if (InteractionModel != null)
     {
-        <MudIconButton Color="Color.Inherit" DisableRipple="true" Icon="@Icons.Material.Filled.ArrowBack" Disabled="!HasPrevious" OnClick="Interaction.GoToPrevious" />
-        <MudIconButton Color="Color.Inherit" DisableRipple="true" Icon="@Icons.Material.Filled.ArrowForward" Disabled="!HasNext" OnClick="Interaction.GoToNext" />
-        <MudSpacer />
-        <MudIconButton Color="Color.Inherit" DisableRipple="true" Icon="@UnfoldLessDouble" OnClick="() => Interaction.Shrink(this, 2)" />
-        <MudIconButton Color="Color.Inherit" DisableRipple="true" Icon="@UnfoldMoreDouble" OnClick="() => Interaction.Enlarge(this, 2)" />
-        <MudIconButton Color="Color.Inherit" DisableRipple="true" Icon="@Icons.Material.Filled.UnfoldLess" OnClick="() => Interaction.Shrink(this, 1)" />
-        <MudIconButton Color="Color.Inherit" DisableRipple="true" Icon="@Icons.Material.Filled.UnfoldMore" OnClick="() => Interaction.Enlarge(this, 1)" />
-        <MudIconButton Color="Color.Inherit" DisableRipple="true" Icon="@Icons.Material.Filled.ImportExport" OnClick="Interaction.TurnOver" />
+        var flags = Enum.Parse<InteractionButtons>(DbParameters.ParametersModel.InteractionButtonsFlags);
+        var needSpacer = false;
+        if ((flags & InteractionButtons.Back) == InteractionButtons.Back)
+        {
+            needSpacer = true;
+            <MudIconButton Color="Color.Inherit" DisableRipple="true" Icon="@Icons.Material.Filled.ArrowBack" Disabled="!HasPrevious" OnClick="Interaction.GoToPrevious" />
+        }
+        if ((flags & InteractionButtons.Forward) == InteractionButtons.Forward)
+        {
+            needSpacer = true;
+            <MudIconButton Color="Color.Inherit" DisableRipple="true" Icon="@Icons.Material.Filled.ArrowForward" Disabled="!HasNext" OnClick="Interaction.GoToNext" />
+        }
+        if (needSpacer)
+        {
+            <MudSpacer />
+        }
+        if ((flags & InteractionButtons.ExpandLessDouble) == InteractionButtons.ExpandLessDouble)
+        {
+            <MudIconButton Color="Color.Inherit" DisableRipple="true" Icon="@UnfoldLessDouble" OnClick="() => Interaction.Shrink(this, 2)" />
+        }
+        if ((flags & InteractionButtons.ExpandMoreDouble) == InteractionButtons.ExpandMoreDouble)
+        {
+            <MudIconButton Color="Color.Inherit" DisableRipple="true" Icon="@UnfoldMoreDouble" OnClick="() => Interaction.Enlarge(this, 2)" />
+        }
+        if ((flags & InteractionButtons.ExpandLess) == InteractionButtons.ExpandLess)
+        {
+            <MudIconButton Color="Color.Inherit" DisableRipple="true" Icon="@Icons.Material.Filled.UnfoldLess" OnClick="() => Interaction.Shrink(this, 1)" />
+        }
+        if ((flags & InteractionButtons.ExpandMore) == InteractionButtons.ExpandMore)
+        {
+            <MudIconButton Color="Color.Inherit" DisableRipple="true" Icon="@Icons.Material.Filled.UnfoldMore" OnClick="() => Interaction.Enlarge(this, 1)" />
+        }
+        if ((flags & InteractionButtons.TurnOver) == InteractionButtons.TurnOver)
+        {
+            <MudIconButton Color="Color.Inherit" DisableRipple="true" Icon="@Icons.Material.Filled.ImportExport" OnClick="Interaction.TurnOver" />
+        }
+        
         <MudIconButton Color="Color.Inherit" DisableRipple="true" Icon="@Icons.Material.Filled.Close" OnClick="InteractionModel.Close" />
     }
     else
@@ -29,10 +59,10 @@
 @code {
     #region Parameters
 
-    [Parameter]
+    [Microsoft.AspNetCore.Components.Parameter]
     public IInteractionModel InteractionModel { get; set; }
 
-    [Parameter]
+    [Microsoft.AspNetCore.Components.Parameter]
     public InteractionPanel InteractionPanel { get; set; }
 
     public string PctSize { get; set; }

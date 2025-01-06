@@ -32,6 +32,7 @@
         BibleRefVersesIntervalsColor,
         HideBibleRefTabs,//obsolete
         BibleTextAtTheBottom,//actually in the interaction panel (it was initially at the bottom). No plans to rename
-        NotesEnabled
+        NotesEnabled,
+        InteractionButtonsFlags
     }
 }
