@@ -8,6 +8,10 @@
 @inject DbParametersFacade dbParamteres
 <div style="@GetStyle">
     <MudContainer>
+        <InteractionLink OnClick="()=>SetupMenuInteractionModel.ApplyToCurrentPanel(InteractionModel)">
+            Меню
+        </InteractionLink>
+        <br />
         <InteractionLink OnClick="()=>SetupIndentationInteractionModel.ApplyToCurrentPanel(InteractionModel)">
             Отступы
         </InteractionLink>

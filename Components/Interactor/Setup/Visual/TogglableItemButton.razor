@@ -1,0 +1,31 @@
+﻿@using Bible_Blazer_PWA.Parameters
+@inject DbParametersFacade DbParameters;
+@inherits MudIconButton;
+
+@{
+    base.BuildRenderTree(__builder);
+    @if (IsActive)
+    {
+        <span style="color:@DbParameters.ParametersModel.ToolsBg">Видна в меню</span>
+    }
+    else
+    {
+        <span style="color:gray">Скрыта в меню</span>
+    }
+}
+
+@code {
+    [Microsoft.AspNetCore.Components.Parameter]
+    public bool IsActive { get; set; }
+
+    protected override void OnInitialized()
+    {
+        DisableRipple = true;
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        Color = IsActive ? Color.Primary : Color.Transparent;
+    }
+}

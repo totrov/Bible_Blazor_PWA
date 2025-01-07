@@ -222,6 +222,7 @@ namespace Bible_Blazer_PWA.Parameters.ParameterInitializers
                 | InteractionButtons.Forward
                 | InteractionButtons.ExpandLess
                 | InteractionButtons.ExpandMore
+                | InteractionButtons.TurnOver
                 | InteractionButtons.Close);
         }
     }
