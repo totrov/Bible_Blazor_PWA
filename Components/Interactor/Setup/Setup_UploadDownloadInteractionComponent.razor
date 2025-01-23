@@ -109,7 +109,7 @@
         YTLinks.DeleteWhere(x => true);
         foreach (var l in links)
         {
-            YTLinks.AddLink(l.Name, l.Url, l.LessonNumber, l.UnitId);
+            YTLinks.AddLink(l.Name, l.Url, l.LessonNumber, l.UnitId, l.IsMain, false);
         }
         Snackbar.Add("Ссылки на Youtube заменены из файла");
     }

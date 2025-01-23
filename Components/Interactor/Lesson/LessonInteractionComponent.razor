@@ -23,7 +23,7 @@
         {
             <div class = "d-flex">
                 <InteractionLink OnClick="()=>CreedInteractionModel.Apply()">Символ Веры</InteractionLink>
-                @if (YouTubeLinks != null && YouTubeLinks.Any())
+                @if (parameters.AdminMode || YouTubeLinks != null && YouTubeLinks.Any())
                 {
                     <InteractionLink OnClick="()=>YoutubeSetInteractionModel.WithParameters<NameLinksLessonRef>
                         .ApplyToOppositePanel(new(LessonName, YouTubeLinks, InteractionModel.LessonNumber, InteractionModel.UnitId), InteractionModel)">YouTube</InteractionLink>

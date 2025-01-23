@@ -9,22 +9,69 @@
 
 <div style="@GetStyle">
     <MudContainer>
-        @foreach (var link in InteractionModel.Links)
-        {
-            <InteractionLink OnClick="()=>YoutubeVideoInteractionModel.WithParameters<YoutubeSourceAndName>.ApplyToCurrentPanel(new(link.Url, link.Name), InteractionModel)">
-                @link.Name
-            </InteractionLink>
-            string linkName = @link.Name;
-            string lessonNumber = link.LessonNumber;
-            string unitId = link.UnitId;
-            string url = link.Url;
-            if (dbParamteres.ParametersModel.MainBackground == "#ffffff")
-            {
-                <MudButton OnClick="()=>YTLinks.DeleteWhere(l => l.Name == linkName && l.LessonNumber == lessonNumber && l.UnitId == unitId && l.Url == url)">✗</MudButton>
-            }
-            <br />
+        @{
+            bool divideMain = InteractionModel.Links.Select(l => l.IsMain).Distinct().Count() > 1;
         }
-        @if (dbParamteres.ParametersModel.MainBackground == "#ffffff")
+
+        @if(!divideMain)
+        {
+            @foreach (var link in InteractionModel.Links)
+            {
+                <InteractionLink OnClick="()=>YoutubeVideoInteractionModel.WithParameters<YoutubeSourceAndName>.ApplyToCurrentPanel(new(link.Url, link.Name), InteractionModel)">
+                    @link.Name
+                </InteractionLink>
+                string linkName = @link.Name;
+                string lessonNumber = link.LessonNumber;
+                string unitId = link.UnitId;
+                string url = link.Url;
+                if (dbParamteres.ParametersModel.AdminMode)
+                {
+                    <MudButton OnClick="()=>YTLinks.DeleteWhere(l => l.Name == linkName && l.LessonNumber == lessonNumber && l.UnitId == unitId && l.Url == url)">✗</MudButton>
+                }
+                <br />
+            }
+        }
+        else
+        {
+            <br />
+            <MudText Color="Color.Primary">Основное видео</MudText>
+            @foreach (var link in InteractionModel.Links.Where(l=>l.IsMain))
+            {
+                <InteractionLink OnClick="()=>YoutubeVideoInteractionModel.WithParameters<YoutubeSourceAndName>.ApplyToCurrentPanel(new(link.Url, link.Name), InteractionModel)">
+                    @link.Name
+                </InteractionLink>
+                string linkName = @link.Name;
+                string lessonNumber = link.LessonNumber;
+                string unitId = link.UnitId;
+                string url = link.Url;
+                if (dbParamteres.ParametersModel.AdminMode)
+                {
+                    <MudButton OnClick="()=>YTLinks.DeleteWhere(l => l.Name == linkName && l.LessonNumber == lessonNumber && l.UnitId == unitId && l.Url == url)">✗</MudButton>
+                }
+                <br />
+            }
+                
+            <MudDivider></MudDivider>
+            <br />
+            <MudText Color="Color.Primary">Дополнительные видео</MudText>
+            @foreach (var link in InteractionModel.Links.Where(l => !l.IsMain))
+            {
+                <InteractionLink OnClick="()=>YoutubeVideoInteractionModel.WithParameters<YoutubeSourceAndName>.ApplyToCurrentPanel(new(link.Url, link.Name), InteractionModel)">
+                    @link.Name
+                </InteractionLink>
+                string linkName = @link.Name;
+                string lessonNumber = link.LessonNumber;
+                string unitId = link.UnitId;
+                string url = link.Url;
+                if (dbParamteres.ParametersModel.AdminMode)
+                {
+                    <MudButton OnClick="()=>YTLinks.DeleteWhere(l => l.Name == linkName && l.LessonNumber == lessonNumber && l.UnitId == unitId && l.Url == url)">✗</MudButton>
+                }
+                <br />
+            }
+        }
+
+        @if (dbParamteres.ParametersModel.AdminMode)
         {
             if (!AddMode)
             {
@@ -34,6 +81,8 @@
             {
                 <MudTextField @bind-Value="Name" Label="Заголовок" Variant="Variant.Text"></MudTextField>
                 <MudTextField @bind-Value="URL" Label="Cсылка" Variant="Variant.Text"></MudTextField>
+                <MudSwitch @bind-Checked="MainLesson" Label="Основной урок" />
+                <MudSwitch @bind-Checked="AddFirst" Label="Вставить первым" Variant="Variant.Text" Min="0" />
                 <MudButton OnClick="AddLink">✔</MudButton>
                 <MudButton OnClick="AddModeOff">✘</MudButton>
             }
@@ -44,17 +93,24 @@
 @code {
     public string Name { get; set; }
     public string URL { get; set; }
+    public bool MainLesson { get; set; } = false;
+    public bool AddFirst { get; set; } = false;
     public bool AddMode { get; set; }
 
     public void AddLink()
     {
-        YTLinks.AddLink(Name, URL, InteractionModel.LessonNumber, InteractionModel.UnitId);
+        YTLinks.AddLink(Name, URL, InteractionModel.LessonNumber, InteractionModel.UnitId, MainLesson, AddFirst);
         AddModeOff();
+        AddFirst = false;
+        MainLesson = false;
     }
+
     public void AddModeOff()
     {
         AddMode = false;
         Name = "";
         URL = "";
+        AddFirst = false;
+        MainLesson = false;
     }
 }

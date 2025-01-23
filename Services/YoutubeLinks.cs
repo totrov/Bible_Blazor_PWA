@@ -33,16 +33,31 @@ namespace Bible_Blazer_PWA.Services
         public void DeleteWhere(Func<YoutubeLinkDTO, bool> whereCondition)
             => links.RemoveAll(l => whereCondition(l));
 
-        public void AddLink(string name, string urlOrId, string lessonNumber, string unitId)
+        public void AddLink(string name, string urlOrId, string lessonNumber, string unitId, bool isMain, bool addFirst)
         {
             var match = Regex.Match(urlOrId, @"(?:^|\W)(?:youtube(?:-nocookie)?\.com/(?:.*[?&]v=|v/|e(?:mbed)?/|[^/]+/.+/)|youtu\.be/)([\w-]+)")?.Groups?.Values?.LastOrDefault();
-            links.Add(new YoutubeLinkDTO
+            if (addFirst)
             {
-                Url = "https://www.youtube.com/embed/" + match?.Value ?? string.Empty,
-                LessonNumber = lessonNumber,
-                UnitId = unitId,
-                Name = name
-            });
+                links.Insert(0, new YoutubeLinkDTO
+                {
+                    Url = "https://www.youtube.com/embed/" + match?.Value ?? string.Empty,
+                    LessonNumber = lessonNumber,
+                    UnitId = unitId,
+                    Name = name,
+                    IsMain = isMain
+                });
+            }
+            else
+            {
+                links.Add(new YoutubeLinkDTO
+                {
+                    Url = "https://www.youtube.com/embed/" + match?.Value ?? string.Empty,
+                    LessonNumber = lessonNumber,
+                    UnitId = unitId,
+                    Name = name,
+                    IsMain = isMain
+                });
+            }
         }
     }
 }

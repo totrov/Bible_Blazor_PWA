@@ -117,6 +117,10 @@ namespace Bible_Blazer_PWA.Parameters
 
         #endregion
 
+        #region AdminMode
+        public bool AdminMode { get => MainBackground == "#ffffff"; }
+        #endregion
+
         #endregion
 
         #region MainBackground
