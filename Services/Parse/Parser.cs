@@ -80,12 +80,21 @@ namespace Bible_Blazer_PWA.BibleReferenceParse
 
         private (int Index, string Match)[] GetSublevelInfos(string text, MatchCollection bibleRefMatches)
         {
-            string listItemPattern = @"([0-9][)])|([(][0-9][)])|([(][а-я][)])";
+            string listItemPattern = @"([0-9][)])|(1[0-9][)])|([(][0-9][)])|([(][а-я][)])";
             int indexOf4LevelStart = text.IndexOf('\u0002');
+            var falsePositives = Regex.Matches(text, "[(].*?[)]").Where(m => m.Length > 3)                     //for example (в) is 3 signs length. Can't use .{2,}, need non-greedy capture to avoid mix of two brackets like: "(в)some text(something else)" => "в)some text(something else"
+                .Select(m => (
+                    From: m.Index, 
+                    To: m.Index + m.Length))
+                .Concat(bibleRefMatches.Select(bibleRefMatch => (
+                    From: bibleRefMatch.Index,
+                    To: bibleRefMatch.Index + bibleRefMatch.Length)));
+
             return Regex.Matches(text, listItemPattern).Select(m => (m.Index, m.Value))
                 .Where(subItemMatch =>
                     subItemMatch.Index > indexOf4LevelStart
-                    && !bibleRefMatches.Any(bibleRefMatch => bibleRefMatch.Index <= subItemMatch.Index && bibleRefMatch.Index + bibleRefMatch.Length >= subItemMatch.Index)
+                    && !falsePositives.Any(falsePositive => 
+                        falsePositive.From <= subItemMatch.Index && falsePositive.To >= subItemMatch.Index)
             ).ToArray();
         }
 
@@ -106,7 +115,7 @@ namespace Bible_Blazer_PWA.BibleReferenceParse
                 _tokens.AddLast(new LessonElementToken
                 {
                     Text = text.Substring(sublevels[i].Index,
-                        i == sublevels.Length - 1 
+                        i == sublevels.Length - 1
                         ? text.Length - sublevels[i].Index
                         : sublevels[i + 1].Index - sublevels[i].Index)
                         .Replace(sublevels[i].Match, string.Empty).Replace("\u0003", ""),
