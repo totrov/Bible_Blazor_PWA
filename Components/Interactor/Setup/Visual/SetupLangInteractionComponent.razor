@@ -1,0 +1,28 @@
+﻿@inherits InteractionComponentBase<SetupLangInteractionModel>
+
+@using Bible_Blazer_PWA.Parameters;
+@using Bible_Blazer_PWA.Services.MudBlazorHelpers;
+@inject DbParametersFacade dbParamteres;
+
+<MudContainer Elevation="25" Class="pa-2" Style="@GetStyle" Square=true>
+    <MudRadioGroup T="int" @bind-SelectedOption="@SelectedLang">
+        <MudRadio Option="0">Русский</MudRadio>
+        <MudRadio Option="1">Українська</MudRadio>
+        <MudRadio Option="2">Română</MudRadio>
+    </MudRadioGroup>
+</MudContainer>
+
+@code {
+    public int SelectedLang
+    {
+        get => Int32.Parse(dbParamteres.ParametersModel.Lang);
+        set => dbParamteres.ParametersModel.Lang = value.ToString();
+    }
+
+    public enum Lang
+    {
+        Russian = 0,
+        Ukrainian = 1,
+        Romanian = 2
+    }
+}

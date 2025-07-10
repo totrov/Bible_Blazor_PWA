@@ -1,6 +1,8 @@
 ﻿@using Bible_Blazer_PWA.Components.Interactor._SubComponents
 @using Bible_Blazer_PWA.DataBase.DTO;
 @using static Bible_Blazer_PWA.Components.Interactor.Bible.BibleChaptersInteractionModel;
+@inject Bible_Blazer_PWA.Parameters.DbParametersFacade DbParamFacade
+
 @inherits InteractionComponentBase<BibleInteractionModel>
 
 
@@ -24,6 +26,13 @@
     protected async override Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        Books = await (await db.GetAllFromObjectStore<BibleBookDTO>("books")).GetTaskCompletionSourceWrapper();
+
+        string booksObjectStoreName = DbParamFacade.ParametersModel.Lang switch
+        {
+            "1" => "books_UA",
+            "2" => "books_RO",
+            _ => "books"
+        };
+        Books = await (await db.GetAllFromObjectStore<BibleBookDTO>(booksObjectStoreName)).GetTaskCompletionSourceWrapper();
     }
 }

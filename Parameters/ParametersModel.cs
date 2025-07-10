@@ -571,6 +571,19 @@ namespace Bible_Blazer_PWA.Parameters
         }
         public event Action OnHideBibleRefTabs;
         #endregion
+        #region Lang
+        private string _lang;
+        [Parameter]
+        public string Lang
+        {
+            get => _lang;
+            set
+            {
+                _dbParams.SetParameterAsync(Parameters.Lang, value);
+                _lang = value;
+            }
+        }
+        #endregion
     }
 
     public enum InteractionButtons

@@ -266,5 +266,15 @@ namespace Bible_Blazer_PWA.Parameters.ParameterInitializers
         {
             return true;
         }
-    }    
+    }
+
+    public class LangParametersInitializer : IntegerParameterInitializer, IConcreteParameterInitializer
+    {
+        public Parameters Parameter => Parameters.Lang;
+
+        public override int DefaultValue()
+        {
+            return 0;
+        }
+    }
 }

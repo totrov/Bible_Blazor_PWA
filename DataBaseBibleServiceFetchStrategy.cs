@@ -23,18 +23,27 @@ namespace Bible_Blazer_PWA
         public async Task<IEnumerable<BibleService.Verse>> GetVersesAsync(int bookId, int chapter, int fromVerse, int? toVerse)
         {
             TaskCompletionSource<IEnumerable<BibleService.Verse>> tcs = new TaskCompletionSource<IEnumerable<BibleService.Verse>>();
-            
+
+            var dbFacade = new Parameters.DbParametersFacade(_db);
+            await dbFacade.Init();
+            string versesObjectStoreName = dbFacade.ParametersModel.Lang switch
+            {
+                "1" => "verses_UA",
+                "2" => "verses_RO",
+                _ => "verses"
+            };
+
             if (toVerse != null)
             {
                 var resultHandler = await _db.GetRangeFromObjectStoreByKey<BibleService.Verse>(
-                    "verses", bookId, chapter, fromVerse, toVerse);
+                    versesObjectStoreName, bookId, chapter, fromVerse, toVerse);
                 resultHandler.OnDbResultOK += () => { tcs.SetResult(resultHandler.Result); };
             }
             else
             {
                 LinkedList<BibleService.Verse> verses = new LinkedList<BibleService.Verse>();
                 var resultHandler = await _db.GetRecordFromObjectStoreByKey<BibleService.Verse>(
-                    "verses", bookId, chapter, fromVerse);
+                    versesObjectStoreName, bookId, chapter, fromVerse);
                 resultHandler.OnDbResultOK += () => { verses.AddLast(resultHandler.Result); tcs.SetResult(verses); };
             }
             

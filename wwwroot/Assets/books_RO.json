@@ -1,0 +1,482 @@
+[
+  {
+    "Color": "#ccccff",
+    "Id": 10,
+    "ShortName": "Fc.",
+    "Name": "Facerea"
+  },
+  {
+    "Color": "#ccccff",
+    "Id": 20,
+    "ShortName": "Iş.",
+    "Name": "Ieşirea"
+  },
+  {
+    "Color": "#ccccff",
+    "Id": 30,
+    "ShortName": "Le.",
+    "Name": "Leviticul"
+  },
+  {
+    "Color": "#ccccff",
+    "Id": 40,
+    "ShortName": "Nu.",
+    "Name": "Numerii"
+  },
+  {
+    "Color": "#ccccff",
+    "Id": 50,
+    "ShortName": "De.",
+    "Name": "Deuteronomul"
+  },
+  {
+    "Color": "#ffcc99",
+    "Id": 60,
+    "ShortName": "Ios.",
+    "Name": "Iosua Navi"
+  },
+  {
+    "Color": "#ffcc99",
+    "Id": 70,
+    "ShortName": "Ju.",
+    "Name": "Judecători"
+  },
+  {
+    "Color": "#ffcc99",
+    "Id": 80,
+    "ShortName": "Rut",
+    "Name": "Rut"
+  },
+  {
+    "Color": "#ffcc99",
+    "Id": 90,
+    "ShortName": "1Re.",
+    "Name": "1 Regi"
+  },
+  {
+    "Color": "#ffcc99",
+    "Id": 100,
+    "ShortName": "2Re.",
+    "Name": "2 Regi"
+  },
+  {
+    "Color": "#ffcc99",
+    "Id": 110,
+    "ShortName": "3Re.",
+    "Name": "3 Regi"
+  },
+  {
+    "Color": "#ffcc99",
+    "Id": 120,
+    "ShortName": "4Re.",
+    "Name": "4 Regi"
+  },
+  {
+    "Color": "#ffcc99",
+    "Id": 130,
+    "ShortName": "1Par.",
+    "Name": "1 Paralipomena"
+  },
+  {
+    "Color": "#ffcc99",
+    "Id": 140,
+    "ShortName": "2Par.",
+    "Name": "2 Paralipomena"
+  },
+  {
+    "Color": "#ffcc99",
+    "Id": 150,
+    "ShortName": "Ezd.",
+    "Name": "1 Ezdra"
+  },
+  {
+    "Color": "#ffcc99",
+    "Id": 160,
+    "ShortName": "Ne.",
+    "Name": "Neemia"
+  },
+  {
+    "Color": "#ffcc99",
+    "Id": 190,
+    "ShortName": "Es.",
+    "Name": "Estera"
+  },
+  {
+    "Color": "#66ff99",
+    "Id": 220,
+    "ShortName": "Iov",
+    "Name": "Iov"
+  },
+  {
+    "Color": "#66ff99",
+    "Id": 230,
+    "ShortName": "Ps.",
+    "Name": "Psalmii"
+  },
+  {
+    "Color": "#66ff99",
+    "Id": 240,
+    "ShortName": "Pild.",
+    "Name": "Pildele lui Solomon"
+  },
+  {
+    "Color": "#66ff99",
+    "Id": 250,
+    "ShortName": "Ec.",
+    "Name": "Ecclesiastul"
+  },
+  {
+    "Color": "#66ff99",
+    "Id": 260,
+    "ShortName": "Cc.",
+    "Name": "Cântarea cântărilor"
+  },
+  {
+    "Color": "#ff9fb4",
+    "Id": 290,
+    "ShortName": "Is.",
+    "Name": "Isaia"
+  },
+  {
+    "Color": "#ff9fb4",
+    "Id": 300,
+    "ShortName": "Ir.",
+    "Name": "Ieremia"
+  },
+  {
+    "Color": "#ff9fb4",
+    "Id": 310,
+    "ShortName": "Pl.",
+    "Name": "Plângerile lui Ieremia"
+  },
+  {
+    "Color": "#ff9fb4",
+    "Id": 330,
+    "ShortName": "Iz.",
+    "Name": "Iezechiel"
+  },
+  {
+    "Color": "#ff9fb4",
+    "Id": 340,
+    "ShortName": "Da.",
+    "Name": "Daniel"
+  },
+  {
+    "Color": "#ffff99",
+    "Id": 350,
+    "ShortName": "Os.",
+    "Name": "Osea"
+  },
+  {
+    "Color": "#ffff99",
+    "Id": 360,
+    "ShortName": "Il.",
+    "Name": "Ioil"
+  },
+  {
+    "Color": "#ffff99",
+    "Id": 370,
+    "ShortName": "Am.",
+    "Name": "Amos"
+  },
+  {
+    "Color": "#ffff99",
+    "Id": 380,
+    "ShortName": "Avd.",
+    "Name": "Avdie"
+  },
+  {
+    "Color": "#ffff99",
+    "Id": 390,
+    "ShortName": "Ion.",
+    "Name": "Iona"
+  },
+  {
+    "Color": "#ffff99",
+    "Id": 400,
+    "ShortName": "Mih.",
+    "Name": "Miheia"
+  },
+  {
+    "Color": "#ffff99",
+    "Id": 410,
+    "ShortName": "Na.",
+    "Name": "Naum"
+  },
+  {
+    "Color": "#ffff99",
+    "Id": 420,
+    "ShortName": "Avc.",
+    "Name": "Avacum"
+  },
+  {
+    "Color": "#ffff99",
+    "Id": 430,
+    "ShortName": "Sof.",
+    "Name": "Sofonie"
+  },
+  {
+    "Color": "#ffff99",
+    "Id": 440,
+    "ShortName": "Ag.",
+    "Name": "Agheu"
+  },
+  {
+    "Color": "#ffff99",
+    "Id": 450,
+    "ShortName": "Za.",
+    "Name": "Zaharia"
+  },
+  {
+    "Color": "#ffff99",
+    "Id": 460,
+    "ShortName": "Ml.",
+    "Name": "Maleahi"
+  },
+  {
+    "Color": "#ff6600",
+    "Id": 470,
+    "ShortName": "Mt.",
+    "Name": "Matei"
+  },
+  {
+    "Color": "#ff6600",
+    "Id": 480,
+    "ShortName": "Mc.",
+    "Name": "Marcu"
+  },
+  {
+    "Color": "#ff6600",
+    "Id": 490,
+    "ShortName": "Lu.",
+    "Name": "Luca"
+  },
+  {
+    "Color": "#ff6600",
+    "Id": 500,
+    "ShortName": "Ioa.",
+    "Name": "Ioan"
+  },
+  {
+    "Color": "#00ffff",
+    "Id": 510,
+    "ShortName": "Fa.",
+    "Name": "Faptele apostolilor"
+  },
+  {
+    "Color": "#ffff00",
+    "Id": 520,
+    "ShortName": "Ro.",
+    "Name": "Romani"
+  },
+  {
+    "Color": "#ffff00",
+    "Id": 530,
+    "ShortName": "1Co.",
+    "Name": "1 Corinteni"
+  },
+  {
+    "Color": "#ffff00",
+    "Id": 540,
+    "ShortName": "2Co.",
+    "Name": "2 Corinteni"
+  },
+  {
+    "Color": "#ffff00",
+    "Id": 550,
+    "ShortName": "Ga.",
+    "Name": "Galateni"
+  },
+  {
+    "Color": "#ffff00",
+    "Id": 560,
+    "ShortName": "Ef.",
+    "Name": "Efeseni"
+  },
+  {
+    "Color": "#ffff00",
+    "Id": 570,
+    "ShortName": "Flp.",
+    "Name": "Filipeni"
+  },
+  {
+    "Color": "#ffff00",
+    "Id": 580,
+    "ShortName": "Co.",
+    "Name": "Coloseni"
+  },
+  {
+    "Color": "#ffff00",
+    "Id": 590,
+    "ShortName": "1Te.",
+    "Name": "1 Tesaloniceni"
+  },
+  {
+    "Color": "#ffff00",
+    "Id": 600,
+    "ShortName": "2Te.",
+    "Name": "2 Tesaloniceni"
+  },
+  {
+    "Color": "#ffff00",
+    "Id": 610,
+    "ShortName": "1Ti.",
+    "Name": "1 Timotei"
+  },
+  {
+    "Color": "#ffff00",
+    "Id": 620,
+    "ShortName": "2Ti.",
+    "Name": "2 Timotei"
+  },
+  {
+    "Color": "#ffff00",
+    "Id": 630,
+    "ShortName": "Tit",
+    "Name": "Tit"
+  },
+  {
+    "Color": "#ffff00",
+    "Id": 640,
+    "ShortName": "Flm.",
+    "Name": "Filimon"
+  },
+  {
+    "Color": "#ffff00",
+    "Id": 650,
+    "ShortName": "Ev.",
+    "Name": "Evrei"
+  },
+  {
+    "Color": "#00ff00",
+    "Id": 660,
+    "ShortName": "Ia.",
+    "Name": "Iacov"
+  },
+  {
+    "Color": "#00ff00",
+    "Id": 670,
+    "ShortName": "1Pe.",
+    "Name": "1 Petru"
+  },
+  {
+    "Color": "#00ff00",
+    "Id": 680,
+    "ShortName": "2Pe.",
+    "Name": "2 Petru"
+  },
+  {
+    "Color": "#00ff00",
+    "Id": 690,
+    "ShortName": "1Io.",
+    "Name": "1 Ioan"
+  },
+  {
+    "Color": "#00ff00",
+    "Id": 700,
+    "ShortName": "2Io.",
+    "Name": "2 Ioan"
+  },
+  {
+    "Color": "#00ff00",
+    "Id": 710,
+    "ShortName": "3Io.",
+    "Name": "3 Ioan"
+  },
+  {
+    "Color": "#00ff00",
+    "Id": 720,
+    "ShortName": "Iu.",
+    "Name": "Iuda"
+  },
+  {
+    "Color": "#ff7c80",
+    "Id": 730,
+    "ShortName": "Ap.",
+    "Name": "Apocalipsa"
+  },
+  {
+    "Color": "#c0c0c0",
+    "Id": 170,
+    "ShortName": "Tob.",
+    "Name": "Tobit"
+  },
+  {
+    "Color": "#c0c0c0",
+    "Id": 180,
+    "ShortName": "Idt.",
+    "Name": "Iudita"
+  },
+  {
+    "Color": "#c0c0c0",
+    "Id": 320,
+    "ShortName": "Bar.",
+    "Name": "Baruh"
+  },
+  {
+    "Color": "#c0c0c0",
+    "Id": 315,
+    "ShortName": "Ep.",
+    "Name": "Epistola lui Ieremia"
+  },
+  {
+    "Color": "#c0c0c0",
+    "Id": 305,
+    "ShortName": "Tin.",
+    "Name": "Trei tineri"
+  },
+  {
+    "Color": "#c0c0c0",
+    "Id": 468,
+    "ShortName": "3Ezd.",
+    "Name": "3 Ezdra"
+  },
+  {
+    "Color": "#c0c0c0",
+    "Id": 270,
+    "ShortName": "Sol.",
+    "Name": "Solomon"
+  },
+  {
+    "Color": "#c0c0c0",
+    "Id": 280,
+    "ShortName": "Sir.",
+    "Name": "Sirah"
+  },
+  {
+    "Color": "#c0c0c0",
+    "Id": 325,
+    "ShortName": "Sus.",
+    "Name": "Istoria Susanei"
+  },
+  {
+    "Color": "#c0c0c0",
+    "Id": 345,
+    "ShortName": "Bel.",
+    "Name": "Istoria balaurului"
+  },
+  {
+    "Color": "#c0c0c0",
+    "Id": 462,
+    "ShortName": "1Mac.",
+    "Name": "1 Macabei"
+  },
+  {
+    "Color": "#c0c0c0",
+    "Id": 464,
+    "ShortName": "2Mac.",
+    "Name": "2 Macabei"
+  },
+  {
+    "Color": "#c0c0c0",
+    "Id": 466,
+    "ShortName": "3Mac.",
+    "Name": "3 Macabei"
+  },
+  {
+    "Color": "#c0c0c0",
+    "Id": 790,
+    "ShortName": "Man.",
+    "Name": "Manase"
+  }
+]

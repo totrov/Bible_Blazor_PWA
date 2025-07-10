@@ -2,7 +2,7 @@
 window.context = {
     db: null,
     justUpgraded: false,
-    currentVersion: 7,
+    currentVersion: 8,
     previousVersion: 0,
     dbName: 'db',
     debugMode: true,
@@ -25,11 +25,13 @@ function DataUpgrade() {
             database.dataUpgradeFunctions[1]();
             database.dataUpgradeFunctions[2]();
             database.dataUpgradeFunctions[3]();
+            database.dataUpgradeFunctions[4]();
             break;
         case 1:
             database.dataUpgradeFunctions[1]();
             database.dataUpgradeFunctions[2]();
             database.dataUpgradeFunctions[3]();
+            database.dataUpgradeFunctions[4]();
             break;
         case 2:
         case 3:
@@ -37,6 +39,10 @@ function DataUpgrade() {
         case 5:
         case 6:
             database.dataUpgradeFunctions[3]();
+            database.dataUpgradeFunctions[4]();
+            break;
+        case 7:
+            database.dataUpgradeFunctions[4]();
             break;
         default:
             console.log("no data upgrade script for current db version");
@@ -58,6 +64,7 @@ function SchemaUpgrade() {
             database.schemaUpgradeFunctions[3]();
             database.schemaUpgradeFunctions[4]();
             database.schemaUpgradeFunctions[5]();
+            database.schemaUpgradeFunctions[6]();
             break;
         case 1:
         case 2:
@@ -66,26 +73,34 @@ function SchemaUpgrade() {
             database.schemaUpgradeFunctions[3]();
             database.schemaUpgradeFunctions[4]();
             database.schemaUpgradeFunctions[5]();
+            database.schemaUpgradeFunctions[6]();
             break;
         case 3:
             database.schemaUpgradeFunctions[2]();
             database.schemaUpgradeFunctions[3]();
             database.schemaUpgradeFunctions[4]();
             database.schemaUpgradeFunctions[5]();
+            database.schemaUpgradeFunctions[6]();
             break;
         case 4:
             database.schemaUpgradeFunctions[3]();
             database.schemaUpgradeFunctions[4]();
             database.schemaUpgradeFunctions[5]();
+            database.schemaUpgradeFunctions[6]();
             break;
         case 5:
             database.schemaUpgradeFunctions[4]();
             database.schemaUpgradeFunctions[5]();
+            database.schemaUpgradeFunctions[6]();
             break;
         case 6:
             database.schemaUpgradeFunctions[5]();
+            database.schemaUpgradeFunctions[6]();
             break;
         case 7:
+            database.schemaUpgradeFunctions[6]();
+            break;
+        case 8:
             break;
         default:
             upgradeWasNotSuccess = true;
@@ -531,6 +546,17 @@ window.database = {
         function /*5*/() {
             var os = context.db.createObjectStore('subheadings', { keyPath: ['book_number', 'chapter', 'verse'] });
             os.createIndex('bookChapter', ['book_number', 'chapter'], { unique: false });
+        },
+        function /*6*/() {
+            var booksObjectStore_UA = context.db.createObjectStore('books_UA', { keyPath: 'Id' });
+            booksObjectStore_UA.createIndex("ShortName", "ShortName", { unique: true });
+            context.db.createObjectStore('verses_UA', { keyPath: ['BookId', 'Chapter', 'Id'] });
+            context.db.createObjectStore('lessons_UA', { keyPath: ['UnitId', 'Id'] });
+
+            var booksObjectStore_RO = context.db.createObjectStore('books_RO', { keyPath: 'Id' });
+            booksObjectStore_RO.createIndex("ShortName", "ShortName", { unique: true });
+            context.db.createObjectStore('verses_RO', { keyPath: ['BookId', 'Chapter', 'Id'] });
+            context.db.createObjectStore('lessons_RO', { keyPath: ['UnitId', 'Id'] });
         }
     ],
     fetchJson: async (path, dbStore) => {
@@ -679,6 +705,13 @@ window.database = {
         },
         function /*3*/() {
             database.fetchJson('/Assets/subheadings.json', 'subheadings');
+        },
+        function /*4*/() {
+            database.fetchJson('/Assets/books_UA.json', 'books_UA');
+            database.fetchJson('/Assets/verses_UA.json', 'verses_UA');
+
+            database.fetchJson('/Assets/books_RO.json', 'books_RO');
+            database.fetchJson('/Assets/verses_RO.json', 'verses_RO');
         }
     ],
 };

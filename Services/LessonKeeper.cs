@@ -83,10 +83,17 @@ namespace Bible_Blazer_PWA.Services
 
         public async Task UpdateLessons()
         {
-            await ClearObjectStores("lessons", "lessonElementData", "cache");
+            await ClearObjectStores("lessons", "lessonElementData", "cache", "lessons_UA", "lessons_RO");
 
             var url = "https://covenantofchrist.onrender.com/Assets/online/lessons/lessons.json";
             await db.ImportJsonByURL(url, "lessons");
+
+            url = "https://covenantofchrist.onrender.com/Assets/online/lessons/lessons_UA.json";
+            await db.ImportJsonByURL(url, "lessons_UA");
+
+            url = "https://covenantofchrist.onrender.com/Assets/online/lessons/lessons_RO.json";
+            await db.ImportJsonByURL(url, "lessons_RO");
+
             await RefreshAsync();
             snackbar.Add("Уроки обновлены");
         }
