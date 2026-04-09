@@ -1,0 +1,55 @@
+﻿@inherits InteractionComponentBase<Bible_Blazer_PWA.Components.Interactor.Reader.ReaderInteractionModel>
+@using BibleComponents
+@using Microsoft.AspNetCore.Components.Forms
+@using MudBlazor
+@using System.IO
+@inject IJSRuntime JSRuntime
+
+@if (Data is not null)
+{
+    <MudText Typo="Typo.subtitle2" Class="mt-3 mb-1">
+        <MudIcon Icon="@Icons.Material.Filled.InsertDriveFile" Class="mr-2" />
+        @FileName
+    </MudText>
+    <SimpleLessonElementContainer ElementData="Data" InteractionPanel="Interaction.GetInteractionPanel()"></SimpleLessonElementContainer>
+}
+else
+{
+    <InputFile id="lessonFilesInput" OnChange="LoadFile" hidden multiple />
+    <MudButton HtmlTag="label"
+    Variant="Variant.Filled"
+    Color="Color.Primary"
+    StartIcon="@Icons.Filled.UploadFile"
+    Disabled="@IsDisabled"
+    for="lessonFilesInput">
+        Открыть txt
+    </MudButton>
+}
+
+@code {
+    private string? FileName;
+    private bool IsDisabled;
+    private LessonElementData Data;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        InteractionModel.OnRefreshNeeded += StateHasChanged;
+    }
+
+    private async Task LoadFile(InputFileChangeEventArgs e)
+    {
+        if (e.FileCount != 1)
+            return;
+
+        IsDisabled = true;
+        IBrowserFile file = e.File;
+        FileName = file.Name;
+
+        using var stream = file.OpenReadStream(3_000_000);
+        using var reader = new StreamReader(stream);
+        string fileContent = await reader.ReadToEndAsync();
+        Data = LessonElementData.CreateSimpleElement(fileContent);
+        IsDisabled = false;
+    }
+}

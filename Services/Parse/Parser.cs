@@ -13,13 +13,15 @@ namespace Bible_Blazer_PWA.BibleReferenceParse
         private LinkedList<BibleReference> _bibleReferences;
         private LinkedList<LessonElementToken> _tokens;
         private bool parseCompleted = false;
+        private bool simpleMode;
         private Corrector corrector;
 
-        public Parser(Corrector corrector)
+        public Parser(Corrector corrector, bool simpleMode = false)
         {
             _bibleReferences = new LinkedList<BibleReference>();
             _tokens = new LinkedList<LessonElementToken>();
             this.corrector = corrector;
+            this.simpleMode = simpleMode;
         }
 
         public LinkedList<LessonElementToken> GetTokens() => _tokens;
@@ -30,8 +32,13 @@ namespace Bible_Blazer_PWA.BibleReferenceParse
                 return this;
 
             string stringWithReplacements = corrector.HandleBrackets(corrector.ReplaceBookNames(stringToParse));
+            if(simpleMode)
+                stringWithReplacements = stringWithReplacements.Replace("\r\n", "<br>");
+
             MatchCollection bibleRefMatches = Regex.Matches(stringWithReplacements, corrector.RegexHelper.GetBibleReferencesPattern());
-            (int Index, string Match)[] sublevels = GetSublevelInfos(stringWithReplacements, bibleRefMatches);
+            (int Index, string Match)[] sublevels = simpleMode
+                ? new (int, string)[] { }//(0, text)
+                : GetSublevelInfos(stringWithReplacements, bibleRefMatches);
 
             var pos = 0;
             foreach (Match match in bibleRefMatches)

@@ -59,6 +59,18 @@ namespace Bible_Blazer_PWA
             initializationTask = initialization.Initialize(this);
         }
 
+        public static LessonElementData CreateSimpleElement(string value)
+        {
+            LessonElementData result = new();
+            result.Value = value;
+            result.Children = new LinkedList<LessonElementData>();
+            result.Level = 1;
+            result.Notes = new ReadOnlyCollection<NoteDTO>(new List<NoteDTO>());
+            result.Key = new[] { -1, -1, -1 };
+            return result;
+        }
+        private LessonElementData() { }
+
         public async Task<NoteDTO> AddNoteByValue(string value, DatabaseJSFacade db)
         {
             NoteDTO note = new NoteDTO(value, UnitId, LessonId, Key);
@@ -71,7 +83,7 @@ namespace Bible_Blazer_PWA
         {
             NotesInternal ??= new();
             NotesInternal.Add(note);
-            
+
             note.OnAfterRemoval += () => NotesInternal.Remove(note);
             Notes ??= new(NotesInternal);
             return note;

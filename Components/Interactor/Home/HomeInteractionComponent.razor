@@ -1,6 +1,7 @@
 ﻿@using Bible_Blazer_PWA.Components.Interactor.Bible;
 @using Bible_Blazer_PWA.Components.Interactor.LessonUnits;
 @using Bible_Blazer_PWA.Components.Interactor.Notes
+@using Bible_Blazer_PWA.Components.Interactor.Reader
 @using Bible_Blazer_PWA.Components.Interactor.Youtube;
 @using Bible_Blazer_PWA.Components.Interactor.Setup;
 @using Bible_Blazer_PWA.Components.Interactor._SubComponents
@@ -8,6 +9,11 @@
 
 <div style="@GetStyle">
     <MudContainer Class="px-3 py-3">
+        @if (parameters.AdminMode)
+        {
+            <InteractionLink OnClick="() => ReaderInteractionModel.ApplyToCurrentPanel(InteractionModel)">Reader</InteractionLink>
+            <br />
+        }
         <InteractionLink OnClick="() => LessonUnitsInteractionModel.ApplyToCurrentPanel(InteractionModel)">Планы уроков</InteractionLink>
         <br />
         <InteractionLink OnClick="() => BibleInteractionModel.ApplyToCurrentPanel(InteractionModel)">Библия</InteractionLink>
