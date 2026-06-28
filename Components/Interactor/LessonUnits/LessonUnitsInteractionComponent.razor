@@ -23,7 +23,7 @@
             <MudAlert Severity="Severity.Info">Планы уроков от @leesonKeeper.LastUpdate.ToString("dd.MM.yyyy")</MudAlert>
         }
 
-        @if (LessonUnits != null)
+        @if (LessonUnits != null && parameters.AdminMode)
         {
             foreach (LessonUnit unit in LessonUnits)
             {
